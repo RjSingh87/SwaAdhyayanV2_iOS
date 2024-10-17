@@ -5,7 +5,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Octicons from 'react-native-vector-icons/Octicons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-// import SignatureScreen from "react-native-signature-canvas";
+import SignatureScreen from "react-native-signature-canvas";
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue"
 import Loader from "../../common/Loader"
 import { GlobleData } from "../../../Store"

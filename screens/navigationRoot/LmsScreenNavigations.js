@@ -22,6 +22,8 @@ import DetailAnalyticalReportView from '../lmsScreen/REPORTs/DetailAnalyticalRep
 import AssessGenerateQuesView from '../lmsScreen/Assessment/AssessGenerateQuesView'
 import AssessmentQuesView from '../lmsScreen/Assessment/assessmentQuesView'
 import AssessmentPdfViewer from '../lmsScreen/Assessment/AssessmentPdfViewer'
+import Assessment from '../lmsScreen/Assessment/attempteScreens/componets/assessment/Assessment'
+import AttemptHolder from '../lmsScreen/Assessment/attempteScreens/componets/assessment/AttemptHolder'
 // import NCERT from '../lmsScreen/NCRT/NCERT'
 
 
@@ -55,6 +57,8 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="assGenerateQueList" component={AssessGenerateQuesView} options={{ headerShown: false }} />
       <Stack.Screen name="queListAssGenerator" component={AssessmentQuesView} options={{ headerShown: false }} />
       <Stack.Screen name="asspdfView" component={AssessmentPdfViewer} options={{ headerShown: false }} />
+      <Stack.Screen name="Assessment" component={Assessment} options={{ headerShown: false }} />
+      <Stack.Screen name="AttemptHolder" component={AttemptHolder} options={{ headerShown: false }} />
       {/* ------->>Assessment-------<< */}
 
 

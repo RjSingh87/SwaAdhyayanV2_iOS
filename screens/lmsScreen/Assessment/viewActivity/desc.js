@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text,} from "react-native"
-import { SwaTheam } from "../../../../constant/ConstentValue";
+import { View, Text, } from "react-native"
+import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
@@ -42,10 +42,10 @@ export default function Desc({ descData, index }) {
 
           <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
             <View style={{ width: '12%' }}>
-              <Text style={{color:SwaTheam.SwaBlack}}>Q:{index}</Text>
+              <Text style={{ color: SWATheam.SwaBlack }}>Q:{index}</Text>
             </View>
             <View style={{ width: '88%' }}>
-              <Text style={{ color: SwaTheam.SwaBlack, fontWeight: 'bold' }}>This is Question Part Can You Know That ?</Text>
+              <Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold' }}>This is Question Part Can You Know That ?</Text>
             </View>
           </View>
 

@@ -1,4 +1,5 @@
-export const baseURL = 'https://swaadhyayan.com/lmsv2/api/';
+// export const baseURL = 'https://swaadhyayan.com/lmsv2/api/';
+export const baseURL = 'https://swaadhyayan.com/school1/api/';
 export const assetsPath = 'https://swaadhyayan.com/data/'
 export const token = "=4WY5FWeoRWYhd3c";
 export const teacherId = 1;

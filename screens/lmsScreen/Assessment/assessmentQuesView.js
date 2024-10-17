@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList, Platform } from "react-native";
 import Mcq from "./viewActivity/mcq";
 import Dd from "./viewActivity/dd";
 import Desc from "./viewActivity/desc";
@@ -15,7 +15,9 @@ import { SWATheam, apiRoot } from "../../../constant/ConstentValue";
 import { GlobleData } from "../../../Store";
 import Services from "../../../Services";
 import SwaHeader from "../../common/SwaHeader";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 // import ViewPdf from "./viewPdf";
+
 var studentIDs = [];
 var pdfPath = "";
 var questionIDs = [];
@@ -138,151 +140,157 @@ export default function AssessmentQuesView({ navigation, route }) {
     setIsInstruction(true)
   }
 
+  const insets = useSafeAreaInsets()
+
 
   return (
-    <View style={{ flex: 1, marginTop: 24 }}>
-      <SwaHeader title={"Assessment Generator"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-      <View style={{ flex: 1 }}>
-        {/* header start */}
-        <View style={{ backgroundColor: userData.data.colors.liteTheme, padding: 5, borderRadius: 6, margin: 10 }}>
-          {/* <View style={{ flexDirection: 'row' }}>
+    <SafeAreaProvider>
+      <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, backgroundColor: userData?.data?.colors?.mainTheme }}>
+        <View style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, backgroundColor: userData.data.colors.liteTheme, paddingBottom: insets.bottom }}>
+          <SwaHeader title={"Assessment Generator"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+          <View style={{ flex: 1 }}>
+            {/* header start */}
+            <View style={{ backgroundColor: userData.data.colors.liteTheme, padding: 5, borderRadius: 6, margin: 10 }}>
+              {/* <View style={{ flexDirection: 'row' }}>
                 </View> */}
-          <View style={{ width: '70%', padding: 2, flexDirection: 'row' }}>
-            <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Subject</Text>
-            <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
-            <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{subjectName}</Text>
-          </View>
-          <View style={{ width: '30%', padding: 2, flexDirection: 'row' }}>
-            <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Class</Text>
-            <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
-            <Text style={{ color: SWATheam.SwaBlack, }}>{selectedClass}</Text>
-          </View>
+              <View style={{ width: '70%', padding: 2, flexDirection: 'row' }}>
+                <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Subject</Text>
+                <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{subjectName}</Text>
+              </View>
+              <View style={{ width: '30%', padding: 2, flexDirection: 'row' }}>
+                <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Class</Text>
+                <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>{selectedClass}</Text>
+              </View>
 
-          <View style={{ width: '70%', padding: 2, flexDirection: 'row' }}>
-            <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Total Question</Text>
-            <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
-            <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{totalAssQuestion}</Text>
-          </View>
-          <View style={{ width: '30%', padding: 2, flexDirection: 'row' }}>
-            <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Total Marks</Text>
-            <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
-            <Text style={{ color: SWATheam.SwaBlack, }}>{totalAssMarks}</Text>
-          </View>
-          {/* <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: '70%', padding: 2, flexDirection: 'row' }}>
+                <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Total Question</Text>
+                <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{totalAssQuestion}</Text>
+              </View>
+              <View style={{ width: '30%', padding: 2, flexDirection: 'row' }}>
+                <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Total Marks</Text>
+                <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>{totalAssMarks}</Text>
+              </View>
+              {/* <View style={{ flexDirection: 'row' }}>
                 </View> */}
-          <View style={{ width: '90%', padding: 2, flexDirection: 'row' }}>
-            <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Ass. Name</Text>
-            <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
-            <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{assesssmentName}</Text>
-          </View>
-          <View style={{ padding: 2 }}>
-            <TouchableOpacity onPress={() => { downloadAssPdf() }} style={{ alignSelf: "center", backgroundColor: '#cd5c5c', borderRadius: 4, padding: 8, marginTop: 6, width: '50%' }}>
-              <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>PDF</Text>
-            </TouchableOpacity>
-          </View>
-          {/* <View style={{ flexDirection: 'row' }}>
-                </View> */}
-        </View>
-        {/* header end */}
-        <View style={{ flex: 1, borderRadius: 6, margin: 10, }}>
-          <ScrollView>
-            {generatedAssQuesList.map((item, index) => {
-              questionIDs.push(item.questionID)
-              return (
-                <View key={index}>
-                  {item.activityID == 1 &&
-                    <Mcq mcqData={item} index={index + 1} />
-                  }
-                  {item.activityID == 2 &&
-                    <Tnf tnfData={item} index={index + 1} />
-                  }
-                  {item.activityID == 3 &&
-                    <Fillup fillupData={item} index={index + 1} />
-                  }
-                  {item.activityID == 4 &&
-                    < Match matchData={item} index={index + 1} />
-                  }
-                  {item.activityID == 9 &&
-                    <Dnd dndData={item} index={index + 1} />
-                  }
-                  {item.activityID == 10 &&
-                    <Jumbo jumboData={item} index={index + 1} />
-                  }
-                  {item.activityID == 12 &&
-                    <Dd ddData={item} index={index + 1} />
-                  }
-                  {item.activityID == 15 &&
-                    <Desc descData={item} index={index + 1} />
-                  }
-                </View>
-
-              )
-            })}
-          </ScrollView>
-        </View>
-
-        <View style={{ flexDirection: 'row', bottom: 0, left: 0, right: 0, backgroundColor: userData.data.colors.hoverTheme }}>
-          <TouchableOpacity onPress={() => { setIsAssign(true) }} style={{ flex: 1, padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
-            <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Assign</Text>
-          </TouchableOpacity>
-          {/* <TouchableOpacity onPress={() => {closePopup()}} style={{padding: 10, margin: 4, borderRadius: 6, backgroundColor: SWATheam.SwaRed}}>
-          <Text style={{textAlign: 'center', color: SWATheam.SwaWhite, textTransform:'uppercase'}}>Close</Text>
-        </TouchableOpacity> */}
-        </View>
-      </View>
-      {isAssign &&
-        <Modal
-          animationType="slide"
-          transparent={true}
-        >
-          <View style={styles.garyContainer}>
-            <TouchableOpacity style={{ flex: 1 }} onPress={() => { setIsAssign(false) }} />
-            <View style={{ maxHeight: '60%', backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
-              <TouchableOpacity onPress={() => { setIsAssign(false) }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
-                <AntDesign name={"close"} size={25} style={{ width: 45 }} />
-              </TouchableOpacity>
-              <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Select Student</Text>
-              <ScrollView>
-                <View style={{ backgroundColor: "#efefef", padding: 8, margin: 4, borderRadius: 5 }}>
-
-                  <TouchableOpacity style={styles.checkboxContainer} onPress={() => { checkChapAll(); }}>
-                    {chapData.filter((item) => item.checked).length === chapData.length ?
-                      <AntDesign name={"checksquareo"} size={16} style={{ width: 25, padding: 3 }} />
-                      :
-                      <Feather name={"square"} size={20} style={{ width: 25, padding: 1 }} />
-                    }
-                    <Text style={{ color: SWATheam.SwaBlack }}>Select All</Text>
-                  </TouchableOpacity>
-
-                  {chapData.map((item, index) => {
-                    return (
-                      <View key={index}>
-                        <TouchableOpacity onPress={() => { checkChapOne(!item.checked, index); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
-                          {item.checked ?
-                            <AntDesign name={"checksquareo"} size={16} style={{ width: 25, padding: 3 }} color={SWATheam.SwaBlack} />
-                            :
-                            <Feather name={"square"} size={20} style={{ width: 25, padding: 1 }} color={SWATheam.SwaBlack} />
-                          }
-                          <Text style={{ color: SWATheam.SwaBlack }}>{studentList[index].firstName} {studentList[index].lastName != "" ? studentList[index].lastName : ""}</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )
-                  })}
-                </View>
-
-              </ScrollView>
-              <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
-                <TouchableOpacity onPress={() => { assignAssessmentToStudent() }} style={{ width: '50%', padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
-                  <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>Submit</Text>
+              <View style={{ width: '90%', padding: 2, flexDirection: 'row' }}>
+                <Text style={{ color: SWATheam.SwaBlack, width: 120 }}>Ass. Name</Text>
+                <Text style={{ color: SWATheam.SwaBlack, width: 20 }}>:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{assesssmentName}</Text>
+              </View>
+              <View style={{ padding: 2 }}>
+                <TouchableOpacity onPress={() => { downloadAssPdf() }} style={{ alignSelf: "center", backgroundColor: '#cd5c5c', borderRadius: 4, padding: 8, marginTop: 6, width: '50%' }}>
+                  <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>PDF</Text>
                 </TouchableOpacity>
               </View>
+              {/* <View style={{ flexDirection: 'row' }}>
+                </View> */}
             </View>
-            <TouchableOpacity style={{ flex: 1 }} onPress={() => { setIsAssign(false) }} />
-          </View>
+            {/* header end */}
+            <View style={{ flex: 1, borderRadius: 6, margin: 10, }}>
+              <ScrollView>
+                {generatedAssQuesList.map((item, index) => {
+                  questionIDs.push(item.questionID)
+                  return (
+                    <View key={index}>
+                      {item.activityID == 1 &&
+                        <Mcq mcqData={item} index={index + 1} />
+                      }
+                      {item.activityID == 2 &&
+                        <Tnf tnfData={item} index={index + 1} />
+                      }
+                      {item.activityID == 3 &&
+                        <Fillup fillupData={item} index={index + 1} />
+                      }
+                      {item.activityID == 4 &&
+                        < Match matchData={item} index={index + 1} />
+                      }
+                      {item.activityID == 9 &&
+                        <Dnd dndData={item} index={index + 1} />
+                      }
+                      {item.activityID == 10 &&
+                        <Jumbo jumboData={item} index={index + 1} />
+                      }
+                      {item.activityID == 12 &&
+                        <Dd ddData={item} index={index + 1} />
+                      }
+                      {item.activityID == 15 &&
+                        <Desc descData={item} index={index + 1} />
+                      }
+                    </View>
 
-        </Modal>
-      }
-    </View>
+                  )
+                })}
+              </ScrollView>
+            </View>
+
+            <View style={{ flexDirection: 'row', bottom: 0, left: 0, right: 0, backgroundColor: userData.data.colors.hoverTheme }}>
+              <TouchableOpacity onPress={() => { setIsAssign(true) }} style={{ flex: 1, padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
+                <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Assign</Text>
+              </TouchableOpacity>
+              {/* <TouchableOpacity onPress={() => {closePopup()}} style={{padding: 10, margin: 4, borderRadius: 6, backgroundColor: SWATheam.SwaRed}}>
+          <Text style={{textAlign: 'center', color: SWATheam.SwaWhite, textTransform:'uppercase'}}>Close</Text>
+        </TouchableOpacity> */}
+            </View>
+          </View>
+          {isAssign &&
+            <Modal
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={styles.garyContainer}>
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => { setIsAssign(false) }} />
+                <View style={{ maxHeight: '60%', backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
+                  <TouchableOpacity onPress={() => { setIsAssign(false) }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
+                    <AntDesign name={"close"} size={25} style={{ width: 45 }} />
+                  </TouchableOpacity>
+                  <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Select Student</Text>
+                  <ScrollView>
+                    <View style={{ backgroundColor: "#efefef", padding: 8, margin: 4, borderRadius: 5 }}>
+
+                      <TouchableOpacity style={styles.checkboxContainer} onPress={() => { checkChapAll(); }}>
+                        {chapData.filter((item) => item.checked).length === chapData.length ?
+                          <AntDesign name={"checksquareo"} size={16} style={{ width: 25, padding: 3 }} />
+                          :
+                          <Feather name={"square"} size={20} style={{ width: 25, padding: 1 }} />
+                        }
+                        <Text style={{ color: SWATheam.SwaBlack }}>Select All</Text>
+                      </TouchableOpacity>
+
+                      {chapData.map((item, index) => {
+                        return (
+                          <View key={index}>
+                            <TouchableOpacity onPress={() => { checkChapOne(!item.checked, index); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
+                              {item.checked ?
+                                <AntDesign name={"checksquareo"} size={16} style={{ width: 25, padding: 3 }} color={SWATheam.SwaBlack} />
+                                :
+                                <Feather name={"square"} size={20} style={{ width: 25, padding: 1 }} color={SWATheam.SwaBlack} />
+                              }
+                              <Text style={{ color: SWATheam.SwaBlack }}>{studentList[index].firstName} {studentList[index].lastName != "" ? studentList[index].lastName : ""}</Text>
+                            </TouchableOpacity>
+                          </View>
+                        )
+                      })}
+                    </View>
+
+                  </ScrollView>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => { assignAssessmentToStudent() }} style={{ width: '50%', padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
+                      <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>Submit</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => { setIsAssign(false) }} />
+              </View>
+
+            </Modal>
+          }
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 }
 

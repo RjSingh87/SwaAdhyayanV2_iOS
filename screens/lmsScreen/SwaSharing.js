@@ -19,7 +19,7 @@ import { SWATheam, apiRoot } from '../../constant/ConstentValue';
 import Services from '../../Services';
 import Loader from '../common/Loader';
 import ImageViewer from '../common/ImageViewer';
-import RNFetchBlob from 'rn-fetch-blob';
+// import RNFetchBlob from 'rn-fetch-blob';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 // import Orientation from 'react-native-orientation-locker';
 

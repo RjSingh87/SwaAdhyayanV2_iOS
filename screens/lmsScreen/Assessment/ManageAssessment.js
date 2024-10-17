@@ -1074,13 +1074,13 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                             showCanvas.canvas1 &&
                             <View style={{}}>
                                 <View style={{ height: 300 }}>
-                                    {/* <SignatureScreen
+                                    <SignatureScreen
                                         ref={ref}
                                         onOK={handleOK}
                                         dataURL={imgDataUriArr[0]}
                                         webStyle={style}
                                         style={{ borderWidth: .7, borderColor: 'grey', height: 300 }}
-                                    /> */}
+                                    />
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10 }}>
                                         <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 15, paddingVertical: 5, borderRadius: 5 }} onPress={handleUndo}>
                                             <Text style={{ color: '#fff' }}>Undo</Text>

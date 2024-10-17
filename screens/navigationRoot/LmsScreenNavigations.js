@@ -21,6 +21,7 @@ import ViewReport from '../lmsScreen/REPORTs/ViewReport'
 import DetailAnalyticalReportView from '../lmsScreen/REPORTs/DetailAnalyticalReportView'
 import AssessGenerateQuesView from '../lmsScreen/Assessment/AssessGenerateQuesView'
 import AssessmentQuesView from '../lmsScreen/Assessment/assessmentQuesView'
+import AssessmentPdfViewer from '../lmsScreen/Assessment/AssessmentPdfViewer'
 // import NCERT from '../lmsScreen/NCRT/NCERT'
 
 
@@ -53,6 +54,7 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       {/* ------->>Assessment-------<< */}
       <Stack.Screen name="assGenerateQueList" component={AssessGenerateQuesView} options={{ headerShown: false }} />
       <Stack.Screen name="queListAssGenerator" component={AssessmentQuesView} options={{ headerShown: false }} />
+      <Stack.Screen name="asspdfView" component={AssessmentPdfViewer} options={{ headerShown: false }} />
       {/* ------->>Assessment-------<< */}
 
 

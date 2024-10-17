@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* SwaAdhyayanTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* SwaAdhyayanTests.m */; };
-		0C80B921A6F3F58F76C31292 /* libPods-SwaAdhyayan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-SwaAdhyayan.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2232AA00EEC7DD9690D611BE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CB072380CFC82B2CEC72FDFB /* PrivacyInfo.xcprivacy */; };
-		7699B88040F8A987B510C191 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */; };
+		364795AC696F7089BC1BBEA9 /* libPods-SwaAdhyayan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7939F903DC72F8BDA0D89C5F /* libPods-SwaAdhyayan.a */; };
+		9215A9976FF5C97E19823B52 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3C2CE737C0E3DFD37689937 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,14 +36,14 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SwaAdhyayan/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SwaAdhyayan/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = SwaAdhyayan/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwaAdhyayan-SwaAdhyayanTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-SwaAdhyayan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan.debug.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-SwaAdhyayan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan.release.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan.release.xcconfig"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-SwaAdhyayan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwaAdhyayan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		23DCF58D8778E18F4CBD2D63 /* Pods-SwaAdhyayan.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan.debug.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan.debug.xcconfig"; sourceTree = "<group>"; };
+		70B001BB3815928BD1508718 /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig"; sourceTree = "<group>"; };
+		7939F903DC72F8BDA0D89C5F /* libPods-SwaAdhyayan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwaAdhyayan.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SwaAdhyayan/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig"; sourceTree = "<group>"; };
+		C3C2CE737C0E3DFD37689937 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SwaAdhyayan-SwaAdhyayanTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA514573127241B124AAA4CB /* Pods-SwaAdhyayan.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan.release.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan.release.xcconfig"; sourceTree = "<group>"; };
 		CB072380CFC82B2CEC72FDFB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SwaAdhyayan/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		D15A926B3601A494DF4BAF6A /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig"; path = "Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DD6D652B2C9DA22A003DC4F3 /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
 		DD6D652C2C9DA22A003DC4F3 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
 		DD6D652D2C9DA22A003DC4F3 /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
@@ -72,7 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a in Frameworks */,
+				9215A9976FF5C97E19823B52 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,7 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-SwaAdhyayan.a in Frameworks */,
+				364795AC696F7089BC1BBEA9 /* libPods-SwaAdhyayan.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,8 +125,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-SwaAdhyayan.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */,
+				7939F903DC72F8BDA0D89C5F /* libPods-SwaAdhyayan.a */,
+				C3C2CE737C0E3DFD37689937 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -165,10 +165,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-SwaAdhyayan.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-SwaAdhyayan.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */,
+				23DCF58D8778E18F4CBD2D63 /* Pods-SwaAdhyayan.debug.xcconfig */,
+				CA514573127241B124AAA4CB /* Pods-SwaAdhyayan.release.xcconfig */,
+				D15A926B3601A494DF4BAF6A /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */,
+				70B001BB3815928BD1508718 /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -206,12 +206,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "SwaAdhyayanTests" */;
 			buildPhases = (
-				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
+				A3F994FB76C7B0E1C1642E01 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
-				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
+				1F9DD8F6F9BD68A1ADAD499E /* [CP] Embed Pods Frameworks */,
+				3C723F61D403F182232A697E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -227,13 +227,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SwaAdhyayan" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				66686EAC705E988382836682 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
 				955EBABE854620E3E0F6D1F8 /* Resources */,
+				F2D83332BAC9FC7BDA36EFBE /* [CP] Embed Pods Frameworks */,
+				F48B3B8280119FCA022AD9FE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -315,46 +315,41 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
+		1F9DD8F6F9BD68A1ADAD499E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
+		3C723F61D403F182232A697E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SwaAdhyayan-SwaAdhyayanTests-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		66686EAC705E988382836682 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -376,24 +371,46 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
+		A3F994FB76C7B0E1C1642E01 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SwaAdhyayan-SwaAdhyayanTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
+		F2D83332BAC9FC7BDA36EFBE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F48B3B8280119FCA022AD9FE /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -408,23 +425,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan/Pods-SwaAdhyayan-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwaAdhyayan-SwaAdhyayanTests/Pods-SwaAdhyayan-SwaAdhyayanTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -460,7 +460,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */;
+			baseConfigurationReference = D15A926B3601A494DF4BAF6A /* Pods-SwaAdhyayan-SwaAdhyayanTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -487,7 +487,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */;
+			baseConfigurationReference = 70B001BB3815928BD1508718 /* Pods-SwaAdhyayan-SwaAdhyayanTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -511,7 +511,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-SwaAdhyayan.debug.xcconfig */;
+			baseConfigurationReference = 23DCF58D8778E18F4CBD2D63 /* Pods-SwaAdhyayan.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -538,7 +538,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-SwaAdhyayan.release.xcconfig */;
+			baseConfigurationReference = CA514573127241B124AAA4CB /* Pods-SwaAdhyayan.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

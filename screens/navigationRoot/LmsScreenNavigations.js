@@ -24,7 +24,14 @@ import AssessmentQuesView from '../lmsScreen/Assessment/assessmentQuesView'
 import AssessmentPdfViewer from '../lmsScreen/Assessment/AssessmentPdfViewer'
 import Assessment from '../lmsScreen/Assessment/attempteScreens/componets/assessment/Assessment'
 import AttemptHolder from '../lmsScreen/Assessment/attempteScreens/componets/assessment/AttemptHolder'
-// import NCERT from '../lmsScreen/NCRT/NCERT'
+import SeptAttempt from '../lmsScreen/SEPT/SeptAttempt'
+import AcademicReport from '../lmsScreen/SEPT/septReport/AcademicReport'
+import LearningReport from '../lmsScreen/SEPT/septReport/LearningReport'
+import MultipleIntellReport from '../lmsScreen/SEPT/septReport/MultipleIntellReport'
+import KnowingMeReport from '../lmsScreen/SEPT/septReport/KnowingMeReport'
+import BrainDominReport from '../lmsScreen/SEPT/septReport/BrainDominReport'
+import NCERT from '../lmsScreen/NCRT/NCERT'
+import PdfViewer from '../common/PdfViewer'
 
 
 
@@ -44,11 +51,21 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="subIconScreen" component={SubIconsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="activityListScreen" component={ActivityListScreen} options={{ headerShown: false }} />
       <Stack.Screen name="activityView" component={ActivityView} options={{ headerShown: false }} />
+      <Stack.Screen name="septAttempt" component={SeptAttempt} options={{ headerShown: false }} />
+      <Stack.Screen name="pdfView" component={PdfViewer} options={{ headerShown: false }} />
 
 
-      {/* ------->>Sept Report-------<< */}
+      {/* ------->>Report-------<< */}
       <Stack.Screen name="viewReport" component={ViewReport} options={{ headerShown: false }} />
       <Stack.Screen name="detailAnalyticalList" component={DetailAnalyticalReportView} options={{ headerShown: false }} />
+      {/* ------->>Report-------<< */}
+
+      {/* ------->>Sept Report-------<< */}
+      <Stack.Screen name="septAcademicReport" component={AcademicReport} options={{ headerShown: false }} />
+      <Stack.Screen name="septLearningReport" component={LearningReport} options={{ headerShown: false }} />
+      <Stack.Screen name="septMultipleIntellReport" component={MultipleIntellReport} options={{ headerShown: false }} />
+      <Stack.Screen name="septKnowingMeReport" component={KnowingMeReport} options={{ headerShown: false }} />
+      <Stack.Screen name="septBrainDominReport" component={BrainDominReport} options={{ headerShown: false }} />
       {/* ------->>Sept Report-------<< */}
 
 
@@ -74,7 +91,7 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       {/* ------->>LiveClass-------<< */}
 
 
-      {/* <Stack.Screen name="ncert" component={NCERT} options={{ headerShown: false }} /> */}
+      <Stack.Screen name="ncert" component={NCERT} options={{ headerShown: false }} />
 
     </Stack.Navigator>
   )

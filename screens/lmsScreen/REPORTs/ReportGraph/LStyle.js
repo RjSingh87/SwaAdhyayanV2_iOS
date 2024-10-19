@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Animated, FlatList, Alert, Dimensions } from 'react-native'
 import { VictoryChart, VictoryAxis, VictoryBar } from 'victory-native'
 
-const LStyle = ({ closeModal, student, classId, section, userData, subTopic, reportData}) => {
+const LStyle = ({ closeModal, student, classId, section, userData, subTopic, reportData }) => {
 
   return (
     <View style={styles.graphContainer}>

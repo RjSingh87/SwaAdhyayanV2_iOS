@@ -9,6 +9,8 @@ import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import SwaHeader from '../../common/SwaHeader';
 import Services from '../../../Services';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 export default function NCERT({ navigation, route }) {
 	const { userData } = useContext(GlobleData)
@@ -703,1280 +705,1284 @@ export default function NCERT({ navigation, route }) {
 		return replacedContent6;
 	};
 
+	const insets = useSafeAreaInsets()
+
 	return (
-		<>
-			{loader ?
-				<Loader /> :
-				<View style={{ flex: 1, marginTop: 24 }}>
-					{!attemptScreen &&
-						<SwaHeader title={"NCERT"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-					}
+		<SafeAreaProvider>
+			<SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
+				{loader ?
+					<Loader /> :
+					<View style={{ flex: 1, marginTop: Platform.OS === "ios" ? 0 : 24, paddingBottom: insets.bottom }}>
+						{!attemptScreen &&
+							<SwaHeader title={"NCERT"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+						}
 
-					{/* chaoter list */}
+						{/* chaoter list */}
 
-					{attemptScreen ?
-						<View>
-							<View style={styles.attemptHolder}>
-								<View style={{ padding: 10, backgroundColor: userData.data.colors.mainTheme }}>
-									<Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, color: SWATheam.SwaWhite, borderBottomWidth: 1, padding: 2, borderColor: userData.data.colors.liteTheme }}>NCRT EXAM TEST</Text>
-									<View style={styles.rowView}>
-										<View style={styles.rowForTExt}>
-											<Text style={styles.textSmall}>Total Questions : {totalQuest}</Text>
-											<Text style={styles.textSmall}>Attempted Questions : {startPoint}</Text>
+						{attemptScreen ?
+							<View>
+								<View style={styles.attemptHolder}>
+									<View style={{ padding: 10, backgroundColor: userData.data.colors.mainTheme }}>
+										<Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, color: SWATheam.SwaWhite, borderBottomWidth: 1, padding: 2, borderColor: userData.data.colors.liteTheme }}>NCRT EXAM TEST</Text>
+										<View style={styles.rowView}>
+											<View style={styles.rowForTExt}>
+												<Text style={styles.textSmall}>Total Questions : {totalQuest}</Text>
+												<Text style={styles.textSmall}>Attempted Questions : {startPoint}</Text>
+											</View>
 										</View>
 									</View>
-								</View>
-								{/* question Views Holders start */}
+									{/* question Views Holders start */}
 
-								<KeyboardAvoidingView
-									behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-									style={styles.questHolders}>
-									<ScrollView>
-										{question[currentQuestionIndex].activityID == 1
-											?
-											<View>
-												{question[currentQuestionIndex].questionPart1 ?
-													<View>
-														{
-															question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
-																question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
-																question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
-																question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
-																<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
-																:
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart1 }}
-																	tagsStyles={tagsStyles}
-																/>
-														}
-													</View>
-													: null}
-
-												{question[currentQuestionIndex].questionPart2 ?
-													<View>
-														{
-															question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
-																question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
-																question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
-																question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
-																<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
-																:
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart2 }}
-																	tagsStyles={tagsStyles}
-																/>
-														}
-													</View>
-													: null}
-												{question[currentQuestionIndex].questionPart3 ?
-													<View>
-														{
-															question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
-																question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
-																question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
-																question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
-																<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
-																:
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart3 }}
-																	tagsStyles={tagsStyles}
-																/>
-														}
-													</View>
-													: null}
-												{question[currentQuestionIndex].questionPart4 ?
-													<View>
-														{
-															question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
-																question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
-																question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
-																question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
-																<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
-																:
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart4 }}
-																	tagsStyles={tagsStyles}
-																/>
-														}
-													</View>
-													: null}
-												{question[currentQuestionIndex].questionPart5 ?
-													<View>
-														{
-															question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
-																question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
-																question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
-																question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
-																<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
-																:
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart5 }}
-																	tagsStyles={tagsStyles}
-																/>
-														}
-													</View>
-													: null}
-
-												<View style={styles.optionsView}>
-													{question[currentQuestionIndex]?.optionText1 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID1,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText1,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID1,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText1,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(a)</Text>
-																{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
+									<KeyboardAvoidingView
+										behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+										style={styles.questHolders}>
+										<ScrollView>
+											{question[currentQuestionIndex].activityID == 1
+												?
+												<View>
+													{question[currentQuestionIndex].questionPart1 ?
+														<View>
+															{
+																question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
+																	question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
+																	question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
+																	question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
+																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText1 }}
-																		tagsStyles={optionStyle}
+																		source={{ html: question[currentQuestionIndex].questionPart1 }}
+																		tagsStyles={tagsStyles}
 																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-													{question[currentQuestionIndex]?.optionText2 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID2,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText2,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID2 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID2,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText2,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(b)</Text>
-																{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText2 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-													{question[currentQuestionIndex]?.optionText3 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID3,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText3,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID3 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID3,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText3,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(c)</Text>
-																{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText3 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-													{question[currentQuestionIndex]?.optionText4 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID4,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText4,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID4 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID4,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText4,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(a)</Text>
-																{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText4 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-													{question[currentQuestionIndex]?.optionText5 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID5,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText5,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID5 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID5,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText5,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(a)</Text>
-																{question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText5 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-													{question[currentQuestionIndex]?.optionText6 ?
-														<TouchableOpacity
-															onPress={() => {
-																mcqClicked(
-																	question[currentQuestionIndex].optionID6,
-																	question[currentQuestionIndex].questionID,
-																	question[currentQuestionIndex].optionText6,
-																)
-															}}
-															style={[styles.textWithInput2]}>
-															<View style={styles.AWithContent}>
-																<RadioButton
-																	status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID6 ? "checked" : 'unchecked'}
-																	onPress={() => {
-																		mcqClicked(
-																			question[currentQuestionIndex].optionID6,
-																			question[currentQuestionIndex].questionID,
-																			question[currentQuestionIndex].optionText6,
-																		)
-																	}}
-																/>
-																<Text style={styles.indty}>(a)</Text>
-																{question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText6 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</TouchableOpacity>
-														: null}
-												</View>
-											</View>
-											: question[currentQuestionIndex].activityID == 3
-												? <>
-													<View>
-
-														{question[currentQuestionIndex].questionPart1 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart1 }}
-																			tagsStyles={tagsStyles}
-																		/>
-
-																}
-															</View>
-															: null}
-
-														{question[currentQuestionIndex].questionPart2 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart2 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart3 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart3 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart4 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart4 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart5 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart5 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-
-														<View style={styles.optionsView}>
-															{question[currentQuestionIndex]?.optionText1 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>a.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun1()}
-																			</View>
-																		}
-																	</View>
-																</View>
-																: ''}
-															{question[currentQuestionIndex]?.optionText2 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>b.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun2()}
-																			</View>
-																		}
-																	</View>
-																</View>
-																: null}
-															{question[currentQuestionIndex]?.optionText3 ?
-
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>c.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun3()}
-																			</View>
-																		}
-																	</View>
-																</View>
-
-
-																: null}
-															{question[currentQuestionIndex]?.optionText4 ?
-
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>d.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun4()}
-																			</View>
-																		}
-																	</View>
-																</View>
-
-
-																: null}
-															{question[currentQuestionIndex]?.optionText5 ?
-
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>e.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun5()}
-																			</View>
-																		}
-																	</View>
-																</View>
-
-
-																: null}
-															{question[currentQuestionIndex]?.optionText6 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>f.</Text>
-																	<View>
-																		{question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
-																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={{ width: 50, height: 50 }} />
-																			:
-																			<View>
-																				{optionText1Fun6()}
-																			</View>
-																		}
-																	</View>
-																</View>
-																: null}
+															}
 														</View>
+														: null}
+
+													{question[currentQuestionIndex].questionPart2 ?
+														<View>
+															{
+																question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
+																	question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
+																	question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
+																	question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
+																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
+																	:
+																	<RenderHtml
+																		contentWidth={width}
+																		source={{ html: question[currentQuestionIndex].questionPart2 }}
+																		tagsStyles={tagsStyles}
+																	/>
+															}
+														</View>
+														: null}
+													{question[currentQuestionIndex].questionPart3 ?
+														<View>
+															{
+																question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
+																	question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
+																	question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
+																	question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
+																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
+																	:
+																	<RenderHtml
+																		contentWidth={width}
+																		source={{ html: question[currentQuestionIndex].questionPart3 }}
+																		tagsStyles={tagsStyles}
+																	/>
+															}
+														</View>
+														: null}
+													{question[currentQuestionIndex].questionPart4 ?
+														<View>
+															{
+																question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
+																	question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
+																	question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
+																	question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
+																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
+																	:
+																	<RenderHtml
+																		contentWidth={width}
+																		source={{ html: question[currentQuestionIndex].questionPart4 }}
+																		tagsStyles={tagsStyles}
+																	/>
+															}
+														</View>
+														: null}
+													{question[currentQuestionIndex].questionPart5 ?
+														<View>
+															{
+																question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
+																	question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
+																	question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
+																	question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
+																	<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
+																	:
+																	<RenderHtml
+																		contentWidth={width}
+																		source={{ html: question[currentQuestionIndex].questionPart5 }}
+																		tagsStyles={tagsStyles}
+																	/>
+															}
+														</View>
+														: null}
+
+													<View style={styles.optionsView}>
+														{question[currentQuestionIndex]?.optionText1 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID1,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText1,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID1,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText1,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(a)</Text>
+																	{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText1 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
+														{question[currentQuestionIndex]?.optionText2 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID2,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText2,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID2 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID2,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText2,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(b)</Text>
+																	{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText2 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
+														{question[currentQuestionIndex]?.optionText3 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID3,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText3,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID3 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID3,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText3,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(c)</Text>
+																	{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText3 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
+														{question[currentQuestionIndex]?.optionText4 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID4,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText4,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID4 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID4,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText4,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(a)</Text>
+																	{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText4 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
+														{question[currentQuestionIndex]?.optionText5 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID5,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText5,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID5 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID5,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText5,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(a)</Text>
+																	{question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText5 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
+														{question[currentQuestionIndex]?.optionText6 ?
+															<TouchableOpacity
+																onPress={() => {
+																	mcqClicked(
+																		question[currentQuestionIndex].optionID6,
+																		question[currentQuestionIndex].questionID,
+																		question[currentQuestionIndex].optionText6,
+																	)
+																}}
+																style={[styles.textWithInput2]}>
+																<View style={styles.AWithContent}>
+																	<RadioButton
+																		status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID6 ? "checked" : 'unchecked'}
+																		onPress={() => {
+																			mcqClicked(
+																				question[currentQuestionIndex].optionID6,
+																				question[currentQuestionIndex].questionID,
+																				question[currentQuestionIndex].optionText6,
+																			)
+																		}}
+																	/>
+																	<Text style={styles.indty}>(a)</Text>
+																	{question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: question[currentQuestionIndex]?.optionText6 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</TouchableOpacity>
+															: null}
 													</View>
-												</>
-												: question[currentQuestionIndex].activityID == 2
-													? <View>
+												</View>
+												: question[currentQuestionIndex].activityID == 3
+													? <>
+														<View>
 
-														{question[currentQuestionIndex].questionPart1 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart1 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
+															{question[currentQuestionIndex].questionPart1 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart1 }}
+																				tagsStyles={tagsStyles}
+																			/>
 
-														{question[currentQuestionIndex].questionPart2 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart2 }}
-																			tagsStyles={tagsStyles}
-																		/>
+																	}
+																</View>
+																: null}
 
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart3 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart3 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart4 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
-																		:
+															{question[currentQuestionIndex].questionPart2 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart2 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart3 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart3 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart4 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart4 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart5 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart5 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
 
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart4 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-														{question[currentQuestionIndex].questionPart5 ?
-															<View>
-																{
-																	question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
-																		question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
-																		<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
-																		:
-																		<RenderHtml
-																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart5 }}
-																			tagsStyles={tagsStyles}
-																		/>
-																}
-															</View>
-															: null}
-
-														<View style={styles.optionsView}>
-															{question[currentQuestionIndex]?.optionText1 ?
-
-																<View style={styles.textWithInput}>
-																	<>
-																		<View style={styles.AWithContent}>
-																			<Text style={styles.indty}>(a)</Text>
+															<View style={styles.optionsView}>
+																{question[currentQuestionIndex]?.optionText1 ?
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>a.</Text>
+																		<View>
 																			{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
 																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
 																				:
-																				<RenderHtml
-																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText1 }}
-																					tagsStyles={optionStyle}
-																				/>
+																				<View>
+																					{optionText1Fun1()}
+																				</View>
 																			}
 																		</View>
-																		<View style={styles.buttonRows}>
-																			{
-																				<>
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(1, 1, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["1"] == 1 ? '#adff2f' : "" })]} >
-																						<Text>True</Text>
-																					</TouchableOpacity>
-
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(1, 2, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["1"] == 2 ? '#adff2f' : "" })]} >
-																						<Text>False</Text>
-																					</TouchableOpacity>
-																				</>
-																			}
-																		</View>
-																	</>
-																</View>
-																: null}
-															{question[currentQuestionIndex]?.optionText2 ?
-																<View style={styles.textWithInput}>
-																	<>
-																		<View style={styles.AWithContent}>
-																			<Text style={styles.indty}>(b)</Text>
+																	</View>
+																	: ''}
+																{question[currentQuestionIndex]?.optionText2 ?
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>b.</Text>
+																		<View>
 																			{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
 																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
 																				:
-																				<RenderHtml
-																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText2 }}
-																					tagsStyles={optionStyle}
-																				/>
+																				<View>
+																					{optionText1Fun2()}
+																				</View>
 																			}
 																		</View>
-																		<View style={styles.buttonRows}>
-																			{
-																				<>
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(2, 1, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["2"] == 1 ? '#adff2f' : "" })]} >
-																						<Text>True</Text>
-																					</TouchableOpacity>
+																	</View>
+																	: null}
+																{question[currentQuestionIndex]?.optionText3 ?
 
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(2, 2, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["2"] == 2 ? '#adff2f' : "" })]} >
-																						<Text>False</Text>
-																					</TouchableOpacity>
-																				</>
-																			}
-																		</View>
-																	</>
-																</View>
-																: null}
-															{question[currentQuestionIndex]?.optionText3 ?
-																<View style={styles.textWithInput}>
-																	<>
-																		<View style={styles.AWithContent}>
-																			<Text style={styles.indty}>(c)</Text>
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>c.</Text>
+																		<View>
 																			{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
 																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
 																				:
-																				<RenderHtml
-																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText3 }}
-																					tagsStyles={optionStyle}
-																				/>
+																				<View>
+																					{optionText1Fun3()}
+																				</View>
 																			}
 																		</View>
-																		<View style={styles.buttonRows}>
-																			{
-																				<>
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(3, 1, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["3"] == 1 ? '#adff2f' : "" })]} >
-																						<Text>True</Text>
-																					</TouchableOpacity>
+																	</View>
 
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(3, 2, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["3"] == 2 ? '#adff2f' : "" })]} >
-																						<Text>False</Text>
-																					</TouchableOpacity>
-																				</>
-																			}
-																		</View>
-																	</>
-																</View>
-																: null}
-															{question[currentQuestionIndex]?.optionText4 ?
-																<View style={styles.textWithInput}>
-																	<>
-																		<View style={styles.AWithContent}>
-																			<Text style={styles.indty}>(d)</Text>
+
+																	: null}
+																{question[currentQuestionIndex]?.optionText4 ?
+
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>d.</Text>
+																		<View>
 																			{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
 																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
 																				:
-																				<RenderHtml
-																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText4 }}
-																					tagsStyles={optionStyle}
-																				/>
+																				<View>
+																					{optionText1Fun4()}
+																				</View>
 																			}
 																		</View>
-																		<View style={styles.buttonRows}>
-																			{
-																				<>
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(4, 1, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["4"] == 1 ? '#adff2f' : "" })]} >
-																						<Text>True</Text>
-																					</TouchableOpacity>
+																	</View>
 
-																					<TouchableOpacity
-																						onPress={() => { tnfAction(4, 2, question[currentQuestionIndex]) }}
-																						style={[styles.btnTNF, ({ backgroundColor: currOption["4"] == 2 ? '#adff2f' : "" })]} >
-																						<Text>False</Text>
-																					</TouchableOpacity>
-																				</>
+
+																	: null}
+																{question[currentQuestionIndex]?.optionText5 ?
+
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>e.</Text>
+																		<View>
+																			{question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
+																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={{ width: 50, height: 50 }} />
+																				:
+																				<View>
+																					{optionText1Fun5()}
+																				</View>
 																			}
 																		</View>
-																	</>
+																	</View>
+
+
+																	: null}
+																{question[currentQuestionIndex]?.optionText6 ?
+																	<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																		<Text style={{ width: 20, fontWeight: "bold" }}>f.</Text>
+																		<View>
+																			{question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
+																				<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={{ width: 50, height: 50 }} />
+																				:
+																				<View>
+																					{optionText1Fun6()}
+																				</View>
+																			}
+																		</View>
+																	</View>
+																	: null}
+															</View>
+														</View>
+													</>
+													: question[currentQuestionIndex].activityID == 2
+														? <View>
+
+															{question[currentQuestionIndex].questionPart1 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart1.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart1 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
 																</View>
 																: null}
+
+															{question[currentQuestionIndex].questionPart2 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart2.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart2 }}
+																				tagsStyles={tagsStyles}
+																			/>
+
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart3 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart3.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart3 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart4 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart4.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
+																			:
+
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart4 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+															{question[currentQuestionIndex].questionPart5 ?
+																<View>
+																	{
+																		question[currentQuestionIndex]?.questionPart5.endsWith('.PNG') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.png') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.JPG') ||
+																			question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
+																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
+																			:
+																			<RenderHtml
+																				contentWidth={width}
+																				source={{ html: question[currentQuestionIndex].questionPart5 }}
+																				tagsStyles={tagsStyles}
+																			/>
+																	}
+																</View>
+																: null}
+
+															<View style={styles.optionsView}>
+																{question[currentQuestionIndex]?.optionText1 ?
+
+																	<View style={styles.textWithInput}>
+																		<>
+																			<View style={styles.AWithContent}>
+																				<Text style={styles.indty}>(a)</Text>
+																				{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
+																					<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
+																					:
+																					<RenderHtml
+																						contentWidth={width}
+																						source={{ html: question[currentQuestionIndex]?.optionText1 }}
+																						tagsStyles={optionStyle}
+																					/>
+																				}
+																			</View>
+																			<View style={styles.buttonRows}>
+																				{
+																					<>
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(1, 1, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["1"] == 1 ? '#adff2f' : "" })]} >
+																							<Text>True</Text>
+																						</TouchableOpacity>
+
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(1, 2, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["1"] == 2 ? '#adff2f' : "" })]} >
+																							<Text>False</Text>
+																						</TouchableOpacity>
+																					</>
+																				}
+																			</View>
+																		</>
+																	</View>
+																	: null}
+																{question[currentQuestionIndex]?.optionText2 ?
+																	<View style={styles.textWithInput}>
+																		<>
+																			<View style={styles.AWithContent}>
+																				<Text style={styles.indty}>(b)</Text>
+																				{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
+																					<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
+																					:
+																					<RenderHtml
+																						contentWidth={width}
+																						source={{ html: question[currentQuestionIndex]?.optionText2 }}
+																						tagsStyles={optionStyle}
+																					/>
+																				}
+																			</View>
+																			<View style={styles.buttonRows}>
+																				{
+																					<>
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(2, 1, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["2"] == 1 ? '#adff2f' : "" })]} >
+																							<Text>True</Text>
+																						</TouchableOpacity>
+
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(2, 2, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["2"] == 2 ? '#adff2f' : "" })]} >
+																							<Text>False</Text>
+																						</TouchableOpacity>
+																					</>
+																				}
+																			</View>
+																		</>
+																	</View>
+																	: null}
+																{question[currentQuestionIndex]?.optionText3 ?
+																	<View style={styles.textWithInput}>
+																		<>
+																			<View style={styles.AWithContent}>
+																				<Text style={styles.indty}>(c)</Text>
+																				{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
+																					<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
+																					:
+																					<RenderHtml
+																						contentWidth={width}
+																						source={{ html: question[currentQuestionIndex]?.optionText3 }}
+																						tagsStyles={optionStyle}
+																					/>
+																				}
+																			</View>
+																			<View style={styles.buttonRows}>
+																				{
+																					<>
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(3, 1, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["3"] == 1 ? '#adff2f' : "" })]} >
+																							<Text>True</Text>
+																						</TouchableOpacity>
+
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(3, 2, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["3"] == 2 ? '#adff2f' : "" })]} >
+																							<Text>False</Text>
+																						</TouchableOpacity>
+																					</>
+																				}
+																			</View>
+																		</>
+																	</View>
+																	: null}
+																{question[currentQuestionIndex]?.optionText4 ?
+																	<View style={styles.textWithInput}>
+																		<>
+																			<View style={styles.AWithContent}>
+																				<Text style={styles.indty}>(d)</Text>
+																				{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
+																					<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
+																					:
+																					<RenderHtml
+																						contentWidth={width}
+																						source={{ html: question[currentQuestionIndex]?.optionText4 }}
+																						tagsStyles={optionStyle}
+																					/>
+																				}
+																			</View>
+																			<View style={styles.buttonRows}>
+																				{
+																					<>
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(4, 1, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["4"] == 1 ? '#adff2f' : "" })]} >
+																							<Text>True</Text>
+																						</TouchableOpacity>
+
+																						<TouchableOpacity
+																							onPress={() => { tnfAction(4, 2, question[currentQuestionIndex]) }}
+																							style={[styles.btnTNF, ({ backgroundColor: currOption["4"] == 2 ? '#adff2f' : "" })]} >
+																							<Text>False</Text>
+																						</TouchableOpacity>
+																					</>
+																				}
+																			</View>
+																		</>
+																	</View>
+																	: null}
+															</View>
+														</View>
+														: <Text>NOT Yet</Text>
+											}
+										</ScrollView>
+									</KeyboardAvoidingView>
+
+									{/* question Views Holders end */}
+									{/* footer Sections start */}
+
+									<View style={{
+										flexDirection: 'row',
+										justifyContent: "space-between",
+										alignItems: "center",
+										backgroundColor: userData.data.colors.liteTheme,
+										padding: 5,
+									}}>
+										<View>
+											<View style={styles.rowFristCol}>
+												<Button title="Previous" color={userData.data.colors.mainTheme} onPress={handlePrevious} disabled={currentQuestionIndex === 0} />
+												<View style={styles.buttonBox}>
+													<Button title="Next" color={userData.data.colors.mainTheme} onPress={handleNext} disabled={currentQuestionIndex === question.length - 1} />
+												</View>
+											</View>
+										</View>
+										<View>
+											<Button title="Submit" color="#1e90ff" onPress={submitAss} />
+										</View>
+									</View>
+									{/* footer Sections end */}
+								</View>
+							</View> :
+							<>
+								<View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+									<ScrollView>
+										<View style={{ backgroundColor: userData.data.colors.liteTheme, padding: 10 }}>
+											{chapterList.map((item, index) => {
+												return (
+													<View key={index}>
+														<Checkbox.Item
+															reverse={false}
+															labelStyle={{ fontSize: 13 }}
+															onPress={() => { chapterFun(item) }}
+															label={item.chapterName}
+															status={selectedIds.includes(item.chapterID) ? "checked" : 'unchecked'}
+															style={[styles.examView, { backgroundColor: selectedIds.includes(item.chapterID) ? "#e2f7ee" : "#fff" }]}
+														/>
+													</View>
+												)
+											})}
+										</View>
+									</ScrollView>
+									<TouchableOpacity style={{ backgroundColor: SWATheam.SwaBlue, padding: 10, margin: 10, borderRadius: 6 }}
+										onPress={() => startAssessment()}>
+										<Text style={{ textTransform: 'uppercase', textAlign: 'center', color: SWATheam.SwaWhite }}>Start Assessment</Text>
+									</TouchableOpacity>
+								</View>
+							</>
+						}
+
+						{areYouSure &&
+							<Modal
+								animationType="slide"
+								transparent={true}
+							>
+								<View style={styles.modelsAre}>
+									<View style={styles.innerBox}>
+										<Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
+										<Text style={styles.textAlinCenetr}>Are you sure ??</Text>
+										<Text style={styles.runningTest}>Do you want to submit your exam</Text>
+										<View style={styles.rowAreYousure}>
+											<View style={{ width: 80 }}>
+												<Button onPress={() => { submitAssessment(0) }}
+													title="Cacel"
+													color="#dc143c"
+												/>
+											</View>
+											<View style={{ width: 80 }}>
+												<Button onPress={() => { submitAssessment(1) }}
+													title="OK"
+													color="#228b22"
+												/>
+											</View>
+										</View>
+									</View>
+
+								</View>
+							</Modal>
+						}
+
+						{/* attempt report Model */}
+						{holderRepo.holderSuccess &&
+							<View style={styles.ReportHolder}>
+								<View style={styles.mainHolder}>
+									<Modal
+										animationType="slide"
+										transparent={true}
+									>
+										<View style={styles.headerHolder}>
+											<Text style={{ color: SWATheam.SwaBlack }}>Student Exam Report</Text>
+											<View><Icon onPress={closeReportHolder} name="close" size={20} color="#9ba8ae" /></View>
+										</View>
+
+										{reportDat.attemptSuccess &&
+											<View style={styles.showSms}>
+												<Text style={styles.youHaveSucc}>{holderRepo.successMsg}</Text>
+												<View style={styles.viewReortBtns}>
+													<Button title="View Report" color="#37bd79" onPress={viewReport} />
+												</View>
+											</View>
+										}
+										{reportDat.afterClickView &&
+											<>
+												<View style={styles.table}>
+													<View style={[styles.headesHead, { backgroundColor: userData.data.colors.liteTheme }]}>
+														<Text style={{ color: SWATheam.SwaBlack }}>Exam Report</Text>
+														<View style={styles.attptRepBtn}>
+															<Button onPress={allAttemReport} style={{ fontSize: 11, padding: 5, width: 80 }} title="Attempt Report" color={userData.data.colors.mainTheme} />
 														</View>
 													</View>
-													: <Text>NOT Yet</Text>
-										}
-									</ScrollView>
-								</KeyboardAvoidingView>
-
-								{/* question Views Holders end */}
-								{/* footer Sections start */}
-
-								<View style={{
-									flexDirection: 'row',
-									justifyContent: "space-between",
-									alignItems: "center",
-									backgroundColor: userData.data.colors.liteTheme,
-									padding: 5,
-								}}>
-									<View>
-										<View style={styles.rowFristCol}>
-											<Button title="Previous" color={userData.data.colors.mainTheme} onPress={handlePrevious} disabled={currentQuestionIndex === 0} />
-											<View style={styles.buttonBox}>
-												<Button title="Next" color={userData.data.colors.mainTheme} onPress={handleNext} disabled={currentQuestionIndex === question.length - 1} />
-											</View>
-										</View>
-									</View>
-									<View>
-										<Button title="Submit" color="#1e90ff" onPress={submitAss} />
-									</View>
-								</View>
-								{/* footer Sections end */}
-							</View>
-						</View> :
-						<>
-							<View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-								<ScrollView>
-									<View style={{ backgroundColor: userData.data.colors.liteTheme, padding: 10 }}>
-										{chapterList.map((item, index) => {
-											return (
-												<View key={index}>
-													<Checkbox.Item
-														reverse={false}
-														labelStyle={{ fontSize: 13 }}
-														onPress={() => { chapterFun(item) }}
-														label={item.chapterName}
-														status={selectedIds.includes(item.chapterID) ? "checked" : 'unchecked'}
-														style={[styles.examView, { backgroundColor: selectedIds.includes(item.chapterID) ? "#e2f7ee" : "#fff" }]}
-													/>
-												</View>
-											)
-										})}
-									</View>
-								</ScrollView>
-								<TouchableOpacity style={{ backgroundColor: SWATheam.SwaBlue, padding: 10, margin: 10, borderRadius: 6 }}
-									onPress={() => startAssessment()}>
-									<Text style={{ textTransform: 'uppercase', textAlign: 'center', color: SWATheam.SwaWhite }}>Start Assessment</Text>
-								</TouchableOpacity>
-							</View>
-						</>
-					}
-
-					{areYouSure &&
-						<Modal
-							animationType="slide"
-							transparent={true}
-						>
-							<View style={styles.modelsAre}>
-								<View style={styles.innerBox}>
-									<Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
-									<Text style={styles.textAlinCenetr}>Are you sure ??</Text>
-									<Text style={styles.runningTest}>Do you want to submit your exam</Text>
-									<View style={styles.rowAreYousure}>
-										<View style={{ width: 80 }}>
-											<Button onPress={() => { submitAssessment(0) }}
-												title="Cacel"
-												color="#dc143c"
-											/>
-										</View>
-										<View style={{ width: 80 }}>
-											<Button onPress={() => { submitAssessment(1) }}
-												title="OK"
-												color="#228b22"
-											/>
-										</View>
-									</View>
-								</View>
-
-							</View>
-						</Modal>
-					}
-
-					{/* attempt report Model */}
-					{holderRepo.holderSuccess &&
-						<View style={styles.ReportHolder}>
-							<View style={styles.mainHolder}>
-								<Modal
-									animationType="slide"
-									transparent={true}
-								>
-									<View style={styles.headerHolder}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Student Exam Report</Text>
-										<View><Icon onPress={closeReportHolder} name="close" size={20} color="#9ba8ae" /></View>
-									</View>
-
-									{reportDat.attemptSuccess &&
-										<View style={styles.showSms}>
-											<Text style={styles.youHaveSucc}>{holderRepo.successMsg}</Text>
-											<View style={styles.viewReortBtns}>
-												<Button title="View Report" color="#37bd79" onPress={viewReport} />
-											</View>
-										</View>
-									}
-									{reportDat.afterClickView &&
-										<>
-											<View style={styles.table}>
-												<View style={[styles.headesHead, { backgroundColor: userData.data.colors.liteTheme }]}>
-													<Text style={{ color: SWATheam.SwaBlack }}>Exam Report</Text>
-													<View style={styles.attptRepBtn}>
-														<Button onPress={allAttemReport} style={{ fontSize: 11, padding: 5, width: 80 }} title="Attempt Report" color={userData.data.colors.mainTheme} />
+													<View style={styles.rowHed}>
+														<Text style={[styles.cell]}>Total Marks: {reportDat.totalMarks}</Text>
+														<Text style={styles.cell}>Optained Marks :{reportDat.optainedMarks}</Text>
+														<Text style={styles.cell}>Percentage: {reportDat.preSent}</Text>
 													</View>
 												</View>
-												<View style={styles.rowHed}>
-													<Text style={[styles.cell]}>Total Marks: {reportDat.totalMarks}</Text>
-													<Text style={styles.cell}>Optained Marks :{reportDat.optainedMarks}</Text>
-													<Text style={styles.cell}>Percentage: {reportDat.preSent}</Text>
-												</View>
-											</View>
-											<ScrollView>
-												<View style={styles.InnerBoxTbls}>
-													<DataTable style={styles.container}>
-														<DataTable.Header style={styles.tableHeader}>
-															<DataTable.Title>No.</DataTable.Title>
-															<DataTable.Title>Correct Ans</DataTable.Title>
-															<DataTable.Title>Your Ans</DataTable.Title>
-															<DataTable.Title>Status</DataTable.Title>
-															<DataTable.Title>Action</DataTable.Title>
-														</DataTable.Header>
-														{getReport.map((item, index, rData) => {
-															return (
-																<DataTable.Row key={index}>
-																	<DataTable.Cell style={{ width: 50 }}>{index + 1}.</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item?.correctAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
-																		{item?.correctAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
-																		{item?.correctAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
-																		{item?.correctAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
-																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item?.selectedAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
-																		{item?.selectedAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
-																		{item?.selectedAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
-																		{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
-																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item.selectedAnswerID == item.correctAnswerID && item.activityID == 1
-																			|| item.answerID == item.selectedAnswerID && item.activityID == 2
-																			|| item.selectedAnswerID == item.answerText && item.activityID == 3 ?
-																			<Text><Icon name="check" size={20} color="#0d9048" /></Text> :
-																			<Text><Icon name="close" size={20} color="red" /></Text>
-																		}
-																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		<TouchableOpacity>
-																			<Text style={styles.viewQuestionBtns} onPress={() => { viewAction(item) }}>View Q.</Text>
-																		</TouchableOpacity>
-																	</DataTable.Cell>
-																</DataTable.Row>
-															)
-														})}
-													</DataTable>
-												</View>
-											</ScrollView>
-										</>
-									}
+												<ScrollView>
+													<View style={styles.InnerBoxTbls}>
+														<DataTable style={styles.container}>
+															<DataTable.Header style={styles.tableHeader}>
+																<DataTable.Title>No.</DataTable.Title>
+																<DataTable.Title>Correct Ans</DataTable.Title>
+																<DataTable.Title>Your Ans</DataTable.Title>
+																<DataTable.Title>Status</DataTable.Title>
+																<DataTable.Title>Action</DataTable.Title>
+															</DataTable.Header>
+															{getReport.map((item, index, rData) => {
+																return (
+																	<DataTable.Row key={index}>
+																		<DataTable.Cell style={{ width: 50 }}>{index + 1}.</DataTable.Cell>
+																		<DataTable.Cell>
+																			{item?.correctAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
+																			{item?.correctAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
+																			{item?.correctAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
+																			{item?.correctAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
+																		</DataTable.Cell>
+																		<DataTable.Cell>
+																			{item?.selectedAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
+																			{item?.selectedAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
+																			{item?.selectedAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
+																			{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
+																		</DataTable.Cell>
+																		<DataTable.Cell>
+																			{item.selectedAnswerID == item.correctAnswerID && item.activityID == 1
+																				|| item.answerID == item.selectedAnswerID && item.activityID == 2
+																				|| item.selectedAnswerID == item.answerText && item.activityID == 3 ?
+																				<Text><Icon name="check" size={20} color="#0d9048" /></Text> :
+																				<Text><Icon name="close" size={20} color="red" /></Text>
+																			}
+																		</DataTable.Cell>
+																		<DataTable.Cell>
+																			<TouchableOpacity>
+																				<Text style={styles.viewQuestionBtns} onPress={() => { viewAction(item) }}>View Q.</Text>
+																			</TouchableOpacity>
+																		</DataTable.Cell>
+																	</DataTable.Row>
+																)
+															})}
+														</DataTable>
+													</View>
+												</ScrollView>
+											</>
+										}
 
 
-								</Modal>
-							</View>
-						</View>
-					}
-					{/* attempt report Model */}
-					{/* are you sure pop  */}
-					{actData.modelHolder &&
-						<View style={styles.actionQuestion}>
-							<Modal animationType="slide">
-								<View style={styles.headerCloseIcons}>
-									<Text style={{ color: SWATheam.SwaBlack }}>Exam Question</Text>
-									<View><Icon onPress={hideExamQuest} name="close" size={20} color="#9ba8ae" /></View>
+									</Modal>
 								</View>
-								<View style={styles.holderActQuest}>
-									{actData.showQuestActId == 1 ?
-										<>
+							</View>
+						}
+						{/* attempt report Model */}
+						{/* are you sure pop  */}
+						{actData.modelHolder &&
+							<View style={styles.actionQuestion}>
+								<Modal animationType="slide">
+									<View style={styles.headerCloseIcons}>
+										<Text style={{ color: SWATheam.SwaBlack }}>Exam Question</Text>
+										<View><Icon onPress={hideExamQuest} name="close" size={20} color="#9ba8ae" /></View>
+									</View>
+									<View style={styles.holderActQuest}>
+										{actData.showQuestActId == 1 ?
+											<>
+												<View>
+													<RenderHtml
+														contentWidth={width}
+														source={{ html: getquest.questionPart1 }}
+														tagsStyles={tagsStyles}
+													/>
+													<View style={styles.optionsView}>
+														{getquest?.optionText1 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(a)</Text>
+																	{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText1 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</View>
+															: null}
+														{getquest?.optionText2 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(b)</Text>
+																	{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText2 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</View>
+															: null}
+
+														{getquest?.optionText3 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(c)</Text>
+																	{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText3 }}
+																			tagsStyles={optionStyle}
+																		/>
+
+																	}
+																</View>
+															</View>
+															: null}
+
+														{getquest?.optionText4 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(d)</Text>
+																	{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText4 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</View>
+															: null}
+
+														{getquest?.optionText5 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID5 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(d)</Text>
+																	{getquest?.optionText5.endsWith('.png') || getquest?.optionText5.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText5 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText5 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</View>
+															: null}
+
+														{getquest?.optionText6 ?
+															<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID6 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(d)</Text>
+																	{getquest?.optionText6.endsWith('.png') || getquest?.optionText6.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText6 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText6 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+															</View>
+															: null}
+
+
+													</View>
+												</View>
+											</>
+											: null
+										}
+
+										{actData.showQuestActId == 2 ?
+
 											<View>
 												<RenderHtml
 													contentWidth={width}
-													source={{ html: getquest.questionPart1 }}
+													source={{ html: getquest?.questionPart1 }}
 													tagsStyles={tagsStyles}
 												/>
 												<View style={styles.optionsView}>
 													{getquest?.optionText1 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(a)</Text>
-																{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText1 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
+														<View style={styles.textWithInput}>
+															<>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(a)</Text>
+																	{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText1 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+																<View style={styles.buttonRows}>
+																	{
+																		<>
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-1") ? '#adff2f' : "" })]} >
+																				<Text>True</Text>
+																			</TouchableOpacity>
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-2") ? '#adff2f' : "" })]} >
+																				<Text>False</Text>
+																			</TouchableOpacity>
+																		</>
+																	}
+																</View>
+															</>
 														</View>
-														: null}
+														: ''}
 													{getquest?.optionText2 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(b)</Text>
-																{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText2 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</View>
-														: null}
+														<View style={styles.textWithInput}>
+															<>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(b)</Text>
+																	{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText2 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+																<View style={styles.buttonRows}>
+																	{
+																		<>
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-1") ? '#adff2f' : "" })]} >
+																				<Text>True</Text>
+																			</TouchableOpacity>
 
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-2") ? '#adff2f' : "" })]} >
+																				<Text>False</Text>
+																			</TouchableOpacity>
+																		</>
+																	}
+																</View>
+															</>
+														</View>
+														: ''}
 													{getquest?.optionText3 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(c)</Text>
-																{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText3 }}
-																		tagsStyles={optionStyle}
-																	/>
+														<View style={styles.textWithInput}>
+															<>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(c)</Text>
+																	{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText3 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+																<View style={styles.buttonRows}>
+																	{
+																		<>
+																			<TouchableOpacity
 
-																}
-															</View>
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-1") ? '#adff2f' : "" })]} >
+																				<Text>True</Text>
+																			</TouchableOpacity>
+
+																			<TouchableOpacity
+
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-2") ? '#adff2f' : "" })]} >
+																				<Text>False</Text>
+																			</TouchableOpacity>
+																		</>
+																	}
+																</View>
+															</>
 														</View>
-														: null}
-
+														: ''}
 													{getquest?.optionText4 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText4 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
+														<View style={styles.textWithInput}>
+															<>
+																<View style={styles.AWithContent}>
+																	<Text style={styles.indty}>(d)</Text>
+																	{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
+																		<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
+																		:
+																		<RenderHtml
+																			contentWidth={width}
+																			source={{ html: getquest?.optionText4 }}
+																			tagsStyles={optionStyle}
+																		/>
+																	}
+																</View>
+																<View style={styles.buttonRows}>
+																	{
+																		<>
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-1") ? '#adff2f' : "" })]} >
+																				<Text>True</Text>
+																			</TouchableOpacity>
+																			<TouchableOpacity
+																				style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-2") ? '#adff2f' : "" })]} >
+																				<Text>True</Text>
+																			</TouchableOpacity>
+																		</>
+																	}
+																</View>
+															</>
 														</View>
-														: null}
-
-													{getquest?.optionText5 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID5 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText5.endsWith('.png') || getquest?.optionText5.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText5 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText5 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</View>
-														: null}
-
-													{getquest?.optionText6 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID6 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText6.endsWith('.png') || getquest?.optionText6.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText6 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText6 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</View>
-														: null}
-
-
+														: ''}
 												</View>
 											</View>
-										</>
-										: null
-									}
 
-									{actData.showQuestActId == 2 ?
-
-										<View>
-											<RenderHtml
-												contentWidth={width}
-												source={{ html: getquest?.questionPart1 }}
-												tagsStyles={tagsStyles}
-											/>
-											<View style={styles.optionsView}>
-												{getquest?.optionText1 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(a)</Text>
-																{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText1 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
+											: null}
+										{actData.showQuestActId == 3 ?
+											<>
+												<View style={styles.holderView}>
+													<RenderHtml
+														contentWidth={width}
+														source={{ html: getquest?.questionPart1 }}
+														tagsStyles={optionStyle}
+													/>
+													<View style={styles.rowLines}>
+														<Text style={styles.someBolds}>Your Answer:</Text>
+														<Text>{getquest.selectedAnswerID}</Text>
 													</View>
-													: ''}
-												{getquest?.optionText2 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(b)</Text>
-																{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText2 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
+													<View style={styles.rowLines}>
+														<Text style={styles.someBolds}>Correct Answer:</Text>
+														<Text>{getquest?.answerText}</Text>
 													</View>
-													: ''}
-												{getquest?.optionText3 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(c)</Text>
-																{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText3 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
+												</View>
+											</>
+											:
+											""}
 
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
+									</View>
+								</Modal>
+							</View>
+						}
 
-																		<TouchableOpacity
+						{/* student all report data */}
 
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
+						{reportDat.reportList &&
+							<View>
+								<Modal animationType="slide">
+									<View style={styles.allExamHeader}>
+										<Text style={{ color: SWATheam.SwaBlack }} >Student All Exam Report</Text>
+										<View><Icon name="close" size={20} color="#231e1a" onPress={hideReportList} /></View>
+									</View>
+									<ScrollView >
+										{allReportData.map((item, index) => {
+											return (
+												<View style={styles.holderAllReport} key={index}>
+													<View style={styles.rowCol}>
+														<Text style={styles.columsStart}>Set Code :</Text>
+														<Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
 													</View>
-													: ''}
-												{getquest?.optionText4 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText4 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-2") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
+													<View style={styles.rowCol}>
+														<Text style={styles.columsStart}>Attempted Date :</Text>
+														<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
 													</View>
-													: ''}
-											</View>
-										</View>
-
-										: null}
-									{actData.showQuestActId == 3 ?
-										<>
-											<View style={styles.holderView}>
-												<RenderHtml
-													contentWidth={width}
-													source={{ html: getquest?.questionPart1 }}
-													tagsStyles={optionStyle}
-												/>
-												<View style={styles.rowLines}>
-													<Text style={styles.someBolds}>Your Answer:</Text>
-													<Text>{getquest.selectedAnswerID}</Text>
+													<View style={styles.rowCol}>
+														<Text style={styles.columsStart}>Status :</Text>
+														<Text style={{ color: SWATheam.SwaBlack }}>Attempted :</Text>
+													</View>
+													<View style={styles.rowCol}>
+														<Text style={styles.columsStart}>Action :</Text>
+														<Text>
+															<TouchableOpacity onPress={() => { viewReportSecond(item) }}>
+																<Text style={[styles.viewReportBtn, { backgroundColor: userData.data.colors.mainTheme }]} >View Report</Text>
+															</TouchableOpacity>
+														</Text>
+													</View>
 												</View>
-												<View style={styles.rowLines}>
-													<Text style={styles.someBolds}>Correct Answer:</Text>
-													<Text>{getquest?.answerText}</Text>
-												</View>
-											</View>
-										</>
-										:
-										""}
+											)
+										})}
 
-								</View>
-							</Modal>
-						</View>
-					}
-
-					{/* student all report data */}
-
-					{reportDat.reportList &&
-						<View>
-							<Modal animationType="slide">
-								<View style={styles.allExamHeader}>
-									<Text style={{ color: SWATheam.SwaBlack }} >Student All Exam Report</Text>
-									<View><Icon name="close" size={20} color="#231e1a" onPress={hideReportList} /></View>
-								</View>
-								<ScrollView >
-									{allReportData.map((item, index) => {
-										return (
-											<View style={styles.holderAllReport} key={index}>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Set Code :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Attempted Date :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Status :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>Attempted :</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Action :</Text>
-													<Text>
-														<TouchableOpacity onPress={() => { viewReportSecond(item) }}>
-															<Text style={[styles.viewReportBtn, { backgroundColor: userData.data.colors.mainTheme }]} >View Report</Text>
-														</TouchableOpacity>
-													</Text>
-												</View>
-											</View>
-										)
-									})}
-
-								</ScrollView>
-							</Modal>
+									</ScrollView>
+								</Modal>
 
 
-						</View>
-					}
-					{/* student all report data */}
-				</View>
-			}
-		</>
+							</View>
+						}
+						{/* student all report data */}
+					</View>
+				}
+			</SafeAreaView>
+		</SafeAreaProvider>
 	);
 }
 const styles = StyleSheet.create({

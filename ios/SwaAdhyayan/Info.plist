@@ -81,11 +81,11 @@
 
 	<!-- Add Camera and Photo Library Usage Descriptions by raju 17th Oct. 2024 -->
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to the camera to take photos.</string>
+	<string>Swaadhyayan access to the camera to take photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to select images.</string>
+	<string>Swaadhyayan access to your photo library to select images.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need access to save images to your photo library.</string>
+	<string>Swaadhyayan access to save images to your photo library.</string>
 
 
 

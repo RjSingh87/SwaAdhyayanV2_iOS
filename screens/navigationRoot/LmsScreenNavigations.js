@@ -32,6 +32,12 @@ import KnowingMeReport from '../lmsScreen/SEPT/septReport/KnowingMeReport'
 import BrainDominReport from '../lmsScreen/SEPT/septReport/BrainDominReport'
 import NCERT from '../lmsScreen/NCRT/NCERT'
 import PdfViewer from '../common/PdfViewer'
+import GameViewer from '../common/GameViewer'
+import VideoView from '../common/VideoView'
+import IndicatorGradeEntry from '../lmsScreen/marksEntryScreens/IndicatorGradeEntry'
+import Co_ScholasticIndicator from '../lmsScreen/marksEntryScreens/Co_ScholasticIndicator'
+import NotbookSEAMarksEntry from '../lmsScreen/marksEntryScreens/NotbookSEAMarksEntry'
+import AssessMarksEntry from '../lmsScreen/marksEntryScreens/AssessMarksEntry'
 
 
 
@@ -53,6 +59,8 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="activityView" component={ActivityView} options={{ headerShown: false }} />
       <Stack.Screen name="septAttempt" component={SeptAttempt} options={{ headerShown: false }} />
       <Stack.Screen name="pdfView" component={PdfViewer} options={{ headerShown: false }} />
+      <Stack.Screen name="gameView" component={GameViewer} options={{ headerShown: false }} />
+      <Stack.Screen name="videoView" component={VideoView} options={{ headerShown: false }} />
 
 
       {/* ------->>Report-------<< */}
@@ -89,6 +97,13 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="liveClass" component={LiveClass} options={{ headerShown: false }} />
       <Stack.Screen name="liveClassList" component={LiveClassList} options={{ headerShown: false }} />
       {/* ------->>LiveClass-------<< */}
+
+      {/* marks Entry */}
+      <Stack.Screen name="assMarkEntry" component={AssessMarksEntry} options={{ headerShown: false, }} />
+      <Stack.Screen name="coScholasticIndicator" component={Co_ScholasticIndicator} options={{ headerShown: false }} />
+      <Stack.Screen name="indicatorGradeEntry" component={IndicatorGradeEntry} options={{ headerShown: false }} />
+      <Stack.Screen name="nootbookMarksEntry" component={NotbookSEAMarksEntry} options={{ headerShown: false }} />
+      {/* marks Entry */}
 
 
       <Stack.Screen name="ncert" component={NCERT} options={{ headerShown: false }} />

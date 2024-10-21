@@ -27,6 +27,8 @@ import AddQuestionManually from './Assessment/AddQuestionManually'
 
 
 import BottomDrawerList from '../common/BottomDrawerList';
+import Co_ScholasticIndicator from './marksEntryScreens/Co_ScholasticIndicator'
+import AddEditSubIndicator from './marksEntryScreens/AddEditSubIndicator'
 
 
 
@@ -1627,6 +1629,15 @@ const SubIconsScreen = ({ navigation, route }) => {
                     <AssessmentStatus /> : selectedIcon.subIconID == 113 ?
                       <ManageAssessment navigation={navigation} editAssessment={editAssessment} />
                       : null
+            }
+
+            {indicatorsList.status ?
+              <Co_ScholasticIndicator indicatorsList={indicatorsList} actionOnIndicator={actionOnIndicator} subIconID={selectedIcon.subIconID} />
+              :
+              null
+            }
+            {editIndicator.status && (selectedIcon.subIconID == 54 || selectedIcon.subIconID == 55) ?
+              <AddEditSubIndicator editIndicator={editIndicator} closeModule={closeModule} addSubIndicator={addSubIndicator} subIndicatorName={subIndicatorName} addSubIndicatorText={addSubIndicatorText} removesubIndicator={removesubIndicator} updateIndicator={updateIndicator} /> : null
             }
 
 

@@ -29,8 +29,19 @@ import AddQuestionManually from './Assessment/AddQuestionManually'
 import BottomDrawerList from '../common/BottomDrawerList';
 import Co_ScholasticIndicator from './marksEntryScreens/Co_ScholasticIndicator'
 import AddEditSubIndicator from './marksEntryScreens/AddEditSubIndicator'
-
-
+import CreateHomeWork from './homeWork/teacher/CreateHomeWork'
+import SaveHomeWork from './homeWork/teacher/SavedHomeWork'
+import AssignedHomeWork from './homeWork/teacher/AssignedHomeWork'
+import SubmittedHomeWork from './homeWork/teacher/SubmittedHomeWork'
+import CheckedHomeWork from './homeWork/teacher/CheckedHomeWork'
+import CertificateIconsView from './homeWork/teacher/CertificateIconsView'
+import ViewAndSubmitHomework from './homeWork/student/ViewAndSubmitHomework'
+import SubmittedStudentHomeWork from './homeWork/student/SubmittedHomeWork'
+import CheckedStuentHomeWork from './homeWork/student/CheckedHomeWork'
+import CertificatedAwarded from './homeWork/student/CertificateAwarded'
+import IssuedCertificate from './homeWork/teacher/IssuedCertificate'
+import CreateCertificate from './homeWork/teacher/CreateCertificate'
+import SubjectMarksEntryList from './marksEntryScreens/SubjectMarksEntryList'
 
 
 
@@ -1640,6 +1651,27 @@ const SubIconsScreen = ({ navigation, route }) => {
               <AddEditSubIndicator editIndicator={editIndicator} closeModule={closeModule} addSubIndicator={addSubIndicator} subIndicatorName={subIndicatorName} addSubIndicatorText={addSubIndicatorText} removesubIndicator={removesubIndicator} updateIndicator={updateIndicator} /> : null
             }
 
+            {selectedIcon.subIconID == 87 ?
+              <CreateHomeWork /> : selectedIcon.subIconID == 88 ?
+                <SaveHomeWork /> : selectedIcon.subIconID == 89 ?
+                  <AssignedHomeWork /> : selectedIcon.subIconID == 90 ?
+                    <SubmittedHomeWork /> : selectedIcon.subIconID == 91 ?
+                      <CheckedHomeWork /> : selectedIcon.subIconID == 93 && certificateAct.iconView ?
+                        <CertificateIconsView certificateAction={certificateAction} /> : selectedIcon.subIconID == 109 ?
+                          <ViewAndSubmitHomework /> : selectedIcon.subIconID == 110 ?
+                            <SubmittedStudentHomeWork /> : selectedIcon.subIconID == 111 ?
+                              <CheckedStuentHomeWork /> : selectedIcon.subIconID == 112 ?
+                                <CertificatedAwarded />
+                                : null
+            }
+            {certificateAct.issued ?
+              <IssuedCertificate /> : certificateAct.create ?
+                <CreateCertificate /> : null
+            }
+            {subjectMarksEntry.status && selectedIcon.subIconID == 59 ?
+              <SubjectMarksEntryList subjectMarksEntry={subjectMarksEntry} selectedField={selectedField} selectTerm={selectTerm} termBtnID={termBtnID} />
+              : null
+            }
 
           </View>
         }

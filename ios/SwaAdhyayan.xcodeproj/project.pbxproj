@@ -13,6 +13,7 @@
 		2232AA00EEC7DD9690D611BE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CB072380CFC82B2CEC72FDFB /* PrivacyInfo.xcprivacy */; };
 		364795AC696F7089BC1BBEA9 /* libPods-SwaAdhyayan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7939F903DC72F8BDA0D89C5F /* libPods-SwaAdhyayan.a */; };
 		9215A9976FF5C97E19823B52 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3C2CE737C0E3DFD37689937 /* libPods-SwaAdhyayan-SwaAdhyayanTests.a */; };
+		DDA625FF2CC768040020F523 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -293,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2232AA00EEC7DD9690D611BE /* PrivacyInfo.xcprivacy in Resources */,
+				DDA625FF2CC768040020F523 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,6 +516,7 @@
 			baseConfigurationReference = 23DCF58D8778E18F4CBD2D63 /* Pods-SwaAdhyayan.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
@@ -541,6 +544,7 @@
 			baseConfigurationReference = CA514573127241B124AAA4CB /* Pods-SwaAdhyayan.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = SwaAdhyayan/Info.plist;
@@ -634,10 +638,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -710,10 +711,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

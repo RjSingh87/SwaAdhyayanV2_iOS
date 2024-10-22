@@ -7,6 +7,7 @@ import IconsContainer from '../common/IconsContainer'
 import Loader from '../common/Loader'
 import Services from '../../Services'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Orientation from 'react-native-orientation-locker';
 
 
 
@@ -18,17 +19,12 @@ const Dashboard = ({ navigation, route }) => {
   const { userData } = useContext(GlobleData)
   const [deshboardData, setDeshboardData] = useState({ icons: null, timeTable: null, iconUrl: '', status: true })
   const [timeTableStructure, setTimeTableStructure] = useState();
-  const [swaShareView, setSwaShareView] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
 
-  const activeMainIconIds = [4, 17, 28, 36, 7, 20, 30, 37, 27, 5, 18, 29, 45, 6, 19]
+  const activeMainIconIds = [4, 17, 28, 36, 7, 20, 30, 37, 27, 5, 18, 29, 45, 6, 19, 22, 33, 40]
   const timeTable = [16, 32, 36]
   const swaShare = [8, 21, 31, 38]
-  // const attendID = [15]
-  // const marksEntryID = [6,19]
-  // const studentList = [14]
-  // const assMainIconIds = [5,18,29,45]
-  // septMainIconID = 27
-  // const reportMainIconsIDs = [7,20,30,37]
+
   const weekDays = [
     'Sunday',
     'Monday',
@@ -44,6 +40,14 @@ const Dashboard = ({ navigation, route }) => {
   useEffect(() => {
     appDashboard()
   }, [])
+
+  useEffect(() => {
+    const goBack = navigation.addListener('focus', () => {
+      Orientation.lockToPortrait();
+      StatusBar.setHidden(false);
+    });
+    return goBack
+  }, [navigation])
 
   function appDashboard() {
     const dashboardPayload = {
@@ -161,15 +165,11 @@ const Dashboard = ({ navigation, route }) => {
   function onClickLeftIcon() {
     navigation.openDrawer()
   }
-  // function onClickRightIcon(){
-  //   setIsInstruction(true)
-  // }
+
   function getIconDetail(item) {
     console.log(item.getMainIconsData.mainIconID)
-    // console.log(item.getMainIconsData.mainIconID)
     if (activeMainIconIds.includes(item.getMainIconsData.mainIconID)) {
       if (item.getMainIconsData.mainIconID == 29) {
-        console.log("assss")
         navigation.navigate('Assessment')
       } else {
         navigation.navigate("subIconScreen", item)
@@ -202,8 +202,6 @@ const Dashboard = ({ navigation, route }) => {
     }
 
   })
-
-
 
   return (
     <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>

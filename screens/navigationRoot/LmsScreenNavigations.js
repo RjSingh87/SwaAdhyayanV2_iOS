@@ -38,6 +38,7 @@ import IndicatorGradeEntry from '../lmsScreen/marksEntryScreens/IndicatorGradeEn
 import Co_ScholasticIndicator from '../lmsScreen/marksEntryScreens/Co_ScholasticIndicator'
 import NotbookSEAMarksEntry from '../lmsScreen/marksEntryScreens/NotbookSEAMarksEntry'
 import AssessMarksEntry from '../lmsScreen/marksEntryScreens/AssessMarksEntry'
+import HomeWorkReports from '../lmsScreen/homeWork/teacher/HomeWorkReports'
 
 
 
@@ -97,6 +98,10 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="liveClass" component={LiveClass} options={{ headerShown: false }} />
       <Stack.Screen name="liveClassList" component={LiveClassList} options={{ headerShown: false }} />
       {/* ------->>LiveClass-------<< */}
+
+      {/* ------->>homework-------<< */}
+      <Stack.Screen name="homeWorkReport" component={HomeWorkReports} options={{ headerShown: false }} />
+      {/* ------->>homework-------<< */}
 
       {/* marks Entry */}
       <Stack.Screen name="assMarkEntry" component={AssessMarksEntry} options={{ headerShown: false, }} />

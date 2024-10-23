@@ -301,6 +301,34 @@ const CreateHomeWork = () => {
     }
 
     const handleOpenCamera = () => {
+        const options = {
+            mediaType: 'photo',
+            cameraType: 'back',
+            quality: 1,
+            saveToPhotos: true,
+            includeBase64: true,
+            presentationStyle: "fullScreen"
+        };
+        openCamera(options, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorMessage);
+            } else if (response.assets) {
+                // console.log(response, "Response...?")
+                setImgAndDocArr([...imgAndDocArr, {
+                    uri: response.assets[0].uri,
+                    name: 'image.png',
+                    fileName: 'image',
+                    type: 'image/png'
+                }])
+                setIsCameraOpen(false);
+                // setImageUri(response.assets[0].uri);
+            }
+        });
+
+
+        return
         ImagePicker.openCamera({
             cache: true,
             width: 500,

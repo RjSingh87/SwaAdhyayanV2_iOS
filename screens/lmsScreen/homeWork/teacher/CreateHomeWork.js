@@ -313,7 +313,7 @@ const CreateHomeWork = () => {
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.errorCode) {
-                console.log('ImagePicker Error: ', response.errorMessage);
+                console.log('Open Camera: ', response.errorMessage);
             } else if (response.assets) {
                 // console.log(response, "Response...?")
                 setImgAndDocArr([...imgAndDocArr, {
@@ -514,7 +514,6 @@ const CreateHomeWork = () => {
 
 
                 </View>
-
             }
             {
                 showPopUp &&

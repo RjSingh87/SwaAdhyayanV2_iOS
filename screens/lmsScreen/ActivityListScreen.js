@@ -7,7 +7,7 @@ import { GlobleData } from '../../Store'
 import Services from '../../Services';
 import { apiRoot } from '../../constant/ConstentValue';
 import BottomDrawerList from '../common/BottomDrawerList';
-// import Orientation from 'react-native-orientation-locker';
+import Orientation from 'react-native-orientation-locker';
 import Loader from '../common/Loader';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,7 +27,7 @@ const ActivityListScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
-      // Orientation.lockToPortrait();
+      Orientation.lockToPortrait();
       StatusBar.setHidden(false);
     });
     return goBack

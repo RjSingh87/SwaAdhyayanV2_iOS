@@ -39,6 +39,11 @@ import Co_ScholasticIndicator from '../lmsScreen/marksEntryScreens/Co_Scholastic
 import NotbookSEAMarksEntry from '../lmsScreen/marksEntryScreens/NotbookSEAMarksEntry'
 import AssessMarksEntry from '../lmsScreen/marksEntryScreens/AssessMarksEntry'
 import HomeWorkReports from '../lmsScreen/homeWork/teacher/HomeWorkReports'
+import ViewFunBagScreen from '../lmsScreen/ViewFunBagScreen'
+import ChapterItemList from '../common/ChapterItemList'
+import EditProfile from '../userScreens/EditProfile'
+import CbseSafal from '../lmsScreen/CBSE_Safal/CbseSafal'
+import McqActy from '../lmsScreen/CBSE_Safal/McqAct'
 
 
 
@@ -62,6 +67,8 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="pdfView" component={PdfViewer} options={{ headerShown: false }} />
       <Stack.Screen name="gameView" component={GameViewer} options={{ headerShown: false }} />
       <Stack.Screen name="videoView" component={VideoView} options={{ headerShown: false }} />
+      <Stack.Screen name="ViewFunBag" component={ViewFunBagScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="chapterItem" component={ChapterItemList} options={{ headerShown: false }} />
 
 
       {/* ------->>Report-------<< */}
@@ -93,6 +100,7 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="timeTable" component={TimeTable} options={{ headerShown: false }} />
       <Stack.Screen name="swaShare" component={SwaSharing} options={{ headerShown: false }} />
       <Stack.Screen name="safalPP" component={Safal} options={{ headerShown: false }} />
+      <Stack.Screen name="editProfile" component={EditProfile} options={{ headerShown: false }} />
 
       {/* ------->>LiveClass-------<< */}
       <Stack.Screen name="liveClass" component={LiveClass} options={{ headerShown: false }} />
@@ -112,6 +120,8 @@ const LmsScreenNavigations = ({ navigation, route }) => {
 
 
       <Stack.Screen name="ncert" component={NCERT} options={{ headerShown: false }} />
+      <Stack.Screen name="cbseSafal" component={CbseSafal} options={{ headerShown: false }} />
+      <Stack.Screen name="mcqScreen" component={McqActy} options={{ headerShown: false }} />
 
     </Stack.Navigator>
   )

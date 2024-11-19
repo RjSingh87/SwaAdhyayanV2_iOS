@@ -13,6 +13,7 @@ import { fetchLearningTool } from '../redux/slices/LearningToolList'
 import { fetModuleActivityList } from '../redux/slices/ModuleActivityList';
 import SubIconActivityList from '../common/SubIconActivityList'
 import GameList from '../common/GameList'
+import Orientation from 'react-native-orientation-locker';
 import MsgModal from '../common/MsgModal'
 import AcademicProfIntro from './SEPT/AcademicProfIntro'
 import CustomInput from '../common/CustomInput'
@@ -117,7 +118,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       if (userData.data.userTypeID == 5) {
         getSubIcons()
       }
-      // Orientation.lockToPortrait();
+      Orientation.lockToPortrait();
       StatusBar.setHidden(false);
     });
     return goBack
@@ -374,7 +375,6 @@ const SubIconsScreen = ({ navigation, route }) => {
               } else if (res.status == "error") {
                 const message = res.message == undefined ? 'Student has not attempted any of the SEPT test.' : res.message
                 alert(message)
-
               }
             })
             .catch((err) => {

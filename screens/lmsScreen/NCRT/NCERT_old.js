@@ -599,7 +599,7 @@ export default function NCERT({ navigation, route }) {
 	return (
 		<View style={{ flex: 1, marginTop: 24 }}>
 			{!attemptScreen &&
-				<SwaHeader title={"NCERT"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon}/>
+				<SwaHeader title={"NCERT"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
 			}
 			{/* show sms view */}
 			{showStatusView.outerBox &&
@@ -630,7 +630,7 @@ export default function NCERT({ navigation, route }) {
 								? <View>
 									<RenderHtml
 										contentWidth={width}
-										source={{html: question[currentQuestionIndex].questionPart1}}
+										source={{ html: question[currentQuestionIndex].questionPart1 }}
 										tagsStyles={tagsStyles}
 									/>
 
@@ -1135,7 +1135,7 @@ export default function NCERT({ navigation, route }) {
 
 												{getReport.map((item, index, rData) => {
 
-													
+
 
 													return (
 														<DataTable.Row key={index}>
@@ -1153,10 +1153,10 @@ export default function NCERT({ navigation, route }) {
 																{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : ""}
 															</DataTable.Cell>
 															<DataTable.Cell>
-															{(item.selectedAnswerID == item.correctAnswerID && item.activityID == 1)||(item.answerID == item.selectedAnswerID && item.activityID == 2)?
-																<Image style={{ resizeMode: 'contain', width: 20, height: 20, alignSelf: "center", margin: 20 }} source={require('../../assets/r.png')}/>:
-																<Image style={{ resizeMode: 'contain', width: 20, height: 20, alignSelf: "center", margin: 20 }} source={require('../../assets/w.png')}/>
-															}
+																{(item.selectedAnswerID == item.correctAnswerID && item.activityID == 1) || (item.answerID == item.selectedAnswerID && item.activityID == 2) ?
+																	<Image style={{ resizeMode: 'contain', width: 20, height: 20, alignSelf: "center", margin: 20 }} source={require('../../assets/r.png')} /> :
+																	<Image style={{ resizeMode: 'contain', width: 20, height: 20, alignSelf: "center", margin: 20 }} source={require('../../assets/w.png')} />
+																}
 															</DataTable.Cell>
 															<DataTable.Cell>
 																<TouchableOpacity>

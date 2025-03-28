@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, useWindowDimensions, StyleSheet, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import RenderHtml from 'react-native-render-html';
 import AntDesign from 'react-native-vector-icons/AntDesign'
-import { SwaTheam } from "../../../../constant/ConstentValue";
+import { SWATheam } from "../../../../constant/ConstentValue";
 
 
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
@@ -17,10 +17,10 @@ export default function Mcq({ mcqData, index }) {
 
   const tagsStyles = {
     body: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     },
     p: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     }
   };
 
@@ -94,7 +94,7 @@ export default function Mcq({ mcqData, index }) {
     <>
       <SafeAreaView>
 
-        <View style={{ backgroundColor: SwaTheam.SwaWhite, marginBottom: 6 }}>
+        <View style={{ backgroundColor: SWATheam.SwaWhite, marginBottom: 6 }}>
           <View style={{ backgroundColor: '#efefef', borderRadius: 6, margin: 1 }}>
 
             {/* <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'center', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
@@ -112,15 +112,15 @@ export default function Mcq({ mcqData, index }) {
             <View style={{ padding: 3, backgroundColor: '#93ced0', borderRadius: 6 }}>
               <View style={{ flexDirection: 'row' }}>
                 <View style={{ width: '100%', padding: 4, margin: 2, borderRadius: 6, borderBottomWidth: .7, borderColor: '#fff' }}>
-                  <Text style={{ color: SwaTheam.SwaBlack, fontWeight: '700', textAlign: 'center' }}>Chapter: {mcqData.chapterName}</Text>
+                  <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', textAlign: 'center' }}>Chapter: {mcqData.chapterName}</Text>
                 </View>
               </View>
               <View style={{ flexDirection: 'row' }}>
                 <View style={{ width: '70%', padding: 2, margin: 2, borderRadius: 6 }}>
-                  <Text style={{ color: SwaTheam.SwaBlack }}>Type: MCQ</Text>
+                  <Text style={{ color: SWATheam.SwaBlack }}>Type: MCQ</Text>
                 </View>
                 <View style={{ width: '27%', padding: 2, margin: 2, borderRadius: 6 }}>
-                  <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'right' }}>Marks: {mcqData.marksPerQuestion}</Text>
+                  <Text style={{ color: SWATheam.SwaBlack, textAlign: 'right' }}>Marks: {mcqData.marksPerQuestion}</Text>
                 </View>
               </View>
             </View>
@@ -151,7 +151,7 @@ export default function Mcq({ mcqData, index }) {
                       </View>
                       <View style={{ width: '95%' }}>
                         <View style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
-                          <Text style={{ color: SwaTheam.SwaBlack }}>
+                          <Text style={{ color: SWATheam.SwaBlack }}>
                             <RenderHtml
                               contentWidth={width}
                               source={{ html: item }}

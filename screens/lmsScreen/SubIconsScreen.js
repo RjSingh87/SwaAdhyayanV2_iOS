@@ -1159,7 +1159,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         subjectID: selectedField.subject.subjectID,
         bookID: selectedField.book.bookID
       }
-      if ((item.urlLink == 'eLearning' && item.isElearning != 1) || pdfact.includes(item.subTypeID)) {
+      if ((item.isSubMenu == 1 && item.isElearning != 1) || pdfact.includes(item.subTypeID)) {
         setLoading(true)
         if ((item.subTypeID == 73 && classID != 13) || item.subTypeID == 171 || item.subTypeID == 77 || item.subTypeID == 68) {
           const payload = {

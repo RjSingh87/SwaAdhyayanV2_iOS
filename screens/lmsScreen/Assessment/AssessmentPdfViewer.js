@@ -1,12 +1,13 @@
-import { StyleSheet, Text, View, Dimensions, Share, TouchableOpacity, Platform, Button } from 'react-native'
-import React, { useContext, useRef } from 'react'
-import Pdf from 'react-native-pdf'
-// import Share from 'react-native-share'
+import { StyleSheet, Text, View, Dimensions, Share, TouchableOpacity, Platform, Button, Alert } from 'react-native'
+import React, { useContext, useRef, useState } from 'react'
 import { SWATheam } from '../../../constant/ConstentValue';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobleData } from '../../../Store';
 import WebView from 'react-native-webview';
 import RNPrint from "react-native-print";
+import { ActivityIndicator } from 'react-native-paper';
+import SwaHeader from '../../common/SwaHeader';
+
 
 
 
@@ -14,109 +15,86 @@ import RNPrint from "react-native-print";
 const AssessmentPdfViewer = ({ navigation, route }) => {
     const webviewRef = useRef();
     const { userData } = useContext(GlobleData)
+    const [htmlLoader, setHtmlLoader] = useState(false)
     const htmlData = route.params.data
-    // const source = { uri: "data:application/pdf;base64," + htmlData };
-    // const share = async () => {
-    //     const content = {
-    //         url: 'data:application/pdf;base64,' + htmlData,
-    //         message: 'invoice'
-    //     };
-    //     const options = {
-    //         excludedActivityTypes: ['com.apple.UIKit.activity.PostToFacebook'],
-    //         tintColor: '#ff00ff',
-    //         subject: "a subject to share via email"
-    //     };
-    //     try {
-    //         const result = await Share.share(content, options);
-    //         console.log('Share successful:', result);
-    //     } catch (error) {
-    //         console.log('Error while sharing:', error);
-    //     }
-    // }
 
     const htmlContent = `
-  <html>
-    <head>
-      <meta charset="utf-8" />
-    </head>
-    <body>
-      ${htmlData}
-    </body>
-  </html>
-`;
+            <html>
+                <head>
+                <meta charset="utf-8" />
+                </head>
+                <body>
+                ${htmlData}
+                </body>
+            </html>
+        `;
 
     const handlePrint = async () => {
-        if (htmlData) {
-            await RNPrint.print({
-                html: `
-    <html>
-      <head>
-        <style>
-          @media print {
-            body { -webkit-print-color-adjust: exact; }
-            div.page { page-break-after: always; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="page">${htmlData}</div>
-      </body>
-    </html>
-  `
-            })
-        }
+        if (!htmlContent) return
+        setTimeout(async () => {
+            await RNPrint.print({ html: htmlContent });
+        }, 1000)
     };
+
+    function onClickLeftIcon() {
+        navigation.goBack()
+    }
+
+    const queSet = [
+        {
+            qHead: "Fill in the blanks",
+            opation: ["one", "two", "three", "four"],
+            ans: [2]
+        },
+        {
+            qHead: "Match the following questions.",
+            opation: ["five", "six", "seven", "eight"],
+            ans: [3]
+        },
+        {
+            qHead: "Drag and drop the questions.",
+            opation: ["nine", "two", "three", "four"],
+            ans: [1]
+        },
+        {
+            qHead: "Jumble the questions.",
+            opation: ["ten", "two", "three", "four"],
+            ans: [4]
+        }
+    ]
+
+    const intialQues = 0
+
+    const renderQues = {
+
+    }
+
+
+
 
     return (
         <SafeAreaProvider>
             <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, backgroundColor: userData?.data?.colors?.mainTheme }}>
+                <SwaHeader title={'View Assessment'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} />
                 <View style={styles.container}>
-                    <View style={{ padding: 10 }}>
-                        <TouchableOpacity
-                            onPress={() => share()}
-                            style={{ padding: 10, borderRadius: 4, backgroundColor: SWATheam.SwaBlue }}
-                        >
-                            <Text style={{ textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaWhite }}>Download & Share</Text>
-                        </TouchableOpacity>
-                    </View>
 
                     <View style={{ flex: 1 }}>
                         <WebView
                             ref={webviewRef}
+                            source={{ html: htmlContent }}
+                            style={{ flex: 1, }}
                             originWhitelist={['*']}
-                            source={{ html: htmlData }}
-                            style={{ flex: 1 }}
-                            javaScriptEnabled={true}
-                            domStorageEnabled={true}
-                            useWebKit={true}
-                            allowsBackForwardNavigationGestures={true}
-                            scrollEnabled={true}
-                            bounces={false}
-                            decelerationRate="normal"
-                            contentMode="mobile"
-                            setBuiltInZoomControls={true}
+                            onLoadEnd={() => setHtmlLoader(true)}
                         />
 
-                        <Button title="Share Page" onPress={handlePrint} />
-
+                        {!htmlContent ?
+                            <View style={{ position: "absolute", top: 0, bottom: 0, justifyContent: "center", width: "100%" }}><ActivityIndicator size={"large"} color={SWATheam.SwaBlue} /></View> :
+                            <TouchableOpacity disabled={!htmlLoader} onPress={handlePrint} style={{ paddingHorizontal: 15, paddingVertical: 10, backgroundColor: userData?.data?.colors?.mainTheme, borderRadius: 8, alignSelf: "center" }}>
+                                <Text style={{ color: SWATheam.SwaWhite, fontWeight: "600", fontSize: 15 }}>Print/Save</Text>
+                            </TouchableOpacity>
+                        }
                     </View>
 
-                    {/* <Pdf
-                        trustAllCerts={false}
-                        source={source}
-                        onLoadComplete={(numberOfPages, filePath) => {
-                        }}
-                        onPageChanged={(page, numberOfPages) => {
-                            console.log(`Current page: ${page}`);
-                        }}
-                        onError={(error) => {
-                            console.log(error, 'pdferror');
-                        }}
-                        onPressLink={(uri) => {
-                            console.log(`Link pressed: ${uri}`);
-                        }}
-                        style={styles.pdf}
-                    /> */}
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -131,6 +109,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         // alignItems: 'center',
         marginTop: Platform.OS == "ios" ? 0 : 25,
+        paddingBottom: 30,
     },
     pdf: {
         flex: 1,

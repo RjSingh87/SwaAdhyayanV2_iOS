@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SwaAdhyayan.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>6</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>B9C321FB15E0A3FA1A3570670C193A8F00D48E14</string>
+				<key>dateExpires</key>
+				<string>9/12/26</string>
+				<key>type</key>
+				<string>Cloud Managed Apple Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>0.12.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>B9C321FB15E0A3FA1A3570670C193A8F00D48E14</string>
+						<key>dateExpires</key>
+						<string>9/12/26</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>hermes.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>K6GKGFMMS9</string>
+						<key>name</key>
+						<string>FOREVER BOOKS PRIVATE LIMITED</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.12.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>K6GKGFMMS9.org.swaadhyayanLMS-V2-iOS</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>K6GKGFMMS9</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>SwaAdhyayan.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>e47f5a49-3a31-4bf5-8fe9-152eb7b0b805</string>
+				<key>dateExpires</key>
+				<string>9/12/26</string>
+				<key>name</key>
+				<string>iOS Team Ad Hoc Provisioning Profile: org.swaadhyayanLMS-V2-iOS</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>K6GKGFMMS9</string>
+				<key>name</key>
+				<string>FOREVER BOOKS PRIVATE LIMITED</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.5</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity, } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Services from './Services';
 import { SwaTheam, apiRoot, baseURL } from './constant/ConstentValue';
@@ -12,6 +12,17 @@ export default function Store({ children }) {
 
 	useEffect(() => {
 		checkLogin()
+		const loadAttempts = async () => {
+			try {
+				const storedData = await AsyncStorage.getItem('attemptedQuestions');
+				if (storedData !== null) {
+					setFinalPost(JSON.parse(storedData));
+				}
+			} catch (error) {
+				console.log('Error loading attempts:', error);
+			}
+		};
+		loadAttempts();
 	}, [])
 
 	// ----------------- check login function start --------------------//
@@ -115,6 +126,7 @@ export default function Store({ children }) {
 	const [matchLines, setmatchLines] = useState({});
 	const [finalArrayData, setFinalArray] = useState([])
 	const [finalPost, setFinalPost] = useState([]);
+	// const [attemptedCount, setAttemptedCount] = useState(0);
 	const [matchTo, setMatchTo] = useState()
 	const [connections, setConnections] = useState([]);
 	const [selectedTexts, setSelectedTexts] = useState({});
@@ -134,7 +146,7 @@ export default function Store({ children }) {
 	const ApiToken = "=4WY5FWeoRWYhd3c";
 	// const schoolCode = userData.data.schoolCode;
 	// const userRefID = userData.data.userRefID;
-	// const ClsIds = userData.data.classID
+	const ClsIds = userData?.data?.classID
 
 
 
@@ -162,7 +174,7 @@ export default function Store({ children }) {
 		Services.post(apiRoot.getAssessmentQuestion, xData)
 			.then((qData) => {
 				if (qData.status == "success") {
-					console.log(JSON.stringify(qData.assessmentQues), '________________??')
+					// console.log(JSON.stringify(qData.assessmentQues), '________________??')
 					setManageData((o) => {
 						return {
 							...o,
@@ -233,30 +245,42 @@ export default function Store({ children }) {
 	}
 
 	// data Stor
-	const attemptData = (assessmentQues) => {
-		const thisData = [];
-		const prevData = finalPost;
-		prevData.map((item) => {
-			thisData.push(item);
-		});
+	const attemptData = async (assessmentQues) => {
+		// const thisData = [];
+		// const prevData = [finalPost];
+		// let reAttempt = 0;
+		// prevData.map((item) => { thisData.push(item); });
+		// thisData.map((item, index) => {
+		// 	if (assessmentQues.quesID === item.quesID) {
+		// 		reAttempt = 1;
+		// 		thisData[index] = assessmentQues;
+		// 	}
+		// });
+		// if (!reAttempt) { thisData.push(assessmentQues); }
+		// setFinalPost(thisData);
 
-		let reAttempt = 0;
-		thisData.map((item, index) => {
-			if (assessmentQues.quesID == item.quesID) {
-				reAttempt = 1;
-				thisData[index] = assessmentQues;
-			}
-		});
 
-		if (!reAttempt) {
-			thisData.push(assessmentQues);
+		// ------this function made by raju sep 10 2025--------
+		const updatedData = [...finalPost];
+		const index = updatedData.findIndex(item => item.quesID === assessmentQues.quesID);
+		if (index !== -1) {
+			updatedData[index] = assessmentQues; // Re-attempt
+		} else {
+			updatedData.push(assessmentQues);    // First attempt
 		}
-		// console.log(thisData, 'thisdata')
-		setFinalPost(thisData);
-		// console.log(finalPost, 'final')
+		setFinalPost(updatedData);
 
-	}
+		try {
+			await AsyncStorage.setItem('attemptedQuestions', JSON.stringify(updatedData));
+		} catch (error) {
+			console.log('Error saving attempts:', error);
+		}
+		// -------end------------- 
+
+	};
 	function mcqClicked(optIds, quetIds, OptText) {
+		// alert("clickd")
+		// return
 		let getMarks = manageData.questions[currentIndex].marksPerQuestion;
 		let rightAnsText = manageData.questions[currentIndex].answerText;
 		let ansIds = manageData.questions[currentIndex].answerIDs;
@@ -280,6 +304,7 @@ export default function Store({ children }) {
 			"eidID": eidID,
 			"mID": mID
 		}
+		console.log({ mcqContainer })
 		attemptData(mcqContainer)
 	}
 
@@ -642,11 +667,15 @@ export default function Store({ children }) {
 
 
 	function submitAttem() {
-		if (manageData.questions[currentIndex]?.activityID === 15) {
+		if (finalPost.length === manageData.totalQuest || manageData.questions[currentIndex]?.activityID === 15) {
 			setIsdec(true)
+		} else {
+			Alert.alert("Info", "Please attempt all questions.")
 		}
 
 
+		// if (manageData.questions[currentIndex]?.activityID === 15) {
+		// }
 	}
 	// ------------Assessment store --------------------//
 	return (
@@ -694,10 +723,14 @@ export default function Store({ children }) {
 				imageUri: imageUri,
 				setImageUri: setImageUri,
 				isDec: isDec,
+				setIsdec: setIsdec,
 				// schoolCode:schoolCode,
 				// userRefID:userRefID,
 				// ClsIds:ClsIds,
 				attemptStore: attemptStore,
+				setFinalPost: setFinalPost
+				// attemptedCount: attemptedCount
+
 				// ApiToken:ApiToken,
 				// apiBaseUrl:apiBaseUrl
 			}}>

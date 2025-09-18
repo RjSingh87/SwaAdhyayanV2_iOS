@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, StatusBar } from 'react-native';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, StatusBar, Button as Btn } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-paper';
 import JUMBW from './JUMBW';
@@ -20,9 +20,36 @@ import SwaHeader from '../../../../../common/SwaHeader';
 import { apiRoot, SWATheam, token } from '../../../../../../constant/ConstentValue';
 import Loader from '../../../../../common/Loader';
 import Services from '../../../../../../Services';
-// import Orientation from 'react-native-orientation-locker';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
+import Orientation from 'react-native-orientation-locker';
 
-export default function AttemptHolder({ navigation }) {
+
+
+export default function AttemptHolder({ navigation, route }) {
+	const [isWebViewReady, setIsWebViewReady] = useState(false);
+	const storeAssId = route.params.assId
+
+	const webviewRef = useRef(null);
+
+
+
+
+
+
+
+
+
+	const handleMessage = (event) => {
+		const messageFromWeb = event.nativeEvent.data;
+		alert("Received from Web: " + messageFromWeb);
+	};
+
+
+
+
+
+
 	function onClickLeftIcon() {
 		navigation.goBack()
 	}
@@ -43,18 +70,21 @@ export default function AttemptHolder({ navigation }) {
 		sure,
 		cancelSubmit,
 		examSubmit,
+		setFinalPost,
+		finalPost,
 	} = useContext(GlobleData);
 	useEffect(() => {
 		getAssQuest()
+		setFinalPost([])
 	}, [])
 
 	useEffect(() => {
 		if (manageData.questions[currentIndex]?.activityID === 4) {
 			StatusBar.setHidden(true);
-			// Orientation.lockToLandscape()
+			Orientation.lockToLandscape()
 		} else {
 			StatusBar.setHidden(false);
-			// Orientation.lockToPortrait()
+			Orientation.lockToPortrait()
 		}
 	}, [manageData])
 
@@ -220,7 +250,7 @@ export default function AttemptHolder({ navigation }) {
 
 	useEffect(() => {
 		if (countDown <= 0 && runTimer) {
-			examSubmit()
+			examSubmit(navigation)
 			setRunTimer(false);
 			setCountDown(0);
 		} else if (countDown > 0 && !runTimer && TotalTime) {
@@ -242,180 +272,218 @@ export default function AttemptHolder({ navigation }) {
 	let timeBox = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
 	return (
-		<GestureHandlerRootView style={{ flex: 1, marginTop: 24 }}>
-			{manageData.showLoader ?
-				<Loader /> :
-				<View style={{ flex: 1 }}>
-					{manageData.questions[currentIndex]?.activityID != 4 &&
-						<SwaHeader title={'Assessment Attempt'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-					}
-					<Header />
-					<View style={styles.headerTimer}>
-						<Text style={{ fontSize: 13 }}>{timeBox}</Text>
-						<TouchableOpacity style={styles.information} onPress={instructions}>
-							<Icon name="info" size={16} color={SWATheam.SwaWhite} />
-						</TouchableOpacity>
-					</View>
-					<View style={styles.mainScreen}>
-						{/* componets renser here */}
 
-						<ScrollView>
-							{manageData.questions[currentIndex]?.activityID === 1 ?
-								<McqType />
-								: manageData.questions[currentIndex]?.activityID === 2 ?
-									<Tnf />
-									: manageData.questions[currentIndex]?.activityID === 9 ?
-										<DndType />
-										: manageData.questions[currentIndex]?.activityID === 10 ?
-											<JUMBW />
-											: manageData.questions[currentIndex]?.activityID === 12 ?
-												<DdType />
-												: manageData.questions[currentIndex]?.activityID === 4 ?
-													<Matching />
-													: manageData.questions[currentIndex]?.activityID === 3 ?
-														<FillUp />
-														: manageData.questions[currentIndex]?.activityID === 15 ?
-															<Desc />
-															:
-															null
-							}
-						</ScrollView>
+		// <SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
+		// 	{manageData.showLoader ?
+		// 		<Loader /> :
+		// 		<View>
+		// 			{manageData.questions[currentIndex]?.activityID != 4 &&
+		// 				<SwaHeader title={'Assessment Attempt'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+		// 			}
+		// 			<Header />
+		// 			<View style={styles.headerTimer}>
+		// 				<Text style={{ fontSize: 13 }}>{timeBox}</Text>
+		// 				<TouchableOpacity style={styles.information} onPress={instructions}>
+		// 					<Icon name="info" size={16} color={SWATheam.SwaWhite} />
+		// 				</TouchableOpacity>
+		// 			</View>
+		// 		</View>
+		// 	}
+
+		// 	<View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, paddingVertical: 10, paddingHorizontal: 4, }}>
+		// 		<WebView
+		// 			ref={webviewRef}
+		// 			source={{ uri: 'http://192.168.1.5:5173/' }}
+		// 			onLoadEnd={() => {
+		// 				setIsWebViewReady(true);
+		// 				const payload = { "userData": userData, "manageData": manageData };
+		// 				const message = JSON.stringify(payload);
+		// 				setTimeout(() => {
+		// 					webviewRef.current.postMessage(message);
+		// 				}, 500)
+		// 			}}
+		// 			javaScriptEnabled={true}
+		// 			domStorageEnabled={true}
+		// 			startInLoadingState={true}
+		// 		/>
+		// 	</View>
+		// </SafeAreaView>
 
 
-						{/* instraction  */}
-						<View>
-							{dataHendler.instComp &&
-								<>
-									<Modal animationType="slide">
-										<View style={styles.headersInst}>
-											<Text style={{ color: SWATheam.SwaWhite }}>Instructions</Text>
-											<TouchableOpacity onPress={hideInstComp}>
-												<Icon name="close" size={20} color={SWATheam.SwaWhite} />
-											</TouchableOpacity>
-										</View>
-										<Instructions />
-									</Modal>
-								</>
-							}
+		<SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
+			<GestureHandlerRootView style={{ flex: 1, marginTop: 0 }}>
+				{manageData.showLoader ?
+					<Loader /> :
+					<View style={{ flex: 1 }}>
+						{manageData.questions[currentIndex]?.activityID != 4 &&
+							<SwaHeader title={'Assessment Attempt'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+						}
+						<Header />
+						<View style={styles.headerTimer}>
+							<Text style={{ fontSize: 13 }}>{timeBox}</Text>
+							<TouchableOpacity style={styles.information} onPress={instructions}>
+								<Icon name="info" size={16} color={SWATheam.SwaWhite} />
+							</TouchableOpacity>
 						</View>
-						{/* instraction  */}
+						<View style={styles.mainScreen}>
+							{/* componets renser here */}
 
-					</View>
-					<View style={styles.footer}>
-						<View style={styles.flextButton}>
-							<Button mode="contained" buttonColor="#426f91" onPress={prev} style={{ width: 110, marginRight: 5 }} disabled={currentIndex === 0}>
-								Previous
-							</Button>
-							<Button mode="contained" buttonColor="#426f91" onPress={next} style={{ width: 110 }} disabled={currentIndex === manageData.questions.length - 1}>
-								Next
-							</Button>
+							<ScrollView>
+								{manageData.questions[currentIndex]?.activityID === 1 ?
+									<McqType />
+									: manageData.questions[currentIndex]?.activityID === 2 ?
+										<Tnf />
+										: manageData.questions[currentIndex]?.activityID === 9 ?
+											<DndType />
+											: manageData.questions[currentIndex]?.activityID === 10 ?
+												<JUMBW />
+												: manageData.questions[currentIndex]?.activityID === 12 ?
+													<DdType />
+													: manageData.questions[currentIndex]?.activityID === 4 ?
+														<Matching />
+														: manageData.questions[currentIndex]?.activityID === 3 ?
+															<FillUp />
+															: manageData.questions[currentIndex]?.activityID === 15 ?
+																<Desc />
+																:
+																null
+								}
+							</ScrollView>
+
+
+							{/* instraction  */}
+							<View>
+								{dataHendler.instComp &&
+									<>
+										<Modal animationType="slide">
+											<View style={styles.headersInst}>
+												<Text style={{ color: SWATheam.SwaWhite }}>Instructions</Text>
+												<TouchableOpacity onPress={hideInstComp}>
+													<Icon name="close" size={20} color={SWATheam.SwaWhite} />
+												</TouchableOpacity>
+											</View>
+											<Instructions />
+										</Modal>
+									</>
+								}
+							</View>
+							{/* instraction  */}
+
 						</View>
-						<View>
-							{currentIndex === manageData.totalQuest - 1 ? (
-								<Button onPress={submitAttem} mode="contained" style={[styles.buttonBox1, { backgroundColor: "#407026" }]}>
-									<Text style={[styles.textButton]}>Submit</Text>
+						<View style={styles.footer}>
+							<View style={styles.flextButton}>
+								<Button mode="contained" buttonColor="#426f91" onPress={prev} style={{ width: 110, marginRight: 5 }} disabled={currentIndex === 0}>
+									Previous
 								</Button>
-							) : null}
+								<Button mode="contained" buttonColor="#426f91" onPress={next} style={{ width: 110 }} disabled={currentIndex === manageData.questions.length - 1}>
+									Next
+								</Button>
+								{currentIndex === manageData.totalQuest - 1 ? (
+									<Button onPress={submitAttem} mode="contained" style={{ width: 110, backgroundColor: "#407026" }}>
+										<Text style={[styles.textButton]}>Submit</Text>
+									</Button>
+								) : null}
+							</View>
 
 						</View>
-					</View>
-					{isDec &&
-						<View style={{ flex: 1, height: "100%" }}>
-							<Modal animationType="slide" transparent={true}>
-								<View style={{ flex: 1, justifyContent: "center", height: "100%", backgroundColor: '#0000003b' }}>
-									<View style={styles.selectImgCamera}>
-										<TouchableOpacity style={styles.closeIcons} onPress={hideModel}>
-											<Icon style={{ margin: "auto" }} name="close" size={22} color="#000" />
-										</TouchableOpacity>
-										<View style={styles.imhHolder}>
-											{imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
-										</View>
-										<View style={styles.uploaderImgsList}>
-											<Text style={{ fontSize: 13 }}>Uploaded Images</Text>
-											<View style={{ flexDirection: 'row', justifyContent: "space-between", flexWrap: 'wrap' }}>
-												{imgStore.data?.map((item, index) => {
-													if (item != '') {
-														let roData = imgStore.rawData
-														return (
-															<View style={styles.imgsBox} key={index}>
-																<TouchableOpacity style={styles.removeItem} onPress={() => { removeItemImg(roData, index) }}>
-																	<Icon style={{ margin: "auto" }} name="close" size={16} color="red" />
-																</TouchableOpacity>
-																<Image source={{ uri: item }} style={styles.uploadThumb} />
-															</View>
-														)
-													}
-												})}
+						{isDec &&
+							<View style={{ flex: 1, height: "100%" }}>
+								<Modal animationType="slide" transparent={true}>
+									<View style={{ flex: 1, justifyContent: "center", height: "100%", backgroundColor: '#0000003b' }}>
+										<View style={styles.selectImgCamera}>
+											<TouchableOpacity style={styles.closeIcons} onPress={hideModel}>
+												<Icon style={{ margin: "auto" }} name="close" size={22} color="#000" />
+											</TouchableOpacity>
+											<View style={styles.imhHolder}>
+												{imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+											</View>
+											<View style={styles.uploaderImgsList}>
+												<Text style={{ fontSize: 13 }}>Uploaded Images</Text>
+												<View style={{ flexDirection: 'row', justifyContent: "space-between", flexWrap: 'wrap' }}>
+													{imgStore.data?.map((item, index) => {
+														if (item != '') {
+															let roData = imgStore.rawData
+															return (
+																<View style={styles.imgsBox} key={index}>
+																	<TouchableOpacity style={styles.removeItem} onPress={() => { removeItemImg(roData, index) }}>
+																		<Icon style={{ margin: "auto" }} name="close" size={16} color="red" />
+																	</TouchableOpacity>
+																	<Image source={{ uri: item }} style={styles.uploadThumb} />
+																</View>
+															)
+														}
+													})}
+												</View>
+											</View>
+
+											<View style={styles.rowButton}>
+												<TouchableOpacity style={styles.buttonTou} onPress={() => setIsCameraOpen(true)}>
+													<Text style={{ color: SWATheam.SwaWhite }}>Open Camera</Text>
+												</TouchableOpacity>
+												<TouchableOpacity style={styles.buttonTou} onPress={chooseFile}>
+													<Text style={{ color: SWATheam.SwaWhite }}>Choose File</Text>
+												</TouchableOpacity>
+											</View>
+
+											<View style={styles.finalSubmitRow}>
+												<TouchableOpacity style={styles.finalSubBtn}>
+													<Text style={{ textAlign: "center", color: SWATheam.SwaWhite }} onPress={hideModel}>Final Submit</Text>
+												</TouchableOpacity>
 											</View>
 										</View>
-
-										<View style={styles.rowButton}>
-											<TouchableOpacity style={styles.buttonTou} onPress={() => setIsCameraOpen(true)}>
-												<Text style={{ color: SWATheam.SwaWhite }}>Open Camera</Text>
-											</TouchableOpacity>
-											<TouchableOpacity style={styles.buttonTou} onPress={chooseFile}>
-												<Text style={{ color: SWATheam.SwaWhite }}>Choose File</Text>
-											</TouchableOpacity>
-										</View>
-
-										<View style={styles.finalSubmitRow}>
-											<TouchableOpacity style={styles.finalSubBtn}>
-												<Text style={{ textAlign: "center", color: SWATheam.SwaWhite }} onPress={hideModel}>Final Submit</Text>
-											</TouchableOpacity>
-										</View>
 									</View>
-								</View>
-							</Modal>
-						</View>
-					}
-					<View>
-						<Modal animationType="slide" visible={isCameraOpen} transparent={true}>
-							<View style={styles.modalContainer}>
-								<View style={styles.modalContent}>
-									<View style={styles.rowButton2}>
-										<TouchableOpacity style={styles.buttonTou} onPress={toggleCameraType}>
-											<Icon name="refresh" size={16} color={SWATheam.SwaWhite} />
-										</TouchableOpacity>
-										<TouchableOpacity style={styles.buttonTou} onPress={handleOpenCamera}>
-											<Icon name="camera" size={16} color={SWATheam.SwaWhite} />
-										</TouchableOpacity>
-										<TouchableOpacity style={styles.buttonTou} onPress={() => setIsCameraOpen(false)}>
-											<Icon name="close" size={16} color={SWATheam.SwaWhite} />
-										</TouchableOpacity>
-									</View>
-								</View>
+								</Modal>
 							</View>
-						</Modal>
-					</View>
-					{loader && <Loader />}
-
-					{sure &&
-						<View style={{ flex: 1, height: "100%", }}>
-							<Modal animationType="slide" transparent={true}>
-								<View style={styles.areYouSure}>
-									<View style={styles.centerHolder}>
-										<View style={styles.qIcons}><Icon style={{ margin: "auto" }} name="question" size={70} color="#ffaa00" /></View>
-										<Text style={{ fontSize: 20, fontWeight: "bold", color: SWATheam.SwaBlack, marginTop: 10 }}>Are you sure?</Text>
-										<Text style={{ fontSize: 13, marginTop: 10, color: SWATheam.SwaBlack }}>Once Submit, your will not be able to Attempt Again !</Text>
-										<View style={styles.footerButton}>
-											<TouchableOpacity style={styles.buttonFoot} onPress={cancelSubmit}>
-												<Text style={{ color: SWATheam.SwaWhite, fontSize: 15 }}>Cancel</Text>
+						}
+						<View>
+							<Modal animationType="slide" visible={isCameraOpen} transparent={true}>
+								<View style={styles.modalContainer}>
+									<View style={styles.modalContent}>
+										<View style={styles.rowButton2}>
+											<TouchableOpacity style={styles.buttonTou} onPress={toggleCameraType}>
+												<Icon name="refresh" size={16} color={SWATheam.SwaWhite} />
 											</TouchableOpacity>
-											<TouchableOpacity onPress={() => examSubmit(navigation)} style={[styles.buttonFoot, { backgroundColor: "green" }]}>
-												<Text style={{ color: SWATheam.SwaWhite, fontSize: 15 }}>Confirm!</Text>
+											<TouchableOpacity style={styles.buttonTou} onPress={handleOpenCamera}>
+												<Icon name="camera" size={16} color={SWATheam.SwaWhite} />
+											</TouchableOpacity>
+											<TouchableOpacity style={styles.buttonTou} onPress={() => setIsCameraOpen(false)}>
+												<Icon name="close" size={16} color={SWATheam.SwaWhite} />
 											</TouchableOpacity>
 										</View>
 									</View>
 								</View>
 							</Modal>
 						</View>
-					}
-				</View>
-			}
+						{loader && <Loader />}
+
+						{sure &&
+							<View style={{ flex: 1, height: "100%", }}>
+								<Modal animationType="slide" transparent={true}>
+									<View style={styles.areYouSure}>
+										<View style={styles.centerHolder}>
+											<View style={styles.qIcons}><Icon style={{ margin: "auto" }} name="question" size={70} color="#ffaa00" /></View>
+											<Text style={{ fontSize: 20, fontWeight: "bold", color: SWATheam.SwaBlack, marginTop: 10 }}>Are you sure?</Text>
+											<Text style={{ fontSize: 13, marginTop: 10, color: SWATheam.SwaBlack }}>Once Submit, your will not be able to Attempt Again !</Text>
+											<View style={styles.footerButton}>
+												<TouchableOpacity style={styles.buttonFoot} onPress={cancelSubmit}>
+													<Text style={{ color: SWATheam.SwaWhite, fontSize: 15 }}>Cancel</Text>
+												</TouchableOpacity>
+												<TouchableOpacity onPress={() => examSubmit(navigation)} style={[styles.buttonFoot, { backgroundColor: "green" }]}>
+													<Text style={{ color: SWATheam.SwaWhite, fontSize: 15 }}>Confirm!</Text>
+												</TouchableOpacity>
+											</View>
+										</View>
+									</View>
+								</Modal>
+							</View>
+						}
+					</View>
+				}
 
 
 
-		</GestureHandlerRootView>
+			</GestureHandlerRootView>
+		</SafeAreaView>
 	);
 }
 const styles = StyleSheet.create({
@@ -570,7 +638,9 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 10,
-		elevation: 5
+		elevation: 5,
+		// marginTop: 100
+		paddingTop: "25%",
 	},
 	textBolds: {
 		fontSize: 14,
@@ -602,18 +672,14 @@ const styles = StyleSheet.create({
 		flex: 1
 	},
 	footer: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		// position: 'absolute',
-		// left: 0,
-		// bottom: 0,
 		backgroundColor: "#faf0e6",
 		width: '100%',
-		padding: 2,
+		paddingVertical: 15,
 	},
 	flextButton: {
-		flexDirection: 'row'
+		flexDirection: 'row',
+		justifyContent: "space-evenly",
+		paddingVertical: 10,
 	},
 	buttonBox: {
 		backgroundColor: "#5587e3",

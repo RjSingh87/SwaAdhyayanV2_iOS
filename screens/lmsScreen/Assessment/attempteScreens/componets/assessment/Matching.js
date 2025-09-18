@@ -1,12 +1,24 @@
 import React, { useState, useContext } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Image, Dimensions } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import { GlobleData } from '../../../../../../Store';
-import { SWATheam } from '../../../../../../constant/ConstentValue';
+import { SWATheam, } from '../../../../../../constant/ConstentValue';
+import RenderHtml from 'react-native-render-html';
 
 export default function Matching() {
+    const { width } = Dimensions.get('window');
+    const tagsStyles = {
+        body: {
+            fontSize: 15,
+            color: SWATheam.SwaBlack
+        },
+        p: {
+            fontSize: 15,
+            color: SWATheam.SwaBlack
+        }
+    };
 
-    const { manageData, currentIndex, setMatchTo, matchLines, setmatchLines, connections, setConnections } = useContext(GlobleData);
+    const { userData, manageData, currentIndex, setMatchTo, matchLines, setmatchLines, connections, setConnections } = useContext(GlobleData);
 
     const createOptionText = (optionText) => {
         if (!optionText) return null;
@@ -70,6 +82,7 @@ export default function Matching() {
         targetText_8 && { id: 'endPoint_8', x: 530, y: 760, label: targetText_8, side: 'right' },
     ].filter(point => point !== null); // Filter out null values
 
+
     const Point = ({ point, onPress }) => {
         const isSelected = selectedPoints.some(p => p.id === point.id);
         return (
@@ -92,6 +105,7 @@ export default function Matching() {
     };
 
     const [selectedPoints, setSelectedPoints] = useState([]);
+
     const [lines, setLines] = useState({});
 
     const handlePointPress = (point) => {
@@ -101,42 +115,32 @@ export default function Matching() {
             }
         } else {
             const selectedPoint = selectedPoints[0];
+
             if (selectedPoint.side === 'left' && point.side === 'right') {
-                let crtLine = matchLines[currentIndex] ? matchLines[currentIndex] : [];
-                const existingLineIndex = crtLine.findIndex(line =>
-                    (line.start.id === selectedPoint.id && line.end.id === point.id) ||
-                    (line.start.id === point.id && line.end.id === selectedPoint.id)
-                );
-
-                if (existingLineIndex !== -1) {
-                    const newLines = [...crtLine];
-                    newLines.splice(existingLineIndex, 1);
-                    setmatchLines((prev) => ({
-                        ...prev,
-                        [currentIndex]: newLines
-                    }));
-
-                    const currentConnections = connections[currentIndex] ? connections[currentIndex] : [];
-                    const newConnections = currentConnections.filter(connection =>
-                        connection !== `${selectedPoint.id}-${point.id}`
+                let crtLine = matchLines[currentIndex] ?
+                    [...matchLines[currentIndex]] : [];
+                crtLine = crtLine.filter(line => {
+                    return (
+                        line.start.id !== selectedPoint.id &&
+                        line.end.id !== point.id
                     );
-                    setConnections((prev) => ({
-                        ...prev,
-                        [currentIndex]: newConnections
-                    }));
-                } else {
-                    const newLine = { start: selectedPoint, end: point };
-                    setmatchLines((prev) => ({
-                        ...prev,
-                        [currentIndex]: [...crtLine, newLine]
-                    }));
+                });
 
-                    const currentConnections = connections[currentIndex] ? connections[currentIndex] : [];
-                    setConnections((prev) => ({
-                        ...prev,
-                        [currentIndex]: [...currentConnections, `${selectedPoint.id}-${point.id}`]
-                    }));
-                }
+                const newLine = { start: selectedPoint, end: point };
+                setmatchLines((prev) => ({
+                    ...prev,
+                    [currentIndex]: [...crtLine, newLine]
+                }));
+
+                const newConnections = [
+                    ...crtLine.map(l => `${l.start.id}-${l.end.id}`),
+                    `${selectedPoint.id}-${point.id}`
+                ];
+                setConnections((prev) => ({
+                    ...prev,
+                    [currentIndex]: newConnections
+                }));
+
                 setSelectedPoints([]);
             } else {
                 setSelectedPoints([]);
@@ -144,10 +148,60 @@ export default function Matching() {
         }
     };
 
+    // const handlePointPress = (point) => {
+    //     if (selectedPoints.length === 0){
+    //         if (point.side === 'left'){
+    //             setSelectedPoints([point]);
+    //         }
+    //     } else {
+    //         const selectedPoint = selectedPoints[0];
+    //         if (selectedPoint.side === 'left' && point.side === 'right'){
+    //             let crtLine = matchLines[currentIndex] ? matchLines[currentIndex] : [];
+    //             const existingLineIndex = crtLine.findIndex(line =>
+    //                 (line.start.id === selectedPoint.id && line.end.id === point.id) ||
+    //                 (line.start.id === point.id && line.end.id === selectedPoint.id)
+    //             );
+
+    //             if (existingLineIndex !== -1){
+    //                 const newLines = [...crtLine];
+    //                 newLines.splice(existingLineIndex, 1);
+    //                 setmatchLines((prev) => ({...prev, [currentIndex]: newLines
+    //                 }));
+
+
+    //                 const currentConnections = connections[currentIndex] ? connections[currentIndex] : [];
+    //                 const newConnections = currentConnections.filter(connection =>
+    //                     connection !== `${selectedPoint.id}-${point.id}`
+    //                 );
+    //                 setConnections((prev) => ({
+    //                     ...prev,
+    //                     [currentIndex]: newConnections
+    //                 }));
+    //             } else {
+    //                 const newLine = { start: selectedPoint, end: point};
+    //                 setmatchLines((prev) => ({
+    //                     ...prev,
+    //                     [currentIndex]: [...crtLine, newLine]
+    //                 }));
+
+    //                 const currentConnections = connections[currentIndex] ? connections[currentIndex] : [];
+    //                 setConnections((prev) => ({
+    //                     ...prev,
+    //                     [currentIndex]: [...currentConnections, `${selectedPoint.id}-${point.id}`]
+    //                 }));
+    //             }
+    //             setSelectedPoints([]);
+    //         } else {
+    //             setSelectedPoints([]);
+    //         }
+    //     }
+    // };
+
     // console.log(matchData, "/*");
     // matchingDataFun(matchData)
 
     const renderLines = () => {
+        // console.log(JSON.stringify(matchLines),'check matchline')
         let newLines = matchLines[currentIndex] ? matchLines[currentIndex] : []
         return newLines.map((line, index) => (
             <Line
@@ -161,10 +215,11 @@ export default function Matching() {
             />
         ));
     };
+
     return (
         <>
             <View style={styles.roline}>
-                <Text style={styles.qNumber}>{manageData.qNumber}</Text>
+                <Text style={styles.qNumber}>{currentIndex + 1}</Text>
                 <View style={{ flex: 1 }}>
                     {manageData.questions[currentIndex]?.questionPart1 ?
                         <View>
@@ -174,7 +229,12 @@ export default function Matching() {
                                     manageData.questions[currentIndex]?.questionPart1.endsWith('.JPG') ||
                                     manageData.questions[currentIndex]?.questionPart1.endsWith('.jpg') ?
                                     <Image source={{ uri: manageData.siteUtls + manageData.questions[currentIndex]?.imagePath + manageData.questions[currentIndex]?.questionPart1 }} style={styles.questImgs} />
-                                    : <Text style={styles.question}>{manageData.questions[currentIndex]?.questionPart1}</Text>
+                                    :
+                                    <RenderHtml
+                                        contentWidth={width}
+                                        source={{ html: manageData.questions[currentIndex]?.questionPart1 }}
+                                        tagsStyles={tagsStyles}
+                                    />
                             }
                         </View>
                         : ""}
@@ -186,7 +246,12 @@ export default function Matching() {
                                     manageData.questions[currentIndex]?.questionPart2.endsWith('.JPG') ||
                                     manageData.questions[currentIndex]?.questionPart2.endsWith('.jpg') ?
                                     <Image source={{ uri: manageData.siteUtls + manageData.questions[currentIndex]?.imagePath + manageData.questions[currentIndex]?.questionPart2 }} style={styles.questImgs} />
-                                    : <Text style={styles.question}>{manageData.questions[currentIndex]?.questionPart2}</Text>
+                                    :
+                                    <RenderHtml
+                                        contentWidth={width}
+                                        source={{ html: manageData.questions[currentIndex]?.questionPart2 }}
+                                        tagsStyles={tagsStyles}
+                                    />
                             }
                         </View>
                         : ""}
@@ -198,7 +263,13 @@ export default function Matching() {
                                     manageData.questions[currentIndex]?.questionPart3.endsWith('.JPG') ||
                                     manageData.questions[currentIndex]?.questionPart3.endsWith('.jpg') ?
                                     <Image source={{ uri: manageData.siteUtls + manageData.questions[currentIndex]?.imagePath + manageData.questions[currentIndex]?.questionPart3 }} style={styles.questImgs} />
-                                    : <Text style={styles.question}>{manageData.questions[currentIndex]?.questionPart3}</Text>
+                                    :
+                                    <RenderHtml
+                                        contentWidth={width}
+                                        source={{ html: manageData.questions[currentIndex]?.questionPart3 }}
+                                        tagsStyles={tagsStyles}
+                                    />
+
                             }
                         </View>
                         : ""}
@@ -210,7 +281,12 @@ export default function Matching() {
                                     manageData.questions[currentIndex]?.questionPart4.endsWith('.JPG') ||
                                     manageData.questions[currentIndex]?.questionPart4.endsWith('.jpg') ?
                                     <Image source={{ uri: manageData.siteUtls + manageData.questions[currentIndex]?.imagePath + manageData.questions[currentIndex]?.questionPart4 }} style={styles.questImgs} />
-                                    : <Text style={styles.question}>{manageData.questions[currentIndex]?.questionPart4}</Text>
+                                    :
+                                    <RenderHtml
+                                        contentWidth={width}
+                                        source={{ html: manageData.questions[currentIndex]?.questionPart4 }}
+                                        tagsStyles={tagsStyles}
+                                    />
                             }
                         </View>
                         : ""}
@@ -222,7 +298,12 @@ export default function Matching() {
                                     manageData.questions[currentIndex]?.questionPart5.endsWith('.JPG') ||
                                     manageData.questions[currentIndex]?.questionPart5.endsWith('.jpg') ?
                                     <Image source={{ uri: manageData.siteUtls + manageData.questions[currentIndex]?.imagePath + manageData.questions[currentIndex]?.questionPart5 }} style={styles.questImgs} />
-                                    : <Text style={styles.question}>{manageData.questions[currentIndex]?.questionPart5}</Text>
+                                    :
+                                    <RenderHtml
+                                        contentWidth={width}
+                                        source={{ html: manageData.questions[currentIndex]?.questionPart5 }}
+                                        tagsStyles={tagsStyles}
+                                    />
                             }
                         </View>
                         : ""}
@@ -282,16 +363,16 @@ const styles = StyleSheet.create({
         width: 150,
         flexDirection: "row",
         alignItems: "center",
-        // borderWidth:1,
+        // borderWidth:2,
     },
     labelLeft: {
         right: 33,
-        width: 100,
+        width: 150,
         textAlign: "right"
     },
     labelRight: {
         left: 33,
-        width: 100,
+        width: 150,
     },
     optImgs: {
         width: 60,
@@ -301,7 +382,8 @@ const styles = StyleSheet.create({
     rowColman: {
         flexDirection: 'row',
         justifyContent: "space-around",
-        width: "100%"
+        width: "100%",
+
     },
     qNumber: {
         fontWeight: "bold",

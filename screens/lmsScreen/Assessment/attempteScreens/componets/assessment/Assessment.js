@@ -4,8 +4,9 @@ import AssiList from './AssList';
 import SwaHeader from '../../../../../common/SwaHeader';
 import { GlobleData } from '../../../../../../Store';
 import Services from '../../../../../../Services';
-import { apiRoot } from '../../../../../../constant/ConstentValue';
+import { apiRoot, SWATheam } from '../../../../../../constant/ConstentValue';
 import Loader from '../../../../../common/Loader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Assessment = ({ navigation }) => {
 	const { userData } = useContext(GlobleData)
@@ -47,13 +48,15 @@ const Assessment = ({ navigation }) => {
 		setIsInstruction(true)
 	}
 	return (
-		<View style={{ flex: 1, marginTop: 24 }}>
-			<SwaHeader title={'Assessment'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-			{isLoading ?
-				<Loader /> :
-				<AssiList navigation={navigation} assessList={assessList} />
-			}
-		</View>
+		<SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
+			<View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, marginTop: 0 }}>
+				<SwaHeader title={'Assessment'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+				{isLoading ?
+					<Loader /> :
+					<AssiList navigation={navigation} assessList={assessList} />
+				}
+			</View>
+		</SafeAreaView>
 	);
 }
 export default Assessment

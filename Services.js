@@ -64,6 +64,25 @@ class Services {
             })
     }
 
+    async uploadData(url, body) {
+        return fetch(baseURL + url, {
+            headers: { accpet: "application/json", "Api-token": token, "Content-Type": "multipart/form-data" },
+            method: "POST",
+            body: body
+        })
+            .then(async (res) => {
+                let resText = await res.text()
+                try {
+                    return JSON.parse(resText);
+                } catch (error) {
+                    return resText;
+                }
+            })
+            .catch((err) => {
+                throw new Error(err);
+            })
+    }
+
 
 
 }

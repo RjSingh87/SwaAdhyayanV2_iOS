@@ -1,13 +1,15 @@
 import { StyleSheet, Text, View, Dimensions, Platform, } from 'react-native'
-import React from 'react'
-import { SwaTheam, assetsPath } from '../../constant/ConstentValue'
+import React, { useContext } from 'react'
+import { SWATheam, SwaTheam, assetsPath } from '../../constant/ConstentValue'
 import Pdf from 'react-native-pdf';
 import SwaHeader from './SwaHeader';
 import { useSelector } from 'react-redux';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GlobleData } from '../../Store';
 
 
 const PdfViewer = ({ navigation, route }) => {
+  const { userData } = useContext(GlobleData)
   const moduleActivityList = useSelector(state => state.ActivityToolList)
   let pdfPath = ''
   if (moduleActivityList.data.length) {
@@ -36,15 +38,15 @@ const PdfViewer = ({ navigation, route }) => {
   function onClickLeftIcon() {
     navigation.goBack()
   }
-  // function onClickRightIcon() {
-  //     setIsInstruction(true)
-  // }
+  function onClickRightIcon() {
+    setIsInstruction(true)
+  }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, }}>
-        <View style={{ flex: 1, marginTop: Platform.OS === "ios" ? 0 : 24 }}>
-          {/* <SwaHeader title={titleName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon}/> */}
+      <SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
+        <SwaHeader title={titleName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+        <View style={{ padding: 0, flex: 1, backgroundColor: SWATheam.SwaWhite, }}>
 
           <View style={styles.container}>
             <Pdf

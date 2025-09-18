@@ -18,7 +18,7 @@ const PR = 'Prayer'
 const EP = 'Extra Period'
 const RC = 'Recess'
 const PD = 'Period'
-const greyClr = '#eaeaea'
+const greyClr = '#fff'
 
 let assignTabHeight = 35;
 let templateID = '';
@@ -422,7 +422,7 @@ const TimeTable = ({ navigation, route }) => {
         <SafeAreaProvider>
             <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, backgroundColor: userData.data.colors.mainTheme }}>
                 <SwaHeader title={route.params.iconData.iconName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-                <View style={{ backgroundColor: userData.data.colors.liteTheme, flex: 1, paddingBottom: insets.bottom, }} >
+                <View style={{ backgroundColor: userData.data.colors.liteTheme, flex: 1, }} >
                     {isLoading ?
                         <Loader /> :
                         <>
@@ -475,7 +475,7 @@ const TimeTable = ({ navigation, route }) => {
                                             </Text>
                                         </View>
                                     }
-                                    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: greyClr, marginVertical: 5, borderRadius: 5, padding: 3 }}>
+                                    <View style={{ flexDirection: 'row', borderWidth: 0, borderColor: greyClr, marginTop: 5, borderRadius: 5, paddingHorizontal: 3 }}>
                                         <View style={{ flex: 1, flexDirection: 'row' }}>
                                             <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '1' ? userData.data.colors.mainTheme : greyClr }}>
                                                 <TouchableOpacity onPress={() => { daySelect(1); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>

@@ -51,11 +51,19 @@ const SubIconActivityList = ({ navigation, toolItems, getModuleActivityData, sel
                                 iconName = item.activityName.replace('<br>', '')
 
                             } else {
-                                listKey = item.chapterID
-                                {/* iconUrl = item?.chapterIcon
-                        baseUrl = toolItems.chapterImg */}
-                                imgUrl = toolItems.chapterImg + item?.chapterIcon
-                                iconName = ''
+                                if (item?.bookID == 107) {
+                                    listKey = item.chapterID
+                                    {/* iconUrl = item?.chapterIcon
+                                    baseUrl = toolItems.chapterImg */}
+                                    imgUrl = 'https://swaadhyayan.com/school1/assets/images/3dIcons/clsMidIcon.png'
+                                    iconName = item.chapterName
+                                } else {
+                                    listKey = item.chapterID
+                                    {/* iconUrl = item?.chapterIcon
+                                    baseUrl = toolItems.chapterImg */}
+                                    imgUrl = toolItems.chapterImg + item?.chapterIcon
+                                    iconName = ''
+                                }
                             }
                         }
                         if (selectedModuleItem?.urlLink != null && item.chapterName != null) {
@@ -67,9 +75,12 @@ const SubIconActivityList = ({ navigation, toolItems, getModuleActivityData, sel
                                     let actUrl = ''
                                     if ((toolItems.activityUrl != null || toolItems.activityUrl != undefined) && item.htmlUrl == "VirtualTour") {
                                         actUrl = item.activityPath
-                                    } else if (toolItems.activityUrl != null || toolItems.activityUrl != undefined) {
-                                        // actUrl = toolItems.activityUrl // for other
-                                        actUrl = item.activityPath
+                                    } else if ((toolItems.activityUrl != null || toolItems.activityUrl != undefined)) {
+                                        if (item.htmlUrl == 'Exercise') {
+                                            actUrl = "https://swaadhyayan.com/data/e-Learning/otherActivity/" + item.activityUrl + "/index.html"
+                                        } else {
+                                            actUrl = item.activityPath
+                                        }
                                     } else if (item.htmlUrl == "swaLearning") {
                                         actUrl = item.activityUrl
                                     }

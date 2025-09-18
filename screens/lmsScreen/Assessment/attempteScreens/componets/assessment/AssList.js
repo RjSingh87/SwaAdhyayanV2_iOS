@@ -7,6 +7,7 @@ import Loader from '../../../../../common/Loader';
 import Services from '../../../../../../Services';
 // import Orientation from 'react-native-orientation-locker';
 import AssessmentReport from '../../../AssessmentReport';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function AssiList({ navigation, }) {
@@ -214,7 +215,7 @@ export default function AssiList({ navigation, }) {
 									{item.endDate >= todayDate && attemptIds === 0 ?
 										<TouchableOpacity
 											style={[styles.btnsStatus_4, { width: "50%", alignSelf: 'center' }]}
-											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder') }}
+											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder', { "assId": item.assessmentID }) }}
 										>
 											<Text
 												style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Attempt Waiting</Text>

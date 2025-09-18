@@ -8,11 +8,11 @@ const { width, height } = Dimensions.get('window')
 const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon }) => {
   const { userData } = useContext(GlobleData)
   return (
-    <View style={[styles.header, { backgroundColor: userData?.data?.colors?.mainTheme, borderBottomWidth: .5, borderColor: 'rgba(0, 0, 0, 0.8)' }]}>
+    <View style={[styles.header, { backgroundColor: userData?.data?.colors?.mainTheme, }]}>
       <TouchableOpacity style={styles.btn}
         onPress={() => onClickLeftIcon()}
       >
-        <AntDesign name={leftIcon} size={30} color={SWATheam.SwaWhite} />
+        <AntDesign name={leftIcon} size={25} color={SWATheam.SwaWhite} />
       </TouchableOpacity>
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 10 }}>
         <Text style={{ fontWeight: '700', color: SWATheam.SwaWhite, textAlign: 'center', fontSize: 16 }}>{title.length > 35 ? title.substring(0, 31) + '...' : title}</Text>
@@ -31,7 +31,7 @@ export default SwaHeader
 const styles = StyleSheet.create({
   header: {
     width: width,
-    height: 55,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'space-between',
     // marginTop:Platform.OS === 'android'?24:0,

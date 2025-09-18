@@ -1,16 +1,16 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button } from "react-native"
-import { useEffect, useState, useContext} from "react"
+import { useEffect, useState, useContext } from "react"
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Entypo from 'react-native-vector-icons/Entypo'
 import ImageViewer from "../../../common/ImageViewer"
-import { apiRoot, SwaTheam } from "../../../../constant/ConstentValue"
+import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
 
 
 const CheckedHomeWork = () => {
-    const {userData} = useContext(GlobleData)
+    const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [checkedHomeWork, setCheckedHomeWork] = useState({ data: null, status: false })
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
@@ -22,32 +22,32 @@ const CheckedHomeWork = () => {
     const getCheckedHomeWork = () => {
         setLoading(true)
         const payload = {
-                "schoolCode": userData.data.schoolCode,
-                "userRefID": userData.data.userRefID,
-                "userTypeID": userData.data.userTypeID,
-                "classID": userData.data.classID,
-                "sectionID": userData.data.sectionID
+            "schoolCode": userData.data.schoolCode,
+            "userRefID": userData.data.userRefID,
+            "userTypeID": userData.data.userTypeID,
+            "classID": userData.data.classID,
+            "sectionID": userData.data.sectionID
         }
         Services.post(apiRoot.getCheckedHomeworkStudent, payload)
-        .then((res) => {
-            if (res.status == "success") {
+            .then((res) => {
+                if (res.status == "success") {
+                    setLoading(false)
+                    const data = res.data
+                    setCheckedHomeWork((prev) => {
+                        return { ...prev, data: data, status: true }
+                    })
+                } else {
+                    setLoading(false)
+                    // alert(res.message)
+                    setCheckedHomeWork({ data: null, status: false })
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
                 setLoading(false)
-                const data = res.data
-                setCheckedHomeWork((prev) => {
-                    return { ...prev, data: data, status: true}
-                })
-            } else {
-                setLoading(false)
-                // alert(res.message)
-                setCheckedHomeWork({data: null, status: false})
-            }
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-        .finally(()=>{
-            setLoading(false)
-        })
+            })
     }
 
     const viewFile = (item, type) => {
@@ -70,10 +70,10 @@ const CheckedHomeWork = () => {
     }
 
     return (
-            <View style={{flex: 1 }}>
-                {loading?
-                <Loader/>:
-                <View style={{ padding: 10, flex: 1}}>
+        <View style={{ flex: 1 }}>
+            {loading ?
+                <Loader /> :
+                <View style={{ padding: 10, flex: 1 }}>
                     <ScrollView>
                         {
                             checkedHomeWork.status ?
@@ -82,7 +82,7 @@ const CheckedHomeWork = () => {
                                         checkedHomeWork.data.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
-                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor:SwaTheam.SwaWhite}} key={index}>
+                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SwaTheam.SwaWhite }} key={index}>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                                                         <View style={{ width: 120, }}>
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Class </Text>
@@ -174,18 +174,18 @@ const CheckedHomeWork = () => {
                                     }
                                 </View>
                                 :
-                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5, backgroundColor:SwaTheam.SwaWhite}}>
+                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5, backgroundColor: SWATheam.SwaWhite }}>
                                     <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
                                 </View>
                         }
                     </ScrollView>
                 </View>
-                }
-                {fileType.status &&
-                    <ImageViewer fileType={fileType} setFileType={setFileType}/>
-                }
+            }
+            {fileType.status &&
+                <ImageViewer fileType={fileType} setFileType={setFileType} />
+            }
 
-            </View>
+        </View>
 
     )
 }

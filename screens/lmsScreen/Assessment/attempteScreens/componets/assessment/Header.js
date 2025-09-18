@@ -3,15 +3,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import { GlobleData } from '../../../../../../Store';
 import { SWATheam } from '../../../../../../constant/ConstentValue';
 export default function Header() {
-	const { userData, manageData, attemptStore } = useContext(GlobleData);
+	const { userData, manageData, attemptStore, attemptedCount, finalPost } = useContext(GlobleData);
 	return (
 		<View style={[styles.HeaderTop, { backgroundColor: userData.data.colors.mainTheme, }]}>
-			<View style={[styles.rowHeader, { borderBottomWidth: .7, borderColor: SWATheam.SwaWhite, }]}>
+			<View style={[styles.rowHeader, ({ justifyContent: 'flex-start', borderBottomWidth: .7, borderColor: SWATheam.SwaWhite, })]} >
 				<Text style={styles.textRuning}>Asse. Name : {attemptStore.assName}</Text>
-				<Text style={styles.textRuning}>Total Marks : {manageData.TotlMks}</Text>
 			</View>
-			<View style={[styles.rowHeader, ({ justifyContent: 'center' })]} >
-				<Text style={styles.textRuning}>Attempted Question. {manageData.totalQuest}/{manageData.qNumber}</Text>
+			<View style={styles.rowHeader}>
+				<Text style={styles.textRuning}>Total Marks : {manageData.TotlMks}</Text>
+				<Text style={styles.textRuning}>Attempted Question. {finalPost.length}/{manageData.totalQuest}</Text>
 			</View>
 		</View>
 	);

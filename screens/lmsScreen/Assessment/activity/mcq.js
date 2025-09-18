@@ -142,8 +142,8 @@ export default function Mcq({ mcqData, index, selectedQuesIDs, selectedQuesIDsAr
 
 
 
-  const exampleQuestion =
-    `\\( \\left( \\frac{2}{3} \\right)^{2} \\times \\left( \\frac{1}{3} \\right)^{-4} \\times 3^{-1} \\times \\left( \\frac{1}{6} \\right) \\)`;
+  // const exampleQuestion =
+  //   `\\( \\left( \\frac{2}{3} \\right)^{2} \\times \\left( \\frac{1}{3} \\right)^{-4} \\times 3^{-1} \\times \\left( \\frac{1}{6} \\right) \\)`;
 
 
 

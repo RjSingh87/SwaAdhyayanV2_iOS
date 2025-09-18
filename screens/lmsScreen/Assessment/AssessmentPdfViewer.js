@@ -1,43 +1,71 @@
-import { StyleSheet, Text, View, Dimensions, Share, TouchableOpacity, Platform } from 'react-native'
-import React, { useContext } from 'react'
+import { StyleSheet, Text, View, Dimensions, Share, TouchableOpacity, Platform, Button } from 'react-native'
+import React, { useContext, useRef } from 'react'
 import Pdf from 'react-native-pdf'
 // import Share from 'react-native-share'
 import { SWATheam } from '../../../constant/ConstentValue';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobleData } from '../../../Store';
+import WebView from 'react-native-webview';
+import RNPrint from "react-native-print";
+
 
 
 
 const AssessmentPdfViewer = ({ navigation, route }) => {
+    const webviewRef = useRef();
     const { userData } = useContext(GlobleData)
-    const pdfData = route.params.data
-    const source = { uri: "data:application/pdf;base64," + pdfData };
-    const share = async () => {
-        const content = {
-            url: 'data:application/pdf;base64,' + pdfData,
-            message: 'invoice'
-        };
-        const options = {
-            excludedActivityTypes: ['com.apple.UIKit.activity.PostToFacebook'],
-            tintColor: '#ff00ff',
-            subject: "a subject to share via email"
-        };
-        try {
-            const result = await Share.share(content, options);
-            console.log('Share successful:', result);
-        } catch (error) {
-            console.log('Error while sharing:', error);
+    const htmlData = route.params.data
+    // const source = { uri: "data:application/pdf;base64," + htmlData };
+    // const share = async () => {
+    //     const content = {
+    //         url: 'data:application/pdf;base64,' + htmlData,
+    //         message: 'invoice'
+    //     };
+    //     const options = {
+    //         excludedActivityTypes: ['com.apple.UIKit.activity.PostToFacebook'],
+    //         tintColor: '#ff00ff',
+    //         subject: "a subject to share via email"
+    //     };
+    //     try {
+    //         const result = await Share.share(content, options);
+    //         console.log('Share successful:', result);
+    //     } catch (error) {
+    //         console.log('Error while sharing:', error);
+    //     }
+    // }
+
+    const htmlContent = `
+  <html>
+    <head>
+      <meta charset="utf-8" />
+    </head>
+    <body>
+      ${htmlData}
+    </body>
+  </html>
+`;
+
+    const handlePrint = async () => {
+        if (htmlData) {
+            await RNPrint.print({
+                html: `
+    <html>
+      <head>
+        <style>
+          @media print {
+            body { -webkit-print-color-adjust: exact; }
+            div.page { page-break-after: always; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="page">${htmlData}</div>
+      </body>
+    </html>
+  `
+            })
         }
-        // try {
-        //     const shareOption = {
-        //         url: 'data:application/pdf;base64,' + pdfData,
-        //         filename: 'invoice'
-        //     }
-        //     await Share.open(shareOption)
-        // } catch (error) {
-        //     console.log(error)
-        // }
-    }
+    };
 
     return (
         <SafeAreaProvider>
@@ -52,11 +80,31 @@ const AssessmentPdfViewer = ({ navigation, route }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <Pdf
+                    <View style={{ flex: 1 }}>
+                        <WebView
+                            ref={webviewRef}
+                            originWhitelist={['*']}
+                            source={{ html: htmlData }}
+                            style={{ flex: 1 }}
+                            javaScriptEnabled={true}
+                            domStorageEnabled={true}
+                            useWebKit={true}
+                            allowsBackForwardNavigationGestures={true}
+                            scrollEnabled={true}
+                            bounces={false}
+                            decelerationRate="normal"
+                            contentMode="mobile"
+                            setBuiltInZoomControls={true}
+                        />
+
+                        <Button title="Share Page" onPress={handlePrint} />
+
+                    </View>
+
+                    {/* <Pdf
                         trustAllCerts={false}
                         source={source}
                         onLoadComplete={(numberOfPages, filePath) => {
-                            // console.log(`Number of pages: ${numberOfPages}`);
                         }}
                         onPageChanged={(page, numberOfPages) => {
                             console.log(`Current page: ${page}`);
@@ -68,7 +116,7 @@ const AssessmentPdfViewer = ({ navigation, route }) => {
                             console.log(`Link pressed: ${uri}`);
                         }}
                         style={styles.pdf}
-                    />
+                    /> */}
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>

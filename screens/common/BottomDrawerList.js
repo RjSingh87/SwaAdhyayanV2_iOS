@@ -87,7 +87,7 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
                         }
                         }>
                         <View style={{ height: 80, width: 80, justifyContent: 'center', alignItems: 'center', }}>
-                          <Image source={{ uri: listItem?.imgUrl + item.uploadIcon }} style={{ height: "100%", width: "100%", borderWidth: 1, resizeMode: "contain" }} />
+                          <Image source={{ uri: listItem?.imgUrl + item.uploadIcon }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
                         </View>
                         <View style={{ height: 40, alignItems: 'center', }}>
                           <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{iconName}</Text>

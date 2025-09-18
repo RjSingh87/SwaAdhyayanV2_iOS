@@ -1,6 +1,6 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform, Button, Alert } from "react-native"
 import Entypo from 'react-native-vector-icons/Entypo'
-import { useState, useContext } from "react"
+import { useState, useContext, useRef } from "react"
 // import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import SwaHeader from "../common/SwaHeader";
 import { GlobleData } from "../../Store";
@@ -8,6 +8,7 @@ import Services from "../../Services";
 import { SWATheam, apiRoot } from "../../constant/ConstentValue";
 import Loader from "../common/Loader";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { WebView } from 'react-native-webview';
 
 const font15 = 15
 
@@ -23,6 +24,19 @@ const StudentList = ({ navigation, route }) => {
     const [stuList, setStuList] = useState(false)
     const [count, setCount] = useState(1);
     const [loading, setLoading] = useState(false)
+
+    const webviewRef = useRef(null);
+
+
+    const sendToWeb = () => {
+        const message = "Hello Web, from React Native!";
+        webviewRef.current.postMessage(message);
+    };
+
+    const handleMessage = (event) => {
+        const messageFromWeb = event.nativeEvent.data;
+        alert("Received from Web: " + messageFromWeb);
+    };
 
 
     function onClickLeftIcon() {
@@ -417,6 +431,28 @@ const StudentList = ({ navigation, route }) => {
                     </View>
                 </View>
             }
+
+
+            {/* //testing assessment attempt screen for React js */}
+            {/* <View style={{ flex: 1 }}>
+                <WebView
+                    ref={webviewRef}
+                    source={{ uri: "http://192.168.1.3:5173/" }}
+                    onMessage={handleMessage}
+                    javaScriptEnabled={true}
+                    originWhitelist={['*']}
+                    allowFileAccess={true}
+                    allowUniversalAccessFromFileURLs={true}
+                />
+                <Button title="Send Data to Web" onPress={sendToWeb} />
+            </View> */}
+
+
+
+
+
+
+
         </SafeAreaView>
 
     )

@@ -216,7 +216,7 @@ export default function AutoAssessmentGenerate() {
 
       setIsLoader(true)
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": classID,
         "bookIDs": bookIDs,
         "subjectID": subjectID,
@@ -611,7 +611,7 @@ export default function AutoAssessmentGenerate() {
 
   function getAssessClassList() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
       "academicYear": userData.data.academicYear
@@ -720,7 +720,7 @@ export default function AutoAssessmentGenerate() {
   function getUserSectionList(classID) {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": classID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
@@ -747,7 +747,7 @@ export default function AutoAssessmentGenerate() {
     setIsLoader(true)
 
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
@@ -775,7 +775,7 @@ export default function AutoAssessmentGenerate() {
   function getAssessBookList(subjectID) {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "subjectID": subjectID,
       "isAssess": "1"
@@ -815,7 +815,7 @@ export default function AutoAssessmentGenerate() {
       setIsLoader(false)
     }
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "bookID": bookIdsArry.toString(),
       "subjectID": selectedIds.subjectID,
@@ -1034,7 +1034,7 @@ export default function AutoAssessmentGenerate() {
     } else {
       setIsLoader(true)
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": classID,
         "bookIDs": bookIDs,
         "subjectID": subjectID,
@@ -1149,7 +1149,7 @@ export default function AutoAssessmentGenerate() {
   //   }
 
   //   const payload = {
-  //    "schoolCode": "SWA168760583",
+  //    "schoolID": "SWA168760583",
   //       "classID": classID,
   //       "bookID": bookIDs,
   //       "subjectID": subjectID,
@@ -1203,7 +1203,7 @@ export default function AutoAssessmentGenerate() {
       selectStuIDs = studentIDs.toString();
     }
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "assessmentID": assessID,
       "studentRefIDs": selectStuIDs,

@@ -34,7 +34,7 @@ const AddQuestionManually = () => {
     const getList = async (type) => {
         if (type == "class") {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "userTypeID": userData.data.userTypeID,
                 "userRefID": userData.data.userRefID,
                 "academicYear": userData.data.academicYear
@@ -64,7 +64,7 @@ const AddQuestionManually = () => {
         else if (type == 'section') {
             if (selectOption.class != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
                     "academicYear": userData.data.academicYear,
@@ -96,7 +96,7 @@ const AddQuestionManually = () => {
         else if (type == 'subject') {
             if (selectOption.section != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
                     "academicYear": userData.data.academicYear,
@@ -126,7 +126,7 @@ const AddQuestionManually = () => {
         else if (type == 'book') {
             if (selectOption.subject != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "classID": selectOption.class.getClassDetail.classID,
                     "subjectID": selectOption.subject.subjectID,
                     "isAssess": 1
@@ -155,7 +155,7 @@ const AddQuestionManually = () => {
         else if (type == 'chapter') {
             if (selectOption.book != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": selectOption.class.getClassDetail.classID,
                     "subjectID": selectOption.subject.subjectID,
@@ -379,7 +379,7 @@ const AddQuestionManually = () => {
 
     const uploadDoc = async (file) => {
         const formData = new FormData();
-        formData.append("schoolCode", userData.data.schoolCode)
+        formData.append("schoolID", userData.data.schoolID)
         formData.append("academicYear", userData.data.academicYear)
         formData.append("addedBy", userData.data.fullname)
         formData.append("file", file)
@@ -510,7 +510,7 @@ const AddQuestionManually = () => {
                 if (minOptLen >= 2) {
                     if (saveMCQTxt.radioID != null) {
                         const payload = {
-                            "schoolCode": userData.data.schoolCode,
+                            "schoolID": userData.data.schoolID,
                             "academicYear": userData.data.academicYear,
                             "classID": selectOption.class.classID,
                             "subjectID": selectOption.subject.subjectID,
@@ -559,7 +559,7 @@ const AddQuestionManually = () => {
                 if (saveFillUpTxt.queTxt != null) {
                     if (saveFillUpTxt.answer != null) {
                         const payload = {
-                            "schoolCode": userData.data.schoolCode,
+                            "schoolID": userData.data.schoolID,
                             "academicYear": userData.data.academicYear,
                             "classID": selectOption.class.classID,
                             "subjectID": selectOption.subject.subjectID,
@@ -605,7 +605,7 @@ const AddQuestionManually = () => {
                 if (saveTandFTxt.queTxt != null) {
                     if (saveTandFTxt.answer != null) {
                         const payload = {
-                            "schoolCode": userData.data.schoolCode,
+                            "schoolID": userData.data.schoolID,
                             "academicYear": userData.data.academicYear,
                             "classID": selectOption.class.classID,
                             "subjectID": selectOption.subject.subjectID,
@@ -652,7 +652,7 @@ const AddQuestionManually = () => {
             if (saveDescTxt.queTxt != null) {
                 if (saveDescTxt.answer != null) {
                     const payload = {
-                        "schoolCode": userData.data.schoolCode,
+                        "schoolID": userData.data.schoolID,
                         "academicYear": userData.data.academicYear,
                         "classID": selectOption.class.classID,
                         "subjectID": selectOption.subject.subjectID,

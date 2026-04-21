@@ -146,7 +146,7 @@ const SubIconsScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (selectedIcon.subIconID == 60) {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "subIconID": selectedIcon.subIconID
       }
       Services.post(apiRoot.getChildIcons, payload)
@@ -173,7 +173,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       setLoading(true)
       const payload = {
         "userRefID": userData?.data?.userRefID,
-        "schoolCode": userData?.data?.schoolCode,
+        "schoolID": userData?.data?.schoolID,
         "academicYear": userData?.data?.academicYear,
         "userTypeID": userData?.data?.userTypeID,
         "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
@@ -200,7 +200,7 @@ const SubIconsScreen = ({ navigation, route }) => {
     } else {
       const subIconPayload = {
         "userRefID": userData?.data?.userRefID,
-        "schoolCode": userData?.data?.schoolCode,
+        "schoolID": userData?.data?.schoolID,
         "academicYear": userData?.data?.academicYear,
         "userTypeID": userData?.data?.userTypeID,
         "mainIconID": mainIconID
@@ -309,7 +309,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         if (val.mainIconID == 30 && val.subIconID == 97) {
           setLoading(true)
           const payload = {
-            schoolCode: userData.data.schoolCode,
+            schoolID: userData.data.schoolID,
             academicYear: userData.data.academicYear,
             userRefID: userData.data.userRefID,
             classID: userData.data.classID,
@@ -386,7 +386,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         }
       } else {
         const payload = {
-          "schoolCode": userData.data.schoolCode,
+          "schoolID": userData.data.schoolID,
           "subIconID": val.getSubIconsData.subIconID
         }
         Services.post(apiRoot.getChildIcons, payload)
@@ -449,7 +449,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         setLoading(false)
       } else {
         const classPayload = {
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "userTypeID": userData?.data?.userTypeID
         }
         if (userData.data.userTypeID == 4) {
@@ -481,7 +481,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       } else {
         const sectionPayload = {
           "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "userTypeID": userData?.data?.userTypeID,
           "userRefID": userData?.data?.userRefID,
           "academicYear": userData?.data?.academicYear
@@ -512,7 +512,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           alert('Please select required field.')
         } else {
           const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "classID": selectedField.class.classID,
             "sectionID": selectedField.section.sectionID,
             "academicYear": userData.data.academicYear
@@ -571,7 +571,7 @@ const SubIconsScreen = ({ navigation, route }) => {
             setLoading(false)
           } else {
             const subjectPayload = {
-              "schoolCode": userData?.data?.schoolCode,
+              "schoolID": userData?.data?.schoolID,
               "userTypeID": userData?.data?.userTypeID,
               "academicYear": userData?.data?.academicYear,
               "userRefID": userData?.data?.userRefID,
@@ -609,7 +609,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           const payload = {
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "subjectID": selectedField?.subject?.subjectID,
-            "schoolCode": userData.data.schoolCode
+            "schoolID": userData.data.schoolID
           }
           Services.post(apiRoot.ncertBookAccToSubject, payload)
             .then((res) => {
@@ -643,7 +643,7 @@ const SubIconsScreen = ({ navigation, route }) => {
             setLoading(false)
           } else {
             const bookPayload = {
-              "schoolCode": userData?.data?.schoolCode,
+              "schoolID": userData?.data?.schoolID,
               "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
               "subjectID": selectedField?.subject?.subjectID,
               "isAssess": ""
@@ -689,7 +689,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       } else {
         const payload = {
           "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "academicYear": userData?.data?.academicYear,
           "sectionID": "",
           "isAssess": 0
@@ -722,7 +722,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         setLoading(false)
       } else {
         payload = {
-          "schoolCode": userData.data.schoolCode,
+          "schoolID": userData.data.schoolID,
           "classID": selectedField.class.classID,
           "sectionID": selectedField.section.sectionID,
           "subjectID": selectedField.subject.subjectID,
@@ -790,7 +790,7 @@ const SubIconsScreen = ({ navigation, route }) => {
     } else if (type == "student") {
       if (selectedField.class != null && selectedField.section != null && selectedField.subject != null) {
         const payload = {
-          "schoolCode": userData.data.schoolCode,
+          "schoolID": userData.data.schoolID,
           "classID": selectedField.class.classID,
           "sectionID": selectedField.section.sectionID,
           "subjectID": selectedField.subject.subjectID,
@@ -885,7 +885,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         {
           "classID": selectedField.class.classID,
           "subjectID": item.subjectID,
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "lessonType": selectedField.trmType.trmID
         }
         Services.post(apiRoot.trmLessonPlanOfClass, payload)
@@ -916,7 +916,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         const payload = {
           "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
           "subjectID": selectedField.subject.subjectID,
-          "schoolCode": userData.data.schoolCode,
+          "schoolID": userData.data.schoolID,
           "bookID": item.bookID
         }
         Services.post(apiRoot.getChapterOfNcertBook, payload)
@@ -1063,7 +1063,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       termID = item
     }
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "academicYear": userData.data.academicYear,
       "transYear": userData.data.transYear,
       "classID": selectedField.class.classID,
@@ -1186,7 +1186,7 @@ const SubIconsScreen = ({ navigation, route }) => {
             "subjectID": item.subjectID,
             "subTypeID": item.subTypeID,
             "bookID": (item.bookID != "" && item.bookID != null) ? item.bookID : "",
-            "schoolCode": userData?.data?.schoolCode,
+            "schoolID": userData?.data?.schoolID,
             "academicYear": userData?.data?.academicYear,
             "urlLink": (item.urlLink != "" && item.urlLink != null) ? item.urlLink : ""
           }
@@ -1199,7 +1199,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           "subjectID": item.subjectID,
           "subTypeID": item.subTypeID,
           "bookID": (item.bookID != "" && item.bookID != null) ? item.bookID : "",
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "academicYear": userData?.data?.academicYear,
           "urlLink": (item.urlLink != "" && item.urlLink != null) ? item.urlLink : ""
         }
@@ -1225,7 +1225,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           "subTypeID": item.subTypeID,
           "bookID": (item.bookID != "" && item.bookID != null) ? item.bookID : "",
           // "bookID": item.bookID,
-          "schoolCode": userData?.data?.schoolCode,
+          "schoolID": userData?.data?.schoolID,
           "academicYear": userData?.data?.academicYear,
           "urlLink": (item.urlLink != "" && item.urlLink != null) ? item.urlLink : ""
         }
@@ -1240,7 +1240,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       alert('This test is already attempted.')
     } else {
       const classID = ((userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID)
-      navigation.navigate('septAttempt', { classID: classID, testID: testID, testData: intro, schoolCode: userData?.data?.schoolCode })
+      navigation.navigate('septAttempt', { classID: classID, testID: testID, testData: intro, schoolCode: userData?.data?.schoolID })
     }
 
   }
@@ -1266,7 +1266,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       alert('Please select required fields.')
     } else {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": selectedField.class.classID,
         "groupID": groupID,
         "indicatorName": inputField.assName,
@@ -1298,7 +1298,7 @@ const SubIconsScreen = ({ navigation, route }) => {
     }
     setLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupID,
       "academicYear": userData.data.academicYear,
       "userTypeID": userData.data.userTypeID,
@@ -1339,7 +1339,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       actionName = "Edit Indicator and Sub Indicator"
     } else if (type == "removeIndicator") {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "indicatorID": item.indicatorID
       }
       Services.post(apiRoot.deleteAppIndicator, payload)
@@ -1359,7 +1359,7 @@ const SubIconsScreen = ({ navigation, route }) => {
 
   function addSubIndicator(val, indicatorID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "indicatorID": indicatorID,
       "subIndicatorName": val
     }
@@ -1375,7 +1375,7 @@ const SubIconsScreen = ({ navigation, route }) => {
   }
   function removesubIndicator(item, indicatorID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "subIndicatorID": item.subIndicatorID
     }
     Services.post(apiRoot.deleteSubIndicator, payload)
@@ -1402,7 +1402,7 @@ const SubIconsScreen = ({ navigation, route }) => {
       subIndcatorVals.push(val.val)
     })
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": indCls,
       "indicatorID": id,
       "groupID": 1,

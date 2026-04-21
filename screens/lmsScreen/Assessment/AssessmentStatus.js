@@ -25,7 +25,7 @@ const AssessmentStatus = () => {
     const getList = async (type) => {
         if (type == "class") {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "userTypeID": userData.data.userTypeID,
                 "userRefID": userData.data.userRefID,
                 "academicYear": userData.data.academicYear
@@ -53,7 +53,7 @@ const AssessmentStatus = () => {
         else if (type == 'section') {
             if (selectOption.class != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": selectOption.class.getClassDetail.classID,
                     "userTypeID": userData.data.userTypeID,
@@ -84,7 +84,7 @@ const AssessmentStatus = () => {
         else if (type == 'subject') {
             if (selectOption.section != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
@@ -115,7 +115,7 @@ const AssessmentStatus = () => {
         else if (type == 'assesName') {
             if (selectOption.subject != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
                     "classID": selectOption.class.getClassDetail.classID,
@@ -182,7 +182,7 @@ const AssessmentStatus = () => {
     const searchAssessment = async () => {
         if (selectOption.class != null && selectOption.section != null && selectOption.subject != null && selectOption.assessName != null) {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "academicYear": userData.data.academicYear,
                 "transYear": userData.data.transYear,
                 "userTypeID": userData.data.userTypeID,
@@ -221,7 +221,7 @@ const AssessmentStatus = () => {
     const viewResult = async (item) => {
 
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userTypeID": item.userTypeID,
             "userRefID": item.userRefID,
             "assessmentID": item?.getFaMarksData?.assessmentID
@@ -250,7 +250,7 @@ const AssessmentStatus = () => {
 
     const viewReport = async (item) => {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userTypeID": item?.userTypeID,
             "userRefID": item?.userRefID,
             "assessmentID": item?.getFaMarksData?.assessmentID

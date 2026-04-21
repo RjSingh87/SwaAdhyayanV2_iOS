@@ -50,7 +50,7 @@ const StudentList = ({ navigation, route }) => {
     function getClassList() {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userTypeID": userData.data.userTypeID,
             "userRefID": userData.data.userRefID,
             "academicYear": userData.data.academicYear
@@ -80,7 +80,7 @@ const StudentList = ({ navigation, route }) => {
         if (selectClassText != 'Select Class') {
             setLoading(true)
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "academicYear": userData.data.academicYear,
                 "classID": selectClass.data?.classID,
                 "userTypeID": userData.data.userTypeID,
@@ -132,7 +132,7 @@ const StudentList = ({ navigation, route }) => {
         if (selectClassText != 'Select Class' && selectSectionText != 'Select Section') {
             setLoading(true)
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "classID": selectClass.data?.classID,
                 "sectionID": selectSection.data?.sectionID,
                 "academicYear": userData.data.academicYear,

@@ -112,7 +112,7 @@ const TimeTable = ({ navigation, route }) => {
         setIsLoading(true)
         const payload = {
             "userRefID": userData.data.userRefID,
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userTypeID": userData.data.userTypeID,
         }
@@ -259,7 +259,7 @@ const TimeTable = ({ navigation, route }) => {
             if (classList.data != null) {
                 const payload = {
                     "userRefID": userData.data.userRefID,
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "userTypeID": userData.data.userTypeID,
                     "classID": selectClass.data.classID,
@@ -287,7 +287,7 @@ const TimeTable = ({ navigation, route }) => {
 
     function getTeachersList() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
         }
         Services.post(apiRoot.getTeachersListApp, payload)
@@ -307,7 +307,7 @@ const TimeTable = ({ navigation, route }) => {
 
     function assignTeacher() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "cellData": assignTeacherData.cellData,
             "createdByID": assignTeacherData.createdByID,
@@ -328,7 +328,7 @@ const TimeTable = ({ navigation, route }) => {
     }
     function getSubjectList() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "schoolID": userData.data.schoolID
         }
         Services.post(apiRoot.subjectsTimeTableApp, payload)
@@ -393,7 +393,7 @@ const TimeTable = ({ navigation, route }) => {
         const subjectID = allsubjectIDArr[index]
 
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "cellData": cellData,
             "templateID": templateID,

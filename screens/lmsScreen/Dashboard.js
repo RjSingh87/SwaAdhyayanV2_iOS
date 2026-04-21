@@ -52,7 +52,7 @@ const Dashboard = ({ navigation, route }) => {
   function appDashboard() {
     const dashboardPayload = {
       "userRefID": userData?.data?.userRefID,
-      "schoolCode": userData?.data?.schoolCode,
+      "schoolID": userData?.data?.schoolID,
       "academicYear": userData?.data?.academicYear,
       "transYear": userData?.data?.transYear,
       "userTypeID": userData?.data?.userTypeID

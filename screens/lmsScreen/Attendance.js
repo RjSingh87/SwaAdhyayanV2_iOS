@@ -97,7 +97,7 @@ const Attendance = ({ navigation }) => {
 
     function getClassList() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userTypeID": userData.data.userTypeID,
             "userRefID": userData.data.userRefID,
             "academicYear": userData.data.academicYear
@@ -126,7 +126,7 @@ const Attendance = ({ navigation }) => {
     function getSectionList() {
         if (selectClassText != 'Select Class') {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "academicYear": userData.data.academicYear,
                 "classID": selectClass.data.classID,
                 "userTypeID": userData.data.userTypeID,
@@ -203,7 +203,7 @@ const Attendance = ({ navigation }) => {
     function getStudentDataList() {
         if (selectClassText != 'Select Class' && selectSectionText != 'Select Section') {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "classID": selectClass.radioID,
                 "sectionID": selectSection.radioID,
                 "academicYear": userData.data.academicYear,
@@ -234,7 +234,7 @@ const Attendance = ({ navigation }) => {
 
     function checkStatus(sectionID) {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
@@ -261,7 +261,7 @@ const Attendance = ({ navigation }) => {
 
     function getAttendanceViewStatusWise() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
@@ -297,7 +297,7 @@ const Attendance = ({ navigation }) => {
     function getPeriodAttendance(selectPeriod, subjectID, selectTeacherDate) {
         const date = selectTeacherDate.split('/').reverse().join('-')
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "transYear": userData.data.transYear,
             "classID": selectClass.data.classID,
@@ -399,7 +399,7 @@ const Attendance = ({ navigation }) => {
     function markPeriodAttendance(selectTeacherDate) {
         const date = selectTeacherDate.split('/').reverse().join('-')
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "addedBy": userData.data.userRefID,
             "classID": selectClass.data.classID,
@@ -425,7 +425,7 @@ const Attendance = ({ navigation }) => {
 
     function getWholeMonthAttendanceSummary(year, month) {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "classID": selectClass.data.classID,
@@ -455,7 +455,7 @@ const Attendance = ({ navigation }) => {
 
     function getClassMonthAttendance(dateStr) {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "transYear": userData.data.transYear,
             "classID": selectClass.data.classID,
@@ -537,7 +537,7 @@ const Attendance = ({ navigation }) => {
     function markClassAttendance() {
         const date = selectTeacherDate.split('/').reverse().join('-')
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "classID": selectClass.data.classID,

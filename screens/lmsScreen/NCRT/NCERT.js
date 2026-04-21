@@ -85,7 +85,7 @@ export default function NCERT({ navigation, route }) {
 		const postData = {
 			"classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.selectedField.class.classID : userData.data.classID,
 			"subjectID": route.params.selectedField.subject.subjectID,
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"ncertChapterIDs": NcrtIds,
 			"userRefID": userData.data.userRefID
 		}

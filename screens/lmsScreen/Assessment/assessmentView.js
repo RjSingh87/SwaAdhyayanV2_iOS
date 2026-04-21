@@ -342,7 +342,7 @@ export default function AssessmentView({ navigation, editAss }) {
   function getAssessClassList() {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
       "academicYear": userData.data.academicYear
@@ -485,7 +485,7 @@ export default function AssessmentView({ navigation, editAss }) {
   function getUserSectionList(classID) {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": classID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
@@ -513,7 +513,7 @@ export default function AssessmentView({ navigation, editAss }) {
   function getAssesSubjectList(sectionID) {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
@@ -540,7 +540,7 @@ export default function AssessmentView({ navigation, editAss }) {
   function getAssessBookList(subjectID) {
     setIsLoader(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "subjectID": subjectID,
       "isAssess": "1"
@@ -592,7 +592,7 @@ export default function AssessmentView({ navigation, editAss }) {
       subjectID = selectedIds.subjectID
     }
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "bookID": bookIdsArry.toString(),
       "subjectID": subjectID,
@@ -814,7 +814,7 @@ export default function AssessmentView({ navigation, editAss }) {
       setIsLoader(false)
     } else {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": classID,
         "bookID": bookIDs,
         "subjectID": subjectID,

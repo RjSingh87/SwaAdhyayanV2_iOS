@@ -4,6 +4,7 @@ import { GlobleData } from '../../../../../../Store';
 import { SWATheam } from '../../../../../../constant/ConstentValue';
 export default function Header() {
 	const { userData, manageData, attemptStore, attemptedCount, finalPost } = useContext(GlobleData);
+	// console.log(userData.data.colors.mainTheme, "colorcode.?")
 	return (
 		<View style={[styles.HeaderTop, { backgroundColor: userData.data.colors.mainTheme, }]}>
 			<View style={[styles.rowHeader, ({ justifyContent: 'flex-start', borderBottomWidth: .7, borderColor: SWATheam.SwaWhite, })]} >

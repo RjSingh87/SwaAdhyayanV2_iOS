@@ -271,6 +271,24 @@ export default function AttemptHolder({ navigation, route }) {
 	const seconds = countDown % 60;
 	let timeBox = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
+
+	const sendDataToWeb = () => {
+		const payload = {
+			"assessmentID": attemptStore?.assMentIds,
+			"classID": userData?.data?.classID,
+			"schoolCode": userData?.data?.schoolCode,
+			"userRefID": userData?.data?.userRefID
+		};
+
+		const jsCode = `
+		window.REACT_NATIVE_DATA = ${JSON.stringify(payload)};
+		window.dispatchEvent(new Event('RN_DATA_READY'));
+		true;
+	`;
+
+		webviewRef.current.injectJavaScript(jsCode);
+	};
+
 	return (
 
 		// <SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
@@ -280,31 +298,34 @@ export default function AttemptHolder({ navigation, route }) {
 		// 			{manageData.questions[currentIndex]?.activityID != 4 &&
 		// 				<SwaHeader title={'Assessment Attempt'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
 		// 			}
-		// 			<Header />
-		// 			<View style={styles.headerTimer}>
-		// 				<Text style={{ fontSize: 13 }}>{timeBox}</Text>
-		// 				<TouchableOpacity style={styles.information} onPress={instructions}>
-		// 					<Icon name="info" size={16} color={SWATheam.SwaWhite} />
-		// 				</TouchableOpacity>
-		// 			</View>
 		// 		</View>
 		// 	}
 
-		// 	<View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, paddingVertical: 10, paddingHorizontal: 4, }}>
+		// 	<View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, paddingVertical: 0, paddingHorizontal: 0, }}>
 		// 		<WebView
 		// 			ref={webviewRef}
-		// 			source={{ uri: 'http://192.168.1.5:5173/' }}
-		// 			onLoadEnd={() => {
-		// 				setIsWebViewReady(true);
-		// 				const payload = { "userData": userData, "manageData": manageData };
-		// 				const message = JSON.stringify(payload);
-		// 				setTimeout(() => {
-		// 					webviewRef.current.postMessage(message);
-		// 				}, 500)
-		// 			}}
+		// 			source={{ uri: "https://assessmentattempt.netlify.app/" }}
+		// 			// source={{ uri: "http://192.168.2.225:5173/" }}
 		// 			javaScriptEnabled={true}
 		// 			domStorageEnabled={true}
 		// 			startInLoadingState={true}
+
+		// 			onMessage={(event) => {
+		// 				const message = event.nativeEvent.data;
+		// 				console.log("FROM WEB:", message);
+
+		// 				// Handshake
+		// 				if (message === "WEB_READY") {
+		// 					console.log("Web ready → sending data");
+		// 					sendDataToWeb();
+		// 				}
+
+		// 				// Submit event
+		// 				if (message === "ASSESSMENT_SUBMITTED") {
+		// 					console.log("Assessment submitted");
+		// 					navigation.goBack();
+		// 				}
+		// 			}}
 		// 		/>
 		// 	</View>
 		// </SafeAreaView>

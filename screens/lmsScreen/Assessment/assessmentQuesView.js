@@ -19,7 +19,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 // import ViewPdf from "./viewPdf";
 
 var studentIDs = [];
-var pdfPath = "";
+var htmlPath = "";
 var questionIDs = [];
 export default function AssessmentQuesView({ navigation, route }) {
   let assesssmentName = route.params.data.assName;
@@ -126,10 +126,11 @@ export default function AssessmentQuesView({ navigation, route }) {
       "questionIDs": questionIDs,
       "assessmentID": assessID
     }
+    console.log({ payload, })
     Services.post(apiRoot.downloadPdf, payload)
       .then((res) => {
-        pdfPath = res
-        navigation.navigate('asspdfView', { data: pdfPath })
+        htmlPath = res?.html
+        navigation.navigate('asspdfView', { data: htmlPath })
       })
   }
 

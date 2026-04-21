@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, useWindowDimensions, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import RenderHtml from 'react-native-render-html';
-import { SwaTheam } from "../../../../constant/ConstentValue";
+import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
@@ -9,10 +9,10 @@ export default function Match({ matchData, index }) {
 
   const tagsStyles = {
     body: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     },
     p: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     }
   };
 
@@ -165,8 +165,8 @@ export default function Match({ matchData, index }) {
                   <Text style={{ color: '#000' }}>{optionArray[key]}.</Text>
                 </View>
                 <View style={{ flex: 1, paddingLeft: 10 }}>
-                  <View style={{ flexDirection: 'row'}}>
-                    <View style={{flex: 1}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flex: 1 }}>
                       <View style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
                         <RenderHtml
                           contentWidth={width}
@@ -175,7 +175,7 @@ export default function Match({ matchData, index }) {
                         />
                       </View>
                     </View>
-                    <View style={{ flex: 1}}>
+                    <View style={{ flex: 1 }}>
                       <View style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
                         {/* <Text style={{ color: '#000' }}>{option[key]}</Text> */}
                         <RenderHtml

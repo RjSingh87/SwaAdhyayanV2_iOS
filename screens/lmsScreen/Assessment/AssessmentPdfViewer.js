@@ -18,13 +18,20 @@ const AssessmentPdfViewer = ({ navigation, route }) => {
     const [htmlLoader, setHtmlLoader] = useState(false)
     const htmlData = route.params.data
 
+    const combinedRegex = /(&lt;\/?[a-z][^&]*?&gt;|&amp;(ld|rd|ls|rs)quo;)/gi;
+    let cleanedHtml = htmlData.replaceAll(combinedRegex, "")
+    // console.log(cleanedHtml, "FFFF")
+
+
+
+
     const htmlContent = `
             <html>
                 <head>
                 <meta charset="utf-8" />
                 </head>
                 <body>
-                ${htmlData}
+                ${cleanedHtml}
                 </body>
             </html>
         `;
@@ -32,42 +39,72 @@ const AssessmentPdfViewer = ({ navigation, route }) => {
     const handlePrint = async () => {
         if (!htmlContent) return
         setTimeout(async () => {
+
             await RNPrint.print({ html: htmlContent });
         }, 1000)
     };
+
 
     function onClickLeftIcon() {
         navigation.goBack()
     }
 
-    const queSet = [
-        {
-            qHead: "Fill in the blanks",
-            opation: ["one", "two", "three", "four"],
-            ans: [2]
-        },
-        {
-            qHead: "Match the following questions.",
-            opation: ["five", "six", "seven", "eight"],
-            ans: [3]
-        },
-        {
-            qHead: "Drag and drop the questions.",
-            opation: ["nine", "two", "three", "four"],
-            ans: [1]
-        },
-        {
-            qHead: "Jumble the questions.",
-            opation: ["ten", "two", "three", "four"],
-            ans: [4]
-        }
-    ]
 
-    const intialQues = 0
 
-    const renderQues = {
 
-    }
+    // let intialQues = 0
+
+    // function prevCount() {
+    //     intialQues--
+    //     if (intialQues < 0) {
+    //         intialQues = 0
+    //     }
+    //     renderQues(intialQues)
+    // }
+    // function nextCount() {
+    //     if (queSet.length == intialQues) {
+    //         Alert.alert("Info", "total quest matching..")
+    //     }
+    //     intialQues++
+    //     renderQues(intialQues)
+    // }
+
+
+    // const queSet = [
+    //     {
+    //         qHead: "Fill in the blanks",
+    //         opation: ["one", "two", "three", "four"],
+    //         ans: [2]
+    //     },
+    //     {
+    //         qHead: "Match the following questions.",
+    //         opation: ["five", "six", "seven", "eight"],
+    //         ans: [3]
+    //     },
+    //     {
+    //         qHead: "Drag and drop the questions.",
+    //         opation: ["nine", "two", "three", "four"],
+    //         ans: [1]
+    //     },
+    //     {
+    //         qHead: "Jumble the questions.",
+    //         opation: ["ten", "two", "three", "four"],
+    //         ans: [4]
+    //     }
+    // ]
+
+
+    // const renderQues = (ind) => {
+    //     console.log(ind, "idkdde.?")
+    //     console.log(queSet[ind], "Ques No. " + ind)
+    //     queSet.map((item, index) => {
+    //         return (
+    //             <Text>{item}</Text>
+    //         )
+    //     })
+    // }
+
+    // renderQues(intialQues)
 
 
 
@@ -93,7 +130,11 @@ const AssessmentPdfViewer = ({ navigation, route }) => {
                                 <Text style={{ color: SWATheam.SwaWhite, fontWeight: "600", fontSize: 15 }}>Print/Save</Text>
                             </TouchableOpacity>
                         }
+                        {Platform.OS === "ios" ? <Text style={{ color: SWATheam.SwaLightBlue, textAlign: "center", fontSize: 12, }}>Swipe down the print screen to see multiple page range and more options.</Text> : null}
                     </View>
+
+                    {/* <Button title='prev' onPress={prevCount} />
+                    <Button title='next' onPress={nextCount} /> */}
 
                 </View>
             </SafeAreaView>

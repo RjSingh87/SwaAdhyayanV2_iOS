@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, useWindowDimensions, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import RenderHtml from 'react-native-render-html';
-import { SwaTheam } from "../../../../constant/ConstentValue";
+import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
@@ -9,10 +9,10 @@ export default function Fillup({ fillupData, index }) {
 
   const tagsStyles = {
     body: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     },
     p: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     }
   };
 
@@ -103,10 +103,10 @@ export default function Fillup({ fillupData, index }) {
 
 
               <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
-                <View style={{ }}>
+                <View style={{}}>
                   <Text style={{ color: '#000' }}>Q: {index}</Text>
                 </View>
-                <View style={{flex: 1, paddingLeft: 10 }}>
+                <View style={{ flex: 1, paddingLeft: 10 }}>
                   <RenderHtml
                     contentWidth={width}
                     source={{ html: FillupData.question }}
@@ -145,7 +145,7 @@ export default function Fillup({ fillupData, index }) {
                     <Text style={{ color: '#000' }}>:</Text>
                   </View>
                   <View style={{ paddingHorizontal: 5, flex: 1 }}>
-                    <Text style={{ color: '#000' }}>{fillupData.answerText!=undefined ? fillupData.answerText.replaceAll("???", ",") : ""}</Text>
+                    <Text style={{ color: '#000' }}>{fillupData.answerText != undefined ? fillupData.answerText.replaceAll("???", ",") : ""}</Text>
                   </View>
                 </View>
                 {/* <View style={{ flexDirection: 'row' }}>

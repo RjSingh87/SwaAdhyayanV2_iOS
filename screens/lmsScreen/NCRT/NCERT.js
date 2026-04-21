@@ -722,8 +722,9 @@ export default function NCERT({ navigation, route }) {
 						{attemptScreen ?
 							<View>
 								<View style={styles.attemptHolder}>
+									<SwaHeader title={"NCERT EXAM TEST"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
 									<View style={{ padding: 10, backgroundColor: userData.data.colors.mainTheme }}>
-										<Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, color: SWATheam.SwaWhite, borderBottomWidth: 1, padding: 2, borderColor: userData.data.colors.liteTheme }}>NCRT EXAM TEST</Text>
+										{/* <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, color: SWATheam.SwaWhite, borderBottomWidth: 1, padding: 2, borderColor: userData.data.colors.liteTheme }}>NCERT EXAM TEST</Text> */}
 										<View style={styles.rowView}>
 											<View style={styles.rowForTExt}>
 												<Text style={styles.textSmall}>Total Questions : {totalQuest}</Text>

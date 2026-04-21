@@ -6,6 +6,8 @@ import { GlobleData } from '../../Store'
 const { width, height } = Dimensions.get('window')
 
 const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon }) => {
+
+
   const { userData } = useContext(GlobleData)
   return (
     <View style={[styles.header, { backgroundColor: userData?.data?.colors?.mainTheme, }]}>
@@ -15,7 +17,7 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
         <AntDesign name={leftIcon} size={25} color={SWATheam.SwaWhite} />
       </TouchableOpacity>
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 10 }}>
-        <Text style={{ fontWeight: '700', color: SWATheam.SwaWhite, textAlign: 'center', fontSize: 16 }}>{title.length > 35 ? title.substring(0, 31) + '...' : title}</Text>
+        <Text style={{ fontWeight: '700', color: SWATheam.SwaWhite, textAlign: 'center', fontSize: 16 }}>{title?.length > 35 ? title.substring(0, 31) + '...' : title}</Text>
       </View>
       <View style={styles.btn}
       // onPress={()=>onClickRightIcon()}

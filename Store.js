@@ -9,6 +9,8 @@ export const GlobleData = React.createContext()
 export default function Store({ children }) {
 	const [userData, setUserData] = useState({ data: null, message: '', isLogin: false })
 	const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
+	const [flag, setFlag] = useState({ closeByUserName: null, status: false })
+	const [sure, setSure] = useState(false);
 
 	useEffect(() => {
 		checkLogin()
@@ -24,6 +26,13 @@ export default function Store({ children }) {
 		};
 		loadAttempts();
 	}, [])
+
+
+	useEffect(() => {
+		if (manageData.questions[currentIndex]?.activityID === 9) {
+			setDropedData([])
+		}
+	}, [currentIndex])
 
 	// ----------------- check login function start --------------------//
 	async function checkLogin() {
@@ -151,6 +160,7 @@ export default function Store({ children }) {
 
 
 	function attemptWaiting(item) {
+		// console.log({ item })
 		setattemptStore((p) => {
 			return {
 				...p,
@@ -205,7 +215,9 @@ export default function Store({ children }) {
 				})
 			})
 	}
+
 	function next() {
+		console.log(currentIndex, "currETM")
 		if (manageData.questions[currentIndex]?.activityID === 4) {
 			matchingDataFun();
 		}
@@ -216,6 +228,7 @@ export default function Store({ children }) {
 			dropDownList();
 		}
 		else if (manageData.questions[currentIndex]?.activityID === 9) {
+			console.log("function call")
 			dragDrop();
 		}
 
@@ -226,6 +239,8 @@ export default function Store({ children }) {
 		})
 
 	}
+
+
 	function prev() {
 		if (manageData.questions[currentIndex]?.activityID === 4) {
 			matchingDataFun();
@@ -245,39 +260,30 @@ export default function Store({ children }) {
 	}
 
 	// data Stor
-	const attemptData = async (assessmentQues) => {
-		// const thisData = [];
-		// const prevData = [finalPost];
-		// let reAttempt = 0;
-		// prevData.map((item) => { thisData.push(item); });
-		// thisData.map((item, index) => {
-		// 	if (assessmentQues.quesID === item.quesID) {
-		// 		reAttempt = 1;
-		// 		thisData[index] = assessmentQues;
-		// 	}
-		// });
-		// if (!reAttempt) { thisData.push(assessmentQues); }
-		// setFinalPost(thisData);
+	const attemptData = (assessmentQues) => {
+		// console.log({ assessmentQues })
+		const thisData = [];
+		const prevData = finalPost;
+		prevData.map((item) => {
+			thisData.push(item);
+		});
 
+		let reAttempt = 0;
+		thisData.map((item, index) => {
+			if (assessmentQues.quesID == item.quesID) {
+				reAttempt = 1;
+				thisData[index] = assessmentQues;
+			}
+		});
 
-		// ------this function made by raju sep 10 2025--------
-		const updatedData = [...finalPost];
-		const index = updatedData.findIndex(item => item.quesID === assessmentQues.quesID);
-		if (index !== -1) {
-			updatedData[index] = assessmentQues; // Re-attempt
-		} else {
-			updatedData.push(assessmentQues);    // First attempt
+		if (!reAttempt) {
+			thisData.push(assessmentQues);
 		}
-		setFinalPost(updatedData);
+		// console.log(thisData, 'thisdata')
+		setFinalPost(thisData);
+	}
 
-		try {
-			await AsyncStorage.setItem('attemptedQuestions', JSON.stringify(updatedData));
-		} catch (error) {
-			console.log('Error saving attempts:', error);
-		}
-		// -------end------------- 
 
-	};
 	function mcqClicked(optIds, quetIds, OptText) {
 		// alert("clickd")
 		// return
@@ -341,35 +347,30 @@ export default function Store({ children }) {
 		const optionText4 = storeData[currentIndex]?.optionText4 ? storeData[currentIndex]?.optionText4 : "";
 		const optionText5 = storeData[currentIndex]?.optionText5 ? storeData[currentIndex]?.optionText5 : "";
 		const optionText6 = storeData[currentIndex]?.optionText6 ? storeData[currentIndex]?.optionText6 : "";
-		const mergedVariable = [optionText1, optionText2, optionText3, optionText4, optionText5, optionText6];
+		const optionText7 = storeData[currentIndex]?.optionText7 ? storeData[currentIndex]?.optionText7 : "";
+		const optionText8 = storeData[currentIndex]?.optionText8 ? storeData[currentIndex]?.optionText8 : "";
+		const mergedVariable = [optionText1, optionText2, optionText3, optionText4, optionText5, optionText6, optionText7, optionText8];
 		const filteredValues = mergedVariable.filter(mergedVariable => mergedVariable !== "");
 		const selectedText = filteredValues.join(',');
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 
 		const Fdata = {
 			"quesID": Qids,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": ClsIds,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
-			"queOptionsID": "",
+			"queOptionsID": selectedText,
 			"quesOptionText": selectedText,
 			"StudentResult": "-1",
 			"marks": marks,
 			"rightAnsText": correctOpText,
 			"rightAnsID": "0",
 			"QueSubCatagory": "3-1",
-			"pendingTime": "00:59:35",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 3,
+			"mID": 6
 		};
-		let index = finalArrayData.findIndex((item) => item.quesID == Qids);
-		if (index == -1) {
-			finalArrayData.push(Fdata)
-		} else {
-			finalArrayData[index].queOptionsID = selectedText
-		}
+		attemptData(Fdata)
 	}
 
 	function tnfAction(optIDS, answer, crtq) {
@@ -377,9 +378,6 @@ export default function Store({ children }) {
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let correctAnsIds = manageData.questions[currentIndex].answerIDs;
 		let RightansText = manageData.questions[currentIndex].answerText;
-
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 
 		const newData = `${optIDS}-${answer}`;
 		let selectedOption = newData;
@@ -411,7 +409,7 @@ export default function Store({ children }) {
 			"quesID": crtq,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": userData.data.classID,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": selectedOption,
 			"quesOptionText": "0",
@@ -420,21 +418,11 @@ export default function Store({ children }) {
 			"rightAnsText": RightansText,
 			"rightAnsID": correctAnsIds,
 			"QueSubCatagory": "2-2",
-			"pendingTime": "01:03:57",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 1,
+			"mID": 6
 		}
 		attemptData(TnfPayLoad)
-		// let index = finalArrayData.findIndex((item) => item.quesID == crtq);
-		// if (index == -1) {
-		// 	finalArrayData.push(TnfPayLoad)
-		// } else {
-		// 	finalArrayData[index].queOptionsID = selectedOption
-		// }
-		// setFinalArray(()=>{
-		// 	return[finalArrayData]
-		// })
-
 	}
 
 
@@ -442,6 +430,7 @@ export default function Store({ children }) {
 
 	let currentAns = finalPost.filter(item => item.quesID == manageData.questions[currentIndex]?.questionID)[0];
 	let currOption = {};
+
 	if (currentAns != undefined && manageData.questions[currentIndex].activityID == 2) {
 		ansArray = currentAns.queOptionsID.split(",");
 		for (let ans of ansArray) {
@@ -455,6 +444,7 @@ export default function Store({ children }) {
 		.filter(item => Array.isArray(item) && item.length > 0);
 	const joinedArrays = filteredData.map(innerArray => innerArray.join(','));
 	const finalString = joinedArrays.join(',');
+	console.log({ finalString })
 
 	const [ddDrpData, setddDrpData] = useState([]);
 	const [dropDownBox, setdropDownBox] = useState(false);
@@ -496,6 +486,7 @@ export default function Store({ children }) {
 			"eidID": eidID,
 			"mID": mID
 		}
+		console.log(drpPayLoad, "drpPayLoad?")
 		attemptData(drpPayLoad)
 	}
 	// DD type function end 
@@ -520,6 +511,7 @@ export default function Store({ children }) {
 	};
 	const convertedConnections = convertConnections(connections, currentIndex);
 	let matchData = convertedConnections.join(",");
+	console.log(matchData, "Match Answeres.")
 	function matchingDataFun() {
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let RightansText = manageData.questions[currentIndex].answerText;
@@ -542,6 +534,7 @@ export default function Store({ children }) {
 			"eidID": eidID,
 			"mID": mID
 		}
+		console.log(matchPayLoad, "matchPayLoad")
 		attemptData(matchPayLoad)
 
 	}
@@ -618,6 +611,8 @@ export default function Store({ children }) {
 			"eidID": eidID,
 			"mID": mID
 		}
+		console.log(jmplPaydata, "jumplePLY")
+		return
 		attemptData(jmplPaydata)
 	}
 	function cleardata(pass) {
@@ -641,41 +636,138 @@ export default function Store({ children }) {
 		let data = dropedData;
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let RightansText = manageData.questions[currentIndex].answerText;
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 		const xdata = {
 			"quesID": manageData.questions[currentIndex].questionID,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": ClsIds,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": "0",
-			"quesOptionText": data,
+			"quesOptionText": data.join(','),
 			"StudentResult": "-1",
 			"marks": marks,
 			"rightAnsText": RightansText,
 			"rightAnsID": "0",
 			"QueSubCatagory": "9-1",
-			"pendingTime": "01:04:48",
-			"eidID": eidID,
-			"mID": mID
-
+			"pendingTime": '0',
+			"eidID": 3,
+			"mID": 8
 		}
+		console.log({ xdata })
 		attemptData(xdata)
 	}
 	// drag and drop functions end  
 
 
 	function submitAttem() {
-		if (finalPost.length === manageData.totalQuest || manageData.questions[currentIndex]?.activityID === 15) {
-			setIsdec(true)
-		} else {
-			Alert.alert("Info", "Please attempt all questions.")
+		let marks = manageData.questions[currentIndex].marksPerQuestion;
+		let RightansText = manageData.questions[currentIndex].answerText;
+		const payload = {
+			"quesID": manageData.questions[currentIndex].questionID,
+			"totalMarks": manageData.TotlMks,
+			"assessmentID": attemptStore.assMentIds,
+			"classID": userData?.data?.classID,
+			"subjectID": attemptStore.sujectIds,
+			"queOptionsID": 0,
+			"quesOptionText": "0",
+			"StudentResult": "-1",
+			"marks": marks,
+			"rightAnsText": RightansText,
+			"rightAnsID": "0",
+			"QueSubCatagory": "10-1",
+			"pendingTime": '0',
+			"eidID": 3,
+			"mID": 8
 		}
 
+		// console.log(payload, "PalyLoad of submit....")
+		// return
 
-		// if (manageData.questions[currentIndex]?.activityID === 15) {
-		// }
+
+		const updated = [...finalPost, payload];
+		// setFinalPost(updated);
+
+		const cond1 = finalPost.length == manageData.questions.length;
+		const cond2 = manageData.questions[currentIndex]?.activityID === 15;
+		const cond3 = updated.length === manageData.questions.length
+
+		if (cond1 || (cond2 && cond3)) {
+			setSure(true);
+		} else {
+			Alert.alert("Info", 'Please attempt all questions.')
+		}
+	}
+
+	function cancelSubmit() {
+		setSure(false);
+	}
+
+	function examSubmit(navigation) {
+		const activityID = manageData.questions[currentIndex]?.activityID
+		if (activityID === 4) {
+			matchingDataFun();
+		}
+		else if (activityID === 10) {
+			jumBlePayLoad();
+		}
+		else if (activityID === 12) {
+			dropDownList();
+		}
+		else if (activityID === 9) {
+			dragDrop();
+		}
+		else if (activityID === 15) {
+			discriptions();
+		}
+
+		setManageData((o) => {
+			return { ...o, showLoader: true }
+		})
+		const payload = {
+			"schoolCode": userData?.data?.schoolCode,
+			"userRefID": userData?.data?.userRefID,
+			"academicYear": userData?.data?.academicYear,
+			"userTypeID": userData?.data?.userTypeID,
+			"classID": userData?.data?.classID,
+			"sectionID": userData?.data?.sectionID,
+			"attemptData": finalPost
+		}
+		console.log(payload)
+		Services.post(apiRoot.submitAssessment, payload)
+			.then((res) => {
+				if (res.status == "success") {
+
+					alert(res.message)
+					setManageData((o) => {
+						return {
+							...o,
+							showLoader: false,
+						}
+					});
+					if (activityID == 15) {
+						setSure(false);
+						setIsdec(true)
+						navigation.navigate('Assessment')
+
+					} else {
+						navigation.navigate('Assessment')
+						setSure(false);
+					}
+
+
+				} else {
+					alert(res.message)
+					navigation.navigate('Assessment')
+				}
+			})
+			.catch((err) => {
+				alert("Error: ", err)
+			})
+			.finally(() => {
+				setManageData((o) => {
+					return { ...o, showLoader: false }
+				});
+			})
 	}
 	// ------------Assessment store --------------------//
 	return (
@@ -724,11 +816,17 @@ export default function Store({ children }) {
 				setImageUri: setImageUri,
 				isDec: isDec,
 				setIsdec: setIsdec,
+				cancelSubmit: cancelSubmit,
+				examSubmit: examSubmit,
+				sure: sure,
+				setSure: setSure,
 				// schoolCode:schoolCode,
 				// userRefID:userRefID,
 				// ClsIds:ClsIds,
 				attemptStore: attemptStore,
-				setFinalPost: setFinalPost
+				setFinalPost: setFinalPost,
+				setFlag: setFlag, // add by raju 24 sep. 2025 for user click close button in assessment generate time.
+				flag: flag // add by raju 24 sep. 2025 for user click close button in assessment generate time.
 				// attemptedCount: attemptedCount
 
 				// ApiToken:ApiToken,

@@ -104,7 +104,7 @@ export const apiRoot = Object.freeze({
     getStudentListWithAssessment: "getStudentListWithAssessment",
     viewAssessmentResult: "viewAssessmentResult",
     viewAssessmentReport: "viewAssessmentReport",
-    getAssessmentList: "getAssessmentList",
+    // getAssessmentList: "getAssessmentList",
     deleteAssessment: "deleteAssessment",
     declareAssessmentResult: "declareAssessmentResult",
     assignAssessmentToStudents: "assignAssessmentToStudents",

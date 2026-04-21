@@ -53,6 +53,7 @@ export default function DdType() {
         setdropDownBox(true);
     };
     const clickOnItems = (word) => {
+        console.log(word, "wordssse")
         setSelectedTexts(prev => {
             // Initialize the currentIndex if it doesn't exist
             const newSelectedTexts = { ...prev };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, useWindowDimensions, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import RenderHtml from 'react-native-render-html';
-import { SwaTheam } from "../../../../constant/ConstentValue";
+import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
@@ -9,10 +9,10 @@ export default function Dnd({ dndData, index }) {
 
   const tagsStyles = {
     body: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     },
     p: {
-      color: SwaTheam.SwaBlack
+      color: SWATheam.SwaBlack
     }
   };
 
@@ -869,7 +869,7 @@ export default function Dnd({ dndData, index }) {
 
             <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
               <View style={{ width: '12%' }}>
-                <Text style={{color:'#000'}}>Q:{index}</Text>
+                <Text style={{ color: '#000' }}>Q:{index}</Text>
               </View>
               <View style={{ width: '88%' }}>
                 {/* <Text style={{ color: '000', fontWeight: 'bold' }}>This is Question Part Can You Know That ?</Text> */}
@@ -988,7 +988,7 @@ export default function Dnd({ dndData, index }) {
 
             <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
               <View style={{ width: '12%' }}>
-                <Text style={{color:'#000'}}>Q:{index}</Text>
+                <Text style={{ color: '#000' }}>Q:{index}</Text>
               </View>
               <View style={{ width: '88%' }}>
                 {/* <Text style={{ color: '000', fontWeight: 'bold' }}>This is Question Part Can You Know That ?</Text> */}
@@ -1107,7 +1107,7 @@ export default function Dnd({ dndData, index }) {
 
             <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
               <View style={{ width: '12%' }}>
-                <Text style={{color:'#000'}}>Q:{index}</Text>
+                <Text style={{ color: '#000' }}>Q:{index}</Text>
               </View>
               <View style={{ width: '88%' }}>
                 {/* <Text style={{ color: '000', fontWeight: 'bold' }}>This is Question Part Can You Know That ?</Text> */}

@@ -1,10 +1,9 @@
-import React, { useState, useRef, useContext, } from 'react';
+import React, { useState, useRef, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, PanResponder, Animated, ScrollView, Image, useWindowDimensions } from 'react-native';
 import { GlobleData } from '../../../../../../Store';
 import { SWATheam } from '../../../../../../constant/ConstentValue';
 import RenderHtml from 'react-native-render-html';
 const DraggableItem = ({ text, onDragEnd }) => {
-
 	const pan = useState(new Animated.ValueXY())[0];
 	const panResponder = PanResponder.create({
 		onStartShouldSetPanResponder: () => true,
@@ -38,11 +37,10 @@ const DroppableArea = React.forwardRef(({ children }, ref) => {
 	);
 });
 
-const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
+const DndType = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 	const { manageData, currentIndex, dropedData, setDropedData, } =
 		useContext(GlobleData);
-
-	const tagsStyles = {
+	const tagsStyles = useMemo(() => ({
 		body: {
 			fontSize: 15,
 			color: SWATheam.SwaBlack
@@ -50,8 +48,14 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 		p: {
 			fontSize: 15,
 			color: SWATheam.SwaBlack
-		}
-	};
+		},
+		u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+		img: {
+			maxWidth: 130,
+			height: 'auto',
+			resizeMode: 'contain',
+		},
+	}), []);
 
 	const { width } = useWindowDimensions();
 
@@ -101,7 +105,6 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 		droppable7: [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)],
 		droppable8: [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)],
 	};
-
 
 	const handleDrop = (droppableId, text, index) => {
 		setDroppedItems((prevState) => {
@@ -164,18 +167,21 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 		fileName.endsWith(".PNG") ||
 		fileName.endsWith(".jpg") ||
 		fileName.endsWith(".JPG");
-
-
 	function filterDndQData(questionData) {
 		if (questionData.subActivityID == 1) {
+			// console.log("1", "First")
 			return getDndQuesFormateOne(questionData)
 		} else if (questionData.subActivityID == 2) {
+			// console.log("2", "Second")
 			return getDndQuesFormateTwo(questionData)
 		} else if (questionData.subActivityID == 3) {
+			// console.log("3", "third")
 			return getDndQuesFormateThree(questionData)
 		} else if (questionData.subActivityID == 4 || questionData.subActivityID == 5 || questionData.subActivityID == 6) {
+			// console.log("4,5,6", "Fourth-six")
 			return getDNDFormateFourFiveSix(questionData)
 		} else if (questionData.subActivityID == 7) {
+			// console.log("7", "Seven")
 			return getDNDFormateSeven(questionData)
 		}
 	}
@@ -530,11 +536,11 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 
 			} else if (data3[1] != undefined && (DndData.subActivityID == 5 || DndData.subActivityID == 6)) {
 				data3.map((dnd, dndIndex) => {
-					console.log("3")
+					// console.log("3")
 					dataArray += dnd.replace(/#/, `__________`);
 				})
 			} else {
-				console.log("4")
+				// console.log("4")
 				dataArray = data.replace(/#/g, '__________');
 			}
 
@@ -1036,17 +1042,6 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 		return replacedContent1;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
 	return (
 		<>
 			<View style={styles.mainHolder}>
@@ -1105,14 +1100,9 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 							</View>
 						</View>
 
-
-						{/* options section */}
 						<View style={styles.questionHolder}
 						>
 							<ScrollView style={{ maxHeight: 140 }}
-							// onTouchStart={() => setOuterScrollEnabled(false)}
-							// onTouchEnd={() => setOuterScrollEnabled(true)}
-							// onMomentumScrollEnd={() => setOuterScrollEnabled(true)}
 							>
 								{qDataAccordingToSubActType.options[0] != undefined ?
 									<View style={{ flexDirection: 'row', marginVertical: 2, alignItems: 'center' }}>
@@ -1196,9 +1186,6 @@ const App = ({ outerScrollEnabled, setOuterScrollEnabled }) => {
 								}
 							</ScrollView>
 						</View>
-
-
-
 					</View>
 				</View>
 			</View>
@@ -1324,10 +1311,9 @@ const styles = StyleSheet.create({
 		resizeMode: "contain",
 	},
 	optImgs: {
-		width: 80,
+		maxWidthwidth: 130,
 		height: 80,
 		resizeMode: "contain",
 	},
 });
-
-export default App;
+export default DndType;

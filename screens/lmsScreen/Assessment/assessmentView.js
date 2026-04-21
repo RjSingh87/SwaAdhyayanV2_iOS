@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { View, Text, StyleSheet, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Feather from 'react-native-vector-icons/Feather'
@@ -7,6 +7,7 @@ import Loader from "../../common/Loader";
 import { GlobleData } from "../../../Store";
 import Services from "../../../Services";
 import { SWATheam, apiRoot } from "../../../constant/ConstentValue";
+import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 
 
 
@@ -28,8 +29,7 @@ var qID = "";
 var finalQData = "";
 var selectQuesMarksEdit = [];
 export default function AssessmentView({ navigation, editAss }) {
-
-  const { userData } = useContext(GlobleData)
+  const { userData, flag, setFlag } = useContext(GlobleData)
   const [classList, setClassList] = useState([])
   const [showSelectField1, SetShowSelectField1] = useState(false)
   const [selectedIds, setSelectedIds] = useState({ classID: "", sectionID: "", subjectID: "", examID: "", examTypeID: "", totalQuesNo: "" })
@@ -70,6 +70,32 @@ export default function AssessmentView({ navigation, editAss }) {
 
   const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
   const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
+
+
+  const isFocused = useIsFocused();
+  const isFirstTime = useRef(true);
+
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     console.log(flag.closeByUserName, "Context Flag");
+  //     if (isFirstTime.current) {
+  //       isFirstTime.current = false;
+  //     } else {
+  //       if (flag.closeByUserName) {
+  //         console.log("Skip because Close button pressed");
+  //         setFlag(prev => ({ ...prev, closeByUserName: "" }));
+  //         setAssessInputName("")
+  //       } else {
+  //         setAssessInputName("")
+  //       }
+  //     }
+  //   }
+  // }, [isFocused, flag]);
+
+
+
+
+
 
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
@@ -312,6 +338,7 @@ export default function AssessmentView({ navigation, editAss }) {
   useEffect(() => {
     // getAssessClassList();
   }, [])
+
   function getAssessClassList() {
     setIsLoader(true)
     const payload = {
@@ -760,12 +787,12 @@ export default function AssessmentView({ navigation, editAss }) {
 
   const getGeneratedAssessQuestion = () => {
     setIsLoader(true)
-    let classID = selectedIds.classID;
-    let sectionID = selectedIds.sectionID.sectionID;
-    let subjectID = selectedIds.subjectID;
-    let examID = selectedIds.examID;
-    let examTypeID = selectedIds.examTypeID;
-    let totalQuesNo = selectedIds.totalQuesNo;
+    let classID = selectedIds?.classID;
+    let sectionID = selectedIds?.sectionID?.sectionID;
+    let subjectID = selectedIds?.subjectID;
+    let examID = selectedIds?.examID;
+    let examTypeID = selectedIds?.examTypeID;
+    let totalQuesNo = selectedIds?.totalQuesNo;
     let chapterIDs = chapterIDsArray.toString();
     let bookIDs = bookIdsArry.toString();
     let quesTypeIDs = quesTypeIdsArray.toString();
@@ -783,7 +810,7 @@ export default function AssessmentView({ navigation, editAss }) {
       || chapterIDs == "" || bookIDs == "" || quesTypeIDs == "" || quesLavelIDs == "" || startDate == "" || endDate == ""
       || fixTime == ""
     ) {
-      alert("Please Fill All Required Field")
+      Alert.alert("Info", "Please Fill All Required Field.")
       setIsLoader(false)
     } else {
       const payload = {
@@ -841,7 +868,7 @@ export default function AssessmentView({ navigation, editAss }) {
             // setAssessmentQuestion(data)
             // setViewGenerateQuestionList(true)
           } else {
-            alert(res.message)
+            Alert.alert("Info", `${res.message}`,)
             setIsLoader(false)
           }
 
@@ -894,7 +921,7 @@ export default function AssessmentView({ navigation, editAss }) {
         <Loader />
       }
       <Text style={{ borderBottomWidth: 1, padding: 8, color: SWATheam.SwaBlack, textAlign: "center" }}>
-        {editAss.type == 'editAss' ? "Edit Assessment" : "Assessment Generator"}
+        {editAss?.type == 'editAss' ? "Edit Assessment" : "Assessment Generator"}
       </Text>
 
       <View style={{ flex: 1, backgroundColor: '#efefef' }}>
@@ -1613,7 +1640,7 @@ export default function AssessmentView({ navigation, editAss }) {
                           :
                           <Feather name={"square"} color={SWATheam.SwaBlack} size={20} style={{ width: 25, padding: 1 }} />
                         }
-                        <Text style={{ color: SWATheam.SwaBlack }}>{assessQuesTypeList[index].activityName}</Text>
+                        <Text style={{ color: SWATheam.SwaBlack }}>{assessQuesTypeList[index]?.activityName}</Text>
                       </TouchableOpacity>
                     </View>
                   )

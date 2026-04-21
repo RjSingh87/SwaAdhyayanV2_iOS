@@ -17,6 +17,7 @@ export default function FillUp() {
 	const optionText1Fun1 = () => {
 		const parts = op1.split('#');
 		const replacedContent1 = parts.map((part, index) => {
+			// console.log(index)
 			if (index !== parts.length - 1) {
 				let value = null;
 				if (storeData[currentIndex]?.optionText1 !== undefined) {

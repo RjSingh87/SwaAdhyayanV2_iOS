@@ -373,6 +373,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const downloadAssessmentPdf = async (item) => {
+    // console.log(item.assessmentID, "assID")
     setLoading(true)
     Services.post(apiRoot.downloadAssPdf, { "assessmentID": item?.assessmentID })
       .then((res) => {
@@ -667,9 +668,9 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                       let fullName = fName + mName + lName
 
                       personStatus = ""
-                      if (item.getUserName.userTypeID == 2) {
+                      if (item.getUserName?.userTypeID == 2) {
                         personStatus = "School"
-                      } else if (item.getUserName.userTypeID == 4) {
+                      } else if (item.getUserName?.userTypeID == 4) {
                         personStatus = "Teacher"
                       }
 

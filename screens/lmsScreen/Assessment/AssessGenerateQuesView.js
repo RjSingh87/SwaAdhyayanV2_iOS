@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal, StyleSheet, FlatList, Platform } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Modal, StyleSheet, FlatList, Platform, Alert } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Mcq from "./activity/mcq";
 import Tnf from "./activity/tnf";
@@ -23,18 +23,25 @@ var selectQuesMarksEdit = [];
 var qID = "";
 var selectedQuesIDsArray = []
 export default function AssessGenerateQuesView({ navigation, route }) {
+
+  useEffect(() => {
+    selectedQuesIDsArray = [] // when component mount add by raju 22 Sep. 2025
+  }, [])
+
+
+
   const insets = useSafeAreaInsets()
-  const { userData } = useContext(GlobleData)
+  const { userData, setFlag } = useContext(GlobleData)
   const [isEditMarks, setIsEditMarks] = useState(false)
   const [count, setCount] = useState(0)
   const [isLoader, setIsLoader] = useState(false);
-
   const assessmentQuestion = route.params.data
   const assQuestions = route.params.sendData.questionNo
   const assName = route.params.sendData.examName
   const selectedData = route.params.sendData
 
   const selectedQuesIDs = (questionID, marks) => {
+
     let qData = questionID + "|" + marks;
     let index = selectedQuesIDsArray.indexOf(qData);
     if (index == -1) {
@@ -43,9 +50,11 @@ export default function AssessGenerateQuesView({ navigation, route }) {
         return
       } else {
         selectedQuesIDsArray.push(qData);
+        setCount(count + 1)
       }
     } else {
       selectedQuesIDsArray.splice(index, 1);
+      setCount(count - 1)
     }
   }
 
@@ -123,16 +132,14 @@ export default function AssessGenerateQuesView({ navigation, route }) {
           // setStudentList(data.studentData);
           // assessID = data.assessmentID;
 
-          alert("Assessment Generated successfully")
+          Alert.alert("Info", "Assessment Generated successfully.")
           // setViewGenerateQuestionList(false)
 
           navigation.navigate('queListAssGenerator', { data: res.data, selectedData: selectedData })
 
-
-
           // setAssignAsessment(true);
         } else {
-          alert(res.message)
+          Alert.alert("Info", `${res.message}`)
         }
       })
       .catch((err) => {
@@ -284,7 +291,11 @@ export default function AssessGenerateQuesView({ navigation, route }) {
                 <TouchableOpacity onPress={() => { assessmentGenerate() }} style={{ flex: 1, padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
                   <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Generate Assessment</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ padding: 10, margin: 4, borderRadius: 6, backgroundColor: SWATheam.SwaRed }}>
+                <TouchableOpacity onPress={() => {
+                  setFlag((prev) => { return { ...prev, closeByUserName: `${userData?.data?.fullname}` } })
+                  navigation.goBack()
+                }}
+                  style={{ padding: 10, margin: 4, borderRadius: 6, backgroundColor: SWATheam.SwaRed }}>
                   <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Close</Text>
                 </TouchableOpacity>
               </View>

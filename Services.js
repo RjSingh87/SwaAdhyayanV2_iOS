@@ -4,7 +4,7 @@ import { baseURL, token } from "./constant/ConstentValue";
 class Services {
     constructor() {
         this.headers = {
-            accpet: "Application/json",
+            "accept": "Application/json",
             "Content-Type": "application/json",
             "Api-token": token
         }
@@ -27,6 +27,7 @@ class Services {
             })
     }
     async post(url, body) {
+        // console.log({ url, body }, "what is getting?")
         let sendData = { ...body }
         return fetch(baseURL + url, {
             headers: this.headers,
@@ -47,7 +48,7 @@ class Services {
     }
     async formMethod(url, body) {
         return fetch(baseURL + url, {
-            headers: { accpet: "Application/json", "Api-token": token },
+            headers: { "accept": "Application/json", "Api-token": token },
             method: "POST",
             body: body
         })
@@ -66,7 +67,7 @@ class Services {
 
     async uploadData(url, body) {
         return fetch(baseURL + url, {
-            headers: { accpet: "application/json", "Api-token": token, "Content-Type": "multipart/form-data" },
+            headers: { "accept": "application/json", "Api-token": token, "Content-Type": "multipart/form-data" },
             method: "POST",
             body: body
         })

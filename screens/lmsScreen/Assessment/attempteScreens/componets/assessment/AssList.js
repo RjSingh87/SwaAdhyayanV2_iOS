@@ -38,6 +38,7 @@ export default function AssiList({ navigation, }) {
 			"schoolCode": userData?.data?.schoolCode,
 			"userRefID": userData?.data?.userRefID,
 		}
+		console.log({ payload })
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
 				if (res.status == "success") {
@@ -156,7 +157,7 @@ export default function AssiList({ navigation, }) {
 
 	return (
 		<>
-			<View style={{ flex: 1 }}>
+			<View style={{ flex: 1, }}>
 				<View style={{ flex: 1 }}>
 					<ScrollView>
 						{assessList?.map((item, asslist) => {
@@ -259,8 +260,9 @@ export default function AssiList({ navigation, }) {
 				{loader && <Loader />}
 
 				{result && !loader ? (
-					<View style={{ flex: 1, height: 20 }}>
-						<Modal animationType="slide">
+
+					<Modal animationType="slide">
+						<View style={{ paddingTop: 60, flex: 1, }}>
 							<View style={styles.resultHeader}>
 								<Text style={{ color: "#fff" }}>Result</Text>
 								<TouchableOpacity style={styles.closeIcons} onPress={closeResult}>
@@ -369,8 +371,8 @@ export default function AssiList({ navigation, }) {
 									})}
 								</ScrollView>
 							</View>
-						</Modal>
-					</View>
+						</View>
+					</Modal>
 				) : null}
 
 
@@ -535,6 +537,8 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 7,
+		// marginTop: 50,
+		// borderWidth: 1,
 	},
 	headerAss: {
 		backgroundColor: "#fff",

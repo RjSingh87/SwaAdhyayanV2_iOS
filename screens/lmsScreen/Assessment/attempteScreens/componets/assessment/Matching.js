@@ -37,6 +37,7 @@ export default function Matching() {
     const optionText_6 = createOptionText(manageData.questions[currentIndex]?.optionText6 || manageData.questions[currentIndex]?.optionImage6);
     const optionText_7 = createOptionText(manageData.questions[currentIndex]?.optionText7 || manageData.questions[currentIndex]?.optionImage7);
     const optionText_8 = createOptionText(manageData.questions[currentIndex]?.optionText8 || manageData.questions[currentIndex]?.optionImage8);
+    // console.log({ optionText_1, optionText_2, optionText_3, optionText_4, optionText_5 })
 
     const createTargetText = (targetText) => {
         if (!targetText) return null;

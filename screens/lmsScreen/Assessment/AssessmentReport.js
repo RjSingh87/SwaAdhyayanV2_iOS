@@ -1,7 +1,7 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions } from "react-native"
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { StackedBarChart, ProgressChart } from "react-native-chart-kit";
-import { SwaTheam } from "../../../constant/ConstentValue";
+import { SWATheam } from "../../../constant/ConstentValue";
 const windowWidth = Dimensions.get('window').width;
 
 const AssessmentReport = ({ reportData, closeModal, colorSwa }) => {
@@ -124,7 +124,7 @@ const AssessmentReport = ({ reportData, closeModal, colorSwa }) => {
                                         backgroundGradientFrom: "#fff",
                                         backgroundGradientTo: "#fff",
                                         decimalPlaces: 2,
-                                        color: (opacity = 0) => SwaTheam.SwaBlack,
+                                        color: (opacity = 0) => SWATheam.SwaBlack,
                                         strokeWidth: 5,
                                         decimalPlaces: 0
 

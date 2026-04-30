@@ -13,6 +13,7 @@ import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
 
 const CreateHomeWork = () => {
+    console.log("CreateHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [selectOption, setSelectOption] = useState({ class: null, section: null, subject: null, type: null })
     const [ModalData, setModalData] = useState({ data: null, type: null, status: false })
@@ -38,7 +39,7 @@ const CreateHomeWork = () => {
         setLoading(true)
         if (type == "class") {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "userTypeID": userData.data.userTypeID,
                 "userRefID": userData.data.userRefID,
                 "academicYear": userData.data.academicYear
@@ -67,7 +68,7 @@ const CreateHomeWork = () => {
         else if (type == 'section') {
             if (selectOption.class != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": selectOption.class.classID,
                     "userTypeID": userData.data.userTypeID,
@@ -100,7 +101,7 @@ const CreateHomeWork = () => {
         else if (type == 'subject') {
             if (selectOption.section != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
@@ -253,7 +254,7 @@ const CreateHomeWork = () => {
     const createHomeWork = async () => {
         setLoading(true)
         const formData = new FormData();
-        formData.append("schoolCode", userData.data.schoolCode)
+        formData.append("schoolID", userData.data.schoolID)
         formData.append("userTypeID", userData.data.userTypeID)
         formData.append("userRefID", userData.data.userRefID)
         formData.append("classID", selectOption?.class?.classID)

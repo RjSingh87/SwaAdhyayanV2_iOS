@@ -11,6 +11,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 
 
 const Safal = ({ navigation }) => {
+    console.log("Safal.js")
     const { userData } = useContext(GlobleData)
     const [selectedField, setSelectedField] = useState({ class: null, section: null, subject: null, set: null, type: null })
     const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
@@ -27,7 +28,7 @@ const Safal = ({ navigation }) => {
         setLoading(true)
         if (val == 'class') {
             const payload = {
-                "schoolCode": userData?.data?.schoolCode,
+                "schoolID": userData?.data?.schoolID,
                 "userTypeID": userData?.data?.userTypeID
             }
             if (userData.data.userTypeID == 4) {
@@ -66,7 +67,7 @@ const Safal = ({ navigation }) => {
             if (selectedField.class != null) {
                 const payload = {
                     "classID": selectedField.class.classID,
-                    "schoolCode": userData?.data?.schoolCode,
+                    "schoolID": userData?.data?.schoolID,
                     "userTypeID": userData?.data?.userTypeID,
                     "userRefID": userData?.data?.userRefID,
                     "academicYear": userData?.data?.academicYear
@@ -197,7 +198,7 @@ const Safal = ({ navigation }) => {
                 "subjectID": selectedField.subject.subjectID,
                 "setID": selectedField.set.setID,
                 "safalType": item.typeID,
-                "schoolCode": userData.data.schoolCode
+                "schoolID": userData.data.schoolID
 
             }
             Services.post(apiRoot.getAllSafalLessonPlan, payload)

@@ -26,7 +26,7 @@ const monthNameArr = ['January', 'February', 'March', 'April', 'May', 'June', 'J
 
 
 const Attendance = ({ navigation }) => {
-
+    console.log("Attendance.js")
     const { userData } = useContext(GlobleData)
     const [selectClassText, setSelectClassText] = useState('Select Class')
     const [selectSectionText, setSelectSectionText] = useState('Select Section')

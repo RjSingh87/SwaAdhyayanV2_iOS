@@ -7,7 +7,7 @@ import SwaHeader from '../common/SwaHeader'
 import IconsContainer from '../common/IconsContainer'
 import SelectionBox from '../common/SelectionBox'
 import Services from '../../Services'
-import { SWATheam, apiRoot } from '../../constant/ConstentValue'
+import { SSWATheam, SWATheam, WATheam, apiRoot } from '../../constant/ConstentValue'
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLearningTool } from '../redux/slices/LearningToolList'
 import { fetModuleActivityList } from '../redux/slices/ModuleActivityList';
@@ -60,6 +60,8 @@ const marksEntrySubIconID = [27, 28, 29, 30, 31, 32, 33, 53, 54, 55, 56, 57, 58,
 
 
 const SubIconsScreen = ({ navigation, route }) => {
+  console.log("SubIconsScreen.js")
+
   const dispatch = useDispatch()
   const { userData } = useContext(GlobleData)
   const [subIconsData, setSubIconsData] = useState({ icons: null, iconUrl: '', status: true, iconName: '' })
@@ -1125,10 +1127,11 @@ const SubIconsScreen = ({ navigation, route }) => {
       "userTypeID": userData?.data?.userTypeID
     }
     dispatch(fetchLearningTool(toolsPayload))
-    Services.post(apiRoot.getLearningToolsList, toolsPayload)
+    Services.post(apiRoot.getLearningTools, toolsPayload)
       .then((res) => {
         if (res.status == "success") {
-          setToolItems(res.data)
+          console.log(JSON.stringify(res), "Result?")
+          setToolItems(res)
           setSelectField(false)
           setLoading(false)
         }
@@ -1153,12 +1156,14 @@ const SubIconsScreen = ({ navigation, route }) => {
       }
       let pdfact = ['169', '73', '74', '186', '191', '170', '69', '187', '192', '76', '78', '188', '193'];
       const sendData = {
-        screenName: selectedField.subject.subjectID == 1 ? item.subjectSubCatLang2 : item.subjectSubCategory.replace('<br>', ''),
-        subTypeID: item.subTypeID,
+        screenName: selectedField?.subject?.subjectID == 1 ? item?.subjectSubCatLang2 : item?.subjectSubCatLang1?.replace('<br>', ''),
+        subTypeID: item?.subTypeID,
         classID: classID,
-        subjectID: selectedField.subject.subjectID,
-        bookID: selectedField.book.bookID
+        subjectID: selectedField?.subject?.subjectID,
+        bookID: selectedField?.book?.bookID
       }
+
+
       if ((item.isSubMenu == 1 && item.isElearning != 1) || pdfact.includes(item.subTypeID)) {
         setLoading(true)
         if ((item.subTypeID == 73 && classID != 13) || item.subTypeID == 171 || item.subTypeID == 77 || item.subTypeID == 68) {
@@ -1448,6 +1453,9 @@ const SubIconsScreen = ({ navigation, route }) => {
 
   }
 
+
+  // console.log(toolItems, "toolITEM?")
+
   return (
     <SafeAreaProvider>
       <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, backgroundColor: userData.data?.colors?.mainTheme, }} >
@@ -1600,35 +1608,100 @@ const SubIconsScreen = ({ navigation, route }) => {
             {intro.instruction ?
               <AcademicProfIntro getAttemptedScreen={getAttemptedScreen} intro={intro} /> : null
             }
-            {toolItems?.mainData.length ?
-              <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-                <ScrollView>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10 }}>
-                    {toolItems?.mainData.map((item, index) => {
-                      let toolName = ''
-                      if (selectedField.subject.subjectID == 1) {
-                        toolName = item.subjectSubCatLang2.replace('<br>', '')
-                      } else {
-                        toolName = item.subjectSubCategory.replace('<br>', '')
-                      }
-                      return (
-                        <TouchableOpacity style={{ height: 180, marginVertical: 10, width: "45%", justifyContent: 'center', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, elevation: 9, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.subTypeID}
-                          onPress={() => getModuleActivityData(item, '', '', '', navigation)}>
-                          <View style={{ height: item.subTypeID != undefined ? 80 : 144, width: item.subTypeID != undefined ? 80 : 90, justifyContent: 'center', alignItems: 'center', }}>
-                            <Image source={{ uri: toolItems?.imgUrl + item?.iconName }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
-                          </View>
-                          {item.subTypeID != undefined &&
-                            <View style={{ height: 40, alignItems: 'center' }}>
-                              <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{toolName}</Text>
+
+
+
+
+            {toolItems?.data.length ?
+              (
+                <>
+                  {!toolItems?.categoryView ?
+                    <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+                      <ScrollView>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10 }}>
+                          {toolItems?.data.map((item, index) => {
+                            let toolName = ''
+                            let subjectID = selectedField?.subject?.subjectID != undefined ? selectedField.subject.subjectID : selectedField.subject
+                            if (subjectID == 1) {
+                              toolName = item.subjectSubCatLang2?.replace('<br>', '')
+                            } else {
+                              toolName = item.subjectSubCategory?.replace('<br>', '')
+                            }
+                            return (
+                              <TouchableOpacity style={{ height: 180, marginVertical: 10, width: "45%", justifyContent: 'center', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, elevation: 9, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.subTypeID}
+                                onPress={() => getModuleActivityData(item, 'manual', '', '', navigation)}>
+                                <View style={{ height: item.subTypeID != undefined ? 80 : 144, width: item.subTypeID != undefined ? 80 : 90, justifyContent: 'center', alignItems: 'center', }}>
+                                  <Image source={{ uri: toolItems?.imgUrl + item?.iconName }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
+                                </View>
+                                {item.subTypeID != undefined &&
+                                  <View style={{ height: 40, alignItems: 'center' }}>
+                                    <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{toolName}</Text>
+                                  </View>
+                                }
+                              </TouchableOpacity>
+                            )
+                          })}
+                        </View>
+                      </ScrollView>
+                    </View> :
+                    <View
+                      style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, }}
+                    >
+                      <ScrollView>
+                        {toolItems?.data?.map((group, gIndex) => {
+                          return (
+                            <View key={group.lcID} style={{ marginVertical: 10 }}>
+                              {group?.subjectSubType?.length ?
+                                <Text
+                                  style={{ fontSize: 16, fontWeight: 'bold', marginHorizontal: 0, marginBottom: 5, color: SWATheam.SwaBlack, textAlign: 'center', backgroundColor: userData.data.colors.mainTheme, paddingVertical: 4, color: SWATheam.SwaWhite, }}
+                                >
+                                  {group.learningCategory}
+                                </Text> : null
+                              }
+
+                              <View
+                                style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', paddingHorizontal: 10, }}
+                              >
+                                {group.subjectSubType.map((item, index) => {
+                                  let subjectID = selectedField?.subject?.subjectID != undefined ? selectedField.subject.subjectID : selectedField.subject;
+
+                                  let toolName = subjectID == 1 ? item.subjectSubCatLang2?.replace(/<br>/g, '') : item.subjectSubCatLang1?.replace(/<br>/g, '');
+
+                                  return (
+                                    <TouchableOpacity key={item.subTypeID || index}
+                                      style={{ height: 160, width: '45%', marginVertical: 10, backgroundColor: SWATheam.SwaWhite, elevation: 5, borderRadius: 0, justifyContent: 'space-around', alignItems: 'center', padding: 8, borderRadius: 6, }}
+                                      onPress={() => getModuleActivityData(item, 'manual', '', '', navigation,)}>
+
+                                      <View
+                                        style={{ height: 70, width: 70, justifyContent: 'center', alignItems: 'center', }}
+                                      >
+                                        <Image
+                                          source={{ uri: toolItems?.imgUrl + item?.iconName, }}
+                                          style={{ height: '100%', width: '100%', resizeMode: 'contain', }} />
+                                      </View>
+
+                                      <Text style={{ textAlign: 'center', color: SWATheam.SwaGray, fontSize: 13, }}>
+                                        {toolName}
+                                      </Text>
+                                    </TouchableOpacity>
+                                  );
+                                })}
+                              </View>
                             </View>
-                          }
-                        </TouchableOpacity>
-                      )
-                    })}
-                  </View>
-                </ScrollView>
-              </View> : null
+                          );
+                        })}
+                      </ScrollView>
+                    </View>
+
+                  }
+                </>
+
+              )
+              :
+              null
             }
+
+
 
             {combineReport ?
               <ReportViwer closeModule={closeModule} reportData={consolidatedReportData} selectedField={selectedField} reportName={"Consolidated SEPT Report"} type="student" selectedIcon={selectedIcon} /> : null

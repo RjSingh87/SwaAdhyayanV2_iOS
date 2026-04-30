@@ -97,7 +97,7 @@ const EditProfile = ({ navigation, route }) => {
     const payload = {
       userRefID: loginUserData.userRefID,
       userTypeID: loginUserData.userTypeID,
-      schoolCode: loginUserData.schoolCode,
+      schoolID: loginUserData.schoolID,
       fullName: userDetail.fullName,
       emailID: userDetail.emailID,
       dateOfBirth: userDetail.dateOfBirth,

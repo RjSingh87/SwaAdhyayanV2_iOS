@@ -17,6 +17,7 @@ let checkHomeWorkData = {
 
 let imgDataUri = ''
 const SubmittedHomeWork = () => {
+    console.log("SubmittedHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [showCanvas, setShowCanvas] = useState(false)
     const [showColorPalate, setShowColorPalate] = useState(false)
@@ -34,7 +35,7 @@ const SubmittedHomeWork = () => {
 
     const getSubmittedHomeWork = () => {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
             "isChecked": 0
@@ -113,7 +114,7 @@ const SubmittedHomeWork = () => {
         }
 
         const formData = new FormData();
-        formData.append("schoolCode", userData.data.schoolCode)
+        formData.append("schoolID", userData.data.schoolID)
         formData.append("userRefID", userData.data.userRefID)
         formData.append("userTypeID", userData.data.userTypeID)
         formData.append("classID", checkHomeWorkData.classID)

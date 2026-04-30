@@ -24,6 +24,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const ReportViwer = ({ closeModule, reportData, selectedField, reportName, testType, reportSubIconID, reportChildIconSequence, type, selectedIcon }) => {
+    console.log("ReportViwer.js")
     const { userData } = useContext(GlobleData)
     let testLable = ''
     if (reportData?.data?.totalPercentage <= 40 || reportData?.APP?.totalPercentage <= 40) {

@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import ImageViewer from "../../../common/ImageViewer"
@@ -23,7 +23,7 @@ const SubmittedHomeWork = () => {
     const getSubmittedHomeWork = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "classID": userData.data.classID,
             "sectionID": userData.data.sectionID,
@@ -39,7 +39,7 @@ const SubmittedHomeWork = () => {
                     })
                 } else {
                     setLoading(false)
-                    alert(res.message)
+                    // Alert.alert("", res.message)
                     setSubmittedHomeWork({ data: null, status: false })
                 }
             })

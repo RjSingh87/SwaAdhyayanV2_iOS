@@ -28,7 +28,7 @@ const LiveClassList = ({ navigation }) => {
 
     function getLiveClassListFun() {
         const payLoad = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
         }
@@ -67,7 +67,7 @@ const LiveClassList = ({ navigation }) => {
     function deleteLiveCls() {
         setIsload(true);
         const payLoad = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "meetingID": meetIds,
         }
         Services.post(apiRoot.deleteLiveClass, payLoad)

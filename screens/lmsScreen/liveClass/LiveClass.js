@@ -23,6 +23,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 
 
 export default function LiveClass({ navigation }) {
+	console.log("LiveClass.js")
 	const { userData } = useContext(GlobleData)
 	const [clickedName, setClickedName] = useState();
 	const [clsList, setClsList] = useState();
@@ -141,7 +142,7 @@ export default function LiveClass({ navigation }) {
 			});
 
 			const payload = {
-				"schoolCode": userData.data.schoolCode,
+				"schoolID": userData.data.schoolID,
 				"userTypeID": userData.data.userTypeID,
 				"userRefID": userData.data.userRefID,
 				"academicYear": userData.data.academicYear
@@ -173,7 +174,7 @@ export default function LiveClass({ navigation }) {
 			});
 			const payload = {
 				"classID": clsIds,
-				"schoolCode": userData.data.schoolCode,
+				"schoolID": userData.data.schoolID,
 				"userTypeID": userData.data.userTypeID,
 				"userRefID": userData.data.userRefID,
 				"academicYear": userData.data.academicYear
@@ -208,7 +209,7 @@ export default function LiveClass({ navigation }) {
 			});
 			const payLoad = {
 				"classID": clsIds,
-				"schoolCode": userData.data.schoolCode,
+				"schoolID": userData.data.schoolID,
 				"userTypeID": userData.data.userTypeID,
 				"userRefID": userData.data.userRefID,
 				"sectionID": sectIds,
@@ -280,7 +281,7 @@ export default function LiveClass({ navigation }) {
 			setIsload(true)
 			const payLoad = {
 				"classID": clsIds,
-				"schoolCode": userData.data.schoolCode,
+				"schoolID": userData.data.schoolID,
 				"sectionID": sectIds,
 				"subjectID": subjectIds,
 				"academicYear": userData.data.academicYear
@@ -359,7 +360,7 @@ export default function LiveClass({ navigation }) {
 
 	function assignMeeting() {
 		const payLoad = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
 			"plateformID": meetingIds,
 			"classID": clsIds,
@@ -392,7 +393,7 @@ export default function LiveClass({ navigation }) {
 
 	function getLiveClassListFun() {
 		const payLoad = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
 			"userTypeID": userData.data.userTypeID,
 		}

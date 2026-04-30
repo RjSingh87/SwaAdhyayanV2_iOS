@@ -5,6 +5,7 @@ import { GlobleData } from '../../Store'
 import Entypo from 'react-native-vector-icons/Entypo'
 const { height, width } = Dimensions.get('window');
 const IconsContainer = ({ deshboardData, getIconDetail, type, selectedIcon, selectSubIcon, activeMainIconIds }) => {
+  console.log("IconsContainer.js")
   const { userData } = useContext(GlobleData)
 
   return (

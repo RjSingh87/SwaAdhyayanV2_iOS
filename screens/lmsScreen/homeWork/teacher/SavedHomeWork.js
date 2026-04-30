@@ -15,6 +15,7 @@ var homeWorkIDNew = "";
 const finalDateArr = []
 
 const SaveHomeWork = () => {
+    console.log("SaveHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [sectionData, setSectionData] = useState({ data: null, status: false })
     const [loading, setLoading] = useState(false)

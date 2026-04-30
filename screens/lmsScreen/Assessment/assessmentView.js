@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import Feather from 'react-native-vector-icons/Feather'
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import DatePicker from "react-native-date-picker";
 import Loader from "../../common/Loader";
 import { GlobleData } from "../../../Store";
 import Services from "../../../Services";
 import { SWATheam, apiRoot } from "../../../constant/ConstentValue";
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 
 
 
@@ -29,7 +28,8 @@ var qID = "";
 var finalQData = "";
 var selectQuesMarksEdit = [];
 export default function AssessmentView({ navigation, editAss }) {
-  const { userData, flag, setFlag } = useContext(GlobleData)
+
+  const { userData } = useContext(GlobleData)
   const [classList, setClassList] = useState([])
   const [showSelectField1, SetShowSelectField1] = useState(false)
   const [selectedIds, setSelectedIds] = useState({ classID: "", sectionID: "", subjectID: "", examID: "", examTypeID: "", totalQuesNo: "" })
@@ -71,32 +71,6 @@ export default function AssessmentView({ navigation, editAss }) {
   const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
   const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
 
-
-  const isFocused = useIsFocused();
-  const isFirstTime = useRef(true);
-
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     console.log(flag.closeByUserName, "Context Flag");
-  //     if (isFirstTime.current) {
-  //       isFirstTime.current = false;
-  //     } else {
-  //       if (flag.closeByUserName) {
-  //         console.log("Skip because Close button pressed");
-  //         setFlag(prev => ({ ...prev, closeByUserName: "" }));
-  //         setAssessInputName("")
-  //       } else {
-  //         setAssessInputName("")
-  //       }
-  //     }
-  //   }
-  // }, [isFocused, flag]);
-
-
-
-
-
-
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
       setSelectedIds({ classID: "", sectionID: "", subjectID: "", examID: "", examTypeID: "", totalQuesNo: "" });
@@ -117,11 +91,11 @@ export default function AssessmentView({ navigation, editAss }) {
       qID = "";
       finalQData = "";
       selectQuesMarksEdit = [];
-      AssesssmentName = "";
-      subjectName = "";
-      totalTime = "";
-      totalAssMarks = "";
-      totalAssQuestion = "";
+      // assesssmentName = "";
+      // subjectName = "";
+      // totalTime = "";
+      // totalAssMarks = "";
+      // totalAssQuestion = "";
     });
     return goBack
   }, [navigation])
@@ -236,7 +210,6 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setChapData(temp);
-    console.log(chapterIDsArray)
   };
   const checkChapOne = (newValue, index) => {
     let index1 = chapterIDsArray.indexOf(bookChapterList[index].chapterID)
@@ -254,7 +227,6 @@ export default function AssessmentView({ navigation, editAss }) {
     });
     setChapData(temp);
     setIsChapChecked(!isChapChecked);
-    console.log(chapterIDsArray)
   };
 
 
@@ -275,7 +247,6 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setQuesTypeData(temp);
-    console.log(chapterIDsArray)
   };
   const checkQuesTypeOne = (newValue, index) => {
     let index1 = quesTypeIdsArray.indexOf(assessQuesTypeList[index].activityID)
@@ -293,7 +264,6 @@ export default function AssessmentView({ navigation, editAss }) {
     });
     setQuesTypeData(temp);
     setIsQuesTypeChecked(!isChapChecked);
-    console.log(chapterIDsArray)
   };
 
   const checkQuesLavelAll = () => {
@@ -313,7 +283,6 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setQuesLavelData(temp);
-    console.log(quesLavelIdsArray)
   };
   const checkQuesLavelOne = (newValue, index) => {
     let index1 = quesLavelIdsArray.indexOf(assessQuesLavelList[index].eadID)
@@ -331,14 +300,12 @@ export default function AssessmentView({ navigation, editAss }) {
     });
     setQuesLavelData(temp);
     setIsQuesLavelChecked(!isChapChecked);
-    console.log(quesLavelIdsArray)
   };
 
 
   useEffect(() => {
     // getAssessClassList();
   }, [])
-
   function getAssessClassList() {
     setIsLoader(true)
     const payload = {
@@ -480,6 +447,7 @@ export default function AssessmentView({ navigation, editAss }) {
     questionNo = ""
     setHourData(0)
     setMinutData(0)
+    setAssessInputName("")
   }
 
   function getUserSectionList(classID) {
@@ -574,6 +542,7 @@ export default function AssessmentView({ navigation, editAss }) {
   function getBookChapterList() {
     setIsLoader(true)
     if (bookIdsArry[0] == undefined) {
+      setIsLoader(false)
       return
     }
     if (bookIdsArry.toString() == "") {
@@ -784,49 +753,70 @@ export default function AssessmentView({ navigation, editAss }) {
       questionNo = selectedName;
     }
   }
-
   const getGeneratedAssessQuestion = () => {
     setIsLoader(true)
-    let classID = selectedIds?.classID;
-    let sectionID = selectedIds?.sectionID?.sectionID;
-    let subjectID = selectedIds?.subjectID;
-    let examID = selectedIds?.examID;
-    let examTypeID = selectedIds?.examTypeID;
-    let totalQuesNo = selectedIds?.totalQuesNo;
+    let classID = selectedIds.classID;
+    let sectionID = selectedIds.sectionID.sectionID;
+    let subjectID = selectedIds.subjectID;
+    let examID = selectedIds.examID;
+    let examTypeID = selectedIds.examTypeID;
+    let totalQuesNo = selectedIds.totalQuesNo;
     let chapterIDs = chapterIDsArray.toString();
     let bookIDs = bookIdsArry.toString();
     let quesTypeIDs = quesTypeIdsArray.toString();
     let quesLavelIDs = quesLavelIdsArray.toString();
-    let startDate = date;
-    let endDate = date2;
-    let fixTime = date3;
+    let startDate = null;
+    let endDate = null;
+    let fixTime = null;
+
+    if (date != "") {
+      let year = date.getFullYear();
+      let mes = date.getMonth() + 1;
+      let dia = date.getDate();
+      startDate = year + "-" + mes + "-" + dia
+    }
+    if (date2 != "") {
+      var year = date2.getFullYear();
+      var mes = date2.getMonth() + 1;
+      var dia = date2.getDate();
+      endDate = year + "-" + mes + "-" + dia
+
+    }
+    if (date3 != "") {
+      var year = date3.getFullYear();
+      var mes = date3.getMonth() + 1;
+      var dia = date3.getDate();
+      fixTime = year + "-" + mes + "-" + dia
+
+    }
+
+    const cond_1 = hourData > 0 || minutData > 0
+    const cond_2 = (classID != "" || sectionID != "" || subjectID != "" || examID != "" || examTypeID != "" || totalQuesNo != ""
+      || chapterIDs != "" || bookIDs != "" || quesTypeIDs != "" || quesLavelIDs != "" || startDate != "" || endDate != ""
+      || fixTime != "")
 
 
     // let checkStartDate = startDate.getDay()+'/'+startDate.getMonth()+"/"+startDate.getFullYear()
     // let checkCurrentDate = currentData.now
     // let totalTime = hourData ? hourData : '00' + ":" + minutData ? minutData : '00';
 
-    if (classID == "" || sectionID == "" || subjectID == "" || examID == "" || examTypeID == "" || totalQuesNo == ""
-      || chapterIDs == "" || bookIDs == "" || quesTypeIDs == "" || quesLavelIDs == "" || startDate == "" || endDate == ""
-      || fixTime == ""
-    ) {
-      Alert.alert("Info", "Please Fill All Required Field.")
-      setIsLoader(false)
-    } else {
+    if (cond_1 && cond_2) {
       const payload = {
         "schoolID": userData.data.schoolID,
         "classID": classID,
         "bookID": bookIDs,
         "subjectID": subjectID,
         "examID": examID,
-        "AssName1": selectedIds.examID != 15 ? examName : "",
-        "assmentName2": selectedIds.examID == 15 ? examName : "",
+        // "AssName1": selectedIds.examID != 15 ? examName : "",
+        // "assmentName2": selectedIds.examID == 15 ? examName : "",
+        "examName": examName,
         "sectionID": sectionID,
         "questionTypeIds": quesTypeIDs,
         "questionLevelIds": quesLavelIDs,
         "chapterIds": chapterIDs,
-        "academicYear": userData.data.academicYear
+        // "academicYear": userData.data.academicYear
       }
+
       Services.post(apiRoot.getGeneratedAssessQuestion, payload)
         .then((res) => {
           if (res.status == "success") {
@@ -840,35 +830,17 @@ export default function AssessmentView({ navigation, editAss }) {
               quesTypeIDs: quesTypeIdsArray.toString(),
               quesLavelIDs: quesLavelIdsArray.toString(),
               hourData: hourData,
-              minutData: minutData
+              minutData: minutData,
+              startDate: startDate,
+              endDate: endDate,
+              fixTime: fixTime
             }
-            if (startDate != "") {
-              let year = date.getFullYear();
-              let mes = date.getMonth() + 1;
-              let dia = date.getDate();
-              sendData["startDate"] = year + "-" + mes + "-" + dia
-            }
-            if (endDate != "") {
-              var year = date2.getFullYear();
-              var mes = date2.getMonth() + 1;
-              var dia = date2.getDate();
-              sendData["endDate"] = year + "-" + mes + "-" + dia
 
-            }
-            if (fixTime != "") {
-              var year = date3.getFullYear();
-              var mes = date3.getMonth() + 1;
-              var dia = date3.getDate();
-              sendData["fixTime"] = year + "-" + mes + "-" + dia
-
-            }
-            console.log(sendData, 'sendData')
             navigation.navigate("assGenerateQueList", { data: res.questionData, sendData: sendData })
-            const data = res.questionData
             // setAssessmentQuestion(data)
             // setViewGenerateQuestionList(true)
           } else {
-            Alert.alert("Info", `${res.message}`,)
+            alert(res.message)
             setIsLoader(false)
           }
 
@@ -879,6 +851,10 @@ export default function AssessmentView({ navigation, editAss }) {
         .finally(() => {
           setIsLoader(false)
         })
+
+    } else {
+      alert("Please Fill All Required Field")
+      setIsLoader(false)
 
     }
   }
@@ -902,30 +878,23 @@ export default function AssessmentView({ navigation, editAss }) {
   mData.map((item, index) => {
     totalMarks.push(
       <View key={index}>
-        <TouchableOpacity onPress={() => { setIsEditMarks(false); selectMarks(item); }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
+        <TouchableOpacity onPress={() => { setIsEditMarks(false); selectMarks(item); }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: SWATheam.SwaBlack }}>{item}</Text>
         </TouchableOpacity>
       </View>
     )
   })
-
-
-
-
-
-
   return (
-
     <>
       {isLoader &&
         <Loader />
       }
-      <Text style={{ borderBottomWidth: 1, padding: 8, color: SWATheam.SwaBlack, textAlign: "center" }}>
-        {editAss?.type == 'editAss' ? "Edit Assessment" : "Assessment Generator"}
+      <Text style={{ borderBottomWidth: 1, padding: 8, color: SWATheam.SwaBlack, textAlign: "center", backgroundColor: userData.data.colors.liteTheme }}>
+        {editAss.type == 'editAss' ? "Edit Assessment" : "Assessment Generator"}
       </Text>
 
       <View style={{ flex: 1, backgroundColor: '#efefef' }}>
-        <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 4, margin: 4, borderRadius: 6 }}>
+        <ScrollView style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, padding: 4, margin: 4, borderRadius: 6 }}>
           <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
             {/* class div start  */}
 
@@ -972,9 +941,7 @@ export default function AssessmentView({ navigation, editAss }) {
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Subject</Text>
                 }
-
               </View>
-
               <AntDesign name={"down"} size={12} style={{ width: 30, padding: 8, backgroundColor: '#efefef', borderBottomRightRadius: 5, borderTopRightRadius: 5 }} />
             </TouchableOpacity>
             {/* Subject Div end */}
@@ -1173,16 +1140,15 @@ export default function AssessmentView({ navigation, editAss }) {
             {/* Lavel Div end */}
           </View>
 
-          <View style={{ borderBottomColor: SWATheam.SwaBlack, borderBottomWidth: 1, padding: 10, marginBottom: 5 }}></View>
+        </ScrollView>
 
+        <View style={{ backgroundColor: SWATheam.SwaWhite, borderBottomColor: SWATheam.SwaBlack, borderTopWidth: 1, padding: 10, marginBottom: 5 }}>
           <TouchableOpacity onPress={() => { getGeneratedAssessQuestion() }} style={{ alignSelf: "flex-end", backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, padding: 8, margin: 4, width: 120 }}>
             <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>SEARCH</Text>
           </TouchableOpacity>
         </View>
+
       </View>
-
-
-
       {open &&
         <DatePicker
           modal
@@ -1190,8 +1156,14 @@ export default function AssessmentView({ navigation, editAss }) {
           date={date}
           mode="date"
           onConfirm={(date) => {
+            const currentDate = new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()
+            const selectDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
             setOpen(false)
-            setDate(date)
+            if (selectDate >= currentDate) {
+              setDate(date)
+            } else {
+              alert("Please select valid date.")
+            }
           }}
           onCancel={() => {
             setOpen(false)
@@ -1205,8 +1177,15 @@ export default function AssessmentView({ navigation, editAss }) {
           date={date2}
           mode="date"
           onConfirm={(date) => {
+            const currentDate = new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()
+            const selectDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+
             setOpen2(false)
-            setDate2(date)
+            if (new Date(selectDate).getTime() >= new Date(currentDate).getTime()) {
+              setDate2(date)
+            } else {
+              alert("Please select valid date.")
+            }
           }}
           onCancel={() => {
             setOpen2(false)
@@ -1584,7 +1563,7 @@ export default function AssessmentView({ navigation, editAss }) {
                   placeholder="Enter Assessment Name"
                   placeholderTextColor={SWATheam.SwaGray}
                 />
-                <TouchableOpacity onPress={() => { saveOtherAssessData(); getSelectedName(type = "examName", assessInputName) }} style={{ alignSelf: "center", backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, padding: 8, margin: 4, width: 120 }}>
+                <TouchableOpacity onPress={() => { saveOtherAssessData(); getSelectedName('examName', assessInputName) }} style={{ alignSelf: "center", backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, padding: 8, margin: 4, width: 120 }}>
                   <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Submit</Text>
                 </TouchableOpacity>
               </View>

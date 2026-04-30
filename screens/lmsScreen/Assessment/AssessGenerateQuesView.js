@@ -1,165 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal, StyleSheet, FlatList, Platform, Alert } from "react-native";
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import Mcq from "./activity/mcq";
-import Tnf from "./activity/tnf";
-import Fillup from "./activity/fillup";
-import Match from "./activity/match";
-import Dnd from "./activity/Dnd";
-import Jumbo from "./activity/Jumbo";
-import Dd from "./activity/dd";
-import Desc from "./activity/desc";
-import { apiRoot, SWATheam } from "../../../constant/ConstentValue";
+import React, { useContext, useRef, useState } from "react";
+import { View, StyleSheet, Platform, Alert } from "react-native";
 import { GlobleData } from "../../../Store";
 import SwaHeader from "../../common/SwaHeader";
-import Services from "../../../Services";
-import Loader from "../../common/Loader";
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import RNBlobUtil from 'react-native-blob-util';
+// import Share from 'react-native-share';
+import FileViewer from 'react-native-file-viewer';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-
-
-
-var selectQuesMarksEdit = [];
-var qID = "";
-var selectedQuesIDsArray = []
 export default function AssessGenerateQuesView({ navigation, route }) {
+  const webview = useRef(null);
+  const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    selectedQuesIDsArray = [] // when component mount add by raju 22 Sep. 2025
-  }, [])
-
-
-
-  const insets = useSafeAreaInsets()
-  const { userData, setFlag } = useContext(GlobleData)
-  const [isEditMarks, setIsEditMarks] = useState(false)
-  const [count, setCount] = useState(0)
-  const [isLoader, setIsLoader] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState(null);
+  const { userData } = useContext(GlobleData)
   const assessmentQuestion = route.params.data
-  const assQuestions = route.params.sendData.questionNo
+  const noOfAssQuestions = route.params.sendData.questionNo
   const assName = route.params.sendData.examName
   const selectedData = route.params.sendData
 
-  const selectedQuesIDs = (questionID, marks) => {
-
-    let qData = questionID + "|" + marks;
-    let index = selectedQuesIDsArray.indexOf(qData);
-    if (index == -1) {
-      if (assQuestions <= selectedQuesIDsArray.length) {
-        alert("You Can`t Add Question More Then " + JSON.stringify(assQuestions))
-        return
-      } else {
-        selectedQuesIDsArray.push(qData);
-        setCount(count + 1)
-      }
-    } else {
-      selectedQuesIDsArray.splice(index, 1);
-      setCount(count - 1)
-    }
-  }
-
-
-  const assessmentGenerate = () => {
-    setIsLoader(true)
-    if (assQuestions != selectedQuesIDsArray.length) {
-      alert("You Have to Add Minimum Question " + JSON.stringify(assQuestions))
-      setIsLoader(false)
-      return
-    }
-    if (selectQuesMarksEdit[0] != undefined) {
-      selectedQuesIDsArray.map((item, index) => {
-        let dd = item.split("|");
-        selectQuesMarksEdit.map((item2, index2) => {
-          let dd2 = item2.split("|")
-          if (dd[0] == dd2[0]) {
-            let mm = dd[0] + "|" + dd2[1];
-            selectedQuesIDsArray[index] = mm;
-          }
-        })
-      })
-    }
-    let classID = selectedData.selectedIds.classID;
-    let sectionID = selectedData.selectedIds.sectionID.sectionID;
-    let subjectID = selectedData.selectedIds.subjectID;
-    let examID = selectedData.selectedIds.examID;
-    let examName = selectedData.examName
-    let examTypeID = selectedData.selectedIds.examTypeID;
-    let totalQuesNo = selectedData.selectedIds.totalQuesNo;
-    let chapterIDs = selectedData.chapterIDs;
-    let bookIDs = selectedData.bookIDs;
-    let quesTypeIDs = selectedData.quesTypeIDs;
-    let quesLavelIDs = selectedData.quesLavelIDs;
-    let startDate = selectedData.startDate;
-    let endDate = selectedData.endDate;
-    let fixTime = selectedData.fixTime;
-
-
-
-    const payload = {
-      "schoolCode": userData.data.schoolCode,
-      "classID": classID,
-      "bookID": bookIDs,
-      "subjectID": subjectID,
-      "noOfQuestion": totalQuesNo,
-      "examID": examID == 15 ? "other" : examID,
-      "AssName1": examID != 15 ? examName : "other",
-      "assmentName2": examID == 15 ? examName : "",
-      "sectionID": sectionID,
-      "userRefID": userData.data.userRefID,
-      "questionTypeIds": quesTypeIDs,
-      "questionLevelIds": quesLavelIDs,
-      "chapterIds": chapterIDs,
-      "academicYear": userData.data.academicYear,
-      "startDate": startDate,
-      "endDate": endDate,
-      "startTime": examTypeID == 2 ? fixTime : "",
-      "hours": selectedData.hourData == 0 ? null : selectedData.hourData,
-      "minutes": selectedData.minutData == 0 ? null : selectedData.minutData,
-      "timeModuleType": examTypeID,
-      "selectedQuestion": selectedQuesIDsArray
-    }
-    Services.post(apiRoot.generateAndViewAssessment, payload)
-      .then((res) => {
-        if (res.status == "success") {
-          setIsLoader(false)
-          // const data = res.data;
-          // AssesssmentName = data.assName;
-          // subjectName = data.subjectData[0].subjectNameLang1;
-          // totalTime = data.totalTime;
-          // totalAssMarks = data.totalMarks;
-          // totalAssQuestion = data.noOfQuestion;
-          // setGeneratedAssQuesList(data.questionData);
-          // setStudentList(data.studentData);
-          // assessID = data.assessmentID;
-
-          Alert.alert("Info", "Assessment Generated successfully.")
-          // setViewGenerateQuestionList(false)
-
-          navigation.navigate('queListAssGenerator', { data: res.data, selectedData: selectedData })
-
-          // setAssignAsessment(true);
-        } else {
-          Alert.alert("Info", `${res.message}`)
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setIsLoader(false)
-      })
-
-
-  }
-
-  function closePopup() {
-    setIsEditMarks(false)
-  }
-
-  function editMarks(questionID) {
-    qID = questionID
-    setIsEditMarks(true)
-  }
 
   function onClickLeftIcon() {
     navigation.goBack()
@@ -168,170 +27,108 @@ export default function AssessGenerateQuesView({ navigation, route }) {
     setIsInstruction(true)
   }
 
-  function selectMarks(marks) {
-    finalQData = qID + "|" + marks;
-    if (selectQuesMarksEdit[0] != undefined && selectQuesMarksEdit.includes(finalQData) == true) {
 
-      selectQuesMarksEdit.map((item, index) => {
-        let dd = item.split("|");
-        if (dd[1] != marks && dd[0] == qID) {
-          selectQuesMarksEdit[index] = qID + "|" + marks;
-        }
-      })
-    } else {
-      selectQuesMarksEdit.map((item, index) => {
-        let dd = item.split("|");
-        if (dd[0] == qID) {
-          selectQuesMarksEdit.splice(index, 1)
-        }
-      })
-      selectQuesMarksEdit.push(finalQData)
+  const movePdfToCache = async (originalPath) => {
+    const cachePath = `${RNBlobUtil.fs.dirs.CacheDir}/assessment.pdf`;
+
+    await RNBlobUtil.fs.cp(originalPath, cachePath);
+    return cachePath;
+  };
+
+  const openPdf = async (path) => {
+    try {
+      const exists = await RNBlobUtil.fs.exists(path);
+      if (!exists) {
+        Alert.alert('Error', 'PDF file not found');
+        return;
+      }
+      const cachePath = await movePdfToCache(path);
+      // await Share.open({
+      //   url: `file://${cachePath}`,
+      //   type: 'application/pdf',
+      //   failOnCancel: false,
+      //   showAppsToView: true,
+      // });
+
+    } catch (e) {
+      console.log('PDF OPEN ERROR', e);
+      Alert.alert('Error', 'Unable to open PDF');
     }
-  }
-
-  var totalMarks = [];
-  let mData = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12];
-
-  mData.map((item, index) => {
-    totalMarks.push(
-      <View key={index}>
-        <TouchableOpacity onPress={() => { setIsEditMarks(false); selectMarks(item); }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
-          <Text style={{ color: SWATheam.SwaBlack }}>{item}</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  })
-
-
-
-
-
-
-
-
+  };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, backgroundColor: userData?.data?.colors?.mainTheme }}>
-        {isLoader ?
-          <Loader /> :
-          <View style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, paddingBottom: insets.bottom }}>
-            <SwaHeader title={"Assessment Generator"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-            <View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite }}>
-              <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 8 }}>
-                <View style={{ flexDirection: 'row', paddingBottom: 4, borderBottomWidth: .5, borderColor: userData.data.colors.liteTheme }}>
-                  <View style={{ width: 120 }}>
-                    <Text style={{ color: SWATheam.SwaWhite }}>
-                      Selected Ques.
-                    </Text>
-                  </View>
-                  <View style={{ width: 20 }}>
-                    <Text style={{ color: SWATheam.SwaWhite }}>:
-                    </Text>
-                  </View>
-                  <View style={{ flex: 1, }}>
-                    <Text style={{ color: SWATheam.SwaWhite, }}>
-                      {count}{"/" + assQuestions}
-                    </Text>
-                  </View>
-                </View>
-                <View style={{ flexDirection: 'row', marginTop: 4 }}>
-                  <View style={{ width: 120 }}>
-                    <Text style={{ color: SWATheam.SwaWhite }}>
-                      Ass. Name
-                    </Text>
-                  </View>
-                  <View style={{ width: 20 }}>
-                    <Text style={{ color: SWATheam.SwaWhite }}>:
-                    </Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: SWATheam.SwaWhite }}>
-                      {assName}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <FlatList
-                data={assessmentQuestion}
-                renderItem={({ item, index }) => {
-                  return (
-                    <View key={item.questionID}>
-                      {item.activityID == 1 &&
-                        <Mcq mcqData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 2 &&
-                        <Tnf tnfData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 3 &&
-                        <Fillup fillupData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 4 &&
-                        < Match matchData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 9 &&
-                        <Dnd dndData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 10 &&
-                        <Jumbo jumboData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 12 &&
-                        <Dd ddData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                      {item.activityID == 15 &&
-                        <Desc descData={item} editMarks={editMarks} selectedQuesIDs={selectedQuesIDs} selectedQuesIDsArray={selectedQuesIDsArray} index={index + 1} />
-                      }
-                    </View>
-                  )
-                }
-                }
-                keyExtractor={item => item.questionID}
-              />
-              <View style={{ flexDirection: 'row', bottom: 0, left: 0, right: 0, backgroundColor: userData.data.colors.hoverTheme }}>
-                <TouchableOpacity onPress={() => { assessmentGenerate() }} style={{ flex: 1, padding: 10, margin: 4, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }}>
-                  <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Generate Assessment</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => {
-                  setFlag((prev) => { return { ...prev, closeByUserName: `${userData?.data?.fullname}` } })
-                  navigation.goBack()
-                }}
-                  style={{ padding: 10, margin: 4, borderRadius: 6, backgroundColor: SWATheam.SwaRed }}>
-                  <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            {isEditMarks &&
-              <View style={{
-                position: 'absolute',
-                top: 0, bottom: 0, right: 0, left: 0,
-                paddingHorizontal: 30,
-                zIndex: 999,
-                backgroundColor: 'rgba(0, 0, 0, 0.7)'
-              }}>
-                <TouchableOpacity style={{ flex: 1 }}
-                  onPress={() => { closePopup() }}
-                />
-                <View style={{ height: "auto", maxHeight: 300, backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
-                  <TouchableOpacity onPress={() => { closePopup() }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
-                    <AntDesign name={"close"} size={25} style={{ width: 45 }} />
-                  </TouchableOpacity>
-                  <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Marks Update</Text>
-                  <ScrollView>
-                    <View>
-                      {totalMarks}
-                    </View>
-                  </ScrollView>
+    <>
+      <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+        <SwaHeader title={"Assessment Generator"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+        {/* assessment View Reactjs start */}
+        <WebView
+          ref={webview}
+          source={{
+            uri: 'https://swaadhyayan.com/school/public/assessmentGenerator/'
+          }}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          // mixedContentMode="always"
+          // userAgent="Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome Mobile Safari/537.36"
+          onError={(e) => console.log("WEBVIEW ERROR", e.nativeEvent)}
+          onHttpError={(e) => console.log("HTTP ERROR", e.nativeEvent)}
+          onMessage={(event) => {
+            let msg;
 
-                </View>
-                <TouchableOpacity style={{ flex: 1, }}
-                  onPress={() => { closePopup() }}
-                />
-              </View>
+            try {
+              msg = JSON.parse(event.nativeEvent.data);
+            } catch (e) {
+              console.log("RAW MESSAGE:", event.nativeEvent.data);
+              return;
             }
-          </View>
-        }
-      </SafeAreaView>
-    </SafeAreaProvider>
+            if (msg.type === "PDF_DATA") {
+              const base64 = msg.payload;
+              const fileName = `swa-assessment-${Date.now()}.pdf`;
+              // const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+              const filePath = `${RNBlobUtil.fs.dirs.DocumentDir}/${fileName}`;
+
+              RNBlobUtil.fs
+                .writeFile(filePath, base64, 'base64')
+                .then(() => {
+                  openPdf(filePath);
+                })
+                .catch(e => console.log("WRITE ERROR", e));
+            }
+            else if (msg === "done" || msg === "NAVIGATE") {
+              navigation.goBack();
+            }
+          }}
+
+          startInLoadingState={true}
+          onLoadStart={() => console.log("LOAD START")}
+          onLoad={() => console.log("LOADED")}
+          injectedJavaScript={`
+            setTimeout(function() {
+              if (window.ReactNativeWebView) {
+                window.ReactNativeWebView.postMessage("TEST_FROM_WEB");
+              }
+            }, 3000);
+            true;
+          `}
+          onLoadEnd={() => {
+            console.log("LOAD END")
+            if (webview.current) {
+              const data = {
+                assessmentQuestion,
+                noOfAssQuestions,
+                assName,
+                selectedData,
+                userData,
+              };
+
+              setTimeout(() => {
+                webview.current.postMessage(JSON.stringify(data));
+              }, 1000); // 1 sec enough
+            }
+          }}
+        />
+      </View>
+    </>
   )
 }
 const styles = StyleSheet.create({

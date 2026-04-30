@@ -57,7 +57,7 @@ const ViewReport = ({ navigation, route }) => {
                     septID: route.params.data.childIconSequence,
                     classIDs: route.params.data.classIDs,
                     classIDs: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.data.classIDs : userData.data.classID,
-                    schoolCode: userData.data.schoolCode,
+                    schoolID: userData.data.schoolID,
                     userTypeID: userData?.data?.userTypeID,
                     userRefID: userData?.data?.userRefID,
                     academicYear: userData?.data?.academicYear
@@ -82,7 +82,7 @@ const ViewReport = ({ navigation, route }) => {
                     })
             } else {
                 const classPayload = {
-                    "schoolCode": userData?.data?.schoolCode,
+                    "schoolID": userData?.data?.schoolID,
                     "userTypeID": userData?.data?.userTypeID
                 }
                 if (userData.data.userTypeID == 4) {
@@ -118,7 +118,7 @@ const ViewReport = ({ navigation, route }) => {
             if (selectedField.class != null) {
                 const payload = {
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
-                    "schoolCode": userData?.data?.schoolCode,
+                    "schoolID": userData?.data?.schoolID,
                     "userTypeID": userData?.data?.userTypeID,
                     "userRefID": userData?.data?.userRefID,
                     "academicYear": userData?.data?.academicYear
@@ -153,7 +153,7 @@ const ViewReport = ({ navigation, route }) => {
         } else if (type == "student") {
             if (selectedField.class != null && selectedField.section != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
                     "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
                     "academicYear": userData.data.academicYear,
@@ -186,7 +186,7 @@ const ViewReport = ({ navigation, route }) => {
         } else if (type == 'subject') {
             if (reportSubIconID == 65 && testType == 1 ? (selectedField.class != null && selectedField.section != null) : (selectedField.class != null && selectedField.section != null && selectedField.student != null)) {
                 const payload = {
-                    "schoolCode": userData?.data?.schoolCode,
+                    "schoolID": userData?.data?.schoolID,
                     "userTypeID": userData?.data?.userTypeID,
                     "academicYear": userData?.data?.academicYear,
                     "userRefID": userData?.data?.userRefID,
@@ -223,7 +223,7 @@ const ViewReport = ({ navigation, route }) => {
             if (reportSubIconID == 62 && (testType == 4 || testType == 7)) {
 
                 const payload = {
-                    "schoolCode": userData?.data?.schoolCode,
+                    "schoolID": userData?.data?.schoolID,
                     "academicYear": userData?.data?.academicYear,
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
                     "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -250,7 +250,7 @@ const ViewReport = ({ navigation, route }) => {
             } else if (reportSubIconID == 64 && testType == 1) {
                 if (selectedField.class != null && selectedField.section != null) {
                     const payload = {
-                        schoolCode: userData.data.schoolCode
+                        schoolID: userData.data.schoolID
                     }
                     Services.post(apiRoot.defaultExamList, payload)
                         .then((res) => {
@@ -277,7 +277,7 @@ const ViewReport = ({ navigation, route }) => {
                 }
             } else if (reportSubIconID == 64 && testType == 2) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": selectedField.class.classID,
                     "sectionID": selectedField.section.sectionID,
@@ -323,7 +323,7 @@ const ViewReport = ({ navigation, route }) => {
                     return { ...prev, status: false }
                 })
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
                     "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? item.sectionID : userData.data.sectionID
@@ -356,7 +356,7 @@ const ViewReport = ({ navigation, route }) => {
                     return { ...prev, status: false }
                 })
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
                     "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? item.sectionID : userData.data.sectionID
@@ -388,7 +388,7 @@ const ViewReport = ({ navigation, route }) => {
                     return { ...prev, status: false }
                 })
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
                     "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? item.sectionID : userData.data.sectionID
@@ -548,7 +548,7 @@ const ViewReport = ({ navigation, route }) => {
     function assessmentReportListSubjectWise(item) {
         console.log(item, 'hari krishan pant')
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": selectedField.class.classID,
             "sectionID": selectedField.section.sectionID,
@@ -576,7 +576,7 @@ const ViewReport = ({ navigation, route }) => {
 
     function chapterWiseStudentAssessmentReport(item) {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": selectedField.student.userRefID,
             "classID": selectedField.class.classID,
@@ -608,7 +608,7 @@ const ViewReport = ({ navigation, route }) => {
         setIsLoading(true)
         console.log(item, 'check item')
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": selectedField.class.classID,
             "sectionID": selectedField.section.sectionID,
@@ -638,7 +638,7 @@ const ViewReport = ({ navigation, route }) => {
     function getAnnualReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": item.academicYear,
             "classID": item.classID,
             "sectionID": item.sectionID,
@@ -666,7 +666,7 @@ const ViewReport = ({ navigation, route }) => {
     function getHalfYearlyReports(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": item.academicYear,
             "classID": item.classID,
             "sectionID": item.sectionID,
@@ -693,7 +693,7 @@ const ViewReport = ({ navigation, route }) => {
     function getSubjectWiseComprehensiveReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -723,7 +723,7 @@ const ViewReport = ({ navigation, route }) => {
     function getAssessmentWiseSubjectReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -753,7 +753,7 @@ const ViewReport = ({ navigation, route }) => {
     function getSubjectWiseDifficultyAnalysis(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -781,7 +781,7 @@ const ViewReport = ({ navigation, route }) => {
     function assessmentWiseStudentReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -811,7 +811,7 @@ const ViewReport = ({ navigation, route }) => {
     function allSubjectStudentComparisonReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -839,7 +839,7 @@ const ViewReport = ({ navigation, route }) => {
 
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -868,7 +868,7 @@ const ViewReport = ({ navigation, route }) => {
     function subjectAndAssessmentGradingReport(item) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
             "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
@@ -897,7 +897,7 @@ const ViewReport = ({ navigation, route }) => {
     function getReport(userRefID) {
         setIsLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userRefID,
             "testID": route.params.data.childIconSequence,
@@ -933,7 +933,7 @@ const ViewReport = ({ navigation, route }) => {
     function getConsolidatedReport(userRefID) {
         setIsLoading(true)
         const payload = {
-            schoolCode: userData.data.schoolCode,
+            schoolID: userData.data.schoolID,
             academicYear: userData.data.academicYear,
             userRefID: userRefID,
             classID: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,

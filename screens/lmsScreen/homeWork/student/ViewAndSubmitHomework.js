@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native"
 import { useEffect, useState, useContext } from "react"
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import ImageViewer from "../../../common/ImageViewer"
@@ -26,7 +26,7 @@ const ViewAndSubmitHomework = () => {
     const getAssignedHomeWork = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "classID": userData.data.classID,
             "sectionID": userData.data.sectionID,
@@ -42,7 +42,7 @@ const ViewAndSubmitHomework = () => {
                     })
                 } else {
                     setLoading(false)
-                    alert(res.message)
+                    // Alert.alert("", res.message)
                     setAssignedHomework({ data: null, status: false })
                 }
             })
@@ -88,7 +88,7 @@ const ViewAndSubmitHomework = () => {
 
     const submitHomeWork = () => {
         const formData = new FormData();
-        formData.append("schoolCode", userData.data.schoolCode)
+        formData.append("schoolID", userData.data.schoolID)
         formData.append("userTypeID", userData.data.userTypeID)
         formData.append("userRefID", userData.data.userRefID)
         formData.append("classID", singleHomeworkData?.classID)

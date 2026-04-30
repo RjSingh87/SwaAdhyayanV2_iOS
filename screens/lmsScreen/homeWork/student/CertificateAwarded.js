@@ -1,5 +1,5 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native"
-import { useEffect, useState, useContext} from "react"
+import { useEffect, useState, useContext } from "react"
 import HWPdfViewer from "../../../common/HWPdfViewer"
 import { apiRoot, SwaTheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
@@ -7,7 +7,7 @@ import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
 
 const CertificateAwarded = () => {
-    const {userData} = useContext(GlobleData)
+    const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [certificate, setCertificate] = useState({ data: null, status: false })
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
@@ -19,70 +19,70 @@ const CertificateAwarded = () => {
     const getCertificateData = () => {
         setLoading(true)
         const payload = {
-                "schoolCode": userData.data.schoolCode,
-                "userRefID": userData.data.userRefID,
-                "userTypeID": userData.data.userTypeID,
-                "certificateData": 0
+            "schoolID": userData.data.schoolID,
+            "userRefID": userData.data.userRefID,
+            "userTypeID": userData.data.userTypeID,
+            "certificateData": 0
         }
         Services.post(apiRoot.getAwardedCertificateStudent, payload)
-        .then((res) => {
-            if (res.status == "success") {
+            .then((res) => {
+                if (res.status == "success") {
+                    setLoading(false)
+                    const data = res.data
+                    setCertificate((prev) => {
+                        return { ...prev, data: data, status: true }
+                    })
+                } else {
+                    setLoading(false)
+                    // alert(res.message)
+                    setCertificate({ data: null, status: false })
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
                 setLoading(false)
-                const data = res.data
-                setCertificate((prev) => {
-                    return { ...prev, data: data, status: true }
-                })
-            } else {
-                setLoading(false)
-                // alert(res.message)
-                setCertificate({ data: null, status: false })
-            }
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-        .finally(()=>{
-            setLoading(false)
-        })
-       
+            })
+
     }
 
     const getCertificatePdf = (item) => {
         setLoading(true)
         const payload = {
-           "schoolCode": userData.data.schoolCode,
-                "userRefID": userData.data.userRefID,
-                "userTypeID": userData.data.userTypeID,
-                "classID": item.classID,
-                "sectionID": item.sectionID,
-                "subjectID": item.subjectID,
-                "certificateID": item.certificateID
+            "schoolID": userData.data.schoolID,
+            "userRefID": userData.data.userRefID,
+            "userTypeID": userData.data.userTypeID,
+            "classID": item.classID,
+            "sectionID": item.sectionID,
+            "subjectID": item.subjectID,
+            "certificateID": item.certificateID
         }
         Services.post(apiRoot.getCertificatePdf, payload)
-        .then((res) => {
-            if (res.status == "success"){
+            .then((res) => {
+                if (res.status == "success") {
+                    setLoading(false)
+                    setFileType((prev) => {
+                        return { ...prev, data: res.data, type: 'pdf', status: true, from: 'certificate' }
+                    })
+                } else {
+                    setLoading(false)
+                    alert(res.message)
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
                 setLoading(false)
-                setFileType((prev) =>{
-                    return { ...prev, data: res.data, type: 'pdf', status: true, from: 'certificate'}
-                })
-            } else {
-                setLoading(false)
-                alert(res.message)
-            }
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-        .finally(()=>{
-          setLoading(false)
-        })
+            })
     }
 
     return (
         <>
-        {loading?
-        <Loader/>:
-            <View style={{ flex: 1, padding:10}}>
+            {loading ?
+                <Loader /> :
+                <View style={{ flex: 1, padding: 10 }}>
                     <ScrollView>
                         {
                             certificate.status ?
@@ -91,7 +91,7 @@ const CertificateAwarded = () => {
                                         certificate.data.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
-                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor:SwaTheam.SwaWhite }} key={index}>
+                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SwaTheam.SwaWhite }} key={index}>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                                                         <View style={{ width: 120, }}>
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Class </Text>
@@ -185,11 +185,11 @@ const CertificateAwarded = () => {
                                 </View>
                         }
                     </ScrollView>
-            </View>
-        }
-                {(fileType.status && fileType.type == 'pdf') &&
-                    <HWPdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} />
-                }
+                </View>
+            }
+            {(fileType.status && fileType.type == 'pdf') &&
+                <HWPdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} />
+            }
         </>
 
     )

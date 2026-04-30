@@ -20,10 +20,10 @@ const Assessment = ({ navigation }) => {
 	function getGenerateAsslist() {
 		setIsLoading(true)
 		const payload = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
 		}
-		console.log(payload)
+		// console.log(payload, "payload dropdown")
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
 				if (res.status == "success") {

@@ -6,6 +6,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 import { GlobleData } from '../../Store';
 
 const ActivityView = ({ navigation, route }) => {
+  console.log("activityView.js")
   const { userData } = useContext(GlobleData)
 
   const instets = useSafeAreaInsets()

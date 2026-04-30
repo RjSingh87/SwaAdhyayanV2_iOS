@@ -22,7 +22,7 @@ const CheckedHomeWork = () => {
     const getCheckedHomeWork = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
             "classID": userData.data.classID,

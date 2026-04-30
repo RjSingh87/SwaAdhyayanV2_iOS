@@ -176,7 +176,7 @@ export default function Store({ children }) {
 			return { ...o, showLoader: true }
 		})
 		const xData = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
 			"classID": userData.data.classID,
 			"assessmentID": attemptStore.assMentIds
@@ -724,7 +724,7 @@ export default function Store({ children }) {
 			return { ...o, showLoader: true }
 		})
 		const payload = {
-			"schoolCode": userData?.data?.schoolCode,
+			"schoolID": userData?.data?.schoolID,
 			"userRefID": userData?.data?.userRefID,
 			"academicYear": userData?.data?.academicYear,
 			"userTypeID": userData?.data?.userTypeID,

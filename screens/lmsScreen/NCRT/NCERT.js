@@ -13,6 +13,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 
 
 export default function NCERT({ navigation, route }) {
+	console.log("NCERT.js")
 	const { userData } = useContext(GlobleData)
 	const { width } = useWindowDimensions();
 	const tagsStyles = {

@@ -17,6 +17,7 @@ const font17 = 17;
 
 
 const AcademicReport = ({ navigation, route }) => {
+    console.log("AcademicReport.js")
     const { userData } = useContext(GlobleData)
     const [queData, setQueData] = useState({ data: null, status: true })
     const [showAnswer, setShowAnswer] = useState(false)
@@ -37,7 +38,7 @@ const AcademicReport = ({ navigation, route }) => {
 
     function getReport() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "testID": route.params.testID,

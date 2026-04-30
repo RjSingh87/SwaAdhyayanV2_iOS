@@ -55,6 +55,7 @@ let teacherCount = 0;
 
 
 const SwaSharing = ({ navigation }) => {
+  console.log("SwaSharing.js")
   const { userData } = useContext(GlobleData)
 
   const [date, setDate] = useState(new Date())
@@ -171,7 +172,7 @@ const SwaSharing = ({ navigation }) => {
     setLoading(true)
     if (searchPostTxt == '' && searchPostDate == '') {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "userRefID": userData.data.userRefID,
         "userTypeID": userData.data.userTypeID
       }
@@ -203,7 +204,7 @@ const SwaSharing = ({ navigation }) => {
 
     } else if (searchPostTxt != '' || searchPostDate != '') {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "userRefID": userData.data.userRefID,
         "userTypeID": userData.data.userTypeID,
         "searchData": searchPostTxt || searchPostDate
@@ -236,7 +237,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getPostLikeCount() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "userTypeID": userData.data.userTypeID
     }
@@ -263,7 +264,7 @@ const SwaSharing = ({ navigation }) => {
   function getPostComments(shareID) {
     setIsLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "shareID": shareID
     }
     Services.post(apiRoot.getPostCommentsApp, payload)
@@ -335,7 +336,7 @@ const SwaSharing = ({ navigation }) => {
   function slectLikeDislikeBtn(likeOption, shareID, selectedBtn) {
     setIsLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "shareID": shareID,
       "likeOption": likeOption != selectedBtn ? likeOption : ''
@@ -420,7 +421,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getSharingGroup() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "userTypeID": userData.data.userTypeID
     }
@@ -448,7 +449,7 @@ const SwaSharing = ({ navigation }) => {
 
   function createGroup() {
     const formData = new FormData();
-    formData.append("schoolCode", userData.data.schoolCode)
+    formData.append("schoolID", userData.data.schoolID)
     formData.append("newGroupName", groupName)
     formData.append("userRefID", userData.data.userRefID)
     formData.append("userTypeID", userData.data.userTypeID)
@@ -479,7 +480,7 @@ const SwaSharing = ({ navigation }) => {
     setGroupId(groupID)
     setNameOfGroup(name)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupID
     }
     Services.post(apiRoot.viewMembersAppSharingGroup, payload)
@@ -510,7 +511,7 @@ const SwaSharing = ({ navigation }) => {
 
   function removeMemberFrmShareGroup(userRefID, name = "") {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userRefID,
       "groupID": groupId
     }
@@ -539,7 +540,7 @@ const SwaSharing = ({ navigation }) => {
 
   function deleteSharedPost(groupID, shareID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupID,
       "shareID": shareID
     }
@@ -567,7 +568,7 @@ const SwaSharing = ({ navigation }) => {
 
   function addCommentOnPost(userRefID, shareID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userRefID,
       "userTypeID": userData.data.userTypeID,
       "shareID": shareID,
@@ -591,7 +592,7 @@ const SwaSharing = ({ navigation }) => {
   }
   function addMembersOnGroup() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userIDs": userIDs,
       "groupID": grpID
     }
@@ -612,7 +613,7 @@ const SwaSharing = ({ navigation }) => {
 
   function deleteSharGroup(groupID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupID
     }
     Services.post(apiRoot.deleteAppSharingGroup, payload)
@@ -634,7 +635,7 @@ const SwaSharing = ({ navigation }) => {
 
   function savePostVisit(shareIDArr) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "userTypeID": userData.data.userTypeID,
       "shareIDs": shareIDArr
@@ -707,7 +708,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getClassList() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userTypeID": userData.data.userTypeID
     }
     if (userData.data.userTypeID == 4) {
@@ -735,7 +736,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getSectionList() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "academicYear": userData.data.academicYear,
       "classID": classID,
       "userTypeID": userData.data.userTypeID,
@@ -763,7 +764,7 @@ const SwaSharing = ({ navigation }) => {
   function addWholeSchool() {
     setSelectWholeSchool(1)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupId,
       "userRefID": userData.data.userRefID
     }
@@ -813,7 +814,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getTeacherList() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "academicYear": userData.data.academicYear,
     }
     Services.post(apiRoot.getTeachersListApp, payload)
@@ -936,7 +937,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getstudents() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": classID,
       "sectionID": sectionID,
       "academicYear": userData.data.academicYear,
@@ -966,7 +967,7 @@ const SwaSharing = ({ navigation }) => {
 
   function getAddedMembers(groupID) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupID
     }
     Services.post(apiRoot.getAddedMembersInGroup, payload)
@@ -991,7 +992,7 @@ const SwaSharing = ({ navigation }) => {
 
   function removeAllSelectedfrmGroup(groupId, userRefIDs) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": groupId,
       "userRefIDs": userRefIDs
     }
@@ -1054,7 +1055,7 @@ const SwaSharing = ({ navigation }) => {
   function updateGroup() {
 
     const formData = new FormData();
-    formData.append("schoolCode", userData.data.schoolCode)
+    formData.append("schoolID", userData.data.schoolID)
 
     if (newNameOfGroup != '') {
       formData.append("editGrpName", newNameOfGroup)
@@ -1096,7 +1097,7 @@ const SwaSharing = ({ navigation }) => {
   function sharePost() {
     setLoading(true)
     const formData = new FormData();
-    formData.append("schoolCode", userData.data.schoolCode)
+    formData.append("schoolID", userData.data.schoolID)
     formData.append("groupID", groupId)
     formData.append("createdByID", uploadPostCreatedBy)
     formData.append("academicYear", userData.data.academicYear)
@@ -1198,7 +1199,7 @@ const SwaSharing = ({ navigation }) => {
 
   function removeAllMemberFrmShareGroup() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "groupID": grpID,
       "userRefID": userData.data.userRefID
     }

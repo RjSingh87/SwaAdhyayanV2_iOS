@@ -11,6 +11,7 @@ import Loader from "../../../common/Loader"
 
 
 const CreateCertificate = () => {
+    console.log("CreateCertificate.js")
     const { userData } = useContext(GlobleData)
 
     const [selectOption, setSelectOption] = useState({ class: null, section: null, subject: null, student: null, awardType: null, type: null })
@@ -28,7 +29,7 @@ const CreateCertificate = () => {
         setLoading(true)
         if (type == "class") {
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "userTypeID": userData.data.userTypeID,
                 "userRefID": userData.data.userRefID,
                 "academicYear": userData.data.academicYear
@@ -57,7 +58,7 @@ const CreateCertificate = () => {
         else if (type == 'section') {
             if (selectOption.class != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "classID": selectOption.class.classID,
                     "userTypeID": userData.data.userTypeID,
@@ -73,8 +74,8 @@ const CreateCertificate = () => {
                                 return { ...prev, data: data, type: type, status: true }
                             })
                         } else {
+                            // alert(res.message)
                             setLoading(false)
-                            alert(res.message)
                         }
                     })
                     .catch((err) => {
@@ -82,16 +83,16 @@ const CreateCertificate = () => {
                     })
                     .finally(() => {
                         setLoading(false)
-
                     })
             } else {
                 alert("Please select class first")
+                setLoading(false)
             }
         }
         else if (type == 'subject') {
             if (selectOption.section != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "academicYear": userData.data.academicYear,
                     "userTypeID": userData.data.userTypeID,
                     "userRefID": userData.data.userRefID,
@@ -120,12 +121,13 @@ const CreateCertificate = () => {
                     })
             } else {
                 alert("Please select section first")
+                setLoading(false)
             }
         }
         else if (type == 'student') {
             if (selectOption.subject != null) {
                 const payload = {
-                    "schoolCode": userData.data.schoolCode,
+                    "schoolID": userData.data.schoolID,
                     "classID": selectOption.class.getClassDetail.classID,
                     "sectionID": selectOption.section.sectionID,
                     "subjectID": selectOption.subject.subjectID,
@@ -152,6 +154,7 @@ const CreateCertificate = () => {
                     })
             } else {
                 alert("Please select subejct first")
+                setLoading(false)
             }
         }
         else if (type == 'awardType') {
@@ -178,6 +181,7 @@ const CreateCertificate = () => {
                     })
             } else {
                 alert("Please select student first")
+                setLoading(false)
             }
         }
         else if (type == 'month') {
@@ -265,7 +269,7 @@ const CreateCertificate = () => {
 
     function createCertificate() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userTypeID": userData.data.userTypeID,
             "userRefID": userData.data.userRefID,
             "classID": selectOption.class?.classID,

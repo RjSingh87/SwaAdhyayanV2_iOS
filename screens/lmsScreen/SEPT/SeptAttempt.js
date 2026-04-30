@@ -40,7 +40,7 @@ const SeptAttempt = ({ navigation, route }) => {
     const testTime = route?.params?.testData?.selectedSubIcon.testDuration.split(':')
 
     let min = 60 * testTime[1]
-    const schoolCode = route.params.schoolCode
+    const schoolID = route.params.schoolID
     const classID = route.params.classID
     const testID = route.params.testID
 
@@ -92,7 +92,7 @@ const SeptAttempt = ({ navigation, route }) => {
     const submitData = (classID, queLen, testID) => {
 
         if (attemptLen == queLen) {
-            const schoolCode = route.params.schoolCode
+            const schoolID = route.params.schoolID
             const UserData = {
                 userRefID: userData.data.userRefID,
                 classID: classID,
@@ -103,12 +103,12 @@ const SeptAttempt = ({ navigation, route }) => {
             }
 
             const finalData = {
-                "schoolCode": schoolCode,
+                "schoolID": schoolID,
                 "userData": UserData,
                 "attemptData": attemptData,
             }
             const payload = {
-                schoolCode: finalData.schoolCode,
+                schoolID: finalData.schoolID,
                 userData: finalData.userData,
                 attemptData: finalData.attemptData
             }
@@ -163,7 +163,7 @@ const SeptAttempt = ({ navigation, route }) => {
 
     function getQuestions() {
         const payload = {
-            "schoolCode": schoolCode,
+            "schoolID": schoolID,
             "testID": testID,
             "classID": classID
         }

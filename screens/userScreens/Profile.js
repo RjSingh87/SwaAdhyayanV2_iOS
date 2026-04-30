@@ -30,7 +30,7 @@ const Profile = ({ navigation }) => {
     const payload = {
       "userRefID": userData?.data?.userRefID,
       "userTypeID": userData?.data?.userTypeID,
-      "schoolCode": userData?.data?.schoolCode
+      "schoolID": userData?.data?.schoolID
     }
     if (userData?.data?.userTypeID == 5 || userData?.data?.userTypeID == 6) {
       payload["transYear"] = userData?.data?.transYear
@@ -72,7 +72,7 @@ const Profile = ({ navigation }) => {
         } else if (response.assets) {
           formData.append("userRefID", userData.data.userRefID);
           formData.append("userTypeID", userData.data.userTypeID);
-          formData.append("schoolCode", userData.data.schoolCode);
+          formData.append("schoolID", userData.data.schoolID);
           formData.append("profilePhoto", {
             uri: response.assets[0].uri,
             name: 'image.png',
@@ -111,7 +111,7 @@ const Profile = ({ navigation }) => {
       const formData = new FormData();
       formData.append("userRefID", userData.data.userRefID);
       formData.append("userTypeID", userData.data.userTypeID);
-      formData.append("schoolCode", userData.data.schoolCode);
+      formData.append("schoolID", userData.data.schoolID);
       formData.append("profilePhoto", {
         uri: image.path,
         name: 'image.png',
@@ -156,7 +156,7 @@ const Profile = ({ navigation }) => {
       } else {
         formData.append("userRefID", userData.data.userRefID);
         formData.append("userTypeID", userData.data.userTypeID);
-        formData.append("schoolCode", userData.data.schoolCode);
+        formData.append("schoolID", userData.data.schoolID);
         formData.append("profilePhoto", {
           uri: result?.assets[0]?.uri,
           name: 'image.png',
@@ -196,7 +196,7 @@ const Profile = ({ navigation }) => {
       const formData = new FormData();
       formData.append("userRefID", userData.data.userRefID);
       formData.append("userTypeID", userData.data.userTypeID);
-      formData.append("schoolCode", userData.data.schoolCode);
+      formData.append("schoolID", userData.data.schoolID);
       formData.append("profilePhoto", {
         uri: image.path,
         name: 'image.png',
@@ -225,7 +225,9 @@ const Profile = ({ navigation }) => {
       ;
   }
 
+
   return (
+
     <>
       {profileData.data == undefined ?
         <Loader /> :

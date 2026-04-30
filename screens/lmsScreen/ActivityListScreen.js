@@ -13,6 +13,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 
 
 const ActivityListScreen = ({ navigation, route }) => {
+  console.log("activityListScreen.js")
   const { userData } = useContext(GlobleData)
   let moduleActivityList = useSelector(state => state.ActivityToolList)
   let funBagActivityList = useSelector(state => state.FunBagActToolList)

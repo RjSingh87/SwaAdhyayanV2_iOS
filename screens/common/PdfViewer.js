@@ -9,6 +9,7 @@ import { GlobleData } from '../../Store';
 
 
 const PdfViewer = ({ navigation, route }) => {
+  console.log("PdfViewer.js")
   const { userData } = useContext(GlobleData)
   const moduleActivityList = useSelector(state => state.ActivityToolList)
   let pdfPath = ''

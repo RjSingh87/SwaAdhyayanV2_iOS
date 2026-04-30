@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image, Alert } from 'react-native';
 import { GlobleData } from '../../../../../../Store';
 import { apiRoot, SWATheam } from '../../../../../../constant/ConstentValue';
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -35,10 +35,10 @@ export default function AssiList({ navigation, }) {
 	function getGenerateAsslist() {
 		setLoader(true)
 		const payload = {
-			"schoolCode": userData?.data?.schoolCode,
+			"schoolID": userData?.data?.schoolID,
 			"userRefID": userData?.data?.userRefID,
 		}
-		console.log({ payload })
+		// console.log({ payload })
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
 				if (res.status == "success") {
@@ -48,7 +48,7 @@ export default function AssiList({ navigation, }) {
 						return { ...prev, url: res.url }
 					})
 				} else {
-					alert(res.message)
+					Alert.alert("Info", res.message)
 					setLoader(false)
 				}
 			})
@@ -67,7 +67,7 @@ export default function AssiList({ navigation, }) {
 
 	function viewReport(item) {
 		const payload = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userTypeID": userData.data.userTypeID,
 			"userRefID": item?.userRefID,
 			"assessmentID": item?.assessmentID
@@ -106,7 +106,7 @@ export default function AssiList({ navigation, }) {
 		setResult(true);
 		setLoader(true);
 		const payload = {
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
 			"userTypeID": userData.data.userTypeID,
 			"assessmentID": item.assessmentID,

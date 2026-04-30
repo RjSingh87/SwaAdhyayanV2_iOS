@@ -10,6 +10,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 
 
 const HomeWorkReports = ({ navigation, route }) => {
+    console.log("HomeWorkReports.js")
     const { userData } = useContext(GlobleData)
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 

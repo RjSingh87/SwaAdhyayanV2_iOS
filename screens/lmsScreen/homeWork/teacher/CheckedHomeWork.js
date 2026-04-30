@@ -9,6 +9,7 @@ import Loader from "../../../common/Loader"
 
 
 const CheckedHomeWork = () => {
+    console.log("CheckedHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [checkedHomeWork, setCheckedHomeWork] = useState({ data: null, status: false })
@@ -21,7 +22,7 @@ const CheckedHomeWork = () => {
     const getCheckedHomeWork = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
             "isChecked": 1
@@ -36,7 +37,7 @@ const CheckedHomeWork = () => {
                     })
                 } else {
                     setLoading(false)
-                    alert(res.message)
+                    // alert(res.message)
                     setCheckedHomeWork({ data: null, status: false })
                 }
             })

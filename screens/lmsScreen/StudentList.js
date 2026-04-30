@@ -13,6 +13,7 @@ import { WebView } from 'react-native-webview';
 const font15 = 15
 
 const StudentList = ({ navigation, route }) => {
+    console.log("StudentList.js")
     const { userData } = useContext(GlobleData)
     const [selectClassText, setSelectClassText] = useState('Select Class')
     const [selectSectionText, setSelectSectionText] = useState('Select Section')

@@ -8,6 +8,7 @@ import Loader from "../../../common/Loader"
 
 
 const IssuedCertificate = () => {
+    console.log("IssuedCertificate.js")
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [issuedCertificate, setIssuedCertificate] = useState({ data: null, status: false })
@@ -20,7 +21,7 @@ const IssuedCertificate = () => {
     const getIssuedCertificates = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
             "certificateData": 0
@@ -49,7 +50,7 @@ const IssuedCertificate = () => {
 
     const deleteIssuedCertificate = (item) => {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "userTypeID": userData.data.userTypeID,
             "certificateID": item.certificateID
@@ -70,7 +71,7 @@ const IssuedCertificate = () => {
     const viewFile = (item) => {
         setLoading(true)
         const payload = {
-            "schoolCode": item.schoolCode,
+            "schoolID": item.schoolID,
             "userRefID": item.createdFor,
             "userTypeID": 5,
             "classID": item.classID,

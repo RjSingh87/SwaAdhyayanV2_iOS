@@ -51,6 +51,7 @@ const date = new Date()
 let dayNo = date.getDay()
 
 const TimeTable = ({ navigation, route }) => {
+    console.log("TimeTable.js")
 
     const { userData } = useContext(GlobleData)
 
@@ -235,7 +236,7 @@ const TimeTable = ({ navigation, route }) => {
                 })
             }
             const payload = {
-                "schoolCode": userData.data.schoolCode,
+                "schoolID": userData.data.schoolID,
                 "userTypeID": userData.data.userTypeID,
             }
             Services.post(apiRoot.getClassList, payload)

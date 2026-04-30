@@ -14,8 +14,7 @@ import Orientation from 'react-native-orientation-locker';
 
 
 const Dashboard = ({ navigation, route }) => {
-
-
+  console.log("Dashboard.js")
   const { userData } = useContext(GlobleData)
   const [deshboardData, setDeshboardData] = useState({ icons: null, timeTable: null, iconUrl: '', status: true })
   const [timeTableStructure, setTimeTableStructure] = useState();

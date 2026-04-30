@@ -12,7 +12,7 @@ export const apiRoot = Object.freeze({
     getSectionList: "getSectionList",
     getSubjectList: "getSubjectList",
     getBooksList: "getBooksList",
-    getLearningToolsList: "getLearningToolsList",
+    getLearningTools: "getLearningTools",
     getModuleActivityData: "getModuleActivityData",
     getLearningRightToolsList: "getLearningRightToolsList",
     getFilePathAccToLearningType: "getFilePathAccToLearningType",
@@ -46,7 +46,7 @@ export const apiRoot = Object.freeze({
     studentCbseSafalList: "studentCbseSafalList",
     getSafalExamQuestion: "getSafalExamQuestion",
     safalViewAttemptExamReport: "safalViewAttemptExamReport",
-    safalViewAllAttemptExamReport: "safalViewAllAttemptExamReport",
+    safalViewAllsAttemptExamReport: "safalViewAllAttemptExamReport",
     getConpitativeExamList: "getConpitativeExamList",
     submitSafalExamAttempt: "submitSafalExamAttempt",
     // report//

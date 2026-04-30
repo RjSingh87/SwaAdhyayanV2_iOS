@@ -13,6 +13,7 @@ import Services from "../../../../Services"
 
 
 const AssignedHomeWork = () => {
+    console.log("AssignedHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [assignedHomework, setAssignedHomework] = useState({ data: null, status: false })
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
@@ -25,7 +26,7 @@ const AssignedHomeWork = () => {
     const getAssignedHomeWork = () => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "isAssigned": 1
         }
@@ -39,7 +40,7 @@ const AssignedHomeWork = () => {
                     })
                 } else {
                     setLoading(false)
-                    alert(res.message)
+                    // alert(res.message)
                     setAssignedHomework({ data: null, status: false })
                 }
             })
@@ -55,7 +56,7 @@ const AssignedHomeWork = () => {
     const deleteAssignedHomeWork = (homeWorkID) => {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "homeWorkID": homeWorkID
         }

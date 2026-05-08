@@ -31,7 +31,7 @@ const NotbookSEAMarksEntry = ({ navigation, route }) => {
             return { ...prev, status: true }
         })
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userTypeID": userData.data.userTypeID,
             "userRefID": userData.data.userRefID,
@@ -123,7 +123,7 @@ const NotbookSEAMarksEntry = ({ navigation, route }) => {
             }
         })
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "classID": route.params.classID,
             "sectionID": route.params.sectionID,
             "subjectID": route.params.subjectID,

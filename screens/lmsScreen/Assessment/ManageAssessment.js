@@ -52,10 +52,11 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const getAllAssessments = () => {
     setLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
     }
+    console.log(payload, "Manage????")
     Services.post(apiRoot.getAssessmentList, payload)
       .then((res) => {
         if (res.status == "success") {
@@ -82,7 +83,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const deleteAssessment = async (item) => {
     setLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "assessmentID": item.assessmentID
     }
     Services.post(apiRoot.deleteAssessment, payload)
@@ -107,7 +108,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const declareResult = (item) => {
     setLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "assessmentID": item.assessmentID
     }
     Services.post(apiRoot.declareAssessmentResult, payload)
@@ -134,7 +135,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     setLoading(true)
     if (item == null) {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": showPopUp.data?.classID,
         "sectionID": showPopUp.data?.sectionID,
         "academicYear": userData.data.academicYear,
@@ -166,7 +167,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     }
     else {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": item.classID,
         "sectionID": item.sectionID,
         "academicYear": userData.data.academicYear,
@@ -309,7 +310,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     }
 
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": showPopUp.data?.getUserName.userRefID,
       "academicYear": showPopUp.data?.getUserName.academicYear,
       "assessmentID": showPopUp.data?.assessmentID,
@@ -339,7 +340,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const getReAssignSections = async (item) => {
     setLoading(true)
     const payload = {
-      "schoolCode": item?.schoolCode,
+      "schoolID": item?.schoolID,
       "academicYear": item.getUserName?.academicYear,
       "userTypeID": item?.getUserName?.userTypeID,
       "assessmentID": item?.assessmentID
@@ -422,11 +423,12 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     setLoading(true)
     if (item != null) {
       const payload = {
-        "schoolCode": item?.schoolCode,
+        "schoolID": item?.schoolID,
         "classID": item?.classID,
         "subjectID": item?.subjectID,
         "assessmentID": item?.assessmentID
       }
+      console.log(payload, "CheckOfline")
       Services.post(apiRoot.checkOfflineList, payload)
         .then((res) => {
           if (res.status == "success") {
@@ -448,7 +450,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
 
     } else {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "classID": offlinePaper.data?.classID,
         "subjectID": offlinePaper.data?.subjectID,
         "assessmentID": offlinePaper.data?.assessmentID
@@ -533,7 +535,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const saveMarks = async () => {
     setLoading(true)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": offlinePaper.data?.userRefID,
       "assessmentID": offlinePaper.data?.assessmentID,
       "marks": saveMarksArr
@@ -606,7 +608,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const saveCheckOffline = async () => {
     setLoading(true)
     const formData = new FormData();
-    formData.append("schoolCode", userData.data.schoolCode)
+    formData.append("schoolID", userData.data.schoolID)
     formData.append("userRefID", offlinePaper.data?.userRefID)
     formData.append("assessmentID", offlinePaper.data?.assessmentID)
 

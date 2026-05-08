@@ -28,7 +28,7 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
   }, [])
   function getIndicatorDataForMarks() {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedField.class.classID,
       "sectionID": selectedField.section.sectionID,
       "termID": selectedField.term.id,
@@ -93,7 +93,7 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
       }
     })
     const Payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": val.classID,
       "sectionID": selectedField.section.sectionID,
       "userRefID": item.getStudentName.userRefID,

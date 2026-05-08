@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, StatusBar, Platform } from 'react-native'
-import React, { useContext, useState, useRef, useEffect } from 'react'
+import { StyleSheet, Text, View, StatusBar, BackHandler, Alert } from 'react-native'
+import React, { useContext, useState, useRef, useEffect, } from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import SwaHeader from '../common/SwaHeader'
 import { useDispatch, useSelector } from 'react-redux';
 import SubIconActivityList from '../common/SubIconActivityList'
@@ -9,11 +10,11 @@ import { apiRoot } from '../../constant/ConstentValue';
 import BottomDrawerList from '../common/BottomDrawerList';
 import Orientation from 'react-native-orientation-locker';
 import Loader from '../common/Loader';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ActivityListScreen = ({ navigation, route }) => {
-  console.log("activityListScreen.js")
+  const insets = useSafeAreaInsets();
+  const searchID = route?.params?.item?.chapter?.chapterID
   const { userData } = useContext(GlobleData)
   let moduleActivityList = useSelector(state => state.ActivityToolList)
   let funBagActivityList = useSelector(state => state.FunBagActToolList)
@@ -27,6 +28,20 @@ const ActivityListScreen = ({ navigation, route }) => {
   }
 
   useEffect(() => {
+    if (searchID != undefined) {
+      const backAction = () => {
+        navigation.navigate('home')
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+      return () => backHandler.remove();
+    }
+  }, []);
+
+  useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
       Orientation.lockToPortrait();
       StatusBar.setHidden(false);
@@ -34,23 +49,38 @@ const ActivityListScreen = ({ navigation, route }) => {
     return goBack
   }, [navigation])
 
+  useEffect(() => {
+    if (!moduleActivityList.loading && route?.params?.item?.chapter != undefined) {
+      getModuleActivityData(route.params.item)
+    }
+  }, [])
 
   function onClickLeftIcon() {
-    navigation.goBack()
+    if (searchID != undefined) {
+      navigation.navigate('home')
+    } else {
+      navigation.goBack()
+    }
   }
   function onClickRightIcon() {
     setIsInstruction(true)
   }
-  async function getModuleActivityData(item, actUrl) {
-    setChapterID(item.chapterID)
-    const payload = {
-      "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.sendData.classID : userData.data.classID,
-      "subjectID": item.subjectID,
-      "subTypeID": route.params.sendData.subTypeID,
-      "chapterID": item.chapterID ? item.chapterID : ''
-    }
 
-    if (actUrl != "") {
+  async function getModuleActivityData(item, actUrl) {
+    let classId = item?.chapter != undefined ? item.chapter.classID : ((userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.sendData.classID : userData.data.classID)
+    let subjectID = item?.chapter != undefined ? item.chapter.subjectID : item?.subjectID
+    let chapterID = item?.chapter != undefined ? item?.chapter?.chapterID : (item?.chapterID ? item?.chapterID : '')
+    let subTypeID = route.params.sendData.subTypeID
+    let chapterNo = item?.chapter != undefined ? item?.chapter?.chapterNo : item?.chapterNo
+
+    setChapterID(chapterID)
+    const payload = {
+      "classID": classId,
+      "subjectID": subjectID,
+      "subTypeID": subTypeID,
+      "chapterID": chapterID
+    }
+    if (actUrl != "" && actUrl != undefined) {
       const cheerio = require('react-native-cheerio');
       const response = await fetch(actUrl + '/app')
 
@@ -65,6 +95,7 @@ const ActivityListScreen = ({ navigation, route }) => {
       let srcPath = '';
 
       if (liList) {
+
         const urlArray = liList.attribs.src.split('#');
         if (liList.attribs.src.includes('SPDF')) {
           srcPath = `${urlArray[1]}`
@@ -84,23 +115,33 @@ const ActivityListScreen = ({ navigation, route }) => {
           navigation.navigate('activityView', { url: actUrl, title: item.activityName })
         }
       } else if (actUrl.includes('otherActivity')) {
+
         navigation.navigate('activityView', { url: actUrl, title: item.activityName })
       } else {
         // GlossaryMoralSummaryLbdView//
         navigation.navigate('activityView', { url: actUrl, title: item.activityName })
       }
     } else {
-      Services.post(apiRoot.getLearningRightToolsList, payload)
+
+      await Services.post(apiRoot.getLearningRightToolsList, payload)
         .then((res) => {
           if (res.status == "success") {
             listName = ''
-            if (route.params.sendData.subTypeID == 1) {
-              listName = item.chapterNameLang2
+            if (subTypeID == 1) {
+              if (item?.chapter != undefined) {
+                listName = item.chapter.chapterName
+              } else (
+                listName = item.chapterNameLang2
+              )
             } else {
-              listName = item.chapterName
+              if (item?.chapter != undefined) {
+                listName = item.chapter.chapterName
+              } else {
+                listName = item.chapterName
+              }
             }
             setListItem((prev) => {
-              return { ...prev, list: res.data.mainData, status: true, type: 'act', imgUrl: res.data.imgUrl, listName: (route.params.sendData.subTypeID == 1 ? "पाठ " : "Chapter ") + item.chapterNo + ': ' + listName, actUrl: actUrl }
+              return { ...prev, list: res.data.mainData, status: true, type: 'act', imgUrl: res.data.imgUrl, listName: (subTypeID == 1 ? "पाठ " : "Chapter ") + chapterNo + ': ' + listName, actUrl: actUrl }
             })
           } else if (res.status == "error") {
             alert(res.message)
@@ -111,6 +152,7 @@ const ActivityListScreen = ({ navigation, route }) => {
         })
     }
   }
+
   function closeModule() {
     setListItem((prev) => {
       return { ...prev, status: false }
@@ -149,10 +191,10 @@ const ActivityListScreen = ({ navigation, route }) => {
               classID: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.sendData.classID : userData.data.classID,
               subjectID: route.params.sendData.subjectID
             }
-            navigation.navigate('chapterItem', { data: res.data, sendData: sendData, navigation })
+            navigation.navigate('chapterItem', { data: res.data, sendData: sendData, })
           } else if (res.data[0]?.uploadFileName?.split('.').pop() === "pdf") {
             navigation.navigate('pdfView', res.data[0])
-          } else if (res.data[0]?.uploadFileName?.split('.').pop() === "mp4") {
+          } else if (res.data[0]?.uploadFileName?.split('.').pop() === "mp4" || res.data[0]?.referenceLink != null) {
             navigation.navigate('videoView', res.data[0])
           } else if (res.data[0].activityUrl != null || res.data[0].activityUrl != undefined) {
             navigation.navigate('activityView', { url: res.data[0].activityUrl, title: res.data[0].activityName })
@@ -165,7 +207,6 @@ const ActivityListScreen = ({ navigation, route }) => {
         console.log(err)
       })
       .finally(() => {
-
       })
   }
 
@@ -180,7 +221,7 @@ const ActivityListScreen = ({ navigation, route }) => {
               <Loader /> :
               <>
                 {moduleActivityList?.data?.mainData?.length ?
-                  <SubIconActivityList selectedModuleItem={route.params.item} toolItems={moduleActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} /> :
+                  <SubIconActivityList selectedModuleItem={route.params.item} toolItems={moduleActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} searchID={searchID} /> :
                   null
                 }
               </>

@@ -12,36 +12,36 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
 
   function saveSubjectMarksEntry(item, formatName, index) {
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": selectedField.class.classID,
       "sectionID": selectedField.section.sectionID,
       "subjectID": selectedField.subject.subjectID,
       "termID": termBtnID,
       "academicYear": userData.data.academicYear,
       "userRefID": item.userRefID,
-      "periodicTestMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.periodicTestMarks!=undefined?subjectMarksEntry.list[index].getSubjectMarksEntry.periodicTestMarks:"",
-      "noteBookMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.noteBookMarks!=undefined?subjectMarksEntry.list[index].getSubjectMarksEntry.noteBookMarks:"",
-      "seaMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.seaMarks!=undefined?subjectMarksEntry.list[index].getSubjectMarksEntry.seaMarks:"",
-      "halfYearlyMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.halfYearlyMarks!=undefined?subjectMarksEntry.list[index].getSubjectMarksEntry.halfYearlyMarks:"",
+      "periodicTestMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.periodicTestMarks != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.periodicTestMarks : "",
+      "noteBookMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.noteBookMarks != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.noteBookMarks : "",
+      "seaMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.seaMarks != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.seaMarks : "",
+      "halfYearlyMarks": subjectMarksEntry.list[index].getSubjectMarksEntry.halfYearlyMarks != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.halfYearlyMarks : "",
       "formType": formatName,
-      "schMarksID": subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID!=undefined?subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID:""
+      "schMarksID": subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID : ""
     }
     console.log(payload, '----------------')
     Services.post(apiRoot.saveSubjectMarksEntry, payload)
-    .then((res)=>{
-      console.log(JSON.stringify(res), 'check save response')
-      if(res.status=="success"){
-        alert(res.message)
-      }else if(res.status=="failed"){
-        alert(res.message)
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-    .finally(()=>{
+      .then((res) => {
+        console.log(JSON.stringify(res), 'check save response')
+        if (res.status == "success") {
+          alert(res.message)
+        } else if (res.status == "failed") {
+          alert(res.message)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      .finally(() => {
 
-    })
+      })
   }
   console.log(JSON.stringify(subjectMarksEntry), '-------------???')
 

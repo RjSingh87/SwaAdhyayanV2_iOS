@@ -24,7 +24,7 @@ const DetailAnalyticalReportView = ({ navigation, route }) => {
     console.log(item, 'check item selected')
     if (testType == 1) {
       const payload = {
-        "schoolCode": userData.data.schoolCode,
+        "schoolID": userData.data.schoolID,
         "academicYear": userData.data.academicYear,
         "classID": item.getClassName.classID,
         "sectionID": item.getSectionName.sectionID,

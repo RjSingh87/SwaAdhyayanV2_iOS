@@ -38,7 +38,7 @@ const AssessMarksEntry = ({ navigation, route }) => {
       return { ...prev, loading: true }
     })
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": route.params.data.class.classID,
       "sectionID": route.params.data.section.sectionID,
       "subjectID": route.params.data.subject.subjectID,
@@ -163,7 +163,7 @@ const AssessMarksEntry = ({ navigation, route }) => {
     let stuData = questionList.studentData.registration_no + "~" + questionList.studentData.user_reference_id + "~";
     stuDataArray.push(stuData)
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "classID": route.params.data.class.classID,
       "sectionID": route.params.data.section.sectionID,
       "subjectID": route.params.data.subject.subjectID,

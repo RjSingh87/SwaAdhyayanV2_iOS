@@ -34,7 +34,7 @@ export default function NCERT({ navigation, route }) {
 	}, [])
 	const apiBaseUrl = "https://swaadhyayan.com/lmsv2/api/";
 	const ApiToken = "=4WY5FWeoRWYhd3c";
-	const schoolCode = "SWASCH1";
+	const schoolID = "1";
 	const clsId = 5;
 	const userRefID = 514
 	const [popView, setPopView] = useState({
@@ -116,7 +116,7 @@ export default function NCERT({ navigation, route }) {
 		const postData = {
 			"classID": clsId,
 			"subjectID": getSubId,
-			"schoolCode": schoolCode,
+			"schoolID": schoolID,
 			"bookID": bookIds
 		}
 		fetch(apiBaseUrl + 'getChapterOfNcertBook', {
@@ -161,7 +161,7 @@ export default function NCERT({ navigation, route }) {
 		const postData = {
 			"classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.selectedField.class.classID : userData.data.classID,
 			"subjectID": route.params.selectedField.subject.subjectID,
-			"schoolCode": userData.data.schoolCode,
+			"schoolID": userData.data.schoolID,
 			"ncertChapterIDs": NcrtIds,
 			"userRefID": userData.data.userRefID
 		}

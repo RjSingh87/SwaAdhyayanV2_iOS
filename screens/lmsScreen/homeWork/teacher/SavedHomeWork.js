@@ -39,7 +39,7 @@ const SaveHomeWork = () => {
     function getSavedHomeWork() {
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "isAssigned": 0
         }
@@ -108,7 +108,7 @@ const SaveHomeWork = () => {
 
     function deleteHomeWork(homeWorkID) {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "homeWorkID": homeWorkID
         }
@@ -135,7 +135,7 @@ const SaveHomeWork = () => {
         homeWorkIDNew = item.homeWorkID
         setLoading(true)
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": item.classID,
             "userTypeID": userData.data.userTypeID,
@@ -203,7 +203,7 @@ const SaveHomeWork = () => {
 
 
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
             "homeWorkID": homeWorkIDNew,
             "startDate": startDate + ' ' + startTime,

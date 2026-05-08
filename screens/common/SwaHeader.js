@@ -5,12 +5,12 @@ import { SWATheam } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
 const { width, height } = Dimensions.get('window')
 
-const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon }) => {
+const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon, yTubeStatus }) => {
 
 
   const { userData } = useContext(GlobleData)
   return (
-    <View style={[styles.header, { backgroundColor: userData?.data?.colors?.mainTheme, }]}>
+    <View style={[styles.header, { backgroundColor: yTubeStatus == true ? null : userData?.data?.colors?.mainTheme, }]}>
       <TouchableOpacity style={styles.btn}
         onPress={() => onClickLeftIcon()}
       >

@@ -1,21 +1,104 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, SafeAreaView, Platform, StatusBar } from 'react-native';
-import React, { useContext, useRef, useState, useEffect } from 'react'
-import { GlobleData } from '../../Store'
-import SwaHeader from './SwaHeader'
-// import VideoLoader from './VideoLoader';
+import {
+    StyleSheet,
+    View,
+    TouchableOpacity,
+    Dimensions,
+    StatusBar,
+    Text,
+} from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
 import Video from 'react-native-video';
-import Slider from '@react-native-community/slider';
 import Orientation from 'react-native-orientation-locker';
-import { SWATheam } from '../../constant/ConstentValue';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import { SWA, SWATheam, SWATheamTheam } from '../../constant/ConstentValue';
+import WebView from 'react-native-webview';
+import YoutubePlayer from 'react-native-youtube-iframe';
+import { useIsFocused } from '@react-navigation/native';
+import SwaHeader from './SwaHeader';
 
 const VideoView = ({ navigation, route }) => {
-    console.log("VideoView.js")
-    let videoUrl = ''
-    if (route.params.siteUrl != undefined || route.params.siteUrl != null) {
-        videoUrl = route.params.siteUrl + route.params.filePath + '/' + route.params.uploadFileName
+    const { width, height } = Dimensions.get('window');
+
+    const [paused, setPaused] = useState(false);
+    const [progress, setProgress] = useState(null);
+    const [currentValue, setCurrentValue] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    const isFocused = useIsFocused();
+
+    const ref = useRef();
+
+    // ✅ SAFE PARAM EXTRACTION
+    const params = route?.params || {};
+
+    // ✅ FINAL VIDEO URL LOGIC (ROBUST)
+    let videoUrl = '';
+
+    if (params?.youtubeReferenceLink) {
+        videoUrl = params.youtubeReferenceLink;
+    } else if (params?.referenceLink) {
+        videoUrl = params.referenceLink;
+    } else if (params?.url && !params.url.includes('null/null')) {
+        videoUrl = params.url;
+    } else if (
+        params?.siteUrl &&
+        params?.filePath &&
+        params?.uploadFileName
+    ) {
+        videoUrl =
+            params.siteUrl +
+            params.filePath +
+            '/' +
+            params.uploadFileName;
     } else {
-        videoUrl = route.params.url
+        videoUrl = '';
+    }
+
+    console.log('Final Video URL:', videoUrl);
+
+    useEffect(() => {
+        return () => {
+            setPaused(true);
+        };
+    }, []);
+
+    // ✅ YOUTUBE DETECTION
+    const isYoutube =
+        videoUrl?.includes('youtube.com') ||
+        videoUrl?.includes('youtu.be');
+
+    const getYouTubeId = url => {
+        const regExp =
+            /(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([^&\n?#]+)/;
+        const match = url?.match(regExp);
+        return match ? match[1] : null;
+    };
+
+    const videoId = getYouTubeId(videoUrl);
+
+    // ✅ MP4 CHECK
+    const isMp4 = videoUrl?.includes('.mp4');
+
+    // ✅ ORIENTATION CONTROL
+    useEffect(() => {
+        StatusBar.setHidden(true);
+
+        if (!isYoutube) {
+            Orientation.lockToLandscape();
+        }
+
+        return () => {
+            Orientation.unlockAllOrientations();
+            StatusBar.setHidden(false);
+        };
+    }, []);
+
+    // ✅ EMPTY / INVALID URL HANDLING
+    if (!videoUrl) {
+        return (
+            <View style={styles.centerView}>
+                <Text style={styles.errorText}>No Video Available</Text>
+            </View>
+        );
     }
 
     function onClickLeftIcon() {
@@ -24,128 +107,89 @@ const VideoView = ({ navigation, route }) => {
     function onClickRightIcon() {
         setIsInstruction(true)
     }
-
-    useEffect(() => {
-        StatusBar.setHidden(true);
-        Orientation.lockToLandscape()
-    }, [])
-
-    const [clicked, setClicked] = useState(false)
-    const [paused, setPaused] = useState(false)
-    const [progress, setProgress] = useState(null)
-    // const [fullScreen, setFullScreen] = useState(true)
-    const [currentValue, setCurrentValue] = useState(0)
-    const [loading, setLoading] = useState(true)
-    const ref = useRef()
-
-    const format = seconds => {
-        let minuts = parseInt(seconds / 60)
-            .toString()
-            .padStart(2, 0);
-        let secs = (Math.trunc(seconds) % 60).toString().padStart(2, 0);
-        return `${minuts}:${secs}`
-    }
-
-    function toggleModal() {
-        navigation.goBack()
-    }
+    console.log(route?.params, "route?.params")
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <>
-                <View style={{ width: "100%", height: '100%', backgroundColor: SWATheam.SwaBlack }}>
-                    <TouchableOpacity activeOpacity={1} style={{ width: "100%", height: "100%" }}
-                        onPress={() => setClicked(!clicked)}>
+        <View style={{ flex: 1 }}>
+            <View style={{
+                position: 'absolute', top: 50,
+                left: 0,
+                right: 0,
+                zIndex: 999,
+                elevation: 999,
+            }}>
+                <SwaHeader title={route?.params?.data} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} yTubeStatus={true} />
+            </View>
+            <View style={styles.container}>
+                {/* ✅ YOUTUBE PLAYER */}
+                {isYoutube && videoId ? (
+                    <View style={styles.youtubeContainer}>
+                        <YoutubePlayer
+                            height={(width - 20) * 0.56}
+                            width={width - 20}
+                            play={isFocused}
+                            videoId={videoId}
+                        />
+                    </View>
+                ) : isMp4 ? (
+                    /* ✅ NORMAL VIDEO PLAYER */
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        style={{ width: '100%', height: '100%' }}
+                    >
                         <Video
-                            paused={paused}
-                            // controls={true}
+                            paused={!isFocused}
+                            controls={true}
                             source={{ uri: videoUrl }}
                             ref={ref}
-                            onProgress={(val) => {
-                                if (val != undefined) {
-                                    setLoading(false)
+                            onProgress={val => {
+                                if (val) {
+                                    setLoading(false);
+                                    setCurrentValue(val.currentTime);
+                                    setProgress(val);
                                 }
-                                setCurrentValue(val.currentTime)
-                                setProgress(val)
                             }}
-                            onBuffer={this.onBuffer}           // Callback when remote video is buffering
-                            onError={this.videoError}          // Callback when video cannot be loaded
                             resizeMode="contain"
-                            style={styles.videoView} />
-                        {clicked &&
-                            <TouchableOpacity style={{ width: "100%", height: "100%", position: "absolute", justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)' }}
-                                onPress={() => setClicked(!clicked)}>
-                                <TouchableOpacity style={{ position: 'absolute', top: 12, right: 12 }}
-                                    onPress={toggleModal}>
-                                    <AntDesign name="close" size={30} color={SWATheam.SwaWhite} />
-                                </TouchableOpacity>
-                                <View style={{ width: '70%', flexDirection: 'row', justifyContent: 'space-around' }}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            ref.current.seek(progress.currentTime - 10)
-                                            setCurrentValue(ref.current.seek(progress.currentTime - 10))
-                                        }}
-                                    >
-                                        <Image source={require("../assets/backword.png")} style={{ width: 40, height: 40, tintColor: '#fff' }} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            setPaused(!paused)
-                                            if (paused) {
-                                                setClicked(false)
-                                            }
-                                        }}
-                                    >
-                                        <Image source={paused ? require("../assets/playbtn.png") : require("../assets/pouse.png")} style={{ width: 40, height: 40, tintColor: '#fff' }} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            ref.current.seek(progress.currentTime + 10)
-                                            setCurrentValue(ref.current.seek(progress.currentTime + 10))
-                                        }}>
-                                        <Image source={require("../assets/fowward.png")} style={{ width: 40, height: 40, tintColor: '#fff' }} />
-                                    </TouchableOpacity>
-
-                                </View>
-                                <View style={{ width: "100%", flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'absolute', bottom: 0, paddingHorizontal: 20, paddingBottom: 10 }}>
-                                    <Text style={{ color: 'white' }}>{format(progress.currentTime)}</Text>
-                                    <Slider
-                                        style={{ flex: 1, height: 40 }}
-                                        value={currentValue}
-                                        maximumValue={progress.seekableDuration}
-                                        minimumTrackTintColor="#FFFFFF"
-                                        maximumTrackTintColor="#fff"
-                                        onValueChange={(val) => {
-                                            setCurrentValue(val)
-                                            ref.current.seek(val)
-                                        }}
-                                    />
-                                    <View style={{ flexDirection: 'row', width: 90, justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Text style={{ color: 'white' }}>{format(progress.seekableDuration)}</Text>
-                                        {/* <View>
-                                                <Image source={!fullScreen ? require("../assets/fullView.png") : require("../assets/minimize.png")} style={{ tintColor: 'white', width: 30, height: 30 }} />
-
-                                            </View> */}
-
-                                    </View>
-
-                                </View>
-                            </TouchableOpacity>
-                        }
+                            style={styles.videoView}
+                        />
                     </TouchableOpacity>
+                ) : (
+                    /* ✅ WEBVIEW (iframe / other links) */
+                    <WebView
+                        source={{
+                            html: `<iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`,
+                        }}
+                    />
+                )}
+            </View>
+        </View>
+    );
+};
 
-                </View>
-            </>
-        </SafeAreaView>
-
-    )
-}
-
-export default VideoView
+export default VideoView;
 
 const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: SWATheam.SwaBlack,
+    },
     videoView: {
-        width: "100%",
-        height: "100%",
-    }
-})
+        width: '100%',
+        height: '100%',
+    },
+    centerView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+    youtubeContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});

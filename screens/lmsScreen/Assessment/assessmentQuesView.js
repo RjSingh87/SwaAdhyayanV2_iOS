@@ -101,7 +101,7 @@ export default function AssessmentQuesView({ navigation, route }) {
       selectStuIDs = studentIDs.toString();
     }
     const payload = {
-      "schoolCode": userData.data.schoolCode,
+      "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
       "assessmentID": assessID,
       "studentRefIDs": selectStuIDs,

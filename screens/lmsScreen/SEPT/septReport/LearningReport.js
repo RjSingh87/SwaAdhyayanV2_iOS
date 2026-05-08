@@ -35,7 +35,7 @@ const LearningReport = ({ navigation, route }) => {
 
     function getReport() {
         const payload = {
-            "schoolCode": userData.data.schoolCode,
+            "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userData.data.userRefID,
             "testID": route.params.testID,

@@ -1,26 +1,25 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { SWATheam } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
-import Entypo from 'react-native-vector-icons/Entypo'
-const { height, width } = Dimensions.get('window');
-const IconsContainer = ({ deshboardData, getIconDetail, type, selectedIcon, selectSubIcon, activeMainIconIds }) => {
-  console.log("IconsContainer.js")
-  const { userData } = useContext(GlobleData)
+import Entypo from 'react-native-vector-icons/Entypo';
+import Loader from './Loader'
+const { width } = Dimensions.get('window');
+const IconsContainer = ({ deshboardData, getIconDetail, type, selectedIcon, selectSubIcon, iconLoader }) => {
 
+  const { userData } = useContext(GlobleData)
   return (
     <View style={{ height: 120, backgroundColor: userData?.data?.colors?.mainTheme, flexDirection: 'row' }}>
       <View style={{ padding: 4, justifyContent: 'center', alignItems: 'center' }}>
         <Entypo name="chevron-left" color={userData.data.colors.hoverTheme} size={20} />
       </View>
       <View style={{ flex: 1, }}>
-        <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-          {deshboardData?.icons?.icons.map((item, index) => {
+        <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }} >
+          {deshboardData?.icons?.icons?.map((item, index) => {
             let activeIconBg = null
             let arrayKey = null
             let subIconUrl = ""
             let subIconName = ""
-
             if (type == "mainIcon") {
               subIconUrl = deshboardData?.iconUrl + item?.iconData?.iconPath + item?.iconData?.iconImage
               subIconName = item?.iconData?.iconName?.length > 10 ? item?.iconData?.iconName.substring(0, 8) + '...' : item?.iconData?.iconName
@@ -37,7 +36,6 @@ const IconsContainer = ({ deshboardData, getIconDetail, type, selectedIcon, sele
               {/* activeIconBg = (item?.getSubIconsData?.subIconName===deshboardData?.iconName && item?.getSubIconsData?.subIconName!=undefined) || (item?.getSubIconsData?.subIconID===selectedIcon?.subIconID && item?.getSubIconsData?.subIconID!=undefined) && (type=='subIcon')?userData.data.colors.hoverTheme:null */ }
               activeIconBg = (selectedIcon?.subIconID == item.getSubIconsData.subIconID) && (type == 'subIcon') ? userData.data.colors.hoverTheme : null
             }
-
             return (
               <View key={arrayKey}>
                 <TouchableOpacity style={{ height: '100%', width: (width - 56) / 3 }}
@@ -52,7 +50,9 @@ const IconsContainer = ({ deshboardData, getIconDetail, type, selectedIcon, sele
                   }>
                   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ height: 75, width: 75, borderRadius: 50, justifyContent: 'center', alignItems: 'center', padding: 8, borderWidth: 0, borderColor: userData?.data?.colors.hoverTheme, backgroundColor: activeIconBg }}>
-                      <Image source={{ uri: subIconUrl }} style={{ height: '100%', width: "100%", resizeMode: 'contain' }} />
+                      <Image source={{ uri: subIconUrl }} style={{ height: '100%', width: "100%", resizeMode: 'contain' }}
+                        onLoad={() => iconLoader?.()}
+                      />
                     </View>
                   </View>
                   <View style={{ paddingHorizontal: 2, height: 30 }}>

@@ -1,12 +1,14 @@
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView, Image } from 'react-native'
 import React, { useContext } from 'react'
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SWATheam } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
 
 
 
-const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, selectedField, navigation, languageID, suTypeID }) => {
+const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedField, navigation, languageID }) => {
+
+
   const { userData } = useContext(GlobleData)
   let ListName = ''
   if (listItem.type == "class" || listItem.type == "trmClass" || listItem.type == "reportClass") {
@@ -43,6 +45,24 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
     ListName = "Select Set"
   } else if (listItem.type == 'QAns') {
     ListName = "Select Type"
+  } else if (listItem.type == "chapter") {
+    ListName = "Chapters List"
+  } else if (listItem.type == "diffLevel") {
+    ListName = "Select Level"
+  } else if (listItem.type == "activityType") {
+    ListName = "Select Question Type"
+  } else if (listItem.type == "typeOfTandF") {
+    ListName = "Select Type of True/False"
+  } else if (listItem.type == "queFor") {
+    ListName = "Questions For"
+  } else if (listItem.type == "marks") {
+    ListName = "Select Marks"
+  } else if (listItem.type == "group") {
+    ListName = "Group List"
+  } else if (listItem.type == "awardType") {
+    ListName = "Select Month/Duration"
+  } else if (listItem.type == "Month") {
+    ListName = "Select Month"
   }
 
   return (
@@ -83,11 +103,10 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
                       <TouchableOpacity style={{ height: 140, marginVertical: 10, width: "40%", justifyContent: 'center', alignItems: 'center', backgroundColor: userData.data.colors.liteTheme, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.subPartID}
                         onPress={() => {
                           getSelectedItem(item, navigation)
-
                         }
                         }>
                         <View style={{ height: 80, width: 80, justifyContent: 'center', alignItems: 'center', }}>
-                          <Image source={{ uri: listItem?.imgUrl + item.uploadIcon }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
+                          <Image source={{ uri: listItem?.imgUrl + item.viewIcon }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
                         </View>
                         <View style={{ height: 40, alignItems: 'center', }}>
                           <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{iconName}</Text>
@@ -100,6 +119,7 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
               ) :
               (<>
                 {listItem.list.map((item, index) => {
+
                   let printValue = "";
                   let listKeys = ''
                   let listItemId = ''
@@ -131,7 +151,7 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
                     listKeys = item.subjectID
                     listItemId = selectedField?.subject?.subjectID
                   } else if (listItem.type == "book") {
-                    printValue = selectedField.subject.subjectID == 1 ? item.bookNameLang : item.bookName
+                    printValue = selectedField.subject.subjectID == 1 ? (item.bookNameLang2 == undefined ? item.bookName : item.bookNameLang2) : item.bookName
                     listKeys = item.bookID
                     listItemId = selectedField?.book?.bookID
                   } else if (listItem.type == "trk") {
@@ -200,7 +220,44 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
                     printValue = item.type
                     listKeys = item.typeID
                     listItemId = selectedField?.type?.typeID
+                  } else if (listItem.type == "chapter") {
+                    printValue = selectedField.subject.subjectID == 1 ? item.chapterNameLang2 : item.chapterName
+                    listKeys = item.chapterID
+                    listItemId = selectedField?.chapter?.chapterID
+                  } else if (listItem.type == "diffLevel") {
+                    printValue = item.eadCategoryLang
+                    listKeys = item.eadID
+                    listItemId = selectedField?.diffLevel?.eadID
+                  } else if (listItem.type == "activityType") {
+                    printValue = item.activityName
+                    listKeys = item.activityID
+                    listItemId = selectedField?.activityType?.activityID
+                  } else if (listItem.type == "typeOfTandF") {
+                    printValue = item.desc
+                    listKeys = item.value
+                    listItemId = selectedField?.queFor?.value
+                  } else if (listItem.type == "queFor") {
+                    printValue = item.desc
+                    listKeys = item.value
+                    listItemId = selectedField?.queFor?.value
+                  } else if (listItem.type == "marks") {
+                    printValue = item
+                    listKeys = item
+                    listItemId = selectedField?.marks?.item
+                  } else if (listItem.type == "group") {
+                    printValue = item.groupName
+                    listKeys = item.groupID
+                    listItemId = selectedField?.data?.groupID
+                  } else if (listItem.type == "awardType") {
+                    printValue = item.awardName
+                    listKeys = item.awardValue
+                    listItemId = selectedField?.data?.awardValue
+                  } else if (listItem.type == "month") {
+                    printValue = item
+                    listKeys = index
+                    listItemId = selectedField?.month
                   }
+
                   let clsName = 'radio-button-off'
                   if (listItemId == listKeys) {
                     clsName = 'radio-button-on'
@@ -221,13 +278,8 @@ const BottomDrawerList = ({ closeModule, listItem, type, getSelectedItem, select
               </>
               )
             }
-
           </ScrollView>
         </View>
-        {/* <TouchableOpacity
-          style={{ flex: 1 }}
-          onPress={() => closePopup()}
-        /> */}
       </View>
     </Modal>
   )
@@ -245,7 +297,6 @@ const styles = StyleSheet.create({
     maxHeight: '60%',
     minHeight: 50,
     width: "100%",
-    paddingBottom: 50,
     alignSelf: 'center',
     paddingTop: 10,
     paddingHorizontal: 10,

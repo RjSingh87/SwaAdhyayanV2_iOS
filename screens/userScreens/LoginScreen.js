@@ -64,8 +64,8 @@ const LoginScreen = ({ navigation }) => {
       <View style={{ height: '18%' }}>
       </View>
       <View style={{ height: 50, backgroundColor: SWATheam.SwaWhite, borderTopEndRadius: 35, borderTopStartRadius: 35 }}>
-        <View style={{ height: 90, width: 90, borderRadius: 50, borderColor: SWATheam.SwaBlue, borderWidth: 2, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', transform: [{ translateY: -50 }] }}>
-          <Image source={require('../../assets/SW_Logo.png')} style={{ width: '100%', height: '100%' }} />
+        <View style={{ height: 90, width: 90, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', transform: [{ translateY: -50 }] }}>
+          <Image source={require('../../assets/SW_Logo.png')} style={{ width: '100%', height: '100%', resizeMode: "contain" }} />
         </View>
       </View>
       <View style={{ backgroundColor: SWATheam.SwaWhite, flex: 1, paddingHorizontal: 30 }}>

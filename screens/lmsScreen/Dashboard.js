@@ -1,28 +1,42 @@
-import { StyleSheet, StatusBar, Text, View, ScrollView, Image, Dimensions, TouchableOpacity, Platform } from 'react-native'
-import React, { useContext, useState, useEffect } from 'react'
-import { GlobleData } from '../../Store'
-import { apiRoot, SWATheam } from '../../constant/ConstentValue'
+import { StyleSheet, Text, View, ScrollView, StatusBar, SafeAreaView, Platform } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import SwaHeader from '../common/SwaHeader'
+import Services from '../../Services'
+import { SWATheam, apiRoot } from '../../constant/ConstentValue'
+import { GlobleData } from '../../Store'
 import IconsContainer from '../common/IconsContainer'
 import Loader from '../common/Loader'
-import Services from '../../Services'
-import { SafeAreaView } from 'react-native-safe-area-context'
+// import CheckInternet from '../common/CheckInternet'
 import Orientation from 'react-native-orientation-locker';
-
-
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchSearchDataList, resetSearchDataList } from '../redux/slices/SearchDataList'
+import SearchList from '../common/SearchList'
+import MsgModal from '../common/MsgModal'
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { flowRef } from './flowRef';
 
 
 
 const Dashboard = ({ navigation, route }) => {
-  console.log("Dashboard.js")
+  const dispatch = useDispatch();
+  const hasMounted = useRef(false);
+  const insets = useSafeAreaInsets();
   const { userData } = useContext(GlobleData)
   const [deshboardData, setDeshboardData] = useState({ icons: null, timeTable: null, iconUrl: '', status: true })
   const [timeTableStructure, setTimeTableStructure] = useState();
   const [isConnected, setIsConnected] = useState(false)
+  const searchDataList = useSelector(state => state.Search);
+  const [searchItem, setSearchItem] = useState({ list: null, status: false })
+  const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
+
+  const [dictionaryData, setDictionaryData] = useState({ word: "", data: null, synonyms: null, antonyms: null, status: false })
 
   const activeMainIconIds = [4, 17, 28, 36, 7, 20, 30, 37, 27, 5, 18, 29, 45, 6, 19, 22, 33, 40]
   const timeTable = [16, 32, 36]
   const swaShare = [8, 21, 31, 38]
+  // const liveClass = [11,25,34]
+  // const CBSESafal = [10,26]
 
   const weekDays = [
     'Sunday',
@@ -38,15 +52,64 @@ const Dashboard = ({ navigation, route }) => {
 
   useEffect(() => {
     appDashboard()
+    //  setSearchItem((prev)=>{
+    //     return{...prev, list:null, status:false}
+    //   })
   }, [])
+
 
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
+      setSearchItem((prev) => {
+        return { ...prev, list: null, status: false }
+      })
       Orientation.lockToPortrait();
       StatusBar.setHidden(false);
     });
     return goBack
   }, [navigation])
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasMounted.current) {
+        hasMounted.current = true;
+        dispatch(resetSearchDataList());
+        return;
+      }
+      if (!searchDataList?.loading) {
+
+        if (flowRef.fromChild2) {
+          console.log('1212')
+          flowRef.fromChild2 = false; // 🔁 reset
+          return; // ❌ skip getSubIcons
+        }
+
+        if (searchDataList?.data.length > 0) {
+          setSearchItem(prev => ({ ...prev, list: searchDataList.data, status: true }));
+        } else {
+          dispatch(resetSearchDataList());
+          setMsgModalVisible(prev => ({
+            ...prev,
+            msg: 'Data not found.',
+            status: true,
+            type: 'error',
+          }));
+          setTimeout(() => {
+            setMsgModalVisible(prev => ({ ...prev, status: false }));
+          }, 1500);
+        }
+      }
+    }, [searchDataList])
+  );
+
+  function closeModule() {
+    setSearchItem((prev) => {
+      return { ...prev, list: null, status: false }
+    });
+    setDictionaryData((prev) => {
+      return { ...prev, status: false }
+    })
+  }
 
   function appDashboard() {
     const dashboardPayload = {
@@ -87,7 +150,6 @@ const Dashboard = ({ navigation, route }) => {
 
       const cellSturcture = item.split('_');
       let cellHeading = '';
-
       if (cellSturcture[1] == 'BR') {
         cellHeading = 'Break';
       } else if (cellSturcture[1] == 'PR') {
@@ -164,120 +226,150 @@ const Dashboard = ({ navigation, route }) => {
   function onClickLeftIcon() {
     navigation.openDrawer()
   }
-
-  function getIconDetail(item) {
-    console.log(item.getMainIconsData.mainIconID)
-    if (activeMainIconIds.includes(item.getMainIconsData.mainIconID)) {
-      if (item.getMainIconsData.mainIconID == 29) {
+  function onClickRightIcon() {
+    // setIsInstruction(true)
+  }
+  function getIconDetail(item, type) {
+    const mainIconID = item?.getMainIconsData != undefined ? item.getMainIconsData.mainIconID : item.mainIconID;
+    if (activeMainIconIds.includes(mainIconID)) {
+      if (mainIconID == 29) {
         navigation.navigate('Assessment')
       } else {
-        navigation.navigate("subIconScreen", item)
+        navigation.navigate("subIconScreen", item, type, { fromSearch: type == 'search' ? true : false })
       }
-    } else if (timeTable.includes(item.iconData.iconID)) {
+    } else if (timeTable.includes(mainIconID)) {
       navigation.navigate('timeTable', item)
-    } else if (swaShare.includes(item.getMainIconsData.mainIconID)) {
+    } else if (swaShare.includes(mainIconID)) {
       navigation.navigate('swaShare', item)
-    } else if (item.getMainIconsData.mainIconID == 14) {
+    } else if (mainIconID == 14) {
       navigation.navigate('studentList', item)
-    } else if (item.getMainIconsData.mainIconID == 15) {
+    } else if (mainIconID == 15) {
       navigation.navigate('attendance', item)
-    } else if (item.getMainIconsData.mainIconID == 25) {
+    } else if (mainIconID == 25) {
       navigation.navigate('liveClass')
-    } else if (item.getMainIconsData.mainIconID == 11 || item.getMainIconsData.mainIconID == 34) {
+    } else if (mainIconID == 11 || mainIconID == 34) {
       navigation.navigate('liveClassList')
-    } else if (item.getMainIconsData.mainIconID == 10 || item.getMainIconsData.mainIconID == 26) {
+    } else if (mainIconID == 10 || mainIconID == 26) {
       navigation.navigate('safalPP')
     }
     else {
       alert('coming soon!')
     }
   }
-
   let counter = 0
   timeTableStructure?.map((item, index) => {
     if (item.head == "Prayer" || item.head == "Recess" || item.head == "Break") {
     } else {
       counter++
     }
-
   })
+
+  function iconLoader() {
+    setDeshboardData((prev) => {
+      return { ...prev, status: false }
+    })
+  }
+
+  function searchFunction(item, type) {
+    // flowRef.fromChild2 = true;
+    getIconDetail(item, type)
+    setSearchItem((prev) => {
+      return { ...prev, list: null, status: false }
+    })
+  }
 
   return (
     <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
-      {deshboardData.status ?
-        <Loader /> :
-        <View style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20, backgroundColor: userData?.data?.colors.liteTheme }}>
-          <SwaHeader title={'Swa-Adhyayan LMS'} leftIcon={"bars"} onClickLeftIcon={onClickLeftIcon} />
-          <IconsContainer deshboardData={deshboardData} getIconDetail={getIconDetail} type={"mainIcon"} activeMainIconIds={activeMainIconIds} />
-          <View style={{ paddingHorizontal: 10, marginTop: 20 }}>
-            <View style={{ width: '100%' }}>
-              <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, padding: 8, borderRightWidth: 1, borderLeftWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
-                <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: 'bold', textTransform: 'uppercase' }}> {dayname} Time Table</Text>
+      {!isConnected ?
+        <>
+          {deshboardData.status ?
+            <Loader /> :
+            <>
+              <View style={{ marginTop: Platform.OS == "ios" ? 0 : 20, backgroundColor: userData?.data?.colors.mainTheme }}>
+                <SwaHeader title={'Swa-Adhyayan LMS'} leftIcon={"bars"} rightIcon={"search1"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} dictionaryIcon={"book"} isDashboard={"dashboard"} setDictionaryData={setDictionaryData} setMsgModalVisible={setMsgModalVisible} />
+                <IconsContainer deshboardData={deshboardData} getIconDetail={getIconDetail} type={"mainIcon"} activeMainIconIds={activeMainIconIds} iconLoader={iconLoader} />
               </View>
-              <ScrollView horizontal style={{ backgroundColor: SWATheam.SwaWhite }}>
-                <View style={{ flexDirection: 'row', }}>
-                  {timeTableStructure?.map((item, index) => {
-                    let headText = ''
-                    if (item.head == "Prayer" || item.head == "Recess" || item.head == "Break") {
-                      headText = ""
-                    } else {
-                      headText = item.head
-                    }
+              <View style={{ marginTop: 0, paddingHorizontal: 10, flex: 1, backgroundColor: userData?.data?.colors.liteTheme, }}>
+                <View style={{ width: '100%' }}>
+                  <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, padding: 8, borderRightWidth: 1, borderLeftWidth: 1, borderColor: userData?.data?.colors.hoverTheme, marginTop: 10, }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: 'bold', textTransform: 'uppercase' }}> {dayname} Time Table</Text>
+                  </View>
+                  <ScrollView horizontal style={{ backgroundColor: SWATheam.SwaWhite }}>
+                    <View style={{ flexDirection: 'row', }}>
+                      {timeTableStructure?.map((item, index) => {
 
-                    return (
-                      <View key={index}>
-                        {item.head == "Prayer" || item.head == "Recess" || item.head == "Break" ?
-                          <>
-                            <View style={{ width: 40, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
-                              <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
-                            </View>
-                          </> :
-                          <>
-                            {
-                              timeTableStructure.length <= 3 ?
-                                <>
-                                  <View style={{ flex: 1, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
-                                    <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
-                                  </View>
-                                </> :
-                                <>
-                                  <View style={{ width: 180, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
-                                    <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
-                                  </View>
-                                </>
-                            }
-                          </>
+                        let isPeriod = 0
+                        let headText = ''
+                        if (item.head == "Prayer" || item.head == "Recess" || item.head == "Break") {
+                          headText = ""
+                        } else {
+                          headText = item.head
                         }
-                        <View style={{ backgroundColor: SWATheam.SwaWhite, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme, height: 145, justifyContent: 'center', alignItems: 'center', padding: 4 }}>
-                          {
-                            item?.veritcalBody?.map((verticalData, index) => {
-                              return (
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }} key={index}>
-                                  <Text style={{ textTransform: 'uppercase', color: userData?.data?.colors.mainTheme }}>{verticalData}</Text>
+
+                        if (item.head == "Period" || item.head == "Extra Period" || item.head == "Zero Period") {
+                          isPeriod = 1
+                        }
+                        return (
+                          <View key={index}>
+                            {item.head == "Prayer" || item.head == "Recess" || item.head == "Break" ?
+                              <>
+                                <View style={{ width: counter > 0 ? 40 : 200, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
+                                  <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
                                 </View>
-                              )
-                            })
-                          }
-                          {
-                            item?.body &&
-                            <View style={{}}>
-                              <Text style={{ textAlign: 'center', color: SWATheam.SwaGray, }}>{item.body.subjectName}</Text>
-                              {userData.data.userTypeID == 4 ?
-                                <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{item.body.className} - {item.body.sectionName}</Text> :
-                                <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{item.body.teacherName}</Text>
+                              </> :
+                              <>
+                                {
+                                  timeTableStructure.length <= 3 ?
+                                    <>
+                                      <View style={{ width: 350, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
+                                        <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
+                                      </View>
+                                    </> :
+                                    <>
+                                      <View style={{ width: 180, paddingVertical: 5, backgroundColor: userData?.data?.colors?.mainTheme, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
+                                        <Text style={{ padding: 4, textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: "500" }}>{headText}</Text>
+                                      </View>
+                                    </>
+                                }
+                              </>
+                            }
+                            <View style={{ backgroundColor: SWATheam.SwaWhite, borderWidth: 1, borderColor: userData?.data?.colors.hoverTheme, height: 145, justifyContent: 'center', alignItems: 'center', padding: 4 }}>
+                              {
+                                item?.veritcalBody?.map((verticalData, index) => {
+                                  return (
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }} key={index}>
+                                      <Text style={{ textTransform: 'uppercase', color: userData?.data?.colors.mainTheme }}>{verticalData}</Text>
+                                    </View>
+                                  )
+                                })
+                              }
+                              {
+                                item?.body &&
+                                <View style={{}}>
+                                  <Text style={{ textAlign: 'center', color: SWATheam.SwaGray, }}>{item.body.subjectName}</Text>
+                                  {userData.data.userTypeID == 4 ?
+                                    <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{item.body.className} - {item.body.sectionName}</Text> :
+                                    <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{item.body.teacherName}</Text>
+                                  }
+                                </View>
                               }
                             </View>
-                          }
-                        </View>
-                      </View>
-                    )
-                  })}
+                          </View>
+                        )
+                      })}
+                    </View>
+                  </ScrollView>
                 </View>
-              </ScrollView>
-            </View>
-          </View>
-        </View>
+              </View>
+              {((searchItem.status && searchDataList.data.length > 0) || dictionaryData.status) &&
+                <SearchList searchItem={searchItem} closeModule={closeModule} searchFunction={searchFunction} dictionaryData={dictionaryData} />
+              }
+              <MsgModal msgModalVisible={msgModalVisible} />
+            </>
+          }
+        </> : null
       }
+      {/* <CheckInternet isConnected={isConnected} setIsConnected={setIsConnected} /> */}
     </SafeAreaView >
   )
 }

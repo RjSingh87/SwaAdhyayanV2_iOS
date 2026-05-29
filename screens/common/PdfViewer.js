@@ -1,94 +1,171 @@
-import { StyleSheet, Text, View, Dimensions, Platform, } from 'react-native'
-import React, { useContext } from 'react'
-import { SWATheam, SwaTheam, assetsPath } from '../../constant/ConstentValue'
-import Pdf from 'react-native-pdf';
-import SwaHeader from './SwaHeader';
+import { StyleSheet, View, Dimensions } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets, } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
 import { GlobleData } from '../../Store';
-
-
+import { assetsPath } from '../../constant/ConstentValue';
+import SwaHeader from './SwaHeader';
+import Loader from './Loader';
 const PdfViewer = ({ navigation, route }) => {
-  console.log("PdfViewer.js")
-  const { userData } = useContext(GlobleData)
-  const moduleActivityList = useSelector(state => state.ActivityToolList)
-  let pdfPath = ''
-  if (moduleActivityList.data.length) {
-    pdfPath = moduleActivityList?.data.mainData[0]?.filePath != undefined ? moduleActivityList?.data?.mainData[0]?.filePath + '/' + moduleActivityList?.data?.mainData[0]?.uploadFileName : undefined
+  const insets = useSafeAreaInsets();
+  const { userData } = useContext(GlobleData);
+  const [isLoading, setIsLoading] = useState(true);
+  const webViewRef = useRef(null);
+  const moduleActivityList = useSelector(state => state.ActivityToolList);
+  let pdfPath = '';
+  if (moduleActivityList?.data?.length) {
+    pdfPath =
+      moduleActivityList?.data?.mainData[0]?.filePath != undefined
+        ? moduleActivityList?.data?.mainData[0]?.filePath +
+        '/' +
+        moduleActivityList?.data?.mainData[0]?.uploadFileName
+        : undefined;
   } else {
-    pdfPath = route.params.url
+    pdfPath = route?.params?.url;
   }
-  let testPath = ''
-  let titleName = ''
-  if (route.params.url != undefined) {
-    if (route.params.urlLink == "bookPDF") {
-      titleName = route.params.title
-      testPath = assetsPath + route.params.url
-    } else {
-      testPath = route.params.url
-      titleName = route.params.title
-    }
 
+  let testPath = '';
+  let titleName = '';
+
+  // -------- PDF PATH --------
+
+  if (route?.params?.url != undefined) {
+    if (route?.params?.urlLink == 'bookPDF') {
+      titleName = route?.params?.title;
+
+      testPath = assetsPath + route?.params?.url;
+    } else {
+      testPath = route?.params?.url;
+
+      titleName = route?.params?.title;
+    }
   } else if (pdfPath != undefined) {
-    testPath = assetsPath + pdfPath
-    titleName = moduleActivityList.data.mainData[0].chapterName
-  } else if (route.params.url == undefined && pdfPath == undefined) {
-    testPath = assetsPath + route.params.filePath + '/' + route.params.uploadFileName
-    titleName = route.params.chapterName
+    testPath = assetsPath + pdfPath;
+
+    titleName = moduleActivityList?.data?.mainData[0]?.chapterName;
+  } else if (route?.params?.url == undefined && pdfPath == undefined) {
+    testPath =
+      assetsPath +
+      route?.params?.filePath +
+      '/' +
+      route?.params?.uploadFileName;
+
+    titleName = route?.params?.chapterName;
   }
+
   function onClickLeftIcon() {
-    navigation.goBack()
+    navigation.goBack();
   }
-  function onClickRightIcon() {
-    setIsInstruction(true)
-  }
+
+  const pdfUrl = encodeURIComponent(testPath);
+
+  const googlePdfViewerUrl = `https://docs.google.com/gview?embedded=true&url=${pdfUrl}`;
+
+  // -------- RELOAD FUNCTION --------
+
+  const reloadPdf = () => {
+    setIsLoading(true);
+
+    setTimeout(() => {
+      webViewRef.current?.reload();
+    }, 1000);
+  };
+
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', 'top', 'right']} style={{ backgroundColor: userData?.data?.colors?.mainTheme, flex: 1, marginTop: Platform.OS == "ios" ? 0 : 20 }}>
-        <SwaHeader title={titleName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-        <View style={{ padding: 0, flex: 1, backgroundColor: SWATheam.SwaWhite, }}>
+    <SafeAreaProvider
+      style={{
+        flex: 1,
+        paddingTop: insets.top,
+        marginBottom: insets.bottom,
+        backgroundColor: userData?.data?.colors?.mainTheme,
+      }}
+    >
+      {/* HEADER */}
 
-          <View style={styles.container}>
-            <Pdf
-              trustAllCerts={false}
-              source={{
-                uri: testPath,
-                cache: true,
-              }}
-              onLoadComplete={(numberOfPages, filePath) => {
-                // console.log(`Number of pages: ${numberOfPages}`);
-              }}
-              onPageChanged={(page, numberOfPages) => {
-                // console.log(`Current page: ${page}`);
-              }}
-              onError={error => {
-                // console.log(error);
-              }}
-              //   onPressLink={uri => {
-              //     console.log(`Link pressed: ${uri}`);
-              //   }}
-              style={styles.pdf}
-            />
-          </View>
+      {titleName != undefined ? (
+        <SwaHeader
+          title={titleName}
+          leftIcon={'arrowleft'}
+          onClickLeftIcon={onClickLeftIcon}
+        />
+      ) : null}
+
+      {/* LOADER */}
+
+      {isLoading && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 999,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#fff',
+          }}
+        >
+          <Loader />
         </View>
-      </SafeAreaView>
+      )}
+
+      {/* WEBVIEW */}
+
+      <WebView
+        ref={webViewRef}
+        source={{
+          uri: googlePdfViewerUrl,
+        }}
+        style={{
+          flex: 1,
+        }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        cacheEnabled={false}
+        incognito={true}
+        mixedContentMode="always"
+        startInLoadingState={true}
+        scalesPageToFit={true}
+        // LOAD START
+
+        onLoadStart={() => {
+          setIsLoading(true);
+        }}
+        // LOAD FINISH
+        onLoadEnd={() => {
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 1200);
+        }}
+        // ERROR
+        onError={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent;
+          console.log('PDF LOAD ERROR => ', nativeEvent);
+          reloadPdf();
+        }}
+        onHttpError={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent;
+          console.log('HTTP ERROR => ', nativeEvent);
+          reloadPdf();
+        }}
+      />
     </SafeAreaProvider>
-  )
-}
-
-export default PdfViewer
-
+  );
+};
+export default PdfViewer;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // marginTop: 25,
   },
+
   pdf: {
     flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-  }
-})
+  },
+});

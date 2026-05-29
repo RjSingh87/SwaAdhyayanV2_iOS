@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import SubIconActivityList from '../common/SubIconActivityList'
 import { GlobleData } from '../../Store'
 import Services from '../../Services';
-import { apiRoot } from '../../constant/ConstentValue';
+import { apiRoot, SWATheam } from '../../constant/ConstentValue';
 import BottomDrawerList from '../common/BottomDrawerList';
 import Orientation from 'react-native-orientation-locker';
 import Loader from '../common/Loader';
@@ -191,7 +191,7 @@ const ActivityListScreen = ({ navigation, route }) => {
               classID: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.sendData.classID : userData.data.classID,
               subjectID: route.params.sendData.subjectID
             }
-            navigation.navigate('chapterItem', { data: res.data, sendData: sendData, })
+            navigation.navigate('chapterItem', { data: res.data, sendData: sendData, navigation })
           } else if (res.data[0]?.uploadFileName?.split('.').pop() === "pdf") {
             navigation.navigate('pdfView', res.data[0])
           } else if (res.data[0]?.uploadFileName?.split('.').pop() === "mp4" || res.data[0]?.referenceLink != null) {
@@ -210,38 +210,47 @@ const ActivityListScreen = ({ navigation, route }) => {
       })
   }
 
-
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', 'top', 'right']} style={{ flex: 1, backgroundColor: userData?.data?.colors?.mainTheme }}>
-        <View style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24 }}>
-          <SwaHeader title={route.params.sendData.screenName.replace('\r\n', '')} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+    <SafeAreaProvider style={{ paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme }}>
+      <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, marginBottom: insets.bottom }}>
+        <SwaHeader title={route.params.sendData.screenName.replace('\r\n', '')} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+        <>
+          {/* {moduleActivityList.loading?
+          <Loader /> :
           <>
-            {moduleActivityList.loading ?
-              <Loader /> :
-              <>
-                {moduleActivityList?.data?.mainData?.length ?
-                  <SubIconActivityList selectedModuleItem={route.params.item} toolItems={moduleActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} searchID={searchID} /> :
-                  null
-                }
-              </>
+            {moduleActivityList?.data?.mainData?.length ?
+              <SubIconActivityList selectedModuleItem={route.params.item} toolItems={moduleActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} searchID={searchID} /> :
+              <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                <Text style={{textAlign:'center', fontWeight:'bold', color:SWATheam.SwaBlack}}>Data not found.</Text>
+              </View>
             }
           </>
-          <>
-            {funBagActivityList.loading ?
-              <Loader /> :
-              <>
-                {funBagActivityList?.data?.length &&
-                  <SubIconActivityList selectedModuleItem={route.params.sendData} toolItems={funBagActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} />
-                }
-              </>
-            }
-          </>
-          {listItem.status &&
-            <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} languageID={route.params.sendData.subTypeID} />
+        } */}
+
+          {moduleActivityList?.data?.mainData?.length ? (
+            <SubIconActivityList selectedModuleItem={route.params.item} toolItems={moduleActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} searchID={searchID} />) :
+            funBagActivityList?.data?.length ? null : (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack }}>
+                  Data not found.
+                </Text>
+              </View>
+            )}
+        </>
+        <>
+          {funBagActivityList.loading ?
+            <Loader /> :
+            <>
+              {funBagActivityList?.data?.length &&
+                <SubIconActivityList selectedModuleItem={route.params.sendData} toolItems={funBagActivityList.data} getModuleActivityData={getModuleActivityData} navigation={navigation} />
+              }
+            </>
           }
-        </View>
-      </SafeAreaView>
+        </>
+        {listItem.status &&
+          <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} languageID={route.params.sendData.subTypeID} />
+        }
+      </View>
     </SafeAreaProvider>
   )
 }

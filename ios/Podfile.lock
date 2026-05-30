@@ -1283,6 +1283,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-netinfo (11.3.1):
+    - React-Core
   - react-native-orientation-locker (1.7.0):
     - React-Core
   - react-native-pdf (6.7.5):
@@ -1822,6 +1824,7 @@ DEPENDENCIES:
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-print (from `../node_modules/react-native-print`)
@@ -1951,6 +1954,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-orientation-locker:
     :path: "../node_modules/react-native-orientation-locker"
   react-native-pdf:
@@ -2080,6 +2085,7 @@ SPEC CHECKSUMS:
   react-native-date-picker: 06a4d96ab525a163c7a90bccd68833d136b0bb13
   react-native-document-picker: 7343222102ece8aec51390717f47ad7119c7921f
   react-native-image-picker: 2fbbafdae7a7c6db9d25df2f2b1db4442d2ca2ad
+  react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
   react-native-orientation-locker: 5819fd23ca89cbac0d736fb4314745f62716d517
   react-native-pdf: 103940c90d62adfd259f63cca99c7c0c306b514c
   react-native-print: f704aef52d931bfce6d1d84351dbb5232d7ecb89
@@ -2126,6 +2132,6 @@ SPEC CHECKSUMS:
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Yoga: 4ef80d96a5534f0e01b3055f17d1e19a9fc61b63
 
-PODFILE CHECKSUM: 2f0197df6940e10154645d79c28ae4564bb35eec
+PODFILE CHECKSUM: bc6471dc22295f33d8438ca52ae463f4541d18e7
 
 COCOAPODS: 1.15.2

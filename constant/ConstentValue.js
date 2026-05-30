@@ -1,4 +1,5 @@
 // export const baseURL = 'https://swaadhyayan.com/lmsv2/api/';
+// export const baseURL = 'https://swaadhyayan.com/school1/api/';
 export const baseURL = 'https://swaadhyayan.com/school/api/';
 export const assetsPath = 'https://swaadhyayan.com/data/'
 export const token = "=4WY5FWeoRWYhd3c";
@@ -12,6 +13,7 @@ export const apiRoot = Object.freeze({
     getSectionList: "getSectionList",
     getSubjectList: "getSubjectList",
     getBooksList: "getBooksList",
+    // getLearningToolsList:"getLearningToolsList",
     getLearningTools: "getLearningTools",
     getModuleActivityData: "getModuleActivityData",
     getLearningRightToolsList: "getLearningRightToolsList",
@@ -46,7 +48,7 @@ export const apiRoot = Object.freeze({
     studentCbseSafalList: "studentCbseSafalList",
     getSafalExamQuestion: "getSafalExamQuestion",
     safalViewAttemptExamReport: "safalViewAttemptExamReport",
-    safalViewAllsAttemptExamReport: "safalViewAllAttemptExamReport",
+    safalViewAllAttemptExamReport: "safalViewAllAttemptExamReport",
     getConpitativeExamList: "getConpitativeExamList",
     submitSafalExamAttempt: "submitSafalExamAttempt",
     // report//
@@ -68,11 +70,12 @@ export const apiRoot = Object.freeze({
     chapterWiseStudentAssessmentReport: "chapterWiseStudentAssessmentReport",
     assessmentReportListSubjectWise: "assessmentReportListSubjectWise",
     analyticalReportSubjectWise: "analyticalReportSubjectWise",
+    assessmentReportListStudentWise: "assessmentReportListStudentWise",
+    analyticalReportStudentWise: "analyticalReportStudentWise",
+    assessmentWiseStudentComparisonReport: "assessmentWiseStudentComparisonReport",
     // report//
     // assessment //
     getAssessClassList: "getAssessClassList",
-    getSectionList: "getSectionList",
-    getSubjectList: "getSubjectList",
     getBooksList: "getBooksList",
     getBookChapterList: "getBookChapterList",
     getQuestionTypeList: "getQuestionTypeList",
@@ -104,7 +107,7 @@ export const apiRoot = Object.freeze({
     getStudentListWithAssessment: "getStudentListWithAssessment",
     viewAssessmentResult: "viewAssessmentResult",
     viewAssessmentReport: "viewAssessmentReport",
-    // getAssessmentList: "getAssessmentList",
+    getAssessmentList: "getAssessmentList",
     deleteAssessment: "deleteAssessment",
     declareAssessmentResult: "declareAssessmentResult",
     assignAssessmentToStudents: "assignAssessmentToStudents",
@@ -137,9 +140,11 @@ export const apiRoot = Object.freeze({
     editAppSharingGroup: "editAppSharingGroup",
     sharePostApp: "sharePostApp",
     removeAllUsersFromGroup: "removeAllUsersFromGroup",
+
     // swaSharing//
     appVersion: 'appVersion',
     contact_us: "contact_us",
+
     // marks Entry//
     getAssessmentData: "getAssessmentData",
     studentListForAssessMarksEntry: "studentListForAssessMarksEntry",
@@ -168,16 +173,13 @@ export const apiRoot = Object.freeze({
     getStudentAttendanceDateWise: "getStudentAttendanceDateWise",
     markMonthlyAttendance: "markMonthlyAttendance",
     // attendance//
-
     // asstesmentAttempt //
     getAssessmentQuestion: "getAssessmentQuestion",
     saveSingleAssessMarks: "saveSingleAssessMarks",
     submitAssessment: "submitAssessment",
     uploadDescExamImage: "uploadDescExamImage",
     deleteDescExamImage: "deleteDescExamImage",
-
     // asstesmentAttempt//
-
     // homework//
     createHomework: "createHomework",
     getCreatedHomework: "getCreatedHomework",
@@ -212,10 +214,12 @@ export const apiRoot = Object.freeze({
     deleteLiveClass: "deleteLiveClass",
     // LiveClass//
     getSafalSubjectAccToClass: "getSafalSubjectAccToClass",
-    getAllSafalLessonPlan: "getAllSafalLessonPlan"
-
-
-
+    getAllSafalLessonPlan: "getAllSafalLessonPlan",
+    // Notifications
+    notificationList: "notificationList",
+    notificationView: "notificationView",
+    // Notifications
+    searchSwaadhyayan: "searchSwaadhyayan"
 });
 export const SWATheam = {
     SwaBlue: '#1455CD',

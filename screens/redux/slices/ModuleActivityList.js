@@ -4,8 +4,9 @@ import Services from '../../../Services';
 
 export const fetModuleActivityList = createAsyncThunk('activityTool/activityToolApi',
   async (data) => {
-    console.log(data, 'payload')
+
     const response = await Services.post(apiRoot.getModuleActivityData, data);
+
     if (response.status == "success") {
       return response.data;
     } else {

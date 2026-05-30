@@ -229,105 +229,64 @@ const StudentList = ({ navigation, route }) => {
 
 
     const openPDf = async () => {
-        return
-        setLoading(true);
-
-        //     const hasPermission = await requestStoragePermission();
-        // if (!hasPermission) {
-        //     setLoading(false);
-        //     return; // permission nahi, to PDF open nahi hoga
-        // }
-
 
         try {
-            const html = `<html>
-            <head>
-                <style>
-                    body { font-family: 'Helvetica'; font-size: 12px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #000; padding: 5px; }
-                    th { background-color: #ccc; }
-                    h1 { text-align: center; }
-                </style>
-            </head>
-            <body>
-                <h1>Student List</h1>
-                <table>
+            setLoading(true);
+
+            const html = `
+        <html>
+        <head>
+            <style>
+                body { font-family: Helvetica; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 5px; }
+                th { background-color: #ccc; }
+                h1 { text-align: center; }
+            </style>
+        </head>
+
+        <body>
+            <h1>Student List</h1>
+
+            <table>
+                <tr>
+                    <th>S.No</th>
+                    <th>Enrollment No.</th>
+                    <th>Student Name</th>
+                    <th>Date of Birth</th>
+                    <th>Contact No.</th>
+                    <th>Access Code</th>
+                </tr>
+
+                ${studentData.data.map((item, index) => `
                     <tr>
-                        <th>S.No</th>
-                        <th>Photo</th>
-                        <th>Enrollment No.</th>
-                        <th>Student Name</th>
-                        <th>Date of Birth</th>
-                        <th>Contact No.</th>
-                        <th>Access Code</th>
+                        <td>${index + 1}</td>
+                        <td>${item.registrationNo}</td>
+                        <td>${item.fullName}</td>
+                        <td>${item.dateOfBirth}</td>
+                        <td>${item.fatherContact}</td>
+                        <td>${item.accessCode}</td>
                     </tr>
-                    ${studentData.data
-                    .map(
-                        (item, index) => `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>photo</td>
-                                <td>${item.registrationNo}</td>
-                                <td>${item.fullName}</td>
-                                <td>${item.dateOfBirth}</td>
-                                <td>${item.fatherContact}</td>
-                                <td>${item.accessCode}</td>
-                            </tr>`
-                    )
-                    .join('')}
-                </table>
-            </body>
-        </html>`;
+                `).join('')}
 
-            const options = {
+            </table>
+        </body>
+        </html>
+        `;
+
+            await RNPrint.print({
                 html: html,
-                fileName: `student_List_${count}`,
-                directory: 'Documents',
-                base64: false,
-            };
+            });
 
-            let results = await generatePDF(options);
-
-            let filePath = results.filePath;
-
-            // Android 13+ permission check
-            if (Platform.OS === 'android' && Platform.Version >= 30) {
-                try {
-                    printAndSharePDF(html)
-                } catch (err) {
-                    console.log("PDF print error:", err);
-                }
-                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                    setLoading(false);
-                    return alert('Permission denied');
-                }
-            }
-            if (Platform.OS === 'android') {
-                filePath = `file://${filePath}`;
-            }
-            try {
-                await FileViewer.open(filePath, {
-                    showOpenWithDialog: true,
-                    displayName: 'Student List',
-                    mimeType: 'application/pdf',
-                });
-            } catch (err) {
-                console.log("File open error, fallback to share:", err);
-                await Share.open({
-                    url: filePath,
-                    type: 'application/pdf',
-                    failOnCancel: false
-                });
-            }
-
-            setCount(count + 1);
-            setLoading(false);
         } catch (err) {
-            console.log("PDF Open Error:", err);
+            console.log("Print Error:", err);
+        } finally {
             setLoading(false);
         }
     };
+
+
+
     return (
         <SafeAreaProvider>
             <View style={{ backgroundColor: userData.data.colors.mainTheme, flex: 1, paddingTop: insets.top, marginBottom: insets.bottom }}>
@@ -339,7 +298,7 @@ const StudentList = ({ navigation, route }) => {
                         <View style={{ borderTopWidth: 1, marginTop: 8, borderRadius: 5, borderColor: SWATheam.SwaGray, padding: 5, flex: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TouchableOpacity style={{ padding: 6, backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, marginRight: 5 }} onPress={openPDf}>
-                                    <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Download PDF</Text>
+                                    <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Print and Share</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flex: 1, marginVertical: 5, borderRadius: 5, paddingTop: 0, }}>

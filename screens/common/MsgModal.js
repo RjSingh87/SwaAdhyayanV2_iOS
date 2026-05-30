@@ -7,14 +7,14 @@ import { SWATheam } from '../../constant/ConstentValue';
 
 const MsgModal = ({ msgModalVisible }) => {
   return (
-    <ModalMsg
-      isVisible={msgModalVisible.status}
+    <ModalMsg isVisible={msgModalVisible.status}
       animationInTiming={600}
       animationOutTiming={1000}
       style={{ width: '100%', margin: 0 }}>
       <TouchableOpacity style={{ flex: 1 }} />
       <View style={{ flexDirection: 'row' }}>
         <View style={{ width: 60, height: 60, backgroundColor: SWATheam.SwaWhite, justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}>
+
           {msgModalVisible.type == 'success' ?
             <AntDesign name='checkcircleo' size={30} color={SWATheam.SwaBlue} /> :
             <MaterialIcons name='error-outline' size={30} color={SWATheam.SwaRed} />

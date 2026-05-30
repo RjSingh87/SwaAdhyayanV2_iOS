@@ -7,7 +7,7 @@ import { SWATheam, apiRoot } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
 import IconsContainer from '../common/IconsContainer'
 import Loader from '../common/Loader'
-// import CheckInternet from '../common/CheckInternet'
+import CheckInternet from '../common/CheckInternet'
 import Orientation from 'react-native-orientation-locker';
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSearchDataList, resetSearchDataList } from '../redux/slices/SearchDataList'
@@ -280,7 +280,7 @@ const Dashboard = ({ navigation, route }) => {
 
   return (
     <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
-      {!isConnected ?
+      {isConnected ?
         <>
           {deshboardData.status ?
             <Loader /> :
@@ -369,7 +369,7 @@ const Dashboard = ({ navigation, route }) => {
           }
         </> : null
       }
-      {/* <CheckInternet isConnected={isConnected} setIsConnected={setIsConnected} /> */}
+      <CheckInternet isConnected={isConnected} setIsConnected={setIsConnected} />
     </SafeAreaView >
   )
 }

@@ -22,23 +22,23 @@ const PdfViewer = ({ colorSwa, fileType, setFileType, downloadDoc }) => {
         <View style={[styles.selectFieldPopUp, { alignItems: 'center' }]}>
 
             <View style={{ flex: 1, width: "100%", }}>
-              
+
                 <View style={{ flex: 1, }}>
 
-                <View style={{ flexDirection: 'row',}}>
-                    <View style={{ padding: 10, width: 50 }}>
-                    </View>
+                    <View style={{ flexDirection: 'row', }}>
+                        <View style={{ padding: 10, width: 50 }}>
+                        </View>
 
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => { downloadDoc(fileSrc, 'doc') }}>
-                            <Text style={{ color: '#fff', textAlign: 'center' }}>Download</Text>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => { downloadDoc(fileSrc, 'doc') }}>
+                                <Text style={{ color: '#fff', textAlign: 'center' }}>Download</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={{ padding: 10, width: 50, justifyContent: 'center', alignItems: 'center' }} onPress={() => setFileType(false)}>
+                            <AntDesign name={"close"} size={25} color={'#fff'} />
                         </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity style={{ padding: 10, width: 50, justifyContent: 'center', alignItems: 'center' }} onPress={() => setFileType(false)}>
-                        <AntDesign name={"close"} size={25} color={'#fff'} />
-                    </TouchableOpacity>
 
-                </View>
+                    </View>
 
                     {fileType.type == 'pdf' &&
                         < Pdf
@@ -47,8 +47,8 @@ const PdfViewer = ({ colorSwa, fileType, setFileType, downloadDoc }) => {
                             enableDoubleTapZoom={true}
                             // enablePaging={true}
                             style={styles.pdf}
-                                
-                            />
+
+                        />
                     }
 
                     {fileType.type == 'doc' &&

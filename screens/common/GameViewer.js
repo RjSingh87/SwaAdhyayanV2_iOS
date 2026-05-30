@@ -6,7 +6,6 @@ import Orientation from 'react-native-orientation-locker';
 
 
 const GameViewer = ({ navigation, route }) => {
-  console.log("GameViewer.js")
 
   useEffect(() => {
     StatusBar.setHidden(true);

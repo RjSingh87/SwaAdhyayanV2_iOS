@@ -228,11 +228,11 @@ const Attendance = ({ navigation }) => {
 
     function getStudentDataList() {
         const payload = {
-            "schoolID": userData.data.schoolID,
-            "classID": selectedField.class.classID,
-            "sectionID": selectedField.section.sectionID,
-            "academicYear": userData.data.academicYear,
-            "transYear": userData.data.transYear
+            "schoolID": userData?.data?.schoolID,
+            "classID": selectedField?.class?.classID,
+            "sectionID": selectedField?.section?.sectionID,
+            "academicYear": userData?.data?.academicYear,
+            "transYear": userData?.data?.transYear
         }
         Services.post(apiRoot.getStudentsData, payload)
             .then((res) => {

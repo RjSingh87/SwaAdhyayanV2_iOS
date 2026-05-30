@@ -4,7 +4,6 @@ import { GlobleData } from '../../Store'
 import { SWATheam } from '../../constant/ConstentValue'
 
 const GameList = ({ gameList, getGameView }) => {
-  console.log("GameList.js")
   const { userData } = useContext(GlobleData)
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: userData.data.colors.liteTheme }}>

@@ -1,29 +1,34 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import { StatusBar, StyleSheet } from 'react-native'
+import React, { useContext, useState, useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
-import UserScreenNavigation from './screens/navigationRoot/UserScreenNavigation'
-import Loader from './screens/common/Loader'
 import { GlobleData } from './Store'
+import { SWATheam } from './constant/ConstentValue'
+import UserScreenNavigation from './screens/navigationRoot/UserScreenNavigation'
 import LmsScreenNavigations from './screens/navigationRoot/LmsScreenNavigations'
+import Loader from './screens/common/Loader'
 
-
-const mainRoot = () => {
-  const [appLaunchLoader, setAppLaunch] = useState(true)
+const MainRoot = () => {
+  const [state, setState] = useState(true)
   const { userData } = useContext(GlobleData)
-
-
   useEffect(() => {
     setTimeout(() => {
-      setAppLaunch(false)
+      setState(false)
     }, 2000)
   }, [])
 
-
+  console.log(userData.isLogin, 'check is login ')
   return (
     <>
-      {appLaunchLoader ?
+      {state ?
         <Loader /> :
         <NavigationContainer independent={true}>
+          <StatusBar
+            barStyle="light-content"
+            hidden={false}
+            backgroundColor={userData.isLogin ? userData?.data?.colors?.mainTheme : SWATheam.SwaBlue}
+            translucent={true}
+            networkActivityIndicatorVisible={true}
+          />
           {!userData.isLogin ?
             <UserScreenNavigation /> :
             <LmsScreenNavigations />
@@ -31,9 +36,9 @@ const mainRoot = () => {
         </NavigationContainer>
       }
     </>
+
   )
 }
 
-export default mainRoot
-
+export default MainRoot
 const styles = StyleSheet.create({})

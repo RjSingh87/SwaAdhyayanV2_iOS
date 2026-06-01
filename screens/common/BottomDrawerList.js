@@ -300,6 +300,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingTop: 10,
     paddingHorizontal: 10,
+    paddingBottom: 30,
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },

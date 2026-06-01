@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from 'react-native'
 import React from 'react'
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { WebView } from 'react-native-webview';
 
 const UrlView = ({ fileType, colorSwa, setFileType }) => {
+    const statusBarHeight = StatusBar.currentHeight
     const videoUrl = fileType.data.youTubeUrl
     return (
         <View style={[styles.selectFieldPopUp, { justifyContent: 'center' }]}>
@@ -18,7 +19,7 @@ const UrlView = ({ fileType, colorSwa, setFileType }) => {
                 </View>
                 <View style={{ flex: 1 }}></View>
             </View>
-            <WebView source={{ uri: videoUrl }} style={{ flex: 1, marginTop: 45 }} />
+            <WebView source={{ uri: videoUrl }} style={{ flex: 1, marginTop: statusBarHeight }} />
         </View>
 
     )

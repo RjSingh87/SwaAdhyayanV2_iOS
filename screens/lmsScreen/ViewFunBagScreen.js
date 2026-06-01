@@ -6,7 +6,7 @@ import SwaHeader from '../common/SwaHeader'
 import Services from '../../Services'
 import { useDispatch } from 'react-redux'
 import { fetchFunBagActivityList } from '../redux/slices/FunBagActivityList'
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 const ViewFunBagScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = StatusBar.currentHeight
@@ -57,7 +57,7 @@ const ViewFunBagScreen = ({ navigation, route }) => {
           <SwaHeader title={route.params.selectItem.subjectSubCategory} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
           <ScrollView style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10 }}>
-              {route.params.data.mainData.map((item, index) => {
+              {route.params.data.mainData?.map((item, index) => {
                 return (
                   <TouchableOpacity style={{ height: 140, marginVertical: 10, width: "40%", justifyContent: 'center', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.subPartID}
                     onPress={() => {

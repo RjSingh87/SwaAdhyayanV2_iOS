@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext } from 'react'
 import { SWATheam } from '../../constant/ConstentValue'
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { GlobleData } from '../../Store'
 
 const SelectionBox = ({ getListItem, type, placeholder, selectedField }) => {
@@ -12,7 +12,7 @@ const SelectionBox = ({ getListItem, type, placeholder, selectedField }) => {
             onPress={() => getListItem(type)}
         >
             <View style={{ flex: 1, padding: 6, }}>
-                <Text style={{ color: SWATheam.SwaGray }}>{selectedField != null ? selectedField : placeholder}</Text>
+                <Text style={{ color: selectedField == null ? SWATheam.SwaGray : SWATheam.SwaBlack }}>{selectedField != null ? selectedField : placeholder}</Text>
             </View>
             <View style={{ width: 45, justifyContent: 'center', alignItems: 'center' }}>
                 <AntDesign name="down" size={15} color={SWATheam.SwaGray} />

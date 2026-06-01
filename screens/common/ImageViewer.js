@@ -1,7 +1,6 @@
 import React, { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from "react-native"
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
-    console.log(JSON.stringify(type), 'type')
     return (
         <View style={[styles.selectFieldPopUp, { alignItems: 'center' }]}>
             <View style={{ flex: 1, width: "100%", }}>
@@ -11,6 +10,7 @@ const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
                     </View>
 
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <TouchableOpacity></TouchableOpacity>
                         {type != "sharing" ?
                             <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => { downloadDoc(fileType.fileSrc, 'img') }}>
                                 <Text style={{ color: '#fff', textAlign: 'center' }}>Download</Text>

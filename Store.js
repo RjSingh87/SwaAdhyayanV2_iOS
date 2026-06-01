@@ -1,38 +1,18 @@
-import { StyleSheet, Text, View, Alert, TouchableOpacity, } from 'react-native';
+import { StyleSheet, } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Services from './Services';
-import { SwaTheam, apiRoot, baseURL } from './constant/ConstentValue';
+import { apiRoot } from './constant/ConstentValue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MsgModal from './screens/common/MsgModal';
 export const GlobleData = React.createContext()
-
-export default function Store({ children }) {
+export default function Store({ navigation, children }) {
 	const [userData, setUserData] = useState({ data: null, message: '', isLogin: false })
 	const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
-	const [flag, setFlag] = useState({ closeByUserName: null, status: false })
-	const [sure, setSure] = useState(false);
+	const [isAutoSubmit, setIsAutoSubmit] = useState(false)
 
 	useEffect(() => {
 		checkLogin()
-		const loadAttempts = async () => {
-			try {
-				const storedData = await AsyncStorage.getItem('attemptedQuestions');
-				if (storedData !== null) {
-					setFinalPost(JSON.parse(storedData));
-				}
-			} catch (error) {
-				console.log('Error loading attempts:', error);
-			}
-		};
-		loadAttempts();
-	}, [])
-
-
-	useEffect(() => {
-		if (manageData.questions[currentIndex]?.activityID === 9) {
-			setDropedData([])
-		}
-	}, [currentIndex])
+	}, [navigation])
 
 	// ----------------- check login function start --------------------//
 	async function checkLogin() {
@@ -46,8 +26,6 @@ export default function Store({ children }) {
 	}
 	// ----------------- check login function end --------------------//
 
-
-
 	// --------------- login function start --------------- //
 	async function login(data, userType, navigation) {
 		const payload = {
@@ -59,6 +37,7 @@ export default function Store({ children }) {
 		Services.post(apiRoot.appLogin, payload)
 			.then((res) => {
 				if (res.status == "success") {
+					// console.log(res.data, 'check userData----------???')
 					AsyncStorage
 						.setItem("logedInUserdata", JSON.stringify(res))
 						.then((res) => console.log("Done"))
@@ -74,7 +53,7 @@ export default function Store({ children }) {
 							return { ...prev, status: false }
 						})
 					}, 1500)
-					navigation.navigate('home')
+					// navigation.navigate('home')
 				} else if (res.status == "error") {
 					setMsgModalVisible((prev) => {
 						return { ...prev, msg: res.message, status: true, type: 'error' }
@@ -94,32 +73,28 @@ export default function Store({ children }) {
 			})
 			.finally(() => {
 			})
-
 	}
 	// ---------------- login function end --------------- //
 	// --------------- logout function start -------------//
+
 	function logOut(navigation, type) {
 		AsyncStorage.removeItem('logedInUserdata')
 		setUserData((prev) => {
 			return { ...prev, data: null, isLogin: false, type: type }
 		})
 	}
+
 	// --------------- logout function end -------------//
-
-
-
 	// ------------Assessment store --------------------//
 	// useEffect(() => {
 	// 	getGenerateAsslist();
-
 	// }, [])
-	const [imageUri, setImageUri] = useState('')
+
 	const [isDec, setIsdec] = useState(false)
 	const [attemptStore, setattemptStore] = useState({
 		assMentIds: "",
 		assName: "",
 		sujectIds: ""
-
 	});
 	const [jumble, setJumble] = useState({
 		optLine1: "",
@@ -135,12 +110,13 @@ export default function Store({ children }) {
 	const [matchLines, setmatchLines] = useState({});
 	const [finalArrayData, setFinalArray] = useState([])
 	const [finalPost, setFinalPost] = useState([]);
-	// const [attemptedCount, setAttemptedCount] = useState(0);
 	const [matchTo, setMatchTo] = useState()
 	const [connections, setConnections] = useState([]);
 	const [selectedTexts, setSelectedTexts] = useState({});
+	// const [assessList, setAssessList] = useState([]);
 	const [currentIndex, setCurrentIndex] = useState(0)
-	const [options1, setOptions1] = useState()
+	const [options1, setOptions1] = useState();
+	const [sure, setSure] = useState(false);
 	const [manageData, setManageData] = useState({
 		showLoader: false,
 		AssName: "",
@@ -151,16 +127,19 @@ export default function Store({ children }) {
 		totalQuest: '',
 		TotlMks: ""
 	})
-	const apiBaseUrl = apiRoot;
-	const ApiToken = "=4WY5FWeoRWYhd3c";
-	// const schoolCode = userData.data.schoolCode;
-	// const userRefID = userData.data.userRefID;
-	const ClsIds = userData?.data?.classID
 
+	// useEffect(() => {
+	// 	getGenerateAsslist();
+	// }, [])
+
+	useEffect(() => {
+		if (manageData.questions[currentIndex]?.activityID === 9) {
+			setDropedData([])
+		}
+	}, [currentIndex])
 
 
 	function attemptWaiting(item) {
-		// console.log({ item })
 		setattemptStore((p) => {
 			return {
 				...p,
@@ -175,35 +154,36 @@ export default function Store({ children }) {
 		setManageData((o) => {
 			return { ...o, showLoader: true }
 		})
-		const xData = {
-			"schoolID": userData.data.schoolID,
-			"userRefID": userData.data.userRefID,
-			"classID": userData.data.classID,
+		const payload = {
+			"schoolID": userData?.data?.schoolID,
+			"userRefID": userData?.data?.userRefID,
+			"classID": userData?.data?.classID,
 			"assessmentID": attemptStore.assMentIds
 		}
-		Services.post(apiRoot.getAssessmentQuestion, xData)
-			.then((qData) => {
-				if (qData.status == "success") {
-					// console.log(JSON.stringify(qData.assessmentQues), '________________??')
+		console.log(payload)
+		Services.post(apiRoot.getAssessmentQuestion, payload)
+			.then((res) => {
+
+				if (res.status == "success") {
 					setManageData((o) => {
 						return {
 							...o,
 							showLoader: false,
 							status: true,
-							questions: qData.assessmentQues,
-							siteUtls: qData.siteUrl,
-							TotlMks: qData.totalMarks,
-							totalQuest: qData.assessmentQues.length,
+							questions: res.assessmentQues,
+							siteUtls: res.siteUrl,
+							TotlMks: res.totalMarks,
+							totalQuest: res.assessmentQues.length,
 						}
 					})
-					let dd = qData.assessmentQues;
+					let dd = res.assessmentQues;
 					let ans = Array(dd.length);
 					for (let i = 0; i < ans.length; i++) {
 						ans[i] = {};
 					}
 					setStoreData(ans)
 				} else {
-					alert(qData.message)
+					alert(res.message)
 				}
 			})
 			.catch((err) => {
@@ -215,9 +195,7 @@ export default function Store({ children }) {
 				})
 			})
 	}
-
 	function next() {
-		console.log(currentIndex, "currETM")
 		if (manageData.questions[currentIndex]?.activityID === 4) {
 			matchingDataFun();
 		}
@@ -228,10 +206,11 @@ export default function Store({ children }) {
 			dropDownList();
 		}
 		else if (manageData.questions[currentIndex]?.activityID === 9) {
-			console.log("function call")
 			dragDrop();
 		}
-
+		else if (manageData.questions[currentIndex]?.activityID === 15) {
+			discriptions();
+		}
 
 		setCurrentIndex(currentIndex + 1)
 		setManageData((pre) => {
@@ -239,8 +218,6 @@ export default function Store({ children }) {
 		})
 
 	}
-
-
 	function prev() {
 		if (manageData.questions[currentIndex]?.activityID === 4) {
 			matchingDataFun();
@@ -253,6 +230,9 @@ export default function Store({ children }) {
 		else if (manageData.questions[currentIndex]?.activityID === 9) {
 			dragDrop();
 		}
+		else if (manageData.questions[currentIndex]?.activityID === 15) {
+			discriptions();
+		}
 		setCurrentIndex(currentIndex - 1)
 		setManageData((pre) => {
 			return { ...pre, qNumber: pre.qNumber - 1 };
@@ -261,7 +241,6 @@ export default function Store({ children }) {
 
 	// data Stor
 	const attemptData = (assessmentQues) => {
-		// console.log({ assessmentQues })
 		const thisData = [];
 		const prevData = finalPost;
 		prevData.map((item) => {
@@ -281,23 +260,19 @@ export default function Store({ children }) {
 		}
 		// console.log(thisData, 'thisdata')
 		setFinalPost(thisData);
+
 	}
 
-
 	function mcqClicked(optIds, quetIds, OptText) {
-		// alert("clickd")
-		// return
 		let getMarks = manageData.questions[currentIndex].marksPerQuestion;
 		let rightAnsText = manageData.questions[currentIndex].answerText;
 		let ansIds = manageData.questions[currentIndex].answerIDs;
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 		// alert(OptText)
 		const mcqContainer = {
 			"quesID": quetIds,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": userData.data.classID,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": optIds,
 			"quesOptionText": OptText,
@@ -306,11 +281,11 @@ export default function Store({ children }) {
 			"rightAnsText": rightAnsText,
 			"rightAnsID": ansIds,
 			"QueSubCatagory": "1-1",
-			"pendingTime": "01:04:46",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 2,
+			"mID": 6
 		}
-		console.log({ mcqContainer })
+		// console.log(mcqContainer, '-----------jfjfkjf')
 		attemptData(mcqContainer)
 	}
 
@@ -439,12 +414,14 @@ export default function Store({ children }) {
 		}
 	}
 
+
+
+
 	// DD type function start 
 	const filteredData = Object.values(selectedTexts?.[currentIndex] ?? {})
 		.filter(item => Array.isArray(item) && item.length > 0);
 	const joinedArrays = filteredData.map(innerArray => innerArray.join(','));
 	const finalString = joinedArrays.join(',');
-	console.log({ finalString })
 
 	const [ddDrpData, setddDrpData] = useState([]);
 	const [dropDownBox, setdropDownBox] = useState(false);
@@ -467,13 +444,11 @@ export default function Store({ children }) {
 	function dropDownList() {
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let RightansText = manageData.questions[currentIndex].answerText;
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 		const drpPayLoad = {
 			"quesID": manageData.questions[currentIndex].questionID,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": ClsIds,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": "0",
 			"quesOptionText": finalString,
@@ -482,11 +457,10 @@ export default function Store({ children }) {
 			"rightAnsText": RightansText,
 			"rightAnsID": RightansText,
 			"QueSubCatagory": "12-2",
-			"pendingTime": "01:04:32",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 2,
+			"mID": 6
 		}
-		console.log(drpPayLoad, "drpPayLoad?")
 		attemptData(drpPayLoad)
 	}
 	// DD type function end 
@@ -511,17 +485,14 @@ export default function Store({ children }) {
 	};
 	const convertedConnections = convertConnections(connections, currentIndex);
 	let matchData = convertedConnections.join(",");
-	console.log(matchData, "Match Answeres.")
 	function matchingDataFun() {
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let RightansText = manageData.questions[currentIndex].answerText;
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 		const matchPayLoad = {
 			"quesID": manageData.questions[currentIndex].questionID,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": userData.data.classID,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": matchData,
 			"quesOptionText": "0",
@@ -530,11 +501,10 @@ export default function Store({ children }) {
 			"rightAnsText": RightansText,
 			"rightAnsID": RightansText,
 			"QueSubCatagory": "4-1",
-			"pendingTime": "01:04:37",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 2,
+			"mID": 4
 		}
-		console.log(matchPayLoad, "matchPayLoad")
 		attemptData(matchPayLoad)
 
 	}
@@ -548,8 +518,8 @@ export default function Store({ children }) {
 			setJumble((prevJumble) => {
 				let currentEntry = prevJumble[currentIndex] || {};
 				let updatedOptLine = currentEntry[optLineKey] || '';
-				if (updatedOptLine.includes(data)) {
-					updatedOptLine = updatedOptLine.replace(data, '');
+				if (data.length > 0) {
+					updatedOptLine += data + ' ';
 				} else {
 					updatedOptLine += data;
 				}
@@ -587,18 +557,16 @@ export default function Store({ children }) {
 		let g = jumbleData?.optLine7 || "";
 		let h = jumbleData?.optLine8 || "";
 
-		let dataArray = [a, b, c, d, e, f, g, h].filter(item => item !== ""); // Create an array
+		let dataArray = [a, b, c, d, e, f, g, h].filter(item => item !== "");; // Create an array
 		let mergedArray = dataArray.join(",");
 
 		let marks = manageData.questions[currentIndex].marksPerQuestion;
 		let RightansText = manageData.questions[currentIndex].answerText;
-		let eidID = manageData.questions[currentIndex].eadID;
-		let mID = manageData.questions[currentIndex].miID;
 		const jmplPaydata = {
 			"quesID": manageData.questions[currentIndex].questionID,
 			"totalMarks": manageData.TotlMks,
 			"assessmentID": attemptStore.assMentIds,
-			"classID": ClsIds,
+			"classID": userData?.data?.classID,
 			"subjectID": attemptStore.sujectIds,
 			"queOptionsID": 0,
 			"quesOptionText": mergedArray,
@@ -607,28 +575,175 @@ export default function Store({ children }) {
 			"rightAnsText": RightansText,
 			"rightAnsID": "0",
 			"QueSubCatagory": "10-1",
-			"pendingTime": "01:04:29",
-			"eidID": eidID,
-			"mID": mID
+			"pendingTime": '0',
+			"eidID": 3,
+			"mID": 8
 		}
-		console.log(jmplPaydata, "jumplePLY")
-		return
 		attemptData(jmplPaydata)
 	}
 	function cleardata(pass) {
-		if (pass === 1) {
-			if (jumble[currentIndex]?.optLine1 !== undefined) {
-				if (typeof jumble[currentIndex].optLine1 === 'string') {
-					jumble[currentIndex].optLine1 = "";
-				} else if (Array.isArray(jumble[currentIndex].optLine1)) {
-					jumble[currentIndex].optLine1 = [];
-				} else if (typeof jumble[currentIndex].optLine1 === 'object') {
-					jumble[currentIndex].optLine1 = {};
+		if (pass == 1) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
 				}
-			}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine1 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+			});
 		}
+		else if (pass == 2) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine2 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 3) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine3 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 4) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine4 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 5) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine5 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 6) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine6 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 7) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine7 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+		else if (pass == 8) {
+			setJumble((prevJumble) => {
+				if (typeof prevJumble !== 'object' || prevJumble === null) {
+					console.error('prevJumble is not an object:', prevJumble);
+					return prevJumble;
+				}
+				const newJumble = { ...prevJumble };
+
+				if (newJumble[currentIndex]) {
+					newJumble[currentIndex].optLine8 = '';
+				} else {
+					console.error(`Key ${currentIndex} does not exist in prevJumble.`);
+				}
+				return newJumble;
+
+			});
+		}
+
 	}
 
+	function discriptions() {
+		let marks = manageData.questions[currentIndex].marksPerQuestion;
+		let RightansText = manageData.questions[currentIndex].answerText;
+		const payload = {
+			"quesID": manageData.questions[currentIndex].questionID,
+			"totalMarks": manageData.TotlMks,
+			"assessmentID": attemptStore.assMentIds,
+			"classID": userData?.data?.classID,
+			"subjectID": attemptStore.sujectIds,
+			"queOptionsID": 0,
+			"quesOptionText": "0",
+			"StudentResult": "-1",
+			"marks": marks,
+			"rightAnsText": RightansText,
+			"rightAnsID": "0",
+			"QueSubCatagory": "10-1",
+			"pendingTime": '0',
+			"eidID": 3,
+			"mID": 8
+		}
+		attemptData(payload)
+
+
+	}
 
 
 
@@ -653,7 +768,6 @@ export default function Store({ children }) {
 			"eidID": 3,
 			"mID": 8
 		}
-		console.log({ xdata })
 		attemptData(xdata)
 	}
 	// drag and drop functions end  
@@ -680,10 +794,6 @@ export default function Store({ children }) {
 			"mID": 8
 		}
 
-		// console.log(payload, "PalyLoad of submit....")
-		// return
-
-
 		const updated = [...finalPost, payload];
 		// setFinalPost(updated);
 
@@ -694,14 +804,13 @@ export default function Store({ children }) {
 		if (cond1 || (cond2 && cond3)) {
 			setSure(true);
 		} else {
-			Alert.alert("Info", 'Please attempt all questions.')
+			alert('Please attempt all questions.')
 		}
 	}
 
 	function cancelSubmit() {
 		setSure(false);
 	}
-
 	function examSubmit(navigation) {
 		const activityID = manageData.questions[currentIndex]?.activityID
 		if (activityID === 4) {
@@ -774,6 +883,7 @@ export default function Store({ children }) {
 		<>
 			<GlobleData.Provider value={{
 				login, logOut, userData,
+				// assessList: assessList,
 				attemptWaiting: attemptWaiting,
 				getAssQuest: getAssQuest,
 				manageData: manageData,
@@ -796,6 +906,7 @@ export default function Store({ children }) {
 				currentAns: currentAns,
 				setOptions1: setOptions1,
 				finalPost: finalPost,
+				setFinalPost: setFinalPost,
 				currOption: currOption,
 				matchingDataFun: matchingDataFun,
 				jumbleWord: jumbleWord,
@@ -812,25 +923,20 @@ export default function Store({ children }) {
 				dropedData: dropedData,
 				setDropedData: setDropedData,
 				submitAttem: submitAttem,
-				imageUri: imageUri,
-				setImageUri: setImageUri,
 				isDec: isDec,
+				// schoolID: schoolID,
+				// userRefID: userRefID,
+				// ClsIds: ClsIds,
+				attemptStore: attemptStore,
+				// ApiToken: ApiToken,
+				// apiBaseUrl: apiBaseUrl,
 				setIsdec: setIsdec,
-				cancelSubmit: cancelSubmit,
-				examSubmit: examSubmit,
 				sure: sure,
 				setSure: setSure,
-				// schoolCode:schoolCode,
-				// userRefID:userRefID,
-				// ClsIds:ClsIds,
-				attemptStore: attemptStore,
-				setFinalPost: setFinalPost,
-				setFlag: setFlag, // add by raju 24 sep. 2025 for user click close button in assessment generate time.
-				flag: flag // add by raju 24 sep. 2025 for user click close button in assessment generate time.
-				// attemptedCount: attemptedCount
-
-				// ApiToken:ApiToken,
-				// apiBaseUrl:apiBaseUrl
+				cancelSubmit: cancelSubmit,
+				examSubmit: examSubmit,
+				setIsAutoSubmit: setIsAutoSubmit
+				// getGenerateAsslist: getGenerateAsslist
 			}}>
 				{children}
 			</GlobleData.Provider>

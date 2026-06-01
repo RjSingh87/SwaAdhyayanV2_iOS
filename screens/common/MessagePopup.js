@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView, Image } from 'react-native'
 import React, { useContext } from 'react'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SWATheam } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
 

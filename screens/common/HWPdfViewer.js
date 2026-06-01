@@ -1,10 +1,25 @@
 import React, { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native"
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import Pdf from 'react-native-pdf';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { WebView } from 'react-native-webview';
-import { SWATheam } from "../../constant/ConstentValue";
+import Share from 'react-native-share'
+import { useState } from "react";
+import Loader from "./Loader";
 
-const PdfViewer = ({ colorSwa, fileType, setFileType, downloadDoc }) => {
+const PdfViewer = ({ fileType, setFileType, downloadDoc }) => {
+
+    const [isloading, setIsLoading] = useState(true)
+
+    const sharePDf = async () => {
+        try {
+            const shareOption = {
+                url: 'data:application/pdf;base64,' + fileType.data,
+                filename: 'certificate'
+            }
+            await Share.open(shareOption)
+        } catch (error) {
+            console.log(error)
+        }
+    }
     let splitSrc = ""
     let fileName = ""
     let fileSrc = ""
@@ -15,111 +30,56 @@ const PdfViewer = ({ colorSwa, fileType, setFileType, downloadDoc }) => {
     } else {
         splitSrc = fileType.fileSrc.split('/')
         fileName = splitSrc[splitSrc.length - 1]
-        fileSrc = fileType.fileSrc
+        fileSrc = "data:application/pdf;base64," + fileType.data
+        // fileSrc = fileType.fileSrc
     }
 
     return (
         <View style={[styles.selectFieldPopUp, { alignItems: 'center' }]}>
-
-            <View style={{ flex: 1, width: "100%", }}>
-
+            <View style={{ flex: 1, width: "100%" }}>
                 <View style={{ flex: 1, }}>
-
-                    <View style={{ flexDirection: 'row', }}>
+                    <View style={{ flexDirection: 'row' }}>
                         <View style={{ padding: 10, width: 50 }}>
                         </View>
-
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => { downloadDoc(fileSrc, 'doc') }}>
+                            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => {
+                                if (fileType.from == 'certificate' || fileType.from == "base64") {
+                                    sharePDf()
+                                } else {
+                                    downloadDoc(fileSrc, 'doc',)
+                                }
+                            }}>
                                 <Text style={{ color: '#fff', textAlign: 'center' }}>Download</Text>
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style={{ padding: 10, width: 50, justifyContent: 'center', alignItems: 'center' }} onPress={() => setFileType(false)}>
                             <AntDesign name={"close"} size={25} color={'#fff'} />
                         </TouchableOpacity>
-
                     </View>
 
+                    {/* {isloading && (
+       <Loader/>
+      )} */}
+
                     {fileType.type == 'pdf' &&
-                        < Pdf
-                            trustAllCerts={false}
+                        <WebView
+                            originWhitelist={['*']}
                             source={{ uri: fileSrc }}
-                            enableDoubleTapZoom={true}
-                            // enablePaging={true}
-                            style={styles.pdf}
-
-                        />
+                            onLoadStart={() => setIsLoading(true)}
+                            onLoadEnd={() => setIsLoading(false)}
+                            onError={() => setIsLoading(false)}
+                            style={{ flex: 1 }} />
                     }
-
                     {fileType.type == 'doc' &&
-                        <WebView source={{ uri: fileSrc }} style={{ flex: 1, }} />
+                        <WebView source={{ uri: fileSrc }} style={{ flex: 1 }} />
                     }
-
                 </View>
-
             </View>
-
-
-            {/* <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', backgroundColor: colorSwa, position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 99, paddingVertical: 5, paddingStart: 5 }}>
-                <View style={{ flex: 1 }}>
-                    <TouchableOpacity onPress={() => setFileType(false)}>
-                        <AntDesign name={'arrowleft'} size={30} color={SWATheam.SwaWhite} />
-                    </TouchableOpacity>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={{ fontWeight: '700', color: SWATheam.SwaWhite, textAlign: 'center', fontSize: 16 }}>{fileName}</Text>
-                </View>
-                <View style={{ flex: 1 }}></View>
-            </View>
-
-            {fileType.type == 'pdf' &&
-                < Pdf
-                    trustAllCerts={false}
-                    source={{ uri: fileSrc }}
-                    enableDoubleTapZoom={true}
-                    // enablePaging={true}
-                    style={styles.pdf} />
-            }
-
-            {fileType.type == 'doc' &&
-                <WebView source={{ uri: fileSrc }} style={{ flex: 1, marginTop: 45 }} />
-            } */}
-
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 20,
-        marginBottom: 5,
-        fontWeight: 'bold',
-        color: '#000',
-        paddingVertical: 5,
-        flexDirection: 'row',
-        justifyContent: 'center'
-    },
-
-    flexContainer: {
-        flexDirection: 'row',
-        marginBottom: 5,
-    },
-
-    BtextClr: {
-        color: '#000'
-    },
-
-    thClr: {
-        color: '#654b25'
-    },
-
-    colorSwa: {
-        color: '#0c8781'
-    },
-
-    WtextClr: {
-        color: '#fff'
-    },
 
     selectFieldPopUp: {
         position: 'absolute',

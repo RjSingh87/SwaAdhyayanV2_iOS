@@ -1,144 +1,56 @@
-import { StyleSheet, Text, View, Dimensions, Share, TouchableOpacity, Platform, Button, Alert } from 'react-native'
-import React, { useContext, useRef, useState } from 'react'
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, StatusBar } from 'react-native'
+import React from 'react'
+import Pdf from 'react-native-pdf'
+import Share from 'react-native-share'
 import { SWATheam } from '../../../constant/ConstentValue';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { GlobleData } from '../../../Store';
-import WebView from 'react-native-webview';
-import RNPrint from "react-native-print";
-import { ActivityIndicator } from 'react-native-paper';
-import SwaHeader from '../../common/SwaHeader';
-
-
-
 
 
 const AssessmentPdfViewer = ({ navigation, route }) => {
-    const webviewRef = useRef();
-    const { userData } = useContext(GlobleData)
-    const [htmlLoader, setHtmlLoader] = useState(false)
-    const htmlData = route.params.data
-
-    const combinedRegex = /(&lt;\/?[a-z][^&]*?&gt;|&amp;(ld|rd|ls|rs)quo;)/gi;
-    let cleanedHtml = htmlData.replaceAll(combinedRegex, "")
-    // console.log(cleanedHtml, "FFFF")
-
-
-
-
-    const htmlContent = `
-            <html>
-                <head>
-                <meta charset="utf-8" />
-                </head>
-                <body>
-                ${cleanedHtml}
-                </body>
-            </html>
-        `;
-
-    const handlePrint = async () => {
-        if (!htmlContent) return
-        setTimeout(async () => {
-
-            await RNPrint.print({ html: htmlContent });
-        }, 1000)
-    };
-
-
-    function onClickLeftIcon() {
-        navigation.goBack()
+    const statusBarHeight = StatusBar.currentHeight
+    const pdfData = route.params.data
+    const source = { uri: "data:application/pdf;base64," + pdfData };
+    const share = async () => {
+        try {
+            const shareOption = {
+                url: 'data:application/pdf;base64,' + pdfData,
+                filename: 'invoice'
+            }
+            await Share.open(shareOption)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
-
-
-
-    // let intialQues = 0
-
-    // function prevCount() {
-    //     intialQues--
-    //     if (intialQues < 0) {
-    //         intialQues = 0
-    //     }
-    //     renderQues(intialQues)
-    // }
-    // function nextCount() {
-    //     if (queSet.length == intialQues) {
-    //         Alert.alert("Info", "total quest matching..")
-    //     }
-    //     intialQues++
-    //     renderQues(intialQues)
-    // }
-
-
-    // const queSet = [
-    //     {
-    //         qHead: "Fill in the blanks",
-    //         opation: ["one", "two", "three", "four"],
-    //         ans: [2]
-    //     },
-    //     {
-    //         qHead: "Match the following questions.",
-    //         opation: ["five", "six", "seven", "eight"],
-    //         ans: [3]
-    //     },
-    //     {
-    //         qHead: "Drag and drop the questions.",
-    //         opation: ["nine", "two", "three", "four"],
-    //         ans: [1]
-    //     },
-    //     {
-    //         qHead: "Jumble the questions.",
-    //         opation: ["ten", "two", "three", "four"],
-    //         ans: [4]
-    //     }
-    // ]
-
-
-    // const renderQues = (ind) => {
-    //     console.log(ind, "idkdde.?")
-    //     console.log(queSet[ind], "Ques No. " + ind)
-    //     queSet.map((item, index) => {
-    //         return (
-    //             <Text>{item}</Text>
-    //         )
-    //     })
-    // }
-
-    // renderQues(intialQues)
-
-
-
-
     return (
-        <SafeAreaProvider>
-            <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, backgroundColor: userData?.data?.colors?.mainTheme }}>
-                <SwaHeader title={'View Assessment'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} />
-                <View style={styles.container}>
+        <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: statusBarHeight, }}>
 
-                    <View style={{ flex: 1 }}>
-                        <WebView
-                            ref={webviewRef}
-                            source={{ html: htmlContent }}
-                            style={{ flex: 1, }}
-                            originWhitelist={['*']}
-                            onLoadEnd={() => setHtmlLoader(true)}
-                        />
+            <View style={{ padding: 10 }}>
+                <TouchableOpacity
+                    onPress={() => share()}
+                    style={{ padding: 10, borderRadius: 4, backgroundColor: SWATheam.SwaBlue }}
+                >
+                    <Text style={{ textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaWhite }}>Download & Share</Text>
+                </TouchableOpacity>
+            </View>
 
-                        {!htmlContent ?
-                            <View style={{ position: "absolute", top: 0, bottom: 0, justifyContent: "center", width: "100%" }}><ActivityIndicator size={"large"} color={SWATheam.SwaBlue} /></View> :
-                            <TouchableOpacity disabled={!htmlLoader} onPress={handlePrint} style={{ paddingHorizontal: 15, paddingVertical: 10, backgroundColor: userData?.data?.colors?.mainTheme, borderRadius: 8, alignSelf: "center" }}>
-                                <Text style={{ color: SWATheam.SwaWhite, fontWeight: "600", fontSize: 15 }}>Print/Save</Text>
-                            </TouchableOpacity>
-                        }
-                        {Platform.OS === "ios" ? <Text style={{ color: SWATheam.SwaLightBlue, textAlign: "center", fontSize: 12, }}>Swipe down the print screen to see multiple page range and more options.</Text> : null}
-                    </View>
-
-                    {/* <Button title='prev' onPress={prevCount} />
-                    <Button title='next' onPress={nextCount} /> */}
-
-                </View>
-            </SafeAreaView>
-        </SafeAreaProvider>
+            <Pdf
+                trustAllCerts={false}
+                source={source}
+                onLoadComplete={(numberOfPages, filePath) => {
+                    // console.log(`Number of pages: ${numberOfPages}`);
+                }}
+                onPageChanged={(page, numberOfPages) => {
+                    console.log(`Current page: ${page}`);
+                }}
+                onError={(error) => {
+                    console.log(error, 'pdferror');
+                }}
+                onPressLink={(uri) => {
+                    console.log(`Link pressed: ${uri}`);
+                }}
+                style={styles.pdf}
+            />
+        </View>
     )
 }
 
@@ -149,8 +61,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         // alignItems: 'center',
-        marginTop: Platform.OS == "ios" ? 0 : 25,
-        paddingBottom: 30,
+        marginTop: 24,
     },
     pdf: {
         flex: 1,

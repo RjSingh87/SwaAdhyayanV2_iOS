@@ -1,5 +1,5 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native"
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Mcq from "./viewActivity/mcq"
 import Tnf from "./viewActivity/tnf";
 import Fillup from "./viewActivity/fillup";

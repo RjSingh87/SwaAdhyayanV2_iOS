@@ -1,14 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { GlobleData } from '../../../../Store'
-import { SwaTheam } from '../../../../constant/ConstentValue'
+import { SWATheam } from '../../../../constant/ConstentValue'
 import { ScrollView } from 'react-native-gesture-handler'
 import Loader from '../../../common/Loader'
-const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testType }) => {
+const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testType, userType, selectedIcon }) => {
   const { userData } = useContext(GlobleData)
-  console.log(JSON.stringify(reportData), '-----------------------------522')
-  console.log(reportSubIconID, testType, '-----------------------------reportSubIconID, testType')
-
   const indicatorsList = []
   const disciplineIndicatorList = []
   let totalObtainMarks = null
@@ -20,9 +17,7 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
   let totalMarkArray = []
   let grandsTotalMarks = 0
 
-
-
-  if (reportSubIconID == 63 && testType == 5) {
+  if ((reportSubIconID == 63 && testType == 5) || (userType == 5 && selectedIcon == 106)) {
     reportData.data.halfYearData.data.assignedSubjects.map((item, index) => {
       let index2 = reportData.data.halfYearData.data.reportData.findIndex((res) => res.subjectID == item.subjectID);
       if (index2 == -1) {
@@ -30,9 +25,7 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
       } else {
         subjectMarksList.push(reportData.data.halfYearData.data.reportData[index2])
       }
-
     })
-
     subjectMarksList.map((item, index) => {
       if (item.subjectMarks != undefined) {
         totalObtainMarks += (item?.subjectMarks?.periodicTest?.obtainedMarks != undefined ? item?.subjectMarks?.periodicTest?.obtainedMarks : "") + (item?.subjectMarks?.noteBookMarks != undefined ? item?.subjectMarks?.noteBookMarks : "") + (item?.subjectMarks?.seaMarks != undefined ? item?.subjectMarks?.seaMarks : "") + (item?.subjectMarks?.halfYearlyMarks != undefined ? item?.subjectMarks?.halfYearlyMarks?.obtainedMarks : "")
@@ -66,11 +59,9 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
       }
     })
 
-
     subjectMarksList.map((item, index) => {
-
       if (item.subjectMarks != undefined) {
-        totalObtainMarks += (item?.subjectMarks?.periodicTest?.obtainedMarks != undefined ? item?.subjectMarks?.periodicTest?.obtainedMarks : "") + (item?.subjectMarks?.noteBookMarks != undefined ? item?.subjectMarks?.noteBookMarks : "") + (item?.subjectMarks?.seaMarks != undefined ? item?.subjectMarks?.seaMarks : "") + (item?.subjectMarks?.halfYearlyMarks != undefined ? item?.subjectMarks?.halfYearlyMarks?.obtainedMarks : "")
+        totalObtainMarks += (item?.subjectMarks?.periodicTest?.obtainedMarks != undefined ? item?.subjectMarks?.periodicTest?.obtainedMarks : 0) + (item?.subjectMarks?.noteBookMarks != undefined ? item?.subjectMarks?.noteBookMarks : 0) + (item?.subjectMarks?.seaMarks != undefined ? item?.subjectMarks?.seaMarks : 0) + (item?.subjectMarks?.halfYearlyMarks != undefined ? item?.subjectMarks?.halfYearlyMarks?.obtainedMarks : 0)
       }
     })
   }
@@ -88,11 +79,6 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
       disciplineIndicatorList.push(disciplineIndicator[key])
     })
   }
-  // console.log(totalObtainMarks/2, totalAnnualMarks/2, 'i------i----------- PP')
-  // console.log((Math.round(Number(totalObtainMarks)) + Math.round(Number(totalAnnualMarks)))/2, 'i------i-----------')
-  const grandTotal = Math.round((Number(totalObtainMarks) + Number(totalAnnualMarks)) / 2)
-
-
   return (
     <View style={{ flex: 1, width: '100%' }}>
       {subjectMarksList[0] == undefined ?
@@ -100,123 +86,123 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
         <ScrollView>
           <View style={{ padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.mainTheme }}>
             <Text style={{ textAlign: 'center', fontWeight: '700', textTransform: 'uppercase', fontSize: 18, color: userData.data.colors.mainTheme, marginBottom: 10 }}>{reportData.data.schoolData.schoolName}</Text>
-            <Text style={{ textAlign: 'center', color: SwaTheam.SwaBlack }}>{reportData.data.schoolData.affiliatedBy}</Text>
-            <Text style={{ textAlign: 'center', color: SwaTheam.SwaBlack }}>Dise Code : {reportData.data.schoolData.diceCode}</Text>
-            <Text style={{ textAlign: 'center', color: SwaTheam.SwaBlack }}>{reportData.data.schoolData.city + ' ' + reportData.data.schoolData.state + ' ' + reportData.data.schoolData.country + '-' + reportData.data.schoolData.pinCode}</Text>
+            <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{reportData.data.schoolData.affiliatedBy}</Text>
+            <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>Dise Code : {reportData.data.schoolData.diceCode}</Text>
+            <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{reportData.data.schoolData.city + ' ' + reportData.data.schoolData.state + ' ' + reportData.data.schoolData.country + '-' + reportData.data.schoolData.pinCode}</Text>
           </View>
           <View style={{ flexDirection: 'row', backgroundColor: userData.data.colors.liteTheme, padding: 10 }}>
             <View style={{ width: '50%' }}>
-              <Text style={{ color: SwaTheam.SwaBlack, fontWeight: '500', marginBottom: 6 }}>School Code</Text>
-              <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.schoolData.schoolID}</Text>
+              <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', marginBottom: 6 }}>School Code</Text>
+              <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.schoolData.schoolID}</Text>
             </View>
             <View style={{ width: '50%', alignItems: 'flex-end' }}>
-              <Text style={{ color: SwaTheam.SwaBlack, fontWeight: '500', marginBottom: 6 }}>Admission No:</Text>
-              <Text style={{ color: SwaTheam.SwaBlack }}>{"------------------"}</Text>
+              <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', marginBottom: 6 }}>Admission No:</Text>
+              <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.admissionNo}</Text>
             </View>
           </View>
 
           <View style={{ padding: 10 }}>
             <View style={{ marginTop: 6, flexDirection: 'row' }}>
               <View style={{ width: 115 }}>
-                <Text style={{ color: SwaTheam.SwaBlack, }}>Name:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>Name:</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.studentData.firstName + ' ' + reportData.data.studentData.lastName}</Text>
+                <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.firstName + ' ' + reportData.data.studentData.lastName}</Text>
               </View>
             </View>
             <View style={{ marginTop: 6, flexDirection: 'row' }}>
               <View style={{ width: 115 }}>
-                <Text style={{ color: SwaTheam.SwaBlack, }}>Mother's Name:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>Mother's Name:</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.studentData.motherName != null ? reportData.data.studentData.motherName : ''}</Text>
+                <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.motherName != null ? reportData.data.studentData.motherName : ''}</Text>
               </View>
             </View>
             <View style={{ marginTop: 6, flexDirection: 'row' }}>
               <View style={{ width: 115 }}>
-                <Text style={{ color: SwaTheam.SwaBlack, }}>Father's Name:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>Father's Name:</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.studentData.fatherName != null ? reportData.data.studentData.fatherName : ''}</Text>
+                <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.fatherName != null ? reportData.data.studentData.fatherName : ''}</Text>
               </View>
             </View>
             <View style={{ marginTop: 6, flexDirection: 'row' }}>
               <View style={{ width: 115 }}>
-                <Text style={{ color: SwaTheam.SwaBlack, }}>Date of Birth:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>Date of Birth:</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.studentData.dateOfBirth != null ? reportData.data.studentData.dateOfBirth : ''}</Text>
+                <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.dateOfBirth != null ? reportData.data.studentData.dateOfBirth : ''}</Text>
               </View>
             </View>
             <View style={{ marginTop: 6, flexDirection: 'row' }}>
               <View style={{ width: 115 }}>
-                <Text style={{ color: SwaTheam.SwaBlack, }}>Address:</Text>
+                <Text style={{ color: SWATheam.SwaBlack, }}>Address:</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: SwaTheam.SwaBlack }}>{reportData.data.studentData.address}</Text>
+                <Text style={{ color: SWATheam.SwaBlack }}>{reportData.data.studentData.address}</Text>
               </View>
             </View>
           </View>
           <View style={{ backgroundColor: userData.data.colors.liteTheme, paddign: 10, marginTop: 10 }}>
-            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center', paddingVertical: 10, fontWeight: '700' }}>ACADEMIC PERFORMANCE : SCHOLASTIC AREA</Text>
+            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center', paddingVertical: 10, fontWeight: '700' }}>ACADEMIC PERFORMANCE : SCHOLASTIC AREA</Text>
             <ScrollView horizontal>
-              {reportSubIconID == 63 && testType == 5 ?
+              {(reportSubIconID == 63 && testType == 5) || (userType == 5 && selectedIcon == 106) ?
                 <View>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={{}}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, padding: 10 }}>SCHOLASTIC AREA</Text>
-                      <View style={{ backgroundColor: userData.data.colors.mainTheme, borderTopWidth: 1, borderColor: SwaTheam.SwaWhite, padding: 10, width: 150 }}>
-                        <Text style={{ color: SwaTheam.SwaWhite }}>Sujbect</Text>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, padding: 10 }}>SCHOLASTIC AREA</Text>
+                      <View style={{ backgroundColor: userData.data.colors.mainTheme, borderTopWidth: 1, borderColor: SWATheam.SwaWhite, padding: 10, width: 150 }}>
+                        <Text style={{ color: SWATheam.SwaWhite }}>Sujbectsdsdsd</Text>
                       </View>
                     </View>
-                    <View style={{ borderRightWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite }}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textAlign: 'center', padding: 10 }}>TERM - I (100 Marks)</Text>
+                    <View style={{ borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite }}>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textAlign: 'center', padding: 10 }}>TERM - I (100 Marks)</Text>
                       <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row' }}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Half Yearly (80)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Half Yearly (80)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
                         </View>
                       </View>
                     </View>
-                    <View style={{ borderRightWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite }}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textAlign: 'center', padding: 10 }}>TERM - II (100 Marks)</Text>
+                    <View style={{ borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite }}>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textAlign: 'center', padding: 10 }}>TERM - II (100 Marks)</Text>
                       <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row' }}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Annualy (80)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Annualy (80)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
                         </View>
                       </View>
                     </View>
                     <View style={{}}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, padding: 10, textAlign: 'center' }}>OVERALL T1(50) + T2(50)</Text>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, padding: 10, textAlign: 'center' }}>OVERALL T1(50) + T2(50)</Text>
                       <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row' }}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Grand Total</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Grand Total</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Grade</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Grade</Text>
                         </View>
                       </View>
                     </View>
@@ -231,8 +217,6 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
 
 
                     let grandTotal = Math.round((Number(obtainedMarks) + Number(annualObtainMarks)) / 2)
-                    gTotal = Math.round((Number(obtainedMarks) + Number(annualObtainMarks)) / 2)
-
                     grandsTotalMarks += grandTotal
 
                     if (grandTotal <= 100 && grandTotal >= 91) {
@@ -264,55 +248,57 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
 
 
 
+
+
                     return (
                       <View style={{ flexDirection: 'row' }} key={index}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaBlack }}>{item.subjectName}</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaBlack }}>{item.subjectName}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', }}>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.noteBookMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.noteBookMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.seaMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.seaMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item.subjectMarks?.halfYearlyMarks?.obtainedMarks}</Text>
-                          </View>
-                        </View>
-
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{obtainedMarks}</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row' }}>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
-                          </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.noteBookMarks}</Text>
-                          </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.seaMarks}</Text>
-                          </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.term2YearlyMarks?.obtainedMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item.subjectMarks?.halfYearlyMarks?.obtainedMarks}</Text>
                           </View>
                         </View>
 
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{annualObtainMarks}</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{obtainedMarks}</Text>
                         </View>
 
                         <View style={{ flexDirection: 'row' }}>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{grandTotal == 0 ? "" : grandTotal}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{grade}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.noteBookMarks}</Text>
+                          </View>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.seaMarks}</Text>
+                          </View>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{anualReportData[index]?.subjectMarks?.term2YearlyMarks?.obtainedMarks}</Text>
+                          </View>
+                        </View>
+
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{annualObtainMarks}</Text>
+                        </View>
+
+                        <View style={{ flexDirection: 'row' }}>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{grandTotal == 0 ? "" : grandTotal}</Text>
+                          </View>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{grade}</Text>
                           </View>
                         </View>
                       </View>
@@ -324,44 +310,42 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
                 <View>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={{}}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, padding: 10 }}>SCHOLASTIC AREA</Text>
-                      <View style={{ backgroundColor: userData.data.colors.mainTheme, borderTopWidth: 1, borderColor: SwaTheam.SwaWhite, padding: 10, width: 150 }}>
-                        <Text style={{ color: SwaTheam.SwaWhite }}>Sujbect</Text>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, padding: 10 }}>SCHOLASTIC AREA</Text>
+                      <View style={{ backgroundColor: userData.data.colors.mainTheme, borderTopWidth: 1, borderColor: SWATheam.SwaWhite, padding: 10, width: 150 }}>
+                        <Text style={{ color: SWATheam.SwaWhite }}>Sujbect</Text>
                       </View>
                     </View>
                     <View style={{}}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textAlign: 'center', padding: 10 }}>Half Yearly (100 Marks)</Text>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textAlign: 'center', padding: 10 }}>Half Yearly (100 Marks)</Text>
                       <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row' }}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Periodic Test (10)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>NoteBook (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>SEA (5)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Half Yearly (80)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Half Yearly (80)</Text>
                         </View>
                       </View>
                     </View>
                     <View style={{}}>
-                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, padding: 10, textAlign: 'center' }}>OVERALL</Text>
+                      <Text style={{ backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, padding: 10, textAlign: 'center' }}>OVERALL</Text>
                       <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row' }}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Total (100)</Text>
                         </View>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center' }}>Grade</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Grade</Text>
                         </View>
                       </View>
                     </View>
                   </View>
                   {/* datapart */}
                   {subjectMarksList.map((item, index) => {
-                    console.log(item, '----check item')
-
                     let grade = ""
                     let obtainedMarks = (item?.subjectMarks?.periodicTest?.obtainedMarks != undefined ? item?.subjectMarks?.periodicTest?.obtainedMarks : "") + (item?.subjectMarks?.noteBookMarks != undefined ? item?.subjectMarks?.noteBookMarks : "") + (item?.subjectMarks?.seaMarks != undefined ? item?.subjectMarks?.seaMarks : "") + (item?.subjectMarks?.halfYearlyMarks != undefined ? item?.subjectMarks?.halfYearlyMarks?.obtainedMarks : "")
 
@@ -389,30 +373,30 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
 
                     return (
                       <View style={{ flexDirection: 'row' }} key={index}>
-                        <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                          <Text style={{ color: SwaTheam.SwaBlack }}>{item.subjectName}</Text>
+                        <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                          <Text style={{ color: SWATheam.SwaBlack }}>{item.subjectName}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', }}>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.periodicTest?.obtainedMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.noteBookMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.noteBookMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.seaMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item?.subjectMarks?.seaMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{item.subjectMarks?.halfYearlyMarks?.obtainedMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{item.subjectMarks?.halfYearlyMarks?.obtainedMarks}</Text>
                           </View>
                         </View>
 
                         <View style={{ flexDirection: 'row' }}>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{obtainedMarks}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{obtainedMarks}</Text>
                           </View>
-                          <View style={{ padding: 10, borderWidth: .7, borderColor: SwaTheam.SwaWhite, width: 150 }}>
-                            <Text style={{ color: SwaTheam.SwaBlack, textAlign: 'center' }}>{grade}</Text>
+                          <View style={{ padding: 10, borderWidth: .7, borderColor: SWATheam.SwaWhite, width: 150 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{grade}</Text>
                           </View>
                         </View>
 
@@ -425,66 +409,66 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
             </ScrollView>
           </View>
           <View style={{ padding: 10 }}>
-            <Text style={{ color: SwaTheam.SwaBlack, fontWeight: '700', marginVertical: 6 }}>8 Point Grading Scale:</Text>
+            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', marginVertical: 6 }}>8 Point Grading Scale:</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <View style={{ flexDirection: 'row', width: '38%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>A1</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(91%-100%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>A1</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(91%-100%),</Text>
               </View>
               <View style={{ flexDirection: 'row', width: '58%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>A2</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(81%-90%), </Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>A2</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(81%-90%), </Text>
               </View>
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <View style={{ flexDirection: 'row', width: '38%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>B1</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(71%-80%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>B1</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(71%-80%),</Text>
               </View>
               <View style={{ flexDirection: 'row', width: '58%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>B2</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(61%-70%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>B2</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(61%-70%),</Text>
               </View>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <View style={{ flexDirection: 'row', width: '38%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>C1</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(51%-60%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>C1</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(51%-60%),</Text>
               </View>
               <View style={{ flexDirection: 'row', width: '58%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>C2</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(41%-50%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>C2</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(41%-50%),</Text>
               </View>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <View style={{ flexDirection: 'row', width: '38%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>D</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(33%-40%),</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>D</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(33%-40%),</Text>
               </View>
               <View style={{ flexDirection: 'row', width: '58%' }}>
-                <Text style={{ width: 30, color: SwaTheam.SwaBlack, fontWeight: '500' }}>E</Text>
-                <Text style={{ flex: 1, color: SwaTheam.SwaBlack }}>(32% or below - Needs Improvement)</Text>
+                <Text style={{ width: 30, color: SWATheam.SwaBlack, fontWeight: '500' }}>E</Text>
+                <Text style={{ flex: 1, color: SWATheam.SwaBlack }}>(32% or below - Needs Improvement)</Text>
               </View>
             </View>
           </View>
           <ScrollView horizontal>
             <View style={{ backgroundColor: userData.data.colors.liteTheme, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', justifyContent: 'space-between', }}>
               <View style={{ width: 250, flexDirection: 'row', marginVertical: 4 }}>
-                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textTransform: 'uppercase' }}>Overall</Text>
-                <Text style={{ padding: 10, width: '40%', backgroundColor: SwaTheam.SwaWhite, color: SwaTheam.SwaBlack }}>{reportSubIconID == 63 && testType == 5 ? grandsTotalMarks : totalObtainMarks}/{totalMarks}</Text>
+                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Overall</Text>
+                <Text style={{ padding: 10, width: '40%', backgroundColor: SWATheam.SwaWhite, color: SWATheam.SwaBlack }}>{(reportSubIconID == 63 && testType == 5) || (userType == 5 && selectedIcon == 106) ? grandsTotalMarks : totalObtainMarks}/{totalMarks}</Text>
               </View>
               <View style={{ width: 250, flexDirection: 'row', marginVertical: 4 }}>
-                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textTransform: 'uppercase' }}>Percentage</Text>
-                <Text style={{ padding: 10, width: '40%', backgroundColor: SwaTheam.SwaWhite, color: SwaTheam.SwaBlack }}>{reportSubIconID == 63 && testType == 5 ? grandsTotalMarks * 100 / totalMarks : totalObtainMarks * 100 / totalMarks}%</Text>
+                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Percentage</Text>
+                <Text style={{ padding: 10, width: '40%', backgroundColor: SWATheam.SwaWhite, color: SWATheam.SwaBlack }}>{(reportSubIconID == 63 && testType == 5) || (userType == 5 && selectedIcon == 106) ? grandsTotalMarks * 100 / totalMarks : totalObtainMarks * 100 / totalMarks}%</Text>
               </View>
               <View style={{ width: 250, flexDirection: 'row', marginVertical: 4 }}>
-                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textTransform: 'uppercase' }}>Grade</Text>
-                <Text style={{ padding: 10, width: '40%', backgroundColor: SwaTheam.SwaWhite, color: SwaTheam.SwaBlack }}>{GlobleGrade}</Text>
+                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Grade</Text>
+                <Text style={{ padding: 10, width: '40%', backgroundColor: SWATheam.SwaWhite, color: SWATheam.SwaBlack }}>{GlobleGrade}</Text>
               </View>
               <View style={{ width: 250, flexDirection: 'row', marginVertical: 4 }}>
-                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SwaTheam.SwaWhite, textTransform: 'uppercase' }}>Rank</Text>
-                <Text style={{ padding: 10, width: '40%', backgroundColor: SwaTheam.SwaWhite, color: SwaTheam.SwaBlack }}></Text>
+                <Text style={{ padding: 10, width: '60%', backgroundColor: userData.data.colors.mainTheme, color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Rank</Text>
+                <Text style={{ padding: 10, width: '40%', backgroundColor: SWATheam.SwaWhite, color: SWATheam.SwaBlack }}></Text>
               </View>
             </View>
 
@@ -492,48 +476,47 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
           {indicatorsList[0] != undefined ?
             <View>
               <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10 }}>
-                <Text style={{ textAlign: 'center', color: SwaTheam.SwaWhite, fontWeight: '500' }}>CO-SCHOLASTIC AREA</Text>
+                <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: '500' }}>CO-SCHOLASTIC AREA</Text>
               </View>
               <ScrollView horizontal>
                 <View>
-                  <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row', borderTopWidth: 1, borderColor: SwaTheam.SwaWhite }}>
-                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Indicator</Text>
-                    <Text style={{ width: 300, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Sub-Indicator</Text>
-                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Marks</Text>
+                  <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row', borderTopWidth: 1, borderColor: SWATheam.SwaWhite }}>
+                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Indicator</Text>
+                    <Text style={{ width: 300, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Sub-Indicator</Text>
+                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Marks</Text>
                   </View>
                   {indicatorsList.map((value, keys) => {
                     let subIndicator = []
-                    Object.keys(value.subIndicators).forEach(function (key, index) {
-                      subIndicator.push(value.subIndicators[key])
-                    })
+                    if (value?.subIndicators != undefined) {
+                      Object.keys(value.subIndicators).forEach(function (key, index) {
+                        subIndicator.push(value.subIndicators[key])
+                      })
+                    }
                     return (
                       <View style={{ flexDirection: 'row', }} key={value.mainIndicatorID}>
-                        <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
-                          <Text style={{ color: SwaTheam.SwaBlack }}>{value.mainIndicatorName != null ? value.mainIndicatorName : null}</Text>
+                        <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
+                          <Text style={{ color: SWATheam.SwaBlack }}>{value.mainIndicatorName != null ? value.mainIndicatorName : null}</Text>
                         </View>
-                        <View style={{ width: 300, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
+                        <View style={{ width: 300, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
                           {subIndicator[0] != undefined ?
                             <>
                               {subIndicator.map((value2, keys2) => {
-                                console.log(value2, 'value2')
                                 return (
-                                  <Text style={{ color: SwaTheam.SwaBlack }} key={keys2}>{value2.subIndicatorName}</Text>
+                                  <Text style={{ color: SWATheam.SwaBlack }} key={keys2}>{value2.subIndicatorName}</Text>
                                 )
                               })}
-
                             </> : null
                           }
                         </View>
-                        <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
+                        <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
                           {subIndicator[0] != undefined ?
                             <>
                               {subIndicator.map((value3, keys3) => {
                                 return (
-                                  <Text style={{ color: SwaTheam.SwaBlack }} key={keys3}>{value3.subIndicatorMarks}</Text>
-                                )
+                                  <Text style={{ color: SWATheam.SwaBlack }} key={keys3}>{value3.subIndicatorMarks}</Text>)
                               })}
-
-                            </> : null
+                            </> :
+                            <Text style={{ color: SWATheam.SwaBlack }}>{value.mainIndicatorMarks}</Text>
                           }
                         </View>
                       </View>
@@ -547,14 +530,14 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
           {disciplineIndicatorList[0] != undefined ?
             <View style={{ marginTop: 20 }}>
               <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10 }}>
-                <Text style={{ textAlign: 'center', color: SwaTheam.SwaWhite, fontWeight: '500' }}>DISCIPLINE</Text>
+                <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: '500' }}>DISCIPLINE</Text>
               </View>
               <ScrollView horizontal>
                 <View>
-                  <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row', borderTopWidth: 1, borderColor: SwaTheam.SwaWhite }}>
-                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Indicator</Text>
-                    <Text style={{ width: 300, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Sub-Indicator</Text>
-                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRithtWidth: 1, borderLeftWidth: 1, borderColor: SwaTheam.SwaWhite, color: SwaTheam.SwaWhite }}>Marks</Text>
+                  <View style={{ backgroundColor: userData.data.colors.mainTheme, flexDirection: 'row', borderTopWidth: 1, borderColor: SWATheam.SwaWhite }}>
+                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Indicator</Text>
+                    <Text style={{ width: 300, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Sub-Indicator</Text>
+                    <Text style={{ width: 200, padding: 10, textAlign: 'center', borderRightWidth: 1, borderLeftWidth: 1, borderColor: SWATheam.SwaWhite, color: SWATheam.SwaWhite }}>Marks</Text>
                   </View>
                   {disciplineIndicatorList[0] == undefined ?
                     <Loader /> :
@@ -566,27 +549,27 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
                         })
                         return (
                           <View style={{ flexDirection: 'row', }} key={value.mainIndicatorID}>
-                            <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
-                              <Text style={{ color: SwaTheam.SwaBlack }}>{value.mainIndicatorName != null ? value.mainIndicatorName : null}</Text>
+                            <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
+                              <Text style={{ color: SWATheam.SwaBlack }}>{value.mainIndicatorName != null ? value.mainIndicatorName : null}</Text>
                             </View>
-                            <View style={{ width: 300, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
+                            <View style={{ width: 300, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
                               {subIndicator[0] != undefined ?
                                 <>
                                   {subIndicator.map((value2, keys2) => {
                                     return (
-                                      <Text style={{ color: SwaTheam.SwaBlack }} key={keys2}>{value2.subIndicatorName}</Text>
+                                      <Text style={{ color: SWATheam.SwaBlack }} key={keys2}>{value2.subIndicatorName}</Text>
                                     )
                                   })}
 
                                 </> : null
                               }
                             </View>
-                            <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SwaTheam.SwaGray }}>
+                            <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>
                               {subIndicator[0] != undefined ?
                                 <>
                                   {subIndicator.map((value3, keys3) => {
                                     return (
-                                      <Text style={{ color: SwaTheam.SwaBlack }} key={keys3}>{value3.subIndicatorMarks}</Text>
+                                      <Text style={{ color: SWATheam.SwaBlack }} key={keys3}>{value3.subIndicatorMarks}</Text>
                                     )
                                   })}
 

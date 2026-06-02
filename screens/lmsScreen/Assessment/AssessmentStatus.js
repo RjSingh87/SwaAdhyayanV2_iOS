@@ -1,19 +1,19 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native"
 import { useState, useContext } from "react"
-import Entypo from 'react-native-vector-icons/Entypo'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import Modal from "../../common/Modal"
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import AssessmentResult from "./AssessmentResult"
 import AssessmentReport from "./AssessmentReport"
 import { GlobleData } from "../../../Store"
 import Services from "../../../Services"
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue"
+import SelectionBox from "../../common/SelectionBox"
+import BottomDrawerList from "../../common/BottomDrawerList"
 
 const AssessmentStatus = () => {
     const { userData } = useContext(GlobleData)
 
     const [selectOption, setSelectOption] = useState({ class: null, section: null, subject: null, assessName: null, type: null })
-    const [ModalData, setModalData] = useState({ data: null, type: null, status: false })
+    const [ModalData, setModalData] = useState({ list: null, type: null, status: false })
     const [showPopUp, setShowPopUp] = useState(false)
     const [showFields, setShowFields] = useState(true)
     const [showDataDrawer, setShowDataDrawer] = useState(false)
@@ -36,7 +36,7 @@ const AssessmentStatus = () => {
                         setShowPopUp(true)
                         const data = res.data
                         setModalData((prev) => {
-                            return { ...prev, data: data, type: type, status: true }
+                            return { ...prev, list: data, type: type, status: true }
                         })
                     } else {
                         alert(res.message)
@@ -65,7 +65,7 @@ const AssessmentStatus = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         } else {
                             alert(res.message)
@@ -97,7 +97,7 @@ const AssessmentStatus = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -112,7 +112,7 @@ const AssessmentStatus = () => {
                 alert("Please Select section first")
             }
         }
-        else if (type == 'assesName') {
+        else if (type == 'assessment') {
             if (selectOption.subject != null) {
                 const payload = {
                     "schoolID": userData.data.schoolID,
@@ -128,8 +128,10 @@ const AssessmentStatus = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
+                        } else {
+                            alert(res.message)
                         }
                     })
                     .catch((err) => {
@@ -150,22 +152,35 @@ const AssessmentStatus = () => {
         if (type == 'class') {
             setSelectOption((prev) => {
                 return { ...prev, class: item, section: null, subject: null, assessName: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'section') {
             setSelectOption((prev) => {
                 return { ...prev, section: item, subject: null, assessName: null, type: type }
             })
+            setModalData((prev) => {
+                return { ...prev, status: false }
+            })
         }
         else if (type == 'subject') {
             setSelectOption((prev) => {
                 return { ...prev, subject: item, assessName: null, type: type }
             })
+            setModalData((prev) => {
+                return { ...prev, status: false }
+            })
         }
-        else if (type == 'assesName') {
+        else if (type == 'assessment') {
             setSelectOption((prev) => {
                 return { ...prev, assessName: item, type: type }
             })
+            setModalData((prev) => {
+                return { ...prev, status: false }
+            })
+            searchAssessment(item)
         }
     }
 
@@ -177,45 +192,43 @@ const AssessmentStatus = () => {
         setReportData((prev) => {
             return { ...prev, status: false }
         })
+        setModalData((prev) => {
+            return { ...prev, status: false }
+        })
     }
 
-    const searchAssessment = async () => {
-        if (selectOption.class != null && selectOption.section != null && selectOption.subject != null && selectOption.assessName != null) {
-            const payload = {
-                "schoolID": userData.data.schoolID,
-                "academicYear": userData.data.academicYear,
-                "transYear": userData.data.transYear,
-                "userTypeID": userData.data.userTypeID,
-                "userRefID": userData.data.userRefID,
-                "classID": selectOption.class.classID,
-                "sectionID": selectOption.section.sectionID,
-                "subjectID": selectOption.subject.subjectID,
-                "assessmentID": selectOption.assessName.assessmentID
-            }
-
-            Services.post(apiRoot.getStudentListWithAssessment, payload)
-                .then((res) => {
-
-                    if (res.status == "success") {
-                        const data = res.data
-                        setShowDataDrawer(true)
-                        setAssessmentData((prev) => {
-                            return { ...prev, data: data, status: true }
-                        })
-                    } else {
-                        alert(res.message)
-                    }
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-
-                })
-
-        } else {
-            alert('Please select All fields')
+    const searchAssessment = async (item) => {
+        const payload = {
+            "schoolID": userData.data.schoolID,
+            "academicYear": userData.data.academicYear,
+            "transYear": userData.data.transYear,
+            "userTypeID": userData.data.userTypeID,
+            "userRefID": userData.data.userRefID,
+            "classID": selectOption.class.classID,
+            "sectionID": selectOption.section.sectionID,
+            "subjectID": selectOption.subject.subjectID,
+            "assessmentID": item.assessmentID
         }
+
+        Services.post(apiRoot.getStudentListWithAssessment, payload)
+            .then((res) => {
+
+                if (res.status == "success") {
+                    const data = res.data
+                    setShowDataDrawer(true)
+                    setAssessmentData((prev) => {
+                        return { ...prev, data: data, status: true }
+                    })
+                } else {
+                    alert(res.message)
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+
+            })
     }
 
     const viewResult = async (item) => {
@@ -278,7 +291,7 @@ const AssessmentStatus = () => {
     return (
         <>
             <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}>
                     <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>
                         Assessment Status
                     </Text>
@@ -289,44 +302,11 @@ const AssessmentStatus = () => {
                 <View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, padding: 10 }}>
                     {
                         showFields &&
-                        <View style={{ marginBottom: 10, borderBottomWidth: .7, borderColor: 'grey' }}>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("class") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.class == null ? 'Select class' : selectOption.class.getClassDetail.classDesc}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("section") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.section == null ? 'Select section' : selectOption.section.sectionName}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("subject") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.subject == null ? 'Select subject' : selectOption.subject.subjectName}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("assesName") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.assessName == null ? 'Select Assessment name' : selectOption.assessName.assessmentName}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
-                                <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 20, paddingVertical: 5, borderRadius: 50 }} onPress={() => searchAssessment()}>
-                                    <Text style={{ color: '#fff' }}>Search</Text>
-                                </TouchableOpacity>
-                            </View>
+                        <View style={{ marginBottom: 10, }}>
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.section?.sectionName} type="section" placeholder="Select Section" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.subject?.subjectName} type="subject" placeholder="Select Subject" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.assessName?.assessmentName} type="assessment" placeholder="Select Assessment" />
                         </View>
                     }
 
@@ -334,6 +314,7 @@ const AssessmentStatus = () => {
                         showDataDrawer &&
                         <ScrollView>
                             <View style={{ borderWidth: .7, borderColor: 'grey', borderRadius: 5, padding: 5 }}>
+                                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', marginVertical: 10, textTransform: 'uppercase', textAlign: 'center' }}>Student List </Text>
                                 {
                                     assessmentData.data?.map((item, index) => {
                                         const fName = item.getStudentName.firstName
@@ -476,9 +457,14 @@ const AssessmentStatus = () => {
                 <AssessmentReport reportData={reportData} closeModal={closeModal} colorSwa={userData.data.colors.mainTheme} />
             }
 
+            {/* {
+                    showPopUp &&
+                    <Modal ModalData={ModalData} closeModal={closeModal} selectModalOption={selectModalOption} selectOption={selectOption} colorSwa={userData.data.colors.mainTheme} />
+                } */}
+
             {
-                showPopUp &&
-                <Modal ModalData={ModalData} closeModal={closeModal} selectModalOption={selectModalOption} selectOption={selectOption} colorSwa={userData.data.colors.mainTheme} />
+                ModalData.status &&
+                <BottomDrawerList listItem={ModalData} closeModule={closeModal} getSelectedItem={selectModalOption} selectedField={selectOption} />
             }
         </>
 

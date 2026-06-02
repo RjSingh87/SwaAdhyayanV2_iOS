@@ -1,19 +1,18 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert, NativeModules } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, PermissionsAndroid, Linking, Alert } from "react-native"
 import { useEffect, useState, useRef, useContext } from "react"
-import Entypo from 'react-native-vector-icons/Entypo'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import Octicons from 'react-native-vector-icons/Octicons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Entypo from 'react-native-vector-icons/Entypo';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Octicons from 'react-native-vector-icons/Octicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import SignatureScreen from "react-native-signature-canvas";
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue"
 import Loader from "../../common/Loader"
 import { GlobleData } from "../../../Store"
 import Services from "../../../Services"
-import { generatePDF } from 'react-native-html-to-pdf';
-
-import FileViewer from 'react-native-file-viewer';
-
+import RNPrint from 'react-native-print';
+// import FileViewer from 'react-native-file-viewer';
+// import Share from 'react-native-share';
 
 
 let counter = 0
@@ -23,12 +22,11 @@ let imgDataUriArr = []
 let saveMarksArr = []
 
 const ManageAssessment = ({ navigation, editAssessment }) => {
-  // console.log(NativeModules, "SignatureScreen")
   const { userData } = useContext(GlobleData)
   const [loading, setLoading] = useState(false)
   const [assessmentData, setAssessmentData] = useState({ data: null, status: false })
   const [showPopUp, setShowPopUp] = useState({ data: null, radioID: null, status: false })
-  const [showSelectedStu, setShowSelectedStu] = useState({ data: null, status: false })
+  const [showSelectedStu, setShowSelectedStu] = useState({ data: null, assID: null, status: false })
   const [showReAssign, setShowReAssign] = useState({ data: null, status: false })
   let [studentUserArr, setStudentUserArr] = useState([])
   const [selectAll, setSelectAll] = useState(false)
@@ -56,12 +54,12 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       "userTypeID": userData.data.userTypeID,
       "userRefID": userData.data.userRefID,
     }
-    console.log(payload, "Manage????")
     Services.post(apiRoot.getAssessmentList, payload)
       .then((res) => {
         if (res.status == "success") {
           setLoading(false)
           const data = res.data
+          console.log(res.data, 'check assigned status------------------')
           setAssessmentData((prev) => {
             return { ...prev, data: data, status: true }
           })
@@ -131,7 +129,6 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const getStudents = async (item = null) => {
-    setShowSelectedStu({ data: null, status: false })
     setLoading(true)
     if (item == null) {
       const payload = {
@@ -147,7 +144,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
             setLoading(false)
             const data = res.data
             setShowSelectedStu((prev) => {
-              return { ...prev, data: data, status: true }
+              return { ...prev, data: data, assID: showPopUp.data.assessmentID, status: true }
             })
             totalStudentIDsArr = []
             data.map((item) => {
@@ -179,7 +176,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
             setLoading(false)
             const data = res.data
             setShowSelectedStu((prev) => {
-              return { ...prev, data: data, status: true }
+              return { ...prev, data: data, assID: item.assessmentID, status: true }
             })
             totalStudentIDsArr = []
             studentUserArr.length = 0
@@ -311,10 +308,12 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
 
     const payload = {
       "schoolID": userData.data.schoolID,
-      "userRefID": showPopUp.data?.getUserName.userRefID,
-      "academicYear": showPopUp.data?.getUserName.academicYear,
-      "assessmentID": showPopUp.data?.assessmentID,
-      "studentRefIDs": finalID
+      "userRefID": userData.data.userRefID,
+      "academicYear": userData.data.academicYear,
+      "assessmentID": showSelectedStu.assID,
+      "studentRefIDs": finalID,
+      "classID": showSelectedStu.data[0].classID,
+      "sectionID": showSelectedStu.data[0].sectionID
     }
     Services.post(apiRoot.assignAssessmentToStudents, payload)
       .then((res) => {
@@ -334,7 +333,6 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       .finally(() => {
         setLoading(false)
       })
-
   }
 
   const getReAssignSections = async (item) => {
@@ -374,14 +372,10 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const downloadAssessmentPdf = async (item) => {
-    // console.log(item.assessmentID, "assID")
     setLoading(true)
     Services.post(apiRoot.downloadAssPdf, { "assessmentID": item?.assessmentID })
       .then((res) => {
         if (res.status == "success") {
-          navigation.navigate('asspdfView', { data: res.html })
-          return
-          pdfPath = res.html
           storePDF(res.html)
         }
 
@@ -393,29 +387,85 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
         setLoading(false)
       })
   }
-
-  const storePDF = async (data) => {
-    function randomString(length, chars) {
-      let result = '';
-      for (let i = length; i > 0; --i)
-        result += chars[Math.floor(Math.random() * chars.length)];
-      return result;
-    }
-    let rString = randomString(3, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-    let options = {
-      html: data,
-      fileName: `Swa_ManageAss_${rString}`,
-      directory: 'pdf',
-    };
+  const storePDF = async (htmlData) => {
     try {
-      let file = await generatePDF.convert(options);
-      setLoading(false);
-      // Alert.alert("Info!", `Downloaded PDF saved to ${file.filePath}`);
+      setLoading(true);
 
-      await FileViewer.open(file.filePath, { showOpenWithDialog: true });
+      const cleanHtml = htmlData.replace(
+        /<script[\s\S]*?<\/script>/gi,
+        ''
+      );
+
+      await RNPrint.print({
+        html: cleanHtml,
+      });
+
     } catch (error) {
-      // console.log("Error opening PDF:", error);
-      Alert.alert("Error", "Unable to open the PDF.");
+      console.log("Print Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // const storePDF = async (data) => {
+  //   function randomString(length, chars) {
+  //     let result = '';
+  //     for (let i = length; i > 0; --i)
+  //       result += chars[Math.floor(Math.random() * chars.length)];
+  //     return result;
+  //   }
+  //   let rString = randomString(3, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  //   let options = {
+  //     html: data,
+  //     fileName: `Swa_ManageAss_${rString}`,
+  //     directory: 'pdf',
+  //     base64: true,
+  //   };
+  //   try {
+  //     let results = await generatePDF(options);
+  //     setLoading(false);
+  //     let filePath = results.filePath;
+  //     console.log(filePath, 'jfkjfkfjkfjf')
+
+  //      if (Platform.OS === 'android' && Platform.Version >= 33) {
+  //                  try {
+  //                 printAndSharePDF(data)
+  //             } catch (err) {
+  //                 console.log("PDF print error:", err);
+  //             }
+  //                 if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+  //                     setLoading(false);
+  //                     return alert('Permission denied');
+  //                 }
+  //             }
+  //             if (Platform.OS === 'android') {
+  //                 filePath = `file://${filePath}`; 
+  //             }
+  //             try{
+  //                 await FileViewer.open(filePath, { showOpenWithDialog: true,
+  //                     displayName: 'Manage Assessment',
+  //                     mimeType: 'application/pdf',
+  //                  });
+
+  //             }catch(err){
+  //                 console.log("File open error, fallback to share:", err);
+  //                 await Share.open({
+  //                 url: filePath,
+  //                 type: 'application/pdf',
+  //                 failOnCancel: false
+  //             });
+  //             }
+  //   } catch (error) {
+  //     Alert.alert("Error", "Unable to open the PDFfffff.");
+  //   }
+  // };
+
+  const printAndSharePDF = async (htmlContent) => {
+    try {
+      await RNPrint.print({
+        html: htmlContent
+      });
+    } catch (err) {
+      console.log("Print/Share error:", err);
     }
   };
 
@@ -428,7 +478,6 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
         "subjectID": item?.subjectID,
         "assessmentID": item?.assessmentID
       }
-      console.log(payload, "CheckOfline")
       Services.post(apiRoot.checkOfflineList, payload)
         .then((res) => {
           if (res.status == "success") {
@@ -648,7 +697,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       {loading &&
         <Loader />
       }
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
         <>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack }}>
             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>
@@ -669,10 +718,10 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                       ""
                       let fullName = fName + mName + lName
 
-                      personStatus = ""
-                      if (item.getUserName?.userTypeID == 2) {
+                      let personStatus = ""
+                      if (item?.getUserName?.userTypeID == 2) {
                         personStatus = "School"
-                      } else if (item.getUserName?.userTypeID == 4) {
+                      } else if (item?.getUserName?.userTypeID == 4) {
                         personStatus = "Teacher"
                       }
 
@@ -892,7 +941,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
 
       {showReAssign.status &&
         <View style={styles.selectFieldPopUp}>
-          <View style={{ backgroundColor: '#fff', marginHorizontal: 30, padding: 8, maxHeight: 300, borderRadius: 5 }}>
+          <View style={{ backgroundColor: '#fff', marginHorizontal: 10, padding: 8, maxHeight: 300, borderRadius: 5 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: .7, borderColor: 'grey', paddingBottom: 5 }}>
               <Text style={{ color: '#000', fontWeight: 500 }}>Assign Assessment to other sections</Text>
               <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={() => closeModal()}>
@@ -906,15 +955,10 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                   <View key={index}>
                     <View style={{ borderBottomWidth: .7, padding: 8, flexDirection: 'row', alignItems: 'center', borderColor: 'grey', justifyContent: 'space-between' }}>
                       <Text style={{ color: '#000', paddingLeft: 7 }}>Section {item.sectionName}</Text>
-                      {
-                        item.sectionAttemptStatus == 1 ?
-                          <View style={{ backgroundColor: '#198754', paddingHorizontal: 5, paddingVertical: 3, borderRadius: 3, width: 110 }}>
-                            <Text style={{ color: '#fff', textAlign: 'center' }}>Attempted</Text>
-                          </View> :
-                          < TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 5, paddingVertical: 3, borderRadius: 3, width: 110 }} onPress={() => { selectNotAttemptBtn(item), getStudents(item) }}>
-                            <Text style={{ color: '#fff', textAlign: 'center' }}>Not Attempted</Text>
-                          </TouchableOpacity>
-                      }
+                      <TouchableOpacity style={{ backgroundColor: item.isAssign == 1 ? '#198754' : userData.data.colors.mainTheme, paddingHorizontal: 5, paddingVertical: 3, borderRadius: 3, width: 100 }} disabled={item.isAssign == 1 ? true : false} onPress={() => { selectNotAttemptBtn(item), getStudents(item) }}>
+                        <Text style={{ color: '#fff', textAlign: 'center' }}>{item.isAssign == 1 ? "Assigned" : "Not Assigned"}</Text>
+                      </TouchableOpacity>
+                      <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center', width: 100 }}>{item.sectionAttemptStatus == 1 ? "Attempted" : "Not Attempted"}</Text>
                     </View>
                   </View>
                 )

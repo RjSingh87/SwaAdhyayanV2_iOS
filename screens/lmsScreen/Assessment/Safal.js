@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
 import React, { useContext, useState } from 'react'
 import SwaHeader from '../../common/SwaHeader'
 import { GlobleData } from '../../../Store'
@@ -7,11 +7,10 @@ import Services from '../../../Services'
 import { apiRoot } from '../../../constant/ConstentValue'
 import BottomDrawerList from '../../common/BottomDrawerList'
 import Loader from '../../common/Loader'
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Safal = ({ navigation }) => {
-    console.log("Safal.js")
+    const insets = useSafeAreaInsets();
     const { userData } = useContext(GlobleData)
     const [selectedField, setSelectedField] = useState({ class: null, section: null, subject: null, set: null, type: null })
     const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
@@ -25,6 +24,8 @@ const Safal = ({ navigation }) => {
     }
 
     function getListItem(val) {
+
+
         setLoading(true)
         if (val == 'class') {
             const payload = {
@@ -37,6 +38,7 @@ const Safal = ({ navigation }) => {
             }
             Services.post(apiRoot.getClassList, payload)
                 .then((res) => {
+                    console.log(res, 'check response')
                     if (res.status == "success") {
                         setLoading(false)
                         let classList = []
@@ -95,7 +97,7 @@ const Safal = ({ navigation }) => {
                 alert('Please select class')
             }
         } else if (val == 'subject') {
-            if (selectedField.class != null || selectedField.section != null) {
+            if (selectedField.class != null && selectedField.section != null) {
                 const payload = {
                     "classID": selectedField.class.getClassDetail.classID,
                 }
@@ -122,7 +124,7 @@ const Safal = ({ navigation }) => {
                 alert('Please select section')
             }
         } else if (val == 'set') {
-            if (selectedField.class != null || selectedField.section != null || selectedField.subject != null) {
+            if (selectedField.class != null && selectedField.section != null && selectedField.subject != null) {
                 const setList = [
                     { setName: "set-1", setID: 1 },
                     { setName: "set-2", setID: 2 },
@@ -138,7 +140,7 @@ const Safal = ({ navigation }) => {
                 alert('Please select subject')
             }
         } else if (val == 'QAns') {
-            if (selectedField.class != null || selectedField.section != null || selectedField.subject != null || selectedField.set != null) {
+            if (selectedField.class != null && selectedField.section != null && selectedField.subject != null && selectedField.set != null) {
                 const setList = [
                     { type: "SAFAL Practice Papers", typeID: 9 },
                     { type: "Answers to SAFAL Practice Papers", typeID: 10 },
@@ -149,7 +151,7 @@ const Safal = ({ navigation }) => {
                 setLoading(false)
             } else {
                 setLoading(false)
-                alert('Please select subject')
+                alert('Please select all fields.')
             }
         }
     }
@@ -199,14 +201,13 @@ const Safal = ({ navigation }) => {
                 "setID": selectedField.set.setID,
                 "safalType": item.typeID,
                 "schoolID": userData.data.schoolID
-
             }
             Services.post(apiRoot.getAllSafalLessonPlan, payload)
                 .then((res) => {
                     if (res.status == "success") {
                         setLoading(false)
                         const pdfPath = res.safalData[0].fullPath
-                        navigation.navigate('pdfView', { url: pdfPath })
+                        navigation.navigate('pdfView', { url: pdfPath, title: item.type })
                     } else {
                         alert(res.message)
                     }
@@ -229,34 +230,32 @@ const Safal = ({ navigation }) => {
         });
     }
 
-    const insets = useSafeAreaInsets()
+    // console.log(listItem.status, "Safal.js")
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, backgroundColor: userData?.data?.colors?.mainTheme, }}>
-                {loading ?
-                    <Loader /> :
-                    <>
-                        <SwaHeader title={"CBSE SAFAL & Other Competitive Exams"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-                        <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-                            <View style={{ padding: 10 }}>
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" />
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.set?.setName} type="set" placeholder="Select set" />
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.type?.type} type="QAns" placeholder="Select Question/Answer" />
-
-                            </View>
+        <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+            {loading ?
+                <Loader /> :
+                <>
+                    <SwaHeader title={"CBSE SAFAL & Other Competitive Exams"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                    <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+                        <View style={{ padding: 10 }}>
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" />
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.set?.setName} type="set" placeholder="Select set" />
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.type?.type} type="QAns" placeholder="Select Question/Answer" />
 
                         </View>
-                        {listItem.status ?
-                            <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} selectedField={selectedField} /> : null
-                        }
-                    </>
-                }
-            </SafeAreaView>
 
-        </SafeAreaProvider>
+                    </View>
+                    {listItem.status ?
+                        <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} selectedField={selectedField} /> : null
+                    }
+                </>
+            }
+
+        </View>
     )
 }
 

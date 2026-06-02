@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView } from "react-native"
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import Feather from 'react-native-vector-icons/Feather'
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import DatePicker from "react-native-date-picker";
 import Loader from "../../common/Loader";
 import { SWATheam, apiRoot } from "../../../constant/ConstentValue";
@@ -19,7 +19,7 @@ var quesTypeIdsArray = [];
 var quesLavelIdsArray = [];
 var subjName = "";
 var examName = "";
-var examTypeName = "";
+
 var questionNo = "";
 var qID = "";
 var finalQData = "";
@@ -37,7 +37,6 @@ export default function AutoAssessmentGenerate() {
   const [subjectList, setSubjectList] = useState([]);
   const [bookList, setBookList] = useState([]);
   const [bookChapterList, setBookChapterList] = useState([]);
-  const [assesExamNameList, setAssesExamNameList] = useState([]);
   const [assessQuesTypeList, setAssessQuesTypeList] = useState([]);
   const [assessQuesLavelList, setAssessQuesLavelList] = useState([]);
   const [viewStatus, setViewStatus] = useState({ section: false, subject: false, book: false, chapter: false, examName: false, quesTypeList: false, quesLavel: false, examType: false, dateToDate: false, fixTime: false, totalTime: false, totalQuestion: false, questSet: false });
@@ -49,7 +48,7 @@ export default function AutoAssessmentGenerate() {
   const [assignAsessment, setAssignAsessment] = useState(false);
   const [isLoader, setIsLoader] = useState(false);
   const [isAssessQuesModel, setIsAssessQuesModel] = useState(false)
-  const [date, setDate] = useState(new Date())
+  const [date, setDate] = useState()
   const [open, setOpen] = useState(false)
   const [isQuestType, setIsQuestType] = useState(false)
   const [quesMarksWise, setQuesMarksWise] = useState([]);
@@ -63,6 +62,24 @@ export default function AutoAssessmentGenerate() {
   const [isAssign, setIsAssign] = useState(false);
   const [autoStuList, setAutoStuList] = useState(assignArguments);
   const [isAutoChapChecked, setIsAutoChapChecked] = useState(false);
+  const [examTypeName, setExamTypeName] = useState("")
+
+
+  const [date2, setDate2] = useState()
+  const [open2, setOpen2] = useState(false)
+  const [date3, setDate3] = useState(new Date())
+  const [open3, setOpen3] = useState(false)
+  const [hourData, setHourData] = useState(0)
+  const [minutData, setMinutData] = useState(0)
+  const [data, setData] = useState(bookArguments);
+  const [isChecked, setIsChecked] = useState(false);
+
+  const [chapData, setChapData] = useState(chapArguments);
+  const [isChapChecked, setIsChapChecked] = useState(false);
+  const [QuesTypeData, setQuesTypeData] = useState(quesTypeArguments);
+  const [isQuesTypeChecked, setIsQuesTypeChecked] = useState(false);
+  const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
+  const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
 
   useEffect(() => {
     selectedQuesIDsArray = [];
@@ -76,14 +93,16 @@ export default function AutoAssessmentGenerate() {
     quesLavelIdsArray = [];
     subjName = "";
     examName = "";
-    examTypeName = "";
+
     questionNo = "";
     qID = "";
     finalQData = "";
     selectQuesMarksEdit = [];
     assessID = "";
     studentIDs = [];
+    setExamTypeName("")
   }, [])
+
   const checkStuListAll = () => {
     studentIDs = [];
     let newValue = autoStuList.filter((item) => item.checked).length === autoStuList.length;
@@ -121,21 +140,7 @@ export default function AutoAssessmentGenerate() {
     setIsAutoChapChecked(!isAutoChapChecked);
   };
 
-  const [date2, setDate2] = useState(new Date())
-  const [open2, setOpen2] = useState(false)
-  const [date3, setDate3] = useState(new Date())
-  const [open3, setOpen3] = useState(false)
-  const [hourData, setHourData] = useState(0)
-  const [minutData, setMinutData] = useState(0)
-  const [data, setData] = useState(bookArguments);
-  const [isChecked, setIsChecked] = useState(false);
 
-  const [chapData, setChapData] = useState(chapArguments);
-  const [isChapChecked, setIsChapChecked] = useState(false);
-  const [QuesTypeData, setQuesTypeData] = useState(quesTypeArguments);
-  const [isQuesTypeChecked, setIsQuesTypeChecked] = useState(false);
-  const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
-  const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
 
   useEffect(() => {
     getAssessClassList();
@@ -143,15 +148,16 @@ export default function AutoAssessmentGenerate() {
   const otherAssessmentShow = () => {
     setOtherAsessment((prev) => {
       return { ...prev, status: true }
-    })
+    });
+    examName = "";
+    setAssessInputName("")
   }
+
   var quesWiseID = [];
   let totalQues = 0;
   let apiUrl = "";
   const generateAutoAssSubmit = (type) => {
-
     if (type == "marksWise") {
-
       apiUrl = apiRoot.submitAutoAssessMarksWise;
       for (var key in inputData) {
         if (inputData.hasOwnProperty(key)) {
@@ -193,6 +199,7 @@ export default function AutoAssessmentGenerate() {
     let endDate = date2;
     let fixTime = date3;
 
+
     if (classID == "" || sectionID == "" || subjectID == "" || examTypeID == "" || questSetID == "" ||
       chapterIDs == "" || bookIDs == "" || quesLavelIDs == "" || startDate == "" || endDate == ""
     ) {
@@ -207,7 +214,7 @@ export default function AutoAssessmentGenerate() {
         var dia = startDate.getDate();
         sDate = year + "-" + mes + "-" + dia;
       }
-      if (endDate != "") {
+      if (endDate != "" && endDate != undefined) {
         var year = endDate.getFullYear();
         var mes = endDate.getMonth() + 1;
         var dia = endDate.getDate();
@@ -230,14 +237,15 @@ export default function AutoAssessmentGenerate() {
         "questionData": quesWiseID.toString(),
         "chapterIDs": chapterIDs,
         "startDate": sDate,
-        "endDate": eDate,
+        "endDate": examTypeID == 2 ? sDate : eDate,
         "startTime": "",
         "levelIDs": quesLavelIDs,
         "academicYear": userData.data.academicYear,
         "userRefID": userData.data.userRefID
       }
-
-      Services.post(apiRoot.submitAutoAssessMarksWise, payload)
+      console.log(payload, 'check payload')
+      console.log(apiUrl, 'check apiUrl')
+      Services.post(apiUrl, payload)
         .then((res) => {
           if (res.status == "success") {
             setIsLoader(false)
@@ -249,13 +257,25 @@ export default function AutoAssessmentGenerate() {
               assignArguments.push(dd)
 
             })
-            AssesssmentName = data.assName;
+            // AssesssmentName = data.assName;
             setStudentList(data.studentData);
             assessID = data.asmtID;
-            setIsTypeWise(false)
-            setIsMarksWise(false)
-            setIsAssign(true);
-            alert("Assessment Generated successfully")
+            // setIsTypeWise(false)
+            // setIsMarksWise(false)
+            // setIsAssign(true);
+            // alert("Assessment Generated successfully")
+
+            setIsTypeWise(false);
+
+            setIsMarksWise(false);
+
+            alert("Assessment Generated successfully");
+
+            setTimeout(() => {
+
+              setIsAssign(true);
+
+            }, 300);
 
           } else {
             setIsLoader(false)
@@ -464,6 +484,7 @@ export default function AutoAssessmentGenerate() {
       if (!newValue == true) {
         let index1 = bookIdsArry.indexOf(bookList[key].bookID)
         if (index1 == -1) {
+
           bookIdsArry.push(bookList[key].bookID)
         } else {
           bookIdsArry.splice(index1, 1)
@@ -635,9 +656,12 @@ export default function AutoAssessmentGenerate() {
   }
 
   function showList(name) {
-
     if (name == "class") {
-      SetShowSelectField1(true)
+      if (classList?.length) {
+        SetShowSelectField1(true)
+      } else {
+        alert('Class not Assign.')
+      }
     } else if (name == "section") {
       if (selectedIds.classID == "") {
         alert('Please select class.')
@@ -712,9 +736,10 @@ export default function AutoAssessmentGenerate() {
     setSelectedIds((prev) => {
       return { ...prev, classID: classID, sectionID: "", subjectID: "", examID: "", examTypeID: "", totalQuesNo: "", questionSet: "" }
     })
-    subjName = "", examName = "", examTypeName = "",
+    subjName = "", examName = "", setExamTypeName(""),
       bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = []
     setHourData(0), setMinutData(0)
+    setDate(); setDate2()
   }
 
   function getUserSectionList(classID) {
@@ -848,6 +873,7 @@ export default function AutoAssessmentGenerate() {
   }
 
   function getAssessQuestType() {
+
     setIsLoader(true)
     Services.post(apiRoot.getQuestionTypeList)
       .then((res) => {
@@ -902,25 +928,25 @@ export default function AutoAssessmentGenerate() {
         setIsLoader(false)
       })
   }
-  function getExamName() {
-    setIsLoader(true)
-    Services.post(apiRoot.getAssessmentNameList)
-      .then((res) => {
-        if (res.status == "success") {
-          setIsLoader(false)
-          const data = res.data
-          setAssesExamNameList(data)
-        } else {
-          alert(res.message)
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setIsLoader(false)
-      })
-  }
+  // function getExamName() {
+  //   setIsLoader(true)
+  //   Services.post(apiRoot.getAssessmentNameList)
+  //     .then((res) => {
+  //       if (res.status == "success") {
+  //         setIsLoader(false)
+  //         const data = res.data
+  //         setAssesExamNameList(data)
+  //       } else {
+  //         alert(res.message)
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err)
+  //     })
+  //     .finally(() => {
+  //       setIsLoader(false)
+  //     })
+  // }
   function setDataAndStatus(type, selectedID) {
     if (type == "section") {
       setViewStatus((prev) => {
@@ -929,9 +955,10 @@ export default function AutoAssessmentGenerate() {
       setSelectedIds((prev) => {
         return { ...prev, sectionID: selectedID, subjectID: "", examID: "", examTypeID: "", totalQuesNo: "", questionSet: "" }
       })
-      subjName = "", examName = "", examTypeName = "",
+      subjName = "", examName = "", setExamTypeName(""),
         bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = [],
         setHourData(0), setMinutData(0)
+      setDate(); setDate2()
 
 
     } else if (type == "subject") {
@@ -941,9 +968,10 @@ export default function AutoAssessmentGenerate() {
       setSelectedIds((prev) => {
         return { ...prev, subjectID: selectedID, examID: "", examTypeID: "", totalQuesNo: "", questionSet: "" }
       })
-      examName = "", examTypeName = "",
+      examName = "", setExamTypeName(""),
         bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = [],
         setHourData(0), setMinutData(0)
+      setDate(); setDate2()
     } else if (type == "examName") {
       setViewStatus((prev) => {
         return { ...prev, examName: false }
@@ -951,7 +979,7 @@ export default function AutoAssessmentGenerate() {
       setSelectedIds((prev) => {
         return { ...prev, examID: selectedID, examTypeID: "", totalQuesNo: "", questionSet: "" }
       })
-      getAssessQuestType();
+      getAssessQuestType(); setDate(); setDate2()
     } else if (type == "questNo") {
       setViewStatus((prev) => {
         return { ...prev, totalQuestion: false }
@@ -965,7 +993,11 @@ export default function AutoAssessmentGenerate() {
       })
       setSelectedIds((prev) => {
         return { ...prev, questionSet: selectedID }
-      })
+      });
+      examName = "", setExamTypeName(""),
+        quesLavelIdsArray = [],
+        setDate(); setDate2()
+      setHourData(0), setMinutData(0)
     }
     else if (type == "examType") {
       if (selectedID == 1) {
@@ -982,6 +1014,7 @@ export default function AutoAssessmentGenerate() {
         return { ...prev, examTypeID: selectedID, totalQuesNo: "", }
       })
       getAssessQuestType();
+
     }
   }
 
@@ -991,23 +1024,25 @@ export default function AutoAssessmentGenerate() {
     } else if (type == "examName") {
       examName = selectedName;
       setSelectedIds((prev) => {
-        return { ...prev, examID: "", examTypeID: "", totalQuesNo: "", questionSet: "" }
+        return { ...prev, examID: "", examTypeID: "", totalQuesNo: "", }
       })
-      examTypeName = "",
+      setExamTypeName(""),
         quesLavelIdsArray = [],
-        setHourData(0), setMinutData(0)
+        setDate(); setDate2()
+      setHourData(0), setMinutData(0)
+
     } else if (type == "examType") {
-      examTypeName = selectedName;
+      setExamTypeName(selectedName)
+      quesLavelIdsArray = [],
+        setDate(); setDate2(),
+          setHourData(0), setMinutData(0)
     } else if (type == "questionNo") {
       questionNo = selectedName;
     }
   }
-
   const getGeneratedAssessQuestion = () => {
-
     // setIsAssessQuesModel(true);
     // return
-
     let classID = selectedIds.classID;
     let sectionID = selectedIds.sectionID.sectionID;
     let subjectID = selectedIds.subjectID;
@@ -1045,13 +1080,17 @@ export default function AutoAssessmentGenerate() {
         "questionLevelIds": quesLavelIDs,
         "chapterIDs": chapterIDs,
         "examType": examTypeID,
-        "startDate": startDate,
         "endDate": endDate,
         "startTime": examTypeID == 2 ? fixTime : "",
         "examHrs": hourData == 0 ? "" : hourData,
         "examMin": minutData == 0 ? "" : minutData,
         "levelIDs": quesLavelIDs,
         "academicYear": userData.data.academicYear
+      }
+      if (examTypeID == 1) {
+        payload["startDate"] = startDate
+      } else if (examTypeID == 2) {
+        payload["examDate"] = startDate
       }
       Services.post(apiRoot.autoAssessmentGenerateQuest, payload)
         .then((res) => {
@@ -1095,104 +1134,14 @@ export default function AutoAssessmentGenerate() {
   mData.map((item, index) => {
     totalMarks.push(
       <View key={index}>
-        <TouchableOpacity onPress={() => { setIsEditMarks(false); selectMarks(item); }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
+        <TouchableOpacity onPress={() => { setIsEditMarks(false); selectMarks(item); }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: SWATheam.SwaBlack }}>{item}</Text>
         </TouchableOpacity>
       </View>
     )
   })
 
-  // const assessmentGenerate = () => {
-
-  //   if (questionNo != selectedQuesIDsArray.length) {
-  //     alert("You Have to Add Minimum Question " + JSON.stringify(questionNo))
-  //     return
-  //   }
-  //   if (selectQuesMarksEdit[0] != undefined) {
-  //     selectedQuesIDsArray.map((item, index) => {
-  //       let dd = item.split("|");
-  //       selectQuesMarksEdit.map((item2, index2) => {
-  //         let dd2 = item2.split("|")
-  //         if (dd[0] == dd2[0]) {
-  //           let mm = dd[0] + "|" + dd2[1];
-  //           selectedQuesIDsArray[index] = mm;
-  //         }
-  //       })
-  //     })
-  //   }
-  //   let classID = selectedIds.classID;
-  //   let sectionID = selectedIds.sectionID;
-  //   let subjectID = selectedIds.subjectID;
-  //   let examID = selectedIds.examID;
-  //   let examTypeID = selectedIds.examTypeID;
-  //   let totalQuesNo = selectedIds.totalQuesNo;
-  //   let chapterIDs = chapterIDsArray.toString();
-  //   let bookIDs = bookIdsArry.toString();
-  //   let quesTypeIDs = quesTypeIdsArray.toString();
-  //   let quesLavelIDs = quesLavelIdsArray.toString();
-  //   let startDate = date;
-  //   let endDate = date2;
-  //   let fixTime = date3;
-  //   let sDate = "";
-  //   let eDate = "";
-  //   if (startDate != "") {
-  //     var year = startDate.getFullYear();
-  //     var mes = startDate.getMonth() + 1;
-  //     var dia = startDate.getDate();
-  //     sDate = year + "-" + mes + "-" + dia;
-  //   }
-  //   if (endDate != "") {
-  //     var year = endDate.getFullYear();
-  //     var mes = endDate.getMonth() + 1;
-  //     var dia = endDate.getDate();
-  //     eDate = year + "-" + mes + "-" + dia;
-  //   }
-
-  //   const payload = {
-  //    "schoolID": "SWA168760583",
-  //       "classID": classID,
-  //       "bookID": bookIDs,
-  //       "subjectID": subjectID,
-  //       "noOfQuestion": totalQuesNo,
-  //       "examID": examID == 15 ? "other" : examID,
-  //       "AssName1": selectedIds.examID != 15 ? examName : "other",
-  //       "assmentName2": selectedIds.examID == 15 ? examName : "",
-  //       "sectionID": sectionID,
-  //       "userRefID": userData.data.userRefID,
-  //       "questionTypeIds": quesTypeIDs,
-  //       "questionLevelIds": quesLavelIDs,
-  //       "chapterIds": chapterIDs,
-  //       "academicYear": userData.data.academicYear,
-  //       "startDate": sDate,
-  //       "endDate": eDate,
-  //       "startTime": examTypeID == 2 ? fixTime : "",
-  //       "hours": hourData == 0 ? "" : hourData,
-  //       "minutes": minutData == 0 ? "" : minutData,
-  //       "timeModuleType": examTypeID,
-  //       "selectedQuestion": selectedQuesIDsArray
-  //   }
-  //   Services.post(apiRoot.generateAndViewAssessment, payload)
-  //   .then((res)=>{
-  //     if (res.status == "success") {
-  //       const data = res.data;
-  //       AssesssmentName = data.assName;
-  //       subjectName = data.subjectData[0].subjectNameLang1;
-  //       totalTime = data.totalTime;
-  //       totalAssMarks = data.totalMarks;
-  //       totalAssQuestion = data.noOfQuestion;
-  //       setGeneratedAssQuesList(data.questionData);
-  //       setStudentList(data.studentData);
-  //       assessID = data.assessmentID;
-  //       setAssignAsessment(true);
-  //       alert("Assessment Generated successfully")
-  //     } else {
-  //       alert(res.message)
-  //     }
-  //   })
-  // }
-
   const assignAssessmentToStudent = () => {
-    console.log(assessID)
     let selectStuIDs = "";
     if (studentIDs.length == studentList.length) {
       selectStuIDs = "all";
@@ -1204,13 +1153,18 @@ export default function AutoAssessmentGenerate() {
     }
     const payload = {
       "schoolID": userData.data.schoolID,
+      "classID": selectedIds.classID,
+      "sectionID": selectedIds.sectionID.sectionID,
       "userRefID": userData.data.userRefID,
       "assessmentID": assessID,
       "studentRefIDs": selectStuIDs,
       "academicYear": userData.data.academicYear
     }
+    console.log(payload)
+    console.log(selectedIds)
     Services.post(apiRoot.assignAssessmentToStudents, payload)
       .then((res) => {
+        console.log(JSON.stringify(res), 'check')
         if (res.status == "success") {
           alert(res.message);
           setIsAssign(false)
@@ -1228,6 +1182,10 @@ export default function AutoAssessmentGenerate() {
       })
   }
 
+
+  console.log(viewStatus.fixTime)
+
+
   return (
 
     <>
@@ -1235,7 +1193,7 @@ export default function AutoAssessmentGenerate() {
         <Loader />
       }
 
-      <Text style={{ borderBottomWidth: 1, padding: 8, color: SWATheam.SwaBlack, textAlign: "center" }}>
+      <Text style={{ borderBottomWidth: 1, padding: 8, color: SWATheam.SwaBlack, textAlign: "center", backgroundColor: userData.data.colors.liteTheme }}>
         Auto Assessment Generator
       </Text>
 
@@ -1330,22 +1288,7 @@ export default function AutoAssessmentGenerate() {
             </TouchableOpacity>
             {/* Chapter Div end */}
 
-            {/* Exam Name div start  */}
-            <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, margin: 2 }}
-              onPress={() => { otherAssessmentShow(); }}
-            >
-              <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {examName != "" ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>{examName}</Text>
-                  :
-                  <Text style={{ color: SWATheam.SwaGray }}>Assessment Name</Text>
-                }
 
-              </View>
-
-              <AntDesign name={"down"} color={SWATheam.SwaGray} size={12} style={{ width: 30, padding: 8, backgroundColor: '#efefef', borderBottomRightRadius: 5, borderTopRightRadius: 5 }} />
-            </TouchableOpacity>
-            {/* Exam Name Div end */}
             {/* </View> */}
 
             {/* <View style={{ flexDirection: "row", backgroundColor: "#fff", justifyContent: 'center', alignItems: 'center' }}> */}
@@ -1366,6 +1309,22 @@ export default function AutoAssessmentGenerate() {
             </TouchableOpacity>
             {/* question set Div end */}
 
+            {/* Exam Name div start  */}
+            <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, margin: 2 }}
+              onPress={() => { otherAssessmentShow(); }}
+            >
+              <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
+                {examName != "" ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{examName}</Text>
+                  :
+                  <Text style={{ color: SWATheam.SwaGray }}>Assessment Name</Text>
+                }
+
+              </View>
+              <AntDesign name={"down"} color={SWATheam.SwaGray} size={12} style={{ width: 30, padding: 8, backgroundColor: '#efefef', borderBottomRightRadius: 5, borderTopRightRadius: 5 }} />
+            </TouchableOpacity>
+            {/* Exam Name Div end */}
+
             {/* QuestionType div start  */}
             {isQuestType &&
               <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, margin: 2 }}
@@ -1373,9 +1332,9 @@ export default function AutoAssessmentGenerate() {
               >
                 <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
                   {quesTypeIdsArray.length > 0 ?
-                    <Text style={{ color: SWATheam.SwaBlack }}>QuestionType Selected</Text>
+                    <Text style={{ color: SWATheam.SwaBlack }}>Q.Type Selected</Text>
                     :
-                    <Text style={{ color: SWATheam.SwaGray }}>Select QuestionType</Text>
+                    <Text style={{ color: SWATheam.SwaGray }}>Select Q.Type</Text>
                   }
                 </View>
 
@@ -1426,22 +1385,28 @@ export default function AutoAssessmentGenerate() {
 
 
             {/* <View style={{ flexDirection: "row", backgroundColor: "#fff" }}> */}
+
+
             {/* Start Date div start  */}
-            <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, marginTop: 2 }}
-              onPress={() => { showList(''); setOpen(true) }}
-            >
-              <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {date ?
-                  <Text style={{ color: SWATheam.SwaGray }}>{date.toDateString()}</Text>
-                  :
-                  <Text style={{ color: SWATheam.SwaGray }}>Start Date</Text>
-                }
+            {viewStatus.dateToDate || viewStatus.fixTime ?
+              <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, marginTop: 2 }}
+                onPress={() => { showList(''); setOpen(true) }}
+              >
+                <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
+                  {date ?
+                    <Text style={{ color: SWATheam.SwaBlack }}>{date.toDateString()}</Text>
+                    :
+                    <Text style={{ color: SWATheam.SwaGray }}>{viewStatus.fixTime ? "Exam Date" : "Start Date"}</Text>
+                  }
 
-              </View>
+                </View>
 
-              <AntDesign name={"clockcircleo"} color={SWATheam.SwaGray} size={12} style={{ width: 30, padding: 8, backgroundColor: '#efefef', borderBottomRightRadius: 5, borderTopRightRadius: 5 }} />
-            </TouchableOpacity>
+                <AntDesign name={"clockcircleo"} color={SWATheam.SwaGray} size={12} style={{ width: 30, padding: 8, backgroundColor: '#efefef', borderBottomRightRadius: 5, borderTopRightRadius: 5 }} />
+              </TouchableOpacity> : null
+            }
             {/* Start Date Div end */}
+
+
 
             {viewStatus.dateToDate &&
               <TouchableOpacity style={{ width: '48%', flexDirection: 'row', padding: 10, height: 50, borderRadius: 6, margin: 2 }}
@@ -1449,7 +1414,7 @@ export default function AutoAssessmentGenerate() {
               >
                 <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
                   {date2 ?
-                    <Text style={{ color: SWATheam.SwaGray }}>{date2.toDateString()}</Text>
+                    <Text style={{ color: SWATheam.SwaBlack }}>{date2.toDateString()}</Text>
                     :
                     <Text style={{ color: SWATheam.SwaGray }}>End Date</Text>
                   }
@@ -1487,7 +1452,7 @@ export default function AutoAssessmentGenerate() {
                 {(hourData == "" && minutData == "") ?
                   <Text style={{ color: SWATheam.SwaGray }}>Total Time</Text>
                   :
-                  <Text style={{ color: SWATheam.SwaBlack }}>{hourData == "" ? "" : hourData} {minutData == "" ? "" : ": " + minutData} </Text>
+                  <Text style={{ color: SWATheam.SwaBlack }}>{hourData == "" ? 0 : hourData} {minutData == "" ? ": " + 0 : ": " + minutData} </Text>
                 }
 
               </View>
@@ -1512,11 +1477,31 @@ export default function AutoAssessmentGenerate() {
         <DatePicker
           modal
           open={open}
-          date={date}
+          date={new Date()}
           mode="date"
           onConfirm={(date) => {
             setOpen(false)
-            setDate(date)
+
+            const today = new Date();
+
+            today.setHours(0, 0, 0, 0);
+
+            const selectedDate = new Date(date);
+
+            selectedDate.setHours(0, 0, 0, 0);
+
+            if (selectedDate >= today) {
+
+              setDate(date);
+
+            } else {
+
+              alert("Please select valid date.");
+            }
+
+
+            setDate2()
+            setHourData(0), setMinutData(0)
           }}
           onCancel={() => {
             setOpen(false)
@@ -1527,11 +1512,28 @@ export default function AutoAssessmentGenerate() {
         <DatePicker
           modal
           open={open2}
-          date={date2}
+          date={new Date()}
           mode="date"
           onConfirm={(date) => {
             setOpen2(false)
-            setDate2(date)
+            const startDate = new Date(date);
+
+            startDate.setHours(0, 0, 0, 0);
+
+            const endDate = new Date(date);
+
+            endDate.setHours(0, 0, 0, 0);
+
+            if (endDate >= startDate) {
+
+              setDate2(date);
+
+            } else {
+
+              alert(
+                "End date should be greater than or equal to start date."
+              );
+            }
           }}
           onCancel={() => {
             setOpen2(false)
@@ -1748,7 +1750,10 @@ export default function AutoAssessmentGenerate() {
             <ScrollView>
               <View style={{ backgroundColor: "#efefef", padding: 8, margin: 4, borderRadius: 5 }}>
 
-                <TouchableOpacity style={styles.checkboxContainer} onPress={() => { checkChapAll(); getExamName(); }}>
+                <TouchableOpacity style={styles.checkboxContainer} onPress={() => {
+                  checkChapAll();
+                  // getExamName();
+                }}>
                   {chapData.filter((item) => item.checked).length === chapData.length ?
                     <AntDesign name={"checksquareo"} color={SWATheam.SwaGray} size={16} style={{ width: 25, padding: 3 }} />
                     :
@@ -1761,7 +1766,10 @@ export default function AutoAssessmentGenerate() {
 
                   return (
                     <View key={bookChapterList[index].chapterID}>
-                      <TouchableOpacity onPress={() => { checkChapOne(!item.checked, index); getExamName(); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
+                      <TouchableOpacity onPress={() => {
+                        checkChapOne(!item.checked, index);
+                        // getExamName();
+                      }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
                         {item.checked ?
                           <AntDesign name={"checksquareo"} color={SWATheam.SwaGray} size={16} style={{ width: 25, padding: 3 }} />
                           :
@@ -2118,11 +2126,11 @@ export default function AutoAssessmentGenerate() {
             </TouchableOpacity>
             <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Question Set</Text>
             <ScrollView>
-              <TouchableOpacity onPress={() => { setDataAndStatus("questSet", 1); getQuestionLavel(); getSelectedName('examType', 'Date To Date'); setIsQuestType(false) }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
+              <TouchableOpacity onPress={() => { setDataAndStatus("questSet", 1); getQuestionLavel(); getSelectedName('questSet', 'Mark Wise'); setIsQuestType(false) }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
                 <Text style={{ color: SWATheam.SwaBlack }}>Marks Wise</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => { setDataAndStatus("questSet", 2); getQuestionLavel(); getSelectedName('examType', 'Fix Time'); setIsQuestType(true) }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
+              <TouchableOpacity onPress={() => { setDataAndStatus("questSet", 2); getQuestionLavel(); getSelectedName('questSet', 'Q.Type Wise'); setIsQuestType(true) }} style={{ padding: 10, backgroundColor: '#efefef', margin: 2, borderRadius: 6, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }} >
                 <Text style={{ color: SWATheam.SwaBlack }}>Question Type Wise</Text>
               </TouchableOpacity>
             </ScrollView>
@@ -2147,7 +2155,7 @@ export default function AutoAssessmentGenerate() {
             onPress={() => { setIsTypeWise(false) }}
           />
           <View style={{ height: "auto", maxHeight: 400, backgroundColor: '#efefef', width: '100%', borderRadius: 8 }}>
-            <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Configure Question:</Text>
+            <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Configure Question</Text>
 
             <ScrollView>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', margin: 4 }}>
@@ -2158,13 +2166,12 @@ export default function AutoAssessmentGenerate() {
                   let activityID = item.activityID;
                   return (
                     <View style={{ width: "50%", borderRadius: 6 }} key={index}>
-                      <View style={{ flexDirection: 'row' }}>
-                        <View style={{ width: '3%' }}></View>
-                        <View style={{ width: "65%" }}>
+                      <View style={{ flexDirection: 'row', paddingHorizontal: 6 }}>
+                        <View style={{ flex: 1 }}>
                           <Text style={{ color: 'green' }}>{item.activityCode}</Text>
                         </View>
-                        <View style={{ width: "30%" }}>
-                          <Text style={{ color: 'green' }}>Ques.:{item.totalQues}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: 'green', textAlign: 'right' }}>Ques.:{item.totalQues}</Text>
                         </View>
                       </View>
 
@@ -2288,14 +2295,14 @@ export default function AutoAssessmentGenerate() {
 
                 {autoStuList.map((item, index) => {
                   return (
-                    <View key={item.userRefID}>
+                    <View key={`${item.userRefID}-${index}`}>
                       <TouchableOpacity onPress={() => { checkStuListOne(!item.checked, index); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
                         {item.checked ?
                           <AntDesign name={"checksquareo"} color={SWATheam.SwaBlack} size={16} style={{ width: 25, padding: 3 }} />
                           :
                           <Feather name={"square"} color={SWATheam.SwaBlack} size={20} style={{ width: 25, padding: 1 }} />
                         }
-                        <Text style={{ color: SWATheam.SwaBlack }}>{studentList[index]?.firstName != undefined ? studentList[index]?.firstName : ""} {studentList[index].lastName != "" ? studentList[index].lastName : ""}</Text>
+                        <Text style={{ color: SWATheam.SwaBlack }}>{studentList[index]?.firstName != undefined ? studentList[index]?.firstName : ""} {studentList[index]?.lastName != "" ? studentList[index]?.lastName : ""}</Text>
 
                       </TouchableOpacity>
                     </View>
@@ -2386,4 +2393,3 @@ const styles = StyleSheet.create({
   }
 
 });
-

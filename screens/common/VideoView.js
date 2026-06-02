@@ -53,7 +53,7 @@ const VideoView = ({ navigation, route }) => {
         videoUrl = '';
     }
 
-    console.log('Final Video URL:', videoUrl);
+    // console.log('Final Video URL:', videoUrl);
 
     useEffect(() => {
         return () => {
@@ -107,7 +107,7 @@ const VideoView = ({ navigation, route }) => {
     function onClickRightIcon() {
         setIsInstruction(true)
     }
-    console.log(route?.params, "route?.params")
+    // console.log(route?.params, "route?.params")
 
     return (
         <View style={{ flex: 1 }}>
@@ -118,7 +118,7 @@ const VideoView = ({ navigation, route }) => {
                 zIndex: 999,
                 elevation: 999,
             }}>
-                <SwaHeader title={route?.params?.data} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} yTubeStatus={true} />
+                <SwaHeader title={""} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} yTubeStatus={true} />
             </View>
             <View style={styles.container}>
                 {/* ✅ YOUTUBE PLAYER */}

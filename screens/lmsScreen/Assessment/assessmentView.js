@@ -316,6 +316,7 @@ export default function AssessmentView({ navigation, editAss }) {
     }
     Services.post(apiRoot.getAssessClassList, payload)
       .then((res) => {
+        console.log(JSON.stringify(res))
         if (res.status == "success") {
           if (res.data[0] == undefined) {
             Alert.alert("Info!", "Assessment available only for class 1 to 8.")
@@ -513,7 +514,6 @@ export default function AssessmentView({ navigation, editAss }) {
       "subjectID": subjectID,
       "isAssess": "1"
     }
-
     Services.post(apiRoot.getBooksList, payload)
       .then((res) => {
         if (res.status == "success") {
@@ -816,9 +816,11 @@ export default function AssessmentView({ navigation, editAss }) {
         "chapterIds": chapterIDs,
         // "academicYear": userData.data.academicYear
       }
+      console.log(payload, 'check payload for questions')
 
       Services.post(apiRoot.getGeneratedAssessQuestion, payload)
         .then((res) => {
+          console.log(JSON.stringify(res))
           if (res.status == "success") {
             setIsLoader(false)
             let sendData = {
@@ -835,6 +837,7 @@ export default function AssessmentView({ navigation, editAss }) {
               endDate: endDate,
               fixTime: fixTime
             }
+
 
             navigation.navigate("assGenerateQueList", { data: res.questionData, sendData: sendData })
             // setAssessmentQuestion(data)
@@ -1451,7 +1454,6 @@ export default function AssessmentView({ navigation, editAss }) {
                 </TouchableOpacity>
 
                 {chapData.map((item, index) => {
-
                   return (
                     <View key={bookChapterList[index].chapterID}>
                       <TouchableOpacity onPress={() => { checkChapOne(!item.checked, index); getExamName(); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
@@ -1912,4 +1914,3 @@ const styles = StyleSheet.create({
   }
 
 });
-

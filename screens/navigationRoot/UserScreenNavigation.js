@@ -1,17 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { useContext } from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
+import LoginScreen from '../userScreens/LoginScreen'
 import WelcomeScreen from '../common/WelcomeScreen'
 import SplashScreen from '../common/SplashScreen'
-import LoginScreen from '../userScreens/LoginScreen'
 import { GlobleData } from '../../Store'
 
-
 const Stack = createStackNavigator()
-
 const UserScreenNavigation = () => {
   const { userData } = useContext(GlobleData)
-  // console.log(userData, "Logout..Log???type")
   return (
     <Stack.Navigator>
       {userData.type != "logout" ?
@@ -25,7 +21,4 @@ const UserScreenNavigation = () => {
     </Stack.Navigator>
   )
 }
-
 export default UserScreenNavigation
-
-const styles = StyleSheet.create({})

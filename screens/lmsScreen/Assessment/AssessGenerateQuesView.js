@@ -4,7 +4,7 @@ import { GlobleData } from "../../../Store";
 import SwaHeader from "../../common/SwaHeader";
 import WebView from "react-native-webview";
 import RNBlobUtil from 'react-native-blob-util';
-// import Share from 'react-native-share';
+import Share from 'react-native-share';
 import FileViewer from 'react-native-file-viewer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -43,12 +43,12 @@ export default function AssessGenerateQuesView({ navigation, route }) {
         return;
       }
       const cachePath = await movePdfToCache(path);
-      // await Share.open({
-      //   url: `file://${cachePath}`,
-      //   type: 'application/pdf',
-      //   failOnCancel: false,
-      //   showAppsToView: true,
-      // });
+      await Share.open({
+        url: `file://${cachePath}`,
+        type: 'application/pdf',
+        failOnCancel: false,
+        showAppsToView: true,
+      });
 
     } catch (e) {
       console.log('PDF OPEN ERROR', e);

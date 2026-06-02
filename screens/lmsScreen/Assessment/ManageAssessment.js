@@ -397,7 +397,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       );
 
       await RNPrint.print({
-        html: cleanHtml,
+        html: htmlData,
       });
 
     } catch (error) {

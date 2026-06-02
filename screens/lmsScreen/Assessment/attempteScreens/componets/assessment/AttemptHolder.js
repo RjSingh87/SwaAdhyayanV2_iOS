@@ -28,17 +28,8 @@ import Orientation from 'react-native-orientation-locker';
 
 export default function AttemptHolder({ navigation, route }) {
 	// console.log("AttemptHolder.js")
-	const [isWebViewReady, setIsWebViewReady] = useState(false);
-	const storeAssId = route.params.assId
 
 	const webviewRef = useRef(null);
-
-
-
-
-
-
-
 
 
 	const handleMessage = (event) => {

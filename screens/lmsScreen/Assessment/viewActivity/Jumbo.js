@@ -13,7 +13,13 @@ export default function Jumbo({ jumboData, index }) {
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   console.log(jumboData.answerText)
@@ -209,7 +215,6 @@ export default function Jumbo({ jumboData, index }) {
                     <View style={{ width: '95%' }}>
                       <View style={{ flexDirection: 'row' }}>
                         <View style={{ flex: 1, padding: 2, paddingHorizontal: 10 }}>
-                          {/* <Text>helo</Text> */}
                           <RenderHtml
                             contentWidth={width}
                             source={{ html: item }}
@@ -217,7 +222,6 @@ export default function Jumbo({ jumboData, index }) {
                           />
                         </View>
                         <View style={{ flex: 1, padding: 2, paddingHorizontal: 10 }}>
-                          {/* <Text>helo</Text> */}
                           <RenderHtml
                             contentWidth={width}
                             source={{ html: jumbleData.target[key] }}

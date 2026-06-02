@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, useWindowDimensions, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
 import RenderHtml from 'react-native-render-html';
-import AntDesign from 'react-native-vector-icons/AntDesign'
 import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
 var number = [1, 2, 3, 4];
@@ -17,7 +16,13 @@ export default function Dd({ ddData, editMarks, index, selectedQuesIDs, selected
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
 

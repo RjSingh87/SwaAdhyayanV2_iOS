@@ -7,13 +7,21 @@ var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Dnd({ dndData, index }) {
 
+
+
   const tagsStyles = {
     body: {
       color: SWATheam.SwaBlack
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
 
@@ -652,7 +660,12 @@ export default function Dnd({ dndData, index }) {
               {DndData.target.map((item, index) => {
                 return (
                   <View style={{ width: 'auto', padding: 6, backgroundColor: '#fff', borderRadius: 6, paddingHorizontal: 10, margin: 5 }} key={index}>
-                    <Text style={{ color: '#000' }}>{item}</Text>
+                    {/* <Text style={{ color: '#000' }}>{item}</Text> */}
+                    <RenderHtml
+                      contentWidth={width}
+                      source={{ html: item }}
+                      tagsStyles={tagsStyles}
+                    />
                   </View>
 
                 )
@@ -692,7 +705,12 @@ export default function Dnd({ dndData, index }) {
                   <Text style={{ color: '#000' }}>:</Text>
                 </View>
                 <View style={{ paddingHorizontal: 5, flex: 1 }}>
-                  <Text style={{ color: '#000' }}>{dndData.answerText.replaceAll("???", ",")}</Text>
+                  {/* <Text style={{ color: '#000' }}>{dndData.answerText.replaceAll("???", ",")}</Text> */}
+                  <RenderHtml
+                    contentWidth={width}
+                    source={{ html: dndData.answerText.replaceAll("???", ",") }}
+                    tagsStyles={tagsStyles}
+                  />
                 </View>
               </View>
               {/* <View style={{ flexDirection: 'row' }}>
@@ -768,7 +786,7 @@ export default function Dnd({ dndData, index }) {
               {DndData.targerTXT.map((item, index) => {
                 return (
 
-                  <View style={{ padding: 6, width: 'auto', margin: 4, backgroundColor: '#fff', borderRadius: 6 }} key={key}>
+                  <View style={{ padding: 6, width: 'auto', margin: 4, backgroundColor: '#fff', borderRadius: 6 }} key={index}>
                     <Text>{item}</Text>
                   </View>
 

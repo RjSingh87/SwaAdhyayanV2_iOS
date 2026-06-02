@@ -436,8 +436,9 @@ const styles = StyleSheet.create({
     right: 0,
     // backgroundColor: 'rgba(0, 0, 0, 0.6)',
     backgroundColor: '#fff',
-    width: '100%',
-    height: '100%',
+    // width: '100%',
+    // height: '100%',
+    paddingTop: 60,
   },
 
   TxtInput: {

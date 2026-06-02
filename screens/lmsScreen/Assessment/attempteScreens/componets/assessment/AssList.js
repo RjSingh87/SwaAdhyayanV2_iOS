@@ -1,18 +1,31 @@
 import React, { useEffect, useState, useContext, } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image, useWindowDimensions } from 'react-native';
 import { GlobleData } from '../../../../../../Store';
 import { apiRoot, SWATheam } from '../../../../../../constant/ConstentValue';
-import Icon from "react-native-vector-icons/FontAwesome";
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Loader from '../../../../../common/Loader';
 import Services from '../../../../../../Services';
-// import Orientation from 'react-native-orientation-locker';
+import Orientation from 'react-native-orientation-locker';
 import AssessmentReport from '../../../AssessmentReport';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import RenderHtml from 'react-native-render-html';
 
+export default function AssiList({ navigation }) {
+	const tagsStyles = {
+		body: {
+			color: SWATheam.SwaBlack
+		},
+		p: {
+			color: SWATheam.SwaBlack
+		},
+		img: {
+			maxWidth: 130,
+			height: 'auto',
+			resizeMode: 'contain',
+		},
+	};
 
-export default function AssiList({ navigation, }) {
-
-	const { userData, attemptWaiting } = useContext(GlobleData);
+	const { width } = useWindowDimensions();
+	const { userData, attemptWaiting, setFinalPost } = useContext(GlobleData);
 
 	const [loader, setLoader] = useState(false);
 	const [result, setResult] = useState(false);
@@ -27,7 +40,7 @@ export default function AssiList({ navigation, }) {
 		const goBack = navigation.addListener('focus', () => {
 			getGenerateAsslist()
 			StatusBar.setHidden(false);
-			// Orientation.lockToPortrait();
+			Orientation.lockToPortrait();
 		});
 		return goBack
 	}, [navigation])
@@ -38,7 +51,6 @@ export default function AssiList({ navigation, }) {
 			"schoolID": userData?.data?.schoolID,
 			"userRefID": userData?.data?.userRefID,
 		}
-		// console.log({ payload })
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
 				if (res.status == "success") {
@@ -48,7 +60,7 @@ export default function AssiList({ navigation, }) {
 						return { ...prev, url: res.url }
 					})
 				} else {
-					Alert.alert("Info", res.message)
+					// alert(res.message)
 					setLoader(false)
 				}
 			})
@@ -136,7 +148,6 @@ export default function AssiList({ navigation, }) {
 	}
 
 	function viewsheets(item) {
-		console.log(item, 'check item')
 		const sheets = item.solutionSheet.split(',')
 		const imgUrl = uploadSheets.url + item.assessmentID
 
@@ -157,7 +168,7 @@ export default function AssiList({ navigation, }) {
 
 	return (
 		<>
-			<View style={{ flex: 1, }}>
+			<View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
 				<View style={{ flex: 1 }}>
 					<ScrollView>
 						{assessList?.map((item, asslist) => {
@@ -165,36 +176,44 @@ export default function AssiList({ navigation, }) {
 							return (
 								<View style={styles.holder} key={asslist}>
 									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Assessment Name : </Text>
-										<Text style={{ color: SWATheam.SwaBlack }}>{item.assessmentName}</Text>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Assessment Name : </Text>
+										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.assessmentName}</Text>
 									</View>
 									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Subject : </Text>
-										<Text style={{ color: SWATheam.SwaBlack }}>{item.subjectName}</Text>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Subject : </Text>
+										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.subjectName}</Text>
 									</View>
 									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Start Date : {item.startDate} </Text>
-										<Text style={{ color: SWATheam.SwaBlack }}>End: {item.endDate} </Text>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Start Date :</Text>
+										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.startDate} </Text>
+									</View>
+									<View style={styles.rowList}>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>End Date :</Text>
+										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate} </Text>
 									</View>
 									{attemptIds !== 0 ?
 										<>
 											<Text style={styles.resultBold}>Result </Text>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack }}>Scored Marks : {item.obtainedMarks} </Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>Total Marks : {item.totalMarks}</Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Scored Marks : {item.obtainedMarks} </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.obtainedMarks}</Text>
 											</View>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack }}>Percentage</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>{item.percentage}</Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Marks : </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.totalMarks}</Text>
+											</View>
+											<View style={styles.rowList}>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Percentage</Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.percentage}</Text>
 											</View>
 										</>
 										: ""}
 									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Total Questions</Text>
-										<Text style={{ color: SWATheam.SwaBlack }}>{item.noOfQuestion}</Text>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Questions</Text>
+										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.noOfQuestion}</Text>
 									</View>
 									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Status</Text>
+										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Status</Text>
 										{attemptIds !== 0 ?
 											<>
 												<TouchableOpacity style={styles.btnsStatus_2}>
@@ -216,7 +235,7 @@ export default function AssiList({ navigation, }) {
 									{item.endDate >= todayDate && attemptIds === 0 ?
 										<TouchableOpacity
 											style={[styles.btnsStatus_4, { width: "50%", alignSelf: 'center' }]}
-											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder', { "assId": item.assessmentID }) }}
+											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder') }}
 										>
 											<Text
 												style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Attempt Waiting</Text>
@@ -224,7 +243,7 @@ export default function AssiList({ navigation, }) {
 										: ""
 									}
 									{attemptIds === 1 ?
-										<View style={styles.rowList}>
+										<View style={[styles.rowList, { justifyContent: 'space-between' }]}>
 											<TouchableOpacity style={styles.buttonStatus}>
 												<Text style={[styles.textInner, { backgroundColor: "#0ca279" }]}>Attempted</Text>
 											</TouchableOpacity>
@@ -260,13 +279,12 @@ export default function AssiList({ navigation, }) {
 				{loader && <Loader />}
 
 				{result && !loader ? (
-
-					<Modal animationType="slide">
-						<View style={{ paddingTop: 60, flex: 1, }}>
+					<View style={{ flex: 1, paddingTop: 60, }}>
+						<Modal animationType="slide">
 							<View style={styles.resultHeader}>
 								<Text style={{ color: "#fff" }}>Result</Text>
 								<TouchableOpacity style={styles.closeIcons} onPress={closeResult}>
-									<Icon name="close" size={20} color="#fff" />
+									<AntDesign name="close" size={20} color="#fff" />
 								</TouchableOpacity>
 							</View>
 							<View style={styles.headerDetails}>
@@ -275,7 +293,7 @@ export default function AssiList({ navigation, }) {
 								</Text>
 								<View style={styles.rowDetails}>
 									<View>
-										<Text style={styles.textLeft}>Class: {userData.data.className} </Text>
+										<Text style={styles.textLeft}>Class: {userData.data.className}</Text>
 										<Text style={styles.textLeft}>
 											Name: {studentDetails?.firstName}
 										</Text>
@@ -299,11 +317,12 @@ export default function AssiList({ navigation, }) {
 							<View style={styles.holderBox}>
 								<ScrollView>
 									{resultData.map((item, index) => {
+										console.log(item.attemptID)
 										const correctAns = item.answerText.replace(/\s/g, "");
 										const yourAns = item.userAnsText.replace(/\s/g, "");
 
 										return (
-											<View key={item.id}>
+											<View key={item.attemptID}>
 												{item.activityID == 1 ||
 													item.activityID == 9 ||
 													item.activityID == 10 ||
@@ -321,12 +340,24 @@ export default function AssiList({ navigation, }) {
 															<Text style={styles.textHeading}>
 																Correct Answer
 															</Text>
-															<Text style={styles.textHeading}>{correctAns}</Text>
+
+															<RenderHtml
+																contentWidth={width}
+																source={{ html: correctAns }}
+																tagsStyles={tagsStyles}
+															/>
+
+															{/* <Text style={styles.textHeading}>{correctAns}</Text> */}
 														</View>
 														<View style={styles.rowBorder}>
 															<Text style={styles.textHeading}>Your Answer</Text>
 															{yourAns ? (
-																<Text style={styles.textHeading}>{yourAns}</Text>
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: yourAns }}
+																	tagsStyles={tagsStyles}
+																/>
+																// <Text style={styles.textHeading}>{yourAns}</Text>
 															) : (
 																<Text style={styles.textHeading}>
 																	... ... ... ... ... ...
@@ -371,8 +402,8 @@ export default function AssiList({ navigation, }) {
 									})}
 								</ScrollView>
 							</View>
-						</View>
-					</Modal>
+						</Modal>
+					</View>
 				) : null}
 
 
@@ -537,8 +568,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 7,
-		// marginTop: 50,
-		// borderWidth: 1,
+		paddingTop: 60,
 	},
 	headerAss: {
 		backgroundColor: "#fff",
@@ -563,12 +593,12 @@ const styles = StyleSheet.create({
 	},
 	rowList: {
 		flexDirection: "row",
-		justifyContent: "space-between",
+		// justifyContent: "space-between",
 		borderBottomColor: "#b2d8d8",
 		borderBottomWidth: 1,
 		paddingBottom: 7,
 		marginBottom: 7,
-		alignItems: "center",
+		// alignItems: "center",
 	},
 	resultBold: {
 		fontWeight: "bold",

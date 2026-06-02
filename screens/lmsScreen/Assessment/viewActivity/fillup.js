@@ -13,7 +13,13 @@ export default function Fillup({ fillupData, index }) {
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   const { width } = useWindowDimensions();
@@ -145,7 +151,12 @@ export default function Fillup({ fillupData, index }) {
                     <Text style={{ color: '#000' }}>:</Text>
                   </View>
                   <View style={{ paddingHorizontal: 5, flex: 1 }}>
-                    <Text style={{ color: '#000' }}>{fillupData.answerText != undefined ? fillupData.answerText.replaceAll("???", ",") : ""}</Text>
+                    {/* <Text style={{ color: '#000' }}>{fillupData.answerText!=undefined ? fillupData.answerText.replaceAll("???", ",") : ""}</Text> */}
+                    <RenderHtml
+                      contentWidth={width}
+                      source={{ html: fillupData.answerText != undefined ? fillupData.answerText.replaceAll("???", ",") : "" }}
+                      tagsStyles={tagsStyles}
+                    />
                   </View>
                 </View>
                 {/* <View style={{ flexDirection: 'row' }}>

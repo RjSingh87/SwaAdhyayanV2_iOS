@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, useWindowDimensions, StyleSheet, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
+import { View, Text, useWindowDimensions, } from "react-native"
 import RenderHtml from 'react-native-render-html';
-import AntDesign from 'react-native-vector-icons/AntDesign'
 import { SWATheam } from "../../../../constant/ConstentValue";
 
 
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
-
-
 export default function Mcq({ mcqData, index }) {
-  console.log(mcqData, 'mcqData')
+
   // const [reload, setReload] = useState(false)
   // useEffect(() => {
   //   mcqData = mcqData
@@ -21,7 +18,13 @@ export default function Mcq({ mcqData, index }) {
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   const { width } = useWindowDimensions();
@@ -30,7 +33,12 @@ export default function Mcq({ mcqData, index }) {
     let question = "";
     let options = [];
     let level = "";
+    let answers = ""
     let questionID = mcqData['questionID'];
+
+    let answerText = mcqData["answerText"]
+    answers = answerText.replace(/<MTECHO>/g, '`');
+    answers = answers.replace(/<\/MTECHO>/g, '`');
 
     if (mcqData['eadID'] == 1) {
       level = "Engage";
@@ -87,12 +95,12 @@ export default function Mcq({ mcqData, index }) {
         break;
       }
     }
-    return { question: question, options: options, level: level, chapter: chapter, questionID: questionID }
+    return { question: question, options: options, level: level, chapter: chapter, questionID: questionID, answers: answers }
   }
 
   return (
     <>
-      <SafeAreaView>
+      <>
 
         <View style={{ backgroundColor: SWATheam.SwaWhite, marginBottom: 6 }}>
           <View style={{ backgroundColor: '#efefef', borderRadius: 6, margin: 1 }}>
@@ -175,7 +183,12 @@ export default function Mcq({ mcqData, index }) {
                   <Text style={{ color: '#000' }}>:</Text>
                 </View>
                 <View style={{ paddingHorizontal: 5, flex: 1 }}>
-                  <Text style={{ color: '#000' }}>{mcqData.answerText}</Text>
+                  {/* <Text style={{ color: '#000' }}>{McqData.answers}</Text> */}
+                  <RenderHtml
+                    contentWidth={width}
+                    source={{ html: McqData.answers }}
+                    tagsStyles={tagsStyles}
+                  />
                 </View>
               </View>
               {/* <View style={{ flexDirection: 'row' }}>
@@ -193,7 +206,7 @@ export default function Mcq({ mcqData, index }) {
 
           </View>
         </View>
-      </SafeAreaView >
+      </>
     </>
   )
 }

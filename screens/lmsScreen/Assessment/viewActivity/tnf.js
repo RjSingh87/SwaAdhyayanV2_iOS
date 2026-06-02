@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, useWindowDimensions, StyleSheet, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
+import { View, Text, useWindowDimensions, } from "react-native"
 import RenderHtml from 'react-native-render-html';
 import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
-var number = [1, 2, 3, 4];
-var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Tnf({ tnfData, index }) {
 
   const tagsStyles = {
@@ -13,7 +10,14 @@ export default function Tnf({ tnfData, index }) {
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
+
   };
 
   const { width } = useWindowDimensions();
@@ -131,64 +135,57 @@ export default function Tnf({ tnfData, index }) {
           </View>
 
 
-          <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
-            <View style={{ width: '12%' }}>
+          <View style={{ flexDirection: 'row', padding: 5, }}>
+            <View style={{ width: 55 }}>
               <Text style={{ color: '#000' }}>Q: {index}</Text>
             </View>
-            <View style={{ width: '88%' }}>
+            <View style={{ flex: 1 }}>
               {/* <Text style={{ color: '000', fontWeight: 'bold' }}>{tnfData.question}</Text> */}
               <RenderHtml
                 contentWidth={width}
                 source={{ html: TnfData.question }}
                 tagsStyles={tagsStyles}
               />
-            </View>
-          </View>
-
-          {TnfData.options.map((item, key) => {
-            return (
-              <View style={{ flexDirection: 'row', padding: 2, marginLeft: 40, marginRight: 7 }} key={key}>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ paddingRight: 5 }}>
+              {TnfData.options.map((item, key) => {
+                return (
+                  <View style={{ flexDirection: 'row', padding: 2, }} key={key}>
+                    <View style={{ width: 20 }}>
                       <Text style={{ color: '#000' }}>{optionArray[key]}.</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row' }}>
-                        <View style={{ flex: 1 }}>
-                          <View style={{ backgroundColor: '#efefef', marginTop: 2, borderRadius: 6 }} >
-                            <Text style={{ color: '#000' }}>
-                              <RenderHtml
-                                contentWidth={width}
-                                source={{ html: item }}
-                                tagsStyles={tagsStyles}
-                              />
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={{ marginLeft: 5 }}>
-                          <View style={{ flexDirection: 'row' }}>
-                            <View style={{ width: 'auto' }}>
-                              <View style={{ backgroundColor: '#92cbb2', margin: 2, padding: 4, borderRadius: 6 }} >
-                                <Text style={{ color: '#000', textAlign: 'center' }}>{TnfData.tnfBtn[0]}</Text>
-                              </View>
-                            </View>
-                            <View style={{ width: 'auto' }}>
-                              <View style={{ backgroundColor: '#e4949a', margin: 2, padding: 4, borderRadius: 6 }} >
-                                <Text style={{ color: '#000', textAlign: 'center' }}>{TnfData.tnfBtn[1]}</Text>
-                              </View>
-                            </View>
-                          </View>
-
+                      <RenderHtml
+                        contentWidth={width}
+                        source={{ html: item }}
+                        tagsStyles={tagsStyles}
+                      />
+                    </View>
+                    <View style={{ width: TnfData.tnfBtn[0] == 'Correct' && TnfData.tnfBtn[1] == 'Incorrect' || TnfData.tnfBtn[0] == 'Daylight' && TnfData.tnfBtn[1] == 'Darkness' ? 135 : 100, flexDirection: 'row' }}>
+                      <View style={{ width: 'auto' }}>
+                        <View style={{ backgroundColor: '#92cbb2', margin: 2, padding: 4, borderRadius: 6 }} >
+                          {/* <Text style={{ color: '#000', textAlign: 'center' }}>{TnfData.tnfBtn[0]}</Text> */}
+                          <RenderHtml
+                            contentWidth={width}
+                            source={{ html: TnfData.tnfBtn[0] }}
+                            tagsStyles={tagsStyles}
+                          />
                         </View>
                       </View>
-
+                      <View style={{ width: 'auto' }}>
+                        <View style={{ backgroundColor: '#e4949a', margin: 2, padding: 4, borderRadius: 6 }} >
+                          {/* <Text style={{ color: '#000', textAlign: 'center' }}>{TnfData.tnfBtn[1]}</Text> */}
+                          <RenderHtml
+                            contentWidth={width}
+                            source={{ html: TnfData.tnfBtn[1] }}
+                            tagsStyles={tagsStyles}
+                          />
+                        </View>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </View>
-            )
-          })}
+                )
+              })}
+            </View>
+          </View>
 
           <View style={{ marginHorizontal: 10, paddingVertical: 5, borderTopWidth: .7 }}>
             <View style={{ flexDirection: 'row' }}>
@@ -199,7 +196,12 @@ export default function Tnf({ tnfData, index }) {
                 <Text style={{ color: '#000' }}>:</Text>
               </View>
               <View style={{ paddingHorizontal: 5, flex: 1 }}>
-                <Text style={{ color: '#000' }}>{tnfData.answerText.replaceAll("???", ",")}</Text>
+                {/* <Text style={{ color: '#000' }}>{tnfData.answerText.replaceAll("???", ",")}</Text> */}
+                <RenderHtml
+                  contentWidth={width}
+                  source={{ html: tnfData.answerText.replaceAll("???", ",") }}
+                  tagsStyles={tagsStyles}
+                />
               </View>
             </View>
             {/* <View style={{ flexDirection: 'row' }}>

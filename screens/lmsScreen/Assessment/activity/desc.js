@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, useWindowDimensions, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
+import { View, Text, useWindowDimensions, TouchableOpacity, } from "react-native"
 import { SWATheam } from "../../../../constant/ConstentValue";
 import RenderHtml from 'react-native-render-html';
 export default function Desc({ descData, editMarks, index, selectedQuesIDs, selectedQuesIDsArray }) {
-
   const [reload, setReload] = useState(false)
   const { width } = useWindowDimensions();
 
@@ -19,7 +18,13 @@ export default function Desc({ descData, editMarks, index, selectedQuesIDs, sele
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   return (

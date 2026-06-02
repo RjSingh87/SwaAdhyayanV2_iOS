@@ -65,9 +65,7 @@ const Notification = ({ navigation }) => {
       .catch((err) => {
         console.log(err)
       })
-      .finally(
-        setShowPopup(false)
-      )
+      .finally(() => setShowPopup(false))
   }
 
   return (

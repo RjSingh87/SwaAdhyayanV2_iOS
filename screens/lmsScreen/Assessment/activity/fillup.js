@@ -6,6 +6,7 @@ var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Fillup({ fillupData, editMarks, index, selectedQuesIDs, selectedQuesIDsArray }) {
+
   const [reload, setReload] = useState(false)
   useEffect(() => {
     fillupData = fillupData
@@ -42,7 +43,7 @@ export default function Fillup({ fillupData, editMarks, index, selectedQuesIDs, 
 
         let optionImage = FillupData[`optionImage${i + 1}`]
         let finalFillup = "";
-        if (targetBlank != "") {
+        if (targetBlank != "" && targetBlank != null) {
           finalFillup += targetBlank.replaceAll('#', `______________`)
         }
         if (optionImage != "") {
@@ -69,99 +70,103 @@ export default function Fillup({ fillupData, editMarks, index, selectedQuesIDs, 
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
 
   return (
     <View >
-      <SafeAreaView>
-        <ScrollView>
-          {/* Fillup Type-1 */}
-          <View style={{ backgroundColor: SWATheam.SwaWhite }}>
-            <View style={{ backgroundColor: '#efefef', padding: 8, borderRadius: 6, margin: 8 }}>
+      <ScrollView>
+        {/* Fillup Type-1 */}
+        <View style={{ backgroundColor: SWATheam.SwaWhite }}>
+          <View style={{ backgroundColor: '#efefef', padding: 8, borderRadius: 6, margin: 8 }}>
 
-              <View style={{ padding: 3, margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={{ width: '100%', padding: 4, margin: 2, borderRadius: 6, borderBottomWidth: .7, borderColor: SWATheam.SwaBlack }}>
-                    <Text style={{ color: '#000', fontWeight: '700', textAlign: 'center' }}>Chapter:{fillupData.chapterName}</Text>
-                  </View>
-                </View>
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={{ width: '70%', padding: 2, margin: 2, borderRadius: 6 }}>
-                    <Text style={{ color: '#000' }}>Type:FILLUP</Text>
-                  </View>
-                  <View style={{ width: '27%', padding: 2, margin: 2, borderRadius: 6 }}>
-                    <Text style={{ color: '#000', textAlign: 'right' }}>Marks:{fillupData.marksPerQuestion}</Text>
-                  </View>
+            <View style={{ padding: 3, margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ width: '100%', padding: 4, margin: 2, borderRadius: 6, borderBottomWidth: .7, borderColor: SWATheam.SwaBlack }}>
+                  <Text style={{ color: '#000', fontWeight: '700', textAlign: 'center' }}>Chapter:{fillupData.chapterName}</Text>
                 </View>
               </View>
-
-
-              <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
-                <View style={{ width: 55 }}>
-                  <Text style={{ color: SWATheam.SwaBlack }}>Q:{index}</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ width: '70%', padding: 2, margin: 2, borderRadius: 6 }}>
+                  <Text style={{ color: '#000' }}>Type:FILLUP</Text>
                 </View>
-                <View style={{ width: '88%' }}>
-                  <RenderHtml
-                    contentWidth={width}
-                    source={{ html: FillupData.question }}
-                    tagsStyles={tagsStyles}
-                  />
-                  {FillupData.options.map((item, index) => {
-                    return (
-                      <View key={index}>
-                        <View style={{ flex: 1, marginVertical: 4 }}>
-                          <TouchableOpacity style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
-                            {/* <Text style={{ color: '#000' }}>{item}</Text> */}
-                            <RenderHtml
-                              contentWidth={width}
-                              source={{ html: item }}
-                              tagsStyles={tagsStyles}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    )
-                  })}
+                <View style={{ width: '27%', padding: 2, margin: 2, borderRadius: 6 }}>
+                  <Text style={{ color: '#000', textAlign: 'right' }}>Marks:{fillupData.marksPerQuestion}</Text>
                 </View>
               </View>
-
-
-
-
-              <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
-                {selectedQuesIDsArray.includes(fillupData.questionID + "|" + fillupData.marksPerQuestion) == true ?
-                  <>
-                    <TouchableOpacity style={{ width: '20%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
-                      <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }} disabled>Edit</Text>
-                    </TouchableOpacity>
-                    {/* <View style={{ width: '50%', padding: 5, margin: 4 }}>
-                    </View> */}
-                    <TouchableOpacity onPress={() => { selectedQuesIDs(fillupData.questionID, fillupData.marksPerQuestion); setReload(false) }} style={{ width: '25%', padding: 5, margin: 4, backgroundColor: '#cd5c5c', borderRadius: 6 }}>
-                      <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>Deselect</Text>
-                    </TouchableOpacity>
-                  </>
-                  :
-                  <>
-                    <TouchableOpacity onPress={() => { editMarks(fillupData.questionID) }} style={{ width: '20%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
-                      <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }} >Edit</Text>
-                    </TouchableOpacity>
-                    {/* <View style={{ width: '50%', padding: 5, margin: 4 }}>
-                    </View> */}
-                    <TouchableOpacity onPress={() => { selectedQuesIDs(fillupData.questionID, fillupData.marksPerQuestion); setReload(true) }} style={{ width: '25%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
-                      <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>Select</Text>
-                    </TouchableOpacity>
-                  </>
-
-                }
-              </View>
-
             </View>
-          </View>
 
-        </ScrollView>
-      </SafeAreaView>
+
+            <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
+              <View style={{ width: 55 }}>
+                <Text style={{ color: SWATheam.SwaBlack }}>Q:{index}</Text>
+              </View>
+              <View style={{ width: '88%' }}>
+                <RenderHtml
+                  contentWidth={width}
+                  source={{ html: FillupData.question }}
+                  tagsStyles={tagsStyles}
+                />
+                {FillupData.options.map((item, index) => {
+                  return (
+                    <View key={index}>
+                      <View style={{ flex: 1, marginVertical: 4 }}>
+                        <TouchableOpacity style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
+                          {/* <Text style={{ color: '#000' }}>{item}</Text> */}
+                          <RenderHtml
+                            contentWidth={width}
+                            source={{ html: item }}
+                            tagsStyles={tagsStyles}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )
+                })}
+              </View>
+            </View>
+
+
+
+
+            <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
+              {selectedQuesIDsArray.includes(fillupData.questionID + "|" + fillupData.marksPerQuestion) == true ?
+                <>
+                  <TouchableOpacity style={{ width: '20%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }} disabled>Edit</Text>
+                  </TouchableOpacity>
+                  {/* <View style={{ width: '50%', padding: 5, margin: 4 }}>
+                    </View> */}
+                  <TouchableOpacity onPress={() => { selectedQuesIDs(fillupData.questionID, fillupData.marksPerQuestion); setReload(false) }} style={{ width: '25%', padding: 5, margin: 4, backgroundColor: '#cd5c5c', borderRadius: 6 }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }}>Deselect</Text>
+                  </TouchableOpacity>
+                </>
+                :
+                <>
+                  <TouchableOpacity onPress={() => { editMarks(fillupData.questionID) }} style={{ width: '20%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }} >Edit</Text>
+                  </TouchableOpacity>
+                  {/* <View style={{ width: '50%', padding: 5, margin: 4 }}>
+                    </View> */}
+                  <TouchableOpacity onPress={() => { selectedQuesIDs(fillupData.questionID, fillupData.marksPerQuestion); setReload(true) }} style={{ width: '25%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>Select</Text>
+                  </TouchableOpacity>
+                </>
+
+              }
+            </View>
+
+          </View>
+        </View>
+
+      </ScrollView>
     </View>
   )
 }

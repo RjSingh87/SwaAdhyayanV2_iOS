@@ -6,6 +6,7 @@ var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Jumbo({ jumboData, editMarks, index, selectedQuesIDs, selectedQuesIDsArray }) {
+
   const [reload, setReload] = useState(false)
 
   const tagsStyles = {
@@ -16,7 +17,15 @@ export default function Jumbo({ jumboData, editMarks, index, selectedQuesIDs, se
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
+
+
   };
 
   useEffect(() => {
@@ -129,7 +138,6 @@ export default function Jumbo({ jumboData, editMarks, index, selectedQuesIDs, se
         if (targetTxt != '') {
 
           let jumbo2 = targetTxt.replace(/,/g, " ")
-          console.log(jumbo2)
           //let JumboPart2=jumbo2.split(" ")
           let JumboPart2 = jumbo2.split(" ")
           for (let k = 0; k < JumboPart2.length; k++) {
@@ -204,7 +212,6 @@ export default function Jumbo({ jumboData, editMarks, index, selectedQuesIDs, se
                     <View style={{ width: '95%' }}>
                       <View style={{ flexDirection: 'row' }}>
                         <View style={{ width: '60%', padding: 5 }}>
-                          {/* <Text>helo</Text> */}
                           <RenderHtml
                             contentWidth={width}
                             source={{ html: item }}
@@ -212,7 +219,6 @@ export default function Jumbo({ jumboData, editMarks, index, selectedQuesIDs, se
                           />
                         </View>
                         <View style={{ width: '40%', padding: 5 }}>
-                          {/* <Text>helo</Text> */}
                           <RenderHtml
                             contentWidth={width}
                             source={{ html: jumbleData.target[key] }}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, useWindowDimensions, TextInput, Image, CheckBox, ScrollView, TouchableOpacity, TouchableHighlight, Alert, SafeAreaView } from "react-native"
+import { View, Text, useWindowDimensions, TouchableOpacity, } from "react-native"
 import RenderHtml from 'react-native-render-html';
 import { SWATheam } from "../../../../constant/ConstentValue";
 var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
@@ -79,7 +79,20 @@ export default function Match({ matchData, editMarks, index, selectedQuesIDs, se
         if (targetText != '') {
           let ext = targetText.split(".")
           if (ext[1] !== undefined && (ext[1] == 'png' || ext[1] == 'PNG' || ext[1] == 'jpeg' || ext[1] == 'jpg' || ext[1] == 'JPG' || ext[1] == 'gif' || ext[1] == 'web')) {
-            let img = `&nbsp; &nbsp;<img style="height:${item.questionImageHight}px; max-width:100%; margin-top:10px; display: table-cell;vertical-align: middle;" src='https://swaadhyayan.com/data/${item['imagePath']}${targetText}'/> &nbsp;`
+            let img = `
+                    &nbsp;&nbsp;
+                    <img 
+                      style="
+                        max-width:100%; 
+                        border:1px solid #999; 
+                        border-radius:5px; 
+                        object-fit:contain; 
+                        display:block;
+                      " 
+                      src='https://swaadhyayan.com/data/${item['imagePath']}${targetText}' 
+                    />
+                    &nbsp;
+                    `;
             targerTXT.push(img)
           }
           else {
@@ -102,7 +115,13 @@ export default function Match({ matchData, editMarks, index, selectedQuesIDs, se
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   let MatchData = getMatchQuesFormate(matchData)
@@ -136,63 +155,50 @@ export default function Match({ matchData, editMarks, index, selectedQuesIDs, se
                 source={{ html: matchData.questionHeading }}
                 tagsStyles={tagsStyles}
               />
-            </View>
-          </View>
-
-          <View style={{ flexDirection: 'row', padding: 5, margin: 4 }}>
-            <View style={{ width: '12%' }}>
-            </View>
-            <View style={{ width: '88%' }}>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ width: '40%', padding: 8, backgroundColor: SWATheam.SwaLightGray, borderWidth: .7, margin: 4, justifyContent: 'center', alignContent: 'center', alignItems: 'center', borderRadius: 6 }}>
-                  <Text style={{ color: SWATheam.SwaBlack }}>Column A</Text>
+              <View style={{ width: '100%', }}>
+                <View style={{ width: '100%', justifyContent: 'space-around', flexDirection: 'row' }}>
+                  <View style={{ width: '40%', padding: 8, backgroundColor: SWATheam.SwaLightGray, borderWidth: .7, marginVertical: 4, justifyContent: 'center', alignContent: 'center', alignItems: 'center', borderRadius: 6 }}>
+                    <Text style={{ color: SWATheam.SwaBlack }}>Column A</Text>
+                  </View>
+                  <View style={{ width: '40%', padding: 8, backgroundColor: SWATheam.SwaLightGray, borderWidth: .7, marginVertical: 4, justifyContent: 'center', alignContent: 'center', alignItems: 'center', borderRadius: 6 }}>
+                    <Text style={{ color: SWATheam.SwaBlack }}>Column B</Text>
+                  </View>
                 </View>
-                <View style={{ width: '40%', padding: 8, backgroundColor: SWATheam.SwaLightGray, borderWidth: .7, margin: 4, justifyContent: 'center', alignContent: 'center', alignItems: 'center', borderRadius: 6 }}>
-                  <Text style={{ color: SWATheam.SwaBlack }}>Column B</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {MatchData.options?.map((item, key) => {
-            return (
-              <View style={{ flexDirection: 'row', padding: 5, margin: 4 }} key={key}>
-                <View style={{ width: '12%' }}>
-                </View>
-                <View style={{ width: '88%' }}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ width: '5%', margin: 2 }}>
-                      <Text style={{ color: SWATheam.SwaBlack }}>{optionArray[key]}.</Text>
-                    </View>
-                    <View style={{ width: '95%' }}>
-                      <View style={{ flexDirection: 'row' }}>
-                        <View style={{ width: '55%' }}>
-                          <TouchableOpacity style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
-                            <RenderHtml
-                              contentWidth={width}
-                              source={{ html: item }}
-                              tagsStyles={tagsStyles}
-                            />
-                          </TouchableOpacity>
+                <View style={{ width: '100%' }}>
+                  {MatchData.options?.map((item, key) => {
+                    return (
+                      <View style={{ width: '100%', flexDirection: 'row', marginVertical: 4 }} key={key}>
+                        <View style={{ width: 25, }}>
+                          <Text style={{ color: SWATheam.SwaBlack }}>{optionArray[key]}.</Text>
                         </View>
-                        <View style={{ width: '30%' }}>
-                          <TouchableOpacity style={{ backgroundColor: '#efefef', margin: 2, borderRadius: 6 }} >
+                        <View style={{ flex: 1, flexDirection: 'row' }}>
+                          <View style={{ width: '50%' }}>
+                            <TouchableOpacity style={{ backgroundColor: '#efefef', borderRadius: 6 }} >
+                              <RenderHtml
+                                contentWidth={width}
+                                source={{ html: item }}
+                                tagsStyles={tagsStyles}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                          <View style={{ width: '50%', backgroundColor: '#efefef', borderRadius: 6 }}>
                             {/* <Text style={{ color: SWATheam.SwaBlack }}>{option[key]}</Text> */}
                             <RenderHtml
                               contentWidth={width}
                               source={{ html: MatchData.targerTXT[key] }}
                               tagsStyles={tagsStyles}
                             />
-                          </TouchableOpacity>
+                          </View>
                         </View>
                       </View>
-
-                    </View>
-                  </View>
+                    )
+                  })}
                 </View>
               </View>
-            )
-          })}
+            </View>
+          </View>
+
+
 
           <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'space-between', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
             {selectedQuesIDsArray.includes(matchData.questionID + "|" + matchData.marksPerQuestion) == true ?

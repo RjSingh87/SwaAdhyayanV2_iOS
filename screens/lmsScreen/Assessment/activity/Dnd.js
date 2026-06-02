@@ -7,6 +7,7 @@ var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Dnd({ dndData, editMarks, index, selectedQuesIDs, selectedQuesIDsArray }) {
 
+
   const [reload, setReload] = useState(false)
 
   const tagsStyles = {
@@ -17,7 +18,13 @@ export default function Dnd({ dndData, editMarks, index, selectedQuesIDs, select
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
   useEffect(() => {
@@ -646,19 +653,21 @@ export default function Dnd({ dndData, editMarks, index, selectedQuesIDs, select
             <View style={{ flexDirection: 'row' }}>
               <View style={{ width: '12%' }}>
               </View>
-              {DndData.target.map((item, index) => {
-                return (
-                  <View key={index}>
-                    <View style={{ padding: 6, width: 'auto', margin: 4, backgroundColor: SWATheam.SwaWhite, borderRadius: 6 }}>
-                      <RenderHtml
-                        contentWidth={width}
-                        source={{ html: item }}
-                        tagsStyles={tagsStyles}
-                      />
+              <ScrollView horizontal>
+                {DndData.target.map((item, index) => {
+                  return (
+                    <View key={index}>
+                      <View style={{ padding: 6, width: 'auto', margin: 4, backgroundColor: SWATheam.SwaWhite, borderRadius: 6 }}>
+                        <RenderHtml
+                          contentWidth={width}
+                          source={{ html: item }}
+                          tagsStyles={tagsStyles}
+                        />
+                      </View>
                     </View>
-                  </View>
-                )
-              })}
+                  )
+                })}
+              </ScrollView>
             </View>
 
             {DndData.options.map((item, key) => {

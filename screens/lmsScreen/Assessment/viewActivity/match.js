@@ -13,7 +13,13 @@ export default function Match({ matchData, index }) {
     },
     p: {
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
 
 
@@ -91,7 +97,6 @@ export default function Match({ matchData, index }) {
           else {
             targerTXT.push(targetText)
           }
-
         } else {
           continue;
         }
@@ -99,9 +104,7 @@ export default function Match({ matchData, index }) {
     }
     return { question: question, options: options, targerTXT: targerTXT }
   }
-
   let MatchData = getMatchQuesFormate(matchData)
-
   return (
     <>
       <View style={{ backgroundColor: '#fff', marginBottom: 6 }}>
@@ -157,7 +160,6 @@ export default function Match({ matchData, index }) {
               <Text style={{ color: '#000' }}>Column B</Text>
             </View>
           </View>
-
           {MatchData.options?.map((item, key) => {
             return (
               <View style={{ flexDirection: 'row', padding: 5, margin: 4, paddingLeft: 30 }} key={key}>

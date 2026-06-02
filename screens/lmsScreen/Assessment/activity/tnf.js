@@ -6,6 +6,7 @@ var optionArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "
 var number = [1, 2, 3, 4];
 var option = ["Delhi", "Jaipur", "Rajesthan", "Haryana"];
 export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, selectedQuesIDsArray }) {
+
   const [reload, setReload] = useState(false)
   useEffect(() => {
     tnfData = tnfData
@@ -46,7 +47,7 @@ export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, select
       if (optionsId != 0) {
         let imgData = tnfData[`optionImage${i + 1}`]
         let opt = tnfData[`optionText${i + 1}`]
-        opt = opt != null ? opt.replace(/<MTECHO>/g, '`') : "";
+        opt = opt != null ? opt.replace(/<MTECHO>/g, '') : "";
 
         if (imgData != null && imgData != '') {
           let ext = imgData.split(".")
@@ -101,13 +102,18 @@ export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, select
     p: {
       fontSize: 17,
       color: SWATheam.SwaBlack
-    }
+    },
+    u: { textDecorationLine: 'underline', textDecorationStyle: 'solid' },
+    img: {
+      maxWidth: 130,
+      height: 'auto',
+      resizeMode: 'contain',
+    },
   };
   return (
     <>
       <View style={{ backgroundColor: SWATheam.SwaWhite }}>
         <View style={{ backgroundColor: '#efefef', padding: 8, borderRadius: 6, margin: 8 }}>
-
           {/* <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'center', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
             <View style={{ width: '30%', padding: 5, margin: 4, backgroundColor: '#efefef', borderRadius: 6 }}>
               <Text>Chapter:{tnfData.chapterName}</Text>
@@ -119,7 +125,6 @@ export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, select
               <Text>Marks:{tnfData.marksPerQuestion}</Text>
             </View>
           </View> */}
-
           <View style={{ padding: 3, margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
             <View style={{ flexDirection: 'row' }}>
               <View style={{ width: '100%', padding: 4, margin: 2, borderRadius: 6, borderBottomWidth: .7, borderColor: SWATheam.SwaWhite }}>
@@ -141,7 +146,7 @@ export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, select
             <View style={{ width: 55, }}>
               <Text style={{ color: SWATheam.SwaBlack }}>Q:{index}</Text>
             </View>
-            <View style={{ flex: 1, }}>
+            <View style={{ flex: 1 }}>
               {/* <Text style={{ color: '000', fontWeight: 'bold' }}>{tnfData.question}</Text> */}
               <RenderHtml
                 contentWidth={width}
@@ -171,16 +176,26 @@ export default function Tnf({ tnfData, editMarks, index, selectedQuesIDs, select
                           />
                         </TouchableOpacity>
                       </View>
-                      <View style={{ width: TnfData.tnfBtn[0] == 'Correct' && TnfData.tnfBtn[1] == 'Incorrect' ? 125 : 100, justifyContent: 'center' }}>
+                      <View style={{ width: TnfData.tnfBtn[0] == 'Correct' && TnfData.tnfBtn[1] == 'Incorrect' || TnfData.tnfBtn[0] == 'Daylight' && TnfData.tnfBtn[1] == 'Darkness' ? 135 : 100, justifyContent: 'center' }}>
                         <View style={{ flexDirection: 'row' }}>
                           <View style={{ width: 'auto' }}>
                             <TouchableOpacity style={{ backgroundColor: '#92cbb2', margin: 2, padding: 4, borderRadius: 6 }} >
-                              <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{TnfData.tnfBtn[0]}</Text>
+                              {/* <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{TnfData.tnfBtn[0]}</Text> */}
+                              <RenderHtml
+                                contentWidth={width}
+                                source={{ html: TnfData.tnfBtn[0] }}
+                                tagsStyles={tagsStyles}
+                              />
                             </TouchableOpacity>
                           </View>
                           <View style={{ width: 'auto' }}>
                             <TouchableOpacity style={{ backgroundColor: '#e4949a', margin: 2, padding: 4, borderRadius: 6 }} >
-                              <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{TnfData.tnfBtn[1]}</Text>
+                              {/* <Text style={{ color: SWATheam.SwaBlack, textAlign: 'center' }}>{TnfData.tnfBtn[1]}</Text> */}
+                              <RenderHtml
+                                contentWidth={width}
+                                source={{ html: TnfData.tnfBtn[1] }}
+                                tagsStyles={tagsStyles}
+                              />
                             </TouchableOpacity>
                           </View>
                         </View>

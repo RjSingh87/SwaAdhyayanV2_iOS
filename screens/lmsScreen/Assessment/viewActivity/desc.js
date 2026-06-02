@@ -50,7 +50,6 @@ export default function Desc({ descData, index }) {
           </View>
 
           {/* <View style={{ flexDirection: 'row', padding: 3, justifyContent: 'center', alignContent: 'center', alignItems: 'center', margin: 4, backgroundColor: '#93ced0', borderRadius: 6 }}>
-            <Text>Answers : helo</Text>
           </View> */}
 
         </View>

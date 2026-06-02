@@ -1,16 +1,17 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
-import Entypo from 'react-native-vector-icons/Entypo'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Entypo from 'react-native-vector-icons/Entypo';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// import DocumentPicker from 'react-native-documents-picker';
 import DocumentPicker from 'react-native-document-picker';
-import Modal from "../../common/Modal"
-// import { CollapsedItem } from "react-native-paper/lib/typescript/components/Drawer/Drawer"
 import { GlobleData } from "../../../Store"
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue"
 import Services from "../../../Services"
+import BottomDrawerList from "../../common/BottomDrawerList"
+import SelectionBox from "../../common/SelectionBox"
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 
@@ -18,9 +19,9 @@ const tAndFarr = []
 
 const AddQuestionManually = () => {
     const { userData } = useContext(GlobleData)
-
+    const insets = useSafeAreaInsets();
     const [selectOption, setSelectOption] = useState({ class: null, section: null, subject: null, book: null, chapter: null, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: null })
-    const [ModalData, setModalData] = useState({ data: null, type: null, status: false })
+    const [ModalData, setModalData] = useState({ list: null, type: null, status: false })
     const [uploadInfo, setUploadInfo] = useState({ data: null, status: false })
     const [showPopUp, setShowPopUp] = useState(false)
     const [showFields, setShowFields] = useState(true)
@@ -45,7 +46,7 @@ const AddQuestionManually = () => {
                         setShowPopUp(true)
                         const data = res.data
                         setModalData((prev) => {
-                            return { ...prev, data: data, type: type, status: true }
+                            return { ...prev, list: data, type: type, status: true }
                         })
                     } else {
                         alert(res.message)
@@ -76,10 +77,10 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         } else {
-                            alert(res.message)
+                            Alert.alert("Info!", res.message)
                         }
                     })
                     .catch((err) => {
@@ -109,8 +110,10 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
+                        } else {
+                            Alert.alert("Info!", res.message)
                         }
                     })
                     .catch((err) => {
@@ -120,7 +123,7 @@ const AddQuestionManually = () => {
 
                     })
             } else {
-                alert("Please Select section first")
+                Alert.alert("Info!", "Please Select section first")
             }
         }
         else if (type == 'book') {
@@ -137,7 +140,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -149,7 +152,7 @@ const AddQuestionManually = () => {
                     })
 
             } else {
-                alert("Please Select subject first")
+                Alert.alert("Info!", "Please Select subject first")
             }
         }
         else if (type == 'chapter') {
@@ -167,7 +170,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -178,7 +181,7 @@ const AddQuestionManually = () => {
 
                     })
             } else {
-                alert("Please Select section first")
+                Alert.alert("Info!", "Please Select section first")
             }
         }
         else if (type == 'diffLevel') {
@@ -189,7 +192,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -201,7 +204,7 @@ const AddQuestionManually = () => {
                     })
 
             } else {
-                alert("Please Select chapter first")
+                Alert.alert("Info!", "Please Select chapter first")
             }
         }
         else if (type == 'activityType') {
@@ -212,7 +215,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -223,7 +226,7 @@ const AddQuestionManually = () => {
 
                     })
             } else {
-                alert("Please Select Difficulty level first")
+                Alert.alert("Info!", "Please Select Difficulty level first")
             }
         }
         else if (type == 'typeOfTandF') {
@@ -233,7 +236,7 @@ const AddQuestionManually = () => {
                         setShowPopUp(true)
                         const data = res.data
                         setModalData((prev) => {
-                            return { ...prev, data: data, type: type, status: true }
+                            return { ...prev, list: data, type: type, status: true }
                         })
                     }
                 })
@@ -252,7 +255,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -264,7 +267,7 @@ const AddQuestionManually = () => {
                     })
 
             } else {
-                alert("Please Select Question type first")
+                Alert.alert("Info!", "Please Select Question type first")
             }
         }
         else if (type == 'marks') {
@@ -275,7 +278,7 @@ const AddQuestionManually = () => {
                             setShowPopUp(true)
                             const data = res.data
                             setModalData((prev) => {
-                                return { ...prev, data: data, type: type, status: true }
+                                return { ...prev, list: data, type: type, status: true }
                             })
                         }
                     })
@@ -287,7 +290,7 @@ const AddQuestionManually = () => {
                     })
 
             } else {
-                alert("Please Select Question for first")
+                Alert.alert("Info!", "Please Select Question for first")
             }
         }
     }
@@ -298,36 +301,57 @@ const AddQuestionManually = () => {
         if (type == 'class') {
             setSelectOption((prev) => {
                 return { ...prev, class: item, section: null, subject: null, book: null, chapter: null, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'section') {
             setSelectOption((prev) => {
                 return { ...prev, section: item, subject: null, book: null, chapter: null, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'subject') {
             setSelectOption((prev) => {
                 return { ...prev, subject: item, book: null, chapter: null, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'book') {
             setSelectOption((prev) => {
                 return { ...prev, book: item, chapter: null, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'chapter') {
             setSelectOption((prev) => {
                 return { ...prev, chapter: item, diffLevel: null, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'diffLevel') {
             setSelectOption((prev) => {
                 return { ...prev, diffLevel: item, activityType: null, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'activityType') {
             setSelectOption((prev) => {
                 return { ...prev, activityType: item, typeOfTandF: null, queFor: null, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'typeOfTandF') {
@@ -335,21 +359,29 @@ const AddQuestionManually = () => {
             setSelectTandF({ data: null, radioID: null })
             setSelectOption((prev) => {
                 return { ...prev, typeOfTandF: item, queFor: null, marks: null, type: type }
-            })
-
+            });
             const splitItem = item.desc.split("/")
             splitItem.map((item) => {
                 tAndFarr.push(item)
+            })
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'queFor') {
             setSelectOption((prev) => {
                 return { ...prev, queFor: item, marks: null, type: type }
+            });
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
         }
         else if (type == 'marks') {
             setSelectOption((prev) => {
                 return { ...prev, marks: item, type: type }
+            })
+            setModalData((prev) => {
+                return { ...prev, status: false }
             })
 
             setShowFields(false)
@@ -391,7 +423,8 @@ const AddQuestionManually = () => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    Alert.alert("Info!", res.message)
+
                 }
             })
             .catch((err) => {
@@ -406,6 +439,9 @@ const AddQuestionManually = () => {
         setShowPopUp(false)
         setShowTandFpopUp(false)
         setUploadInfo((prev) => {
+            return { ...prev, status: false }
+        });
+        setModalData((prev) => {
             return { ...prev, status: false }
         })
     }
@@ -531,10 +567,10 @@ const AddQuestionManually = () => {
                         Services.post(apiRoot.saveQuestionManually, payload)
                             .then((res) => {
                                 if (res.status == "success") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                     setSaveMCQTxt({ queTxt: null, opt1: null, opt2: null, opt3: null, opt4: null, rightAns: null, radioID: null })
                                 } else if (res.status == "error") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                 }
                             })
                             .catch((err) => {
@@ -545,13 +581,13 @@ const AddQuestionManually = () => {
                             })
 
                     } else {
-                        alert('Please select right answer')
+                        Alert.alert("Info!", "Please select right answer")
                     }
                 } else {
-                    alert('Minimum two option required')
+                    Alert.alert("Info!", "Minimum two option required")
                 }
             } else {
-                alert('Please Enter your question')
+                Alert.alert("Info!", "Please Enter your question")
             }
         }
         else if (selectOption.activityType?.activityNameLang1 == "Fill in the Blank") {
@@ -577,10 +613,10 @@ const AddQuestionManually = () => {
                         Services.post(apiRoot.saveQuestionManually, payload)
                             .then((res) => {
                                 if (res.status == "success") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                     setSaveFillUpTxt({ head: null, queTxt: null, answer: null })
                                 } else if (res.status == "error") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                 }
                             })
                             .catch((err) => {
@@ -590,15 +626,14 @@ const AddQuestionManually = () => {
 
                             })
                     } else {
-                        alert('Please Enter your answer')
+                        Alert.alert("Info!", 'Please Enter your answer')
                     }
                 } else {
-                    alert('Please Enter your question')
+                    Alert.alert("Info!", 'Please Enter your question')
                 }
             } else {
-                alert('Please Enter your question heading')
+                Alert.alert("Info!", 'Please Enter your question heading')
             }
-            console.log(saveFillUpTxt, 'saveFillUpTxt')
         }
         else if (selectOption.activityType?.activityNameLang1 == "True and False") {
             if (saveTandFTxt.head != null) {
@@ -624,11 +659,11 @@ const AddQuestionManually = () => {
                         Services.post(apiRoot.saveQuestionManually, payload)
                             .then((res) => {
                                 if (res.status == "success") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                     setSaveTandFTxt({ head: null, queTxt: null, answer: null })
                                     setSelectTandF({ data: null, radioID: null })
                                 } else if (res.status == "error") {
-                                    alert(res.message)
+                                    Alert.alert("Info!", res.message)
                                 }
                             })
                             .catch((err) => {
@@ -639,13 +674,13 @@ const AddQuestionManually = () => {
                             })
 
                     } else {
-                        alert('Please select your answer')
+                        Alert.alert("Info!", 'Please select your answer')
                     }
                 } else {
-                    alert('Please Enter your question')
+                    Alert.alert('Info!', 'Please Enter your question')
                 }
             } else {
-                alert('Please Enter your question heading')
+                Alert.alert('Info!', 'Please Enter your question heading')
             }
         }
         else if (selectOption.activityType?.activityNameLang1 == "Descriptive") {
@@ -669,10 +704,10 @@ const AddQuestionManually = () => {
                     Services.post(apiRoot.saveQuestionManually, payload)
                         .then((res) => {
                             if (res.status == "success") {
-                                alert(res.message)
+                                Alert.alert("Info!", res.message)
                                 setSaveDescTxt({ queTxt: null, answer: null })
                             } else if (res.status == "error") {
-                                alert(res.message)
+                                Alert.alert("Info!", res.message)
                             }
                         })
                         .catch((err) => {
@@ -683,17 +718,16 @@ const AddQuestionManually = () => {
                         })
 
                 } else {
-                    alert('Please Enter your answer')
+                    Alert.alert('Info!', 'Please Enter your answer')
                 }
             } else {
-                alert('Please Enter your question')
+                Alert.alert('Info!', 'Please Enter your question')
             }
         }
     }
-
     return (
         <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}>
                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>
                     Add Question Manually
                 </Text>
@@ -704,110 +738,39 @@ const AddQuestionManually = () => {
             <View style={{ flex: 1, padding: 10, backgroundColor: SWATheam.SwaWhite }}>
                 {
                     showFields &&
-                    <View style={{ marginBottom: 10, borderBottomWidth: .7, borderColor: 'grey' }}>
+                    <View style={{ marginBottom: 10, }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-                            <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 50, flexDirection: 'row', alignItems: 'center' }}>
-                                <MaterialCommunityIcons name="cloud-download" size={20} color={'#fff'} />
-                                <Text style={{ color: '#fff', textAlign: 'center', paddingLeft: 5 }}>
-                                    Download Template
-                                </Text>
-                            </TouchableOpacity>
+                            {/* <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 50, flexDirection: 'row', alignItems: 'center' }}>
+                                    <MaterialCommunityIcons name="cloud-download" size={20} color={'#fff'} />
+                                    <Text style={{ color: '#fff', textAlign: 'center', paddingLeft: 5 }}>
+                                        Download Template
+                                    </Text>
+                                </TouchableOpacity> */}
                             <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 50, flexDirection: 'row', alignItems: 'center' }} onPress={() => browseDoc()}>
-                                <MaterialCommunityIcons name="cloud-upload" size={20} color={'#fff'} />
+                                <MaterialIcons name='cloud-upload' size={20} color={'#fff'} />
                                 <Text style={{ color: '#fff', textAlign: 'center', paddingLeft: 5 }}>
                                     Upload Template
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                        <ScrollView>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("class") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.class == null ? 'Select class' : selectOption.class.getClassDetail.classDesc}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("section") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.section == null ? 'Select section' : selectOption.section.sectionName}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("subject") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.subject == null ? 'Select subject' : selectOption.subject.subjectName}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("book") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.book == null ? 'Select book' : selectOption.book.bookNameLang}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("chapter") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>
-                                        {selectOption.chapter == null ? 'Select chapter' :
-                                            selectOption.subject?.subjectName == 'Hindi' ?
-                                                selectOption.chapter.chapterNameLang2 :
-                                                selectOption.chapter.chapterName
-                                        }
-                                    </Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("diffLevel") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.diffLevel == null ? 'Select Difficulty Levels' : selectOption.diffLevel.eadCategory}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("activityType") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.activityType == null ? 'Select Question type' : selectOption.activityType.activityNameLang1}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
+                        <ScrollView style={{ maxHeight: Platform.OS === 'android' && Platform.Version >= 30 ? null : 350 }}>
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.section?.sectionName} type="section" placeholder="Select Section" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.subject?.subjectName} type="subject" placeholder="Select Subject" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.book?.bookNameLang} type="book" placeholder="Select Book" />
+                            <SelectionBox getListItem={getList} selectedField={selectOption.subject?.subjectName == 'Hindi' ?
+                                selectOption?.chapter?.chapterNameLang2 :
+                                selectOption?.chapter?.chapterName} type="chapter" placeholder="Select chapter" />
+
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.diffLevel?.eadCategory} type="diffLevel" placeholder="Select Difficulty Levels" />
+
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.activityType?.activityNameLang1} type="activityType" placeholder="Select Question type" />
                             {selectOption.activityType?.activityID == 2 &&
-                                < TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("typeOfTandF") }}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.typeOfTandF == null ? 'Select Type of True/False' : selectOption.typeOfTandF.desc}</Text>
-                                    </View>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                        <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                    </View>
-                                </TouchableOpacity>
+                                <SelectionBox getListItem={getList} selectedField={selectOption?.typeOfTandF?.desc} type="typeOfTandF" placeholder="Select Type of True/False" />
                             }
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("queFor") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.queFor == null ? 'Select Question for' : selectOption.queFor.desc}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2, marginBottom: 10 }} onPress={() => { getList("marks") }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ paddingVertical: 5, paddingHorizontal: 10 }}>{selectOption.marks == null ? 'Select Marks' : selectOption.marks}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                    <Entypo name={"chevron-thin-down"} size={20} color={'grey'} />
-                                </View>
-                            </TouchableOpacity>
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.queFor?.desc} type="queFor" placeholder="Select Question for" />
+
+                            <SelectionBox getListItem={getList} selectedField={selectOption?.marks} type="marks" placeholder="Select Marks" />
                         </ScrollView>
                     </View>
                 }
@@ -952,7 +915,8 @@ const AddQuestionManually = () => {
                 {
                     selectOption.marks != null && selectOption.activityType?.activityNameLang1 == "True and False" && selectOption.typeOfTandF != null &&
                     <ScrollView>
-                        {/* <Text style={{ backgroundColor: '#dc3545', color: '#fff', padding: 5 }}>If you have multiple true and false in one statement then type true and false answers with ' , ' seperated.</Text> */}
+                        <Text style={{ backgroundColor: '#dc3545', color: '#fff', padding: 5 }}>If you have multiple true and false in one statement then type true and false answers with ' , ' seperated.</Text>
+
                         <View style={{ paddingBottom: 10 }}>
                             <Text style={{ color: '#000', fontWeight: 500, marginBottom: 2 }}>Question Heading:</Text>
                             <TextInput
@@ -995,7 +959,7 @@ const AddQuestionManually = () => {
                 <View style={styles.selectFieldPopUp}>
                     <View style={{ backgroundColor: '#fff', marginHorizontal: 30, padding: 8, maxHeight: 300, borderRadius: 5 }}>
                         <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', borderBottomWidth: .7, paddingBottom: 5, borderColor: 'grey' }} onPress={() => closeModal()}>
-                            <AntDesign name={"close"} size={20} color={'#000'} />
+                            <AntDesign name="close" size={20} color={'#000'} />
                         </TouchableOpacity>
                         <ScrollView>
                             <View>
@@ -1028,8 +992,8 @@ const AddQuestionManually = () => {
             }
 
             {
-                showPopUp &&
-                <Modal ModalData={ModalData} closeModal={closeModal} selectModalOption={selectModalOption} selectOption={selectOption} colorSwa={userData.data.colors.mainTheme} />
+                ModalData.status &&
+                <BottomDrawerList listItem={ModalData} closeModule={closeModal} getSelectedItem={selectModalOption} selectedField={selectOption} />
             }
 
             {

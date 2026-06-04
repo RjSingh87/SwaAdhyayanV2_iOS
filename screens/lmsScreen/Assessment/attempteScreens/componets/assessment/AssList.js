@@ -281,7 +281,7 @@ export default function AssiList({ navigation }) {
 				{result && !loader ? (
 					<View style={{ flex: 1, paddingTop: 60, }}>
 						<Modal animationType="slide">
-							<View style={styles.resultHeader}>
+							<View style={[styles.resultHeader, { backgroundColor: userData.data.colors.mainTheme }]}>
 								<Text style={{ color: "#fff" }}>Result</Text>
 								<TouchableOpacity style={styles.closeIcons} onPress={closeResult}>
 									<AntDesign name="close" size={20} color="#fff" />

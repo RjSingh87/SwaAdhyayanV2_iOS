@@ -3,6 +3,7 @@ import React, { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, } f
 import { SWATheam } from "../../../constant/ConstentValue";
 import { GlobleData } from "../../../Store";
 
+
 const AcademicProfIntro = ({ intro, getAttemptedScreen }) => {
     const { userData } = useContext(GlobleData)
 

@@ -1,16 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Modal, ScrollView, Button, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import { DataTable, overlay } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { RadioButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/';
+import { RadioButton, DataTable } from 'react-native-paper';
 import { GlobleData } from '../../../Store';
 import { apiRoot, SWATheam } from '../../../constant/ConstentValue';
 import Services from '../../../Services';
 import Loader from '../../common/Loader';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+export default function Report({ imgUrl, qSetIds }) {
 
-export default function Report({ question, totaQuest, imgUrl, qSetIds }) {
 
     const { width } = useWindowDimensions();
     const tagsStyles = {
@@ -23,7 +21,12 @@ export default function Report({ question, totaQuest, imgUrl, qSetIds }) {
             fontSize: 17,
             color: SWATheam.SwaBlack,
             fontWeight: '700'
-        }
+        },
+        img: {
+            maxWidth: 130,
+            height: 'auto',
+            resizeMode: 'contain',
+        },
     };
     const optionStyle = {
         body: {
@@ -33,7 +36,12 @@ export default function Report({ question, totaQuest, imgUrl, qSetIds }) {
         p: {
             fontSize: 17,
             color: SWATheam.SwaBlack,
-        }
+        },
+        img: {
+            maxWidth: 130,
+            height: 'auto',
+            resizeMode: 'contain',
+        },
     };
     const { userData } = useContext(GlobleData)
     useEffect(() => {
@@ -168,286 +176,284 @@ export default function Report({ question, totaQuest, imgUrl, qSetIds }) {
         })
     }
     return (
-        <SafeAreaProvider>
-            <SafeAreaView edges={['left', "right", "bottom"]} style={{ flex: 1, }}>
-                <View style={styles.table}>
-                    <View style={styles.headesHead}>
-                        <Text>Exam Report</Text>
-                        <View style={styles.attptRepBtn}>
-                            <Button onPress={allAttemReport} style={{ fontSize: 11, padding: 5, width: 80 }} title="Attempt Report" color="#0c8781" />
-                        </View>
+        <>
+            <View style={styles.table}>
+                <View style={styles.headesHead}>
+                    <Text>Exam Report</Text>
+                    <View style={styles.attptRepBtn}>
+                        <Button onPress={allAttemReport} style={{ fontSize: 11, padding: 5, width: 80 }} title="Attempt Report" color="#0c8781" />
                     </View>
-                    <View style={styles.rowHed}>
-                        <Text style={[styles.cell]}>Total Marks:{getReport.totalMarks}</Text>
-                        <Text style={styles.cell}>Optained Marks: {getReport.optainedMarks}</Text>
-                        <Text style={styles.cell}>Percentage: {manage.totalPresent}</Text>
-                    </View>
-
-                    <ScrollView>
-                        <View style={styles.InnerBoxTbls}>
-                            <DataTable style={styles.container}>
-                                <DataTable.Header style={{ backgroundColor: userData.data.colors.liteTheme }}>
-                                    <DataTable.Title style={{ width: '50' }}>No.</DataTable.Title>
-                                    <DataTable.Title>Correct Ans</DataTable.Title>
-                                    <DataTable.Title>Your Ans</DataTable.Title>
-                                    <DataTable.Title>Status</DataTable.Title>
-                                    <DataTable.Title>Action</DataTable.Title>
-                                </DataTable.Header>
-
-                                {getReport.reportData?.map((item, index, rData) => {
-                                    return (
-                                        <DataTable.Row key={index}>
-                                            <DataTable.Cell style={{ width: '50' }}>{index + 1}</DataTable.Cell>
-                                            <DataTable.Cell>
-                                                <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 1 && item.activityID == 1 ? "(a)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 2 && item.activityID == 1 ? "(b)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 3 && item.activityID == 1 ? "(c)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 4 && item.activityID == 1 ? "(d)" : ''}</Text>
-                                            </DataTable.Cell>
-                                            <DataTable.Cell>
-                                                <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 1 && item.activityID == 1 ? "(a)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 2 && item.activityID == 1 ? "(b)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 3 && item.activityID == 1 ? "(c)" : ''}</Text>
-                                                <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 4 && item.activityID == 1 ? "(d)" : ''}</Text>
-                                            </DataTable.Cell>
-                                            <DataTable.Cell>
-                                                {item.selectedAnswerID == item.correctAnswerID ?
-                                                    <Text><Icon name="check" size={20} color="#38761d" /></Text> :
-                                                    <Text><Icon name="close" size={20} color="#cd0027" /></Text>
-                                                }
-                                            </DataTable.Cell>
-                                            <DataTable.Cell>
-                                                <TouchableOpacity>
-                                                    <Text style={{ backgroundColor: userData.data.colors.mainTheme, padding: 6, borderRadius: 6, color: SWATheam.SwaWhite }} onPress={() => { viewAction(item) }}>View Q</Text>
-                                                </TouchableOpacity>
-                                            </DataTable.Cell>
-                                        </DataTable.Row>
-                                    )
-                                })}
-
-                            </DataTable>
-                        </View>
-                    </ScrollView>
-
-                    {actData.modelHolder &&
-                        <View style={styles.actionQuestion}>
-                            <Modal animationType="slide">
-                                <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                                    <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Exam Question</Text>
-                                    <View><Icon onPress={hideExamQuest} name="close" size={20} color="#231e1a" /></View>
-                                </View>
-                                <View style={styles.holderActQuest}>
-
-                                    <ScrollView>
-                                        <View>
-                                            <RenderHtml
-                                                contentWidth={width}
-                                                source={{ html: getquest.questionPart1 }}
-                                                tagsStyles={tagsStyles}
-                                            />
-                                            <View style={styles.optionsView}>
-                                                {getquest?.optionText1 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID1 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} /></View>
-                                                                <Text style={styles.indty}>(a)</Text>
-                                                                {getquest.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText1 }} style={styles.optImgs} /> :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText1 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-                                                {getquest?.optionText2 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID2 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
-                                                                </View>
-                                                                <Text style={styles.indty}>(b)</Text>
-                                                                {getquest.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText2 }} style={styles.optImgs} />
-                                                                    :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText2 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-
-                                                {getquest?.optionText3 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID3 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
-                                                                </View>
-                                                                <Text style={styles.indty}>(c)</Text>
-                                                                {getquest.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText3 }} style={styles.optImgs} />
-                                                                    :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText3 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-
-                                                {getquest?.optionText4 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item value="first" status={getquest.optionID4 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
-                                                                </View>
-                                                                <Text style={styles.indty}>(d)</Text>
-                                                                {getquest.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText4 }} style={styles.optImgs} />
-                                                                    :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText4 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-
-                                                {getquest?.optionText5 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID5 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item value="first" status={getquest.optionID5 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
-                                                                </View>
-                                                                <Text style={styles.indty}>(e)</Text>
-                                                                {getquest.optionText5.endsWith('.png') || getquest?.optionText5.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText5 }} style={styles.optImgs} />
-                                                                    :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText5 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-
-                                                {getquest?.optionText6 ?
-                                                    <View style={styles.optionsView}>
-                                                        <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID6 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
-                                                            <View style={styles.AWithContent}>
-                                                                <View>
-                                                                    <RadioButton.Item value="first" status={getquest.optionID6 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
-                                                                </View>
-                                                                <Text style={styles.indty}>(f)</Text>
-                                                                {getquest.optionText6.endsWith('.png') || getquest?.optionText6.endsWith('.jpg') ?
-                                                                    <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText6 }} style={styles.optImgs} />
-                                                                    :
-                                                                    <RenderHtml
-                                                                        contentWidth={width}
-                                                                        source={{ html: getquest.optionText6 }}
-                                                                        tagsStyles={optionStyle}
-                                                                    />
-                                                                }
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                    : null}
-
-
-                                            </View>
-                                        </View>
-                                    </ScrollView>
-                                </View>
-                            </Modal>
-                        </View>
-                    }
-
-                    {manage.AllReportList &&
-                        <View style={{ flex: 1 }}>
-                            <Modal animationType="slide">
-                                <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                                    <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student All Exam Report</Text>
-                                    <View><Icon onPress={hideReportSection} name="close" size={20} color="#231e1a" /></View>
-                                </View>
-                                <View style={{ padding: 10, flex: 1, backgroundColor: userData.data.colors.liteTheme, }}>
-                                    <ScrollView >
-                                        {allReportData.map((item, index, alD) => {
-                                            return (
-                                                <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 10, margin: 6, borderRadius: 6, elevation: 9 }} key={index}>
-                                                    <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
-                                                        <View style={{ width: 130 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Set Code</Text>
-                                                        </View>
-                                                        <View>
-                                                            <Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
-                                                        <View style={{ width: 130 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Attempted Date</Text>
-                                                        </View>
-                                                        <View>
-                                                            <Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
-                                                        <View style={{ width: 130 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Status</Text>
-                                                        </View>
-                                                        <View>
-                                                            <Text style={{ color: SWATheam.SwaBlack }}>Attempted</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
-                                                        <View style={{ width: 130 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Action</Text>
-                                                        </View>
-                                                        <View>
-                                                            <TouchableOpacity style={{ backgroundColor: SWATheam.SwaBlue, padding: 6, borderRadius: 4 }}>
-                                                                <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }} onPress={() => { showReport(2, item.qSetID) }}>View Report</Text>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                    </View>
-
-                                                </View>)
-                                        })}
-                                    </ScrollView>
-
-                                </View>
-                            </Modal>
-
-
-                        </View>
-                    }
-
-                    {manage.showloader &&
-                        <Loader />
-                    }
                 </View>
-            </SafeAreaView>
-        </SafeAreaProvider>
+                <View style={styles.rowHed}>
+                    <Text style={[styles.cell]}>Total Marks:{getReport.totalMarks}</Text>
+                    <Text style={styles.cell}>Optained Marks: {getReport.optainedMarks}</Text>
+                    <Text style={styles.cell}>Percentage: {manage.totalPresent}</Text>
+                </View>
+
+                <ScrollView>
+                    <View style={styles.InnerBoxTbls}>
+                        <DataTable style={styles.container}>
+                            <DataTable.Header style={{ backgroundColor: userData.data.colors.liteTheme }}>
+                                <DataTable.Title style={{ width: '50' }}>No.</DataTable.Title>
+                                <DataTable.Title>Correct Ans</DataTable.Title>
+                                <DataTable.Title>Your Ans</DataTable.Title>
+                                <DataTable.Title>Status</DataTable.Title>
+                                <DataTable.Title>Action</DataTable.Title>
+                            </DataTable.Header>
+
+                            {getReport.reportData?.map((item, index, rData) => {
+                                return (
+                                    <DataTable.Row key={index}>
+                                        <DataTable.Cell style={{ width: '50' }}>{index + 1}</DataTable.Cell>
+                                        <DataTable.Cell>
+                                            <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 1 && item.activityID == 1 ? "(a)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 2 && item.activityID == 1 ? "(b)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 3 && item.activityID == 1 ? "(c)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }}>{item?.correctAnswerID == 4 && item.activityID == 1 ? "(d)" : ''}</Text>
+                                        </DataTable.Cell>
+                                        <DataTable.Cell>
+                                            <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 1 && item.activityID == 1 ? "(a)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 2 && item.activityID == 1 ? "(b)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 3 && item.activityID == 1 ? "(c)" : ''}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack }} >{item?.correctAnswerID == 4 && item.activityID == 1 ? "(d)" : ''}</Text>
+                                        </DataTable.Cell>
+                                        <DataTable.Cell>
+                                            {item.selectedAnswerID == item.correctAnswerID ?
+                                                <Text><Icon name="check" size={20} color="#38761d" /></Text> :
+                                                <Text><Icon name="close" size={20} color="#cd0027" /></Text>
+                                            }
+                                        </DataTable.Cell>
+                                        <DataTable.Cell>
+                                            <TouchableOpacity>
+                                                <Text style={{ backgroundColor: userData.data.colors.mainTheme, padding: 6, borderRadius: 6, color: SWATheam.SwaWhite }} onPress={() => { viewAction(item) }}>View Q</Text>
+                                            </TouchableOpacity>
+                                        </DataTable.Cell>
+                                    </DataTable.Row>
+                                )
+                            })}
+
+                        </DataTable>
+                    </View>
+                </ScrollView>
+
+                {actData.modelHolder &&
+                    <View style={styles.actionQuestion}>
+                        <Modal animationType="slide">
+                            <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Exam Question</Text>
+                                <View><Icon onPress={hideExamQuest} name="close" size={20} color="#231e1a" /></View>
+                            </View>
+                            <View style={styles.holderActQuest}>
+
+                                <ScrollView>
+                                    <View>
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: getquest.questionPart1 }}
+                                            tagsStyles={tagsStyles}
+                                        />
+                                        <View style={styles.optionsView}>
+                                            {getquest?.optionText1 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID1 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} /></View>
+                                                            <Text style={styles.indty}>(a)</Text>
+                                                            {getquest.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText1 }} style={styles.optImgs} /> :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText1 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+                                            {getquest?.optionText2 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID2 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
+                                                            </View>
+                                                            <Text style={styles.indty}>(b)</Text>
+                                                            {getquest.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText2 }} style={styles.optImgs} />
+                                                                :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText2 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+
+                                            {getquest?.optionText3 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item color={userData.data.colors.mainTheme} value="first" status={getquest.optionID3 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
+                                                            </View>
+                                                            <Text style={styles.indty}>(c)</Text>
+                                                            {getquest.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText3 }} style={styles.optImgs} />
+                                                                :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText3 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+
+                                            {getquest?.optionText4 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item value="first" status={getquest.optionID4 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
+                                                            </View>
+                                                            <Text style={styles.indty}>(d)</Text>
+                                                            {getquest.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText4 }} style={styles.optImgs} />
+                                                                :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText4 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+
+                                            {getquest?.optionText5 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID5 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item value="first" status={getquest.optionID5 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
+                                                            </View>
+                                                            <Text style={styles.indty}>(e)</Text>
+                                                            {getquest.optionText5.endsWith('.png') || getquest?.optionText5.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText5 }} style={styles.optImgs} />
+                                                                :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText5 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+
+                                            {getquest?.optionText6 ?
+                                                <View style={styles.optionsView}>
+                                                    <TouchableOpacity style={[styles.textWithInput, { backgroundColor: getquest.optionID6 == getquest.selectedAnswerID ? userData.data.colors.liteTheme : "#e3e8ea" }]}>
+                                                        <View style={styles.AWithContent}>
+                                                            <View>
+                                                                <RadioButton.Item value="first" status={getquest.optionID6 == getquest.selectedAnswerID ? 'checked' : 'unchecked'} />
+                                                            </View>
+                                                            <Text style={styles.indty}>(f)</Text>
+                                                            {getquest.optionText6.endsWith('.png') || getquest?.optionText6.endsWith('.jpg') ?
+                                                                <Image source={{ uri: imgUrl + getquest?.imagePath + getquest?.optionText6 }} style={styles.optImgs} />
+                                                                :
+                                                                <RenderHtml
+                                                                    contentWidth={width}
+                                                                    source={{ html: getquest.optionText6 }}
+                                                                    tagsStyles={optionStyle}
+                                                                />
+                                                            }
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                : null}
+
+
+                                        </View>
+                                    </View>
+                                </ScrollView>
+                            </View>
+                        </Modal>
+                    </View>
+                }
+
+                {manage.AllReportList &&
+                    <View style={{ flex: 1 }}>
+                        <Modal animationType="slide">
+                            <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student All Exam Report</Text>
+                                <View><Icon onPress={hideReportSection} name="close" size={20} color="#231e1a" /></View>
+                            </View>
+                            <View style={{ padding: 10, flex: 1, backgroundColor: userData.data.colors.liteTheme, }}>
+                                <ScrollView >
+                                    {allReportData.map((item, index, alD) => {
+                                        return (
+                                            <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 10, margin: 6, borderRadius: 6, elevation: 9 }} key={index}>
+                                                <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
+                                                    <View style={{ width: 130 }}>
+                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Set Code</Text>
+                                                    </View>
+                                                    <View>
+                                                        <Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
+                                                    </View>
+                                                </View>
+                                                <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
+                                                    <View style={{ width: 130 }}>
+                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Attempted Date</Text>
+                                                    </View>
+                                                    <View>
+                                                        <Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
+                                                    </View>
+                                                </View>
+                                                <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
+                                                    <View style={{ width: 130 }}>
+                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Status</Text>
+                                                    </View>
+                                                    <View>
+                                                        <Text style={{ color: SWATheam.SwaBlack }}>Attempted</Text>
+                                                    </View>
+                                                </View>
+                                                <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
+                                                    <View style={{ width: 130 }}>
+                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Action</Text>
+                                                    </View>
+                                                    <View>
+                                                        <TouchableOpacity style={{ backgroundColor: SWATheam.SwaBlue, padding: 6, borderRadius: 4 }}>
+                                                            <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite }} onPress={() => { showReport(2, item.qSetID) }}>View Report</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+
+                                            </View>)
+                                    })}
+                                </ScrollView>
+
+                            </View>
+                        </Modal>
+
+
+                    </View>
+                }
+
+                {manage.showloader &&
+                    <Loader />
+                }
+            </View>
+        </>
 
     );
 }

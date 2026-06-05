@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useContext, useState } from 'react'
 import { SWATheam } from '../../../constant/ConstentValue'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CustomInput from '../../common/CustomInput'
 import { GlobleData } from '../../../Store'
 
@@ -106,7 +106,7 @@ const AddEditSubIndicator = ({ editIndicator, closeModule, addSubIndicator, subI
                     <CustomInput defaultValue={item.subIndicatorName} onChangeText={(val) => onChangeText(val, "subInd" + (index + 1), item)} />
                   </View>
                   <TouchableOpacity style={{ width: 40, justifyContent: 'center', alignItems: 'center' }} onPress={() => removesubIndicator(item, editIndicator.editItem.indicatorID)}>
-                    <MaterialCommunityIcons name="delete" size={28} color={SWATheam.SwaRed} />
+                    <MaterialIcons name="delete" size={28} color={SWATheam.SwaRed} />
                   </TouchableOpacity>
                 </View>
               )

@@ -3,16 +3,17 @@ import React, { useContext, useEffect, useState } from 'react'
 import { SWATheam } from '../../../../constant/ConstentValue'
 import { GlobleData } from '../../../../Store'
 
-const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildIconSequence }) => {
-
+const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildIconSequence, subIcon }) => {
 
     const { userData } = useContext(GlobleData)
     let knowingMeColor = ['#2685cb', '#4ad95a', '#fec81b', '#fd8d14', '#ce00e6',]
 
+
+
     return (
         <View style={{ width: '100%' }}>
             <>
-                {((reportSubIconID == 60 && testType == 1) || (reportSubIconID == 60 && type == "consolidateAPP")) || (reportSubIconID == 62 && (testType == 1 || testType == 2 || testType == 3)) || type == "studentConslAcmid" || reportSubIconID == 64 && (testType == 1 || testType == 2) ?
+                {((reportSubIconID == 60 && testType == 1) || (reportSubIconID == 60 && type == "consolidateAPP")) || (reportSubIconID == 62 && (testType == 1 || testType == 2 || testType == 3)) || type == "studentConslAcmid" || reportSubIconID == 64 && (testType == 1 || testType == 2) || reportSubIconID == 63 && testType == 2 || subIcon == 99 || subIcon == 98 ?
                     <View style={{ width: '90%', alignSelf: 'center', borderRadius: 6, backgroundColor: SWATheam.SwaWhite, marginVertical: 20, elevation: 9, }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }}>
                             <View style={{ padding: 2, flex: 1, }}>
@@ -81,12 +82,10 @@ const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildI
                                                 <View style={{ width: 25, height: 25, borderRadius: 50, backgroundColor: knowingMeColor[index] }}></View>
                                             </View>
                                         </View>
-
                                     )
                                 })}
                             </View>
-
-                        </> : reportSubIconID == 62 && (testType == 5 || testType == 7) ?
+                        </> : reportSubIconID == 62 && (testType == 5 || testType == 7) || subIcon?.subIconID == 104 || subIcon?.subIconID == 102 ?
                             <View style={{ width: '90%', alignSelf: 'center', borderRadius: 6, backgroundColor: SWATheam.SwaWhite, marginVertical: 20, elevation: 9, }}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }}>
                                     <View style={{ padding: 2, flex: 1, }}>
@@ -122,7 +121,7 @@ const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildI
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: 100, }}>
                                         <View style={{}}>
-                                            <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{reportSubIconID == 62 && testType == 7 ? reportData.data.userMarks : reportData.data.userMarks.percentage}%</Text>
+                                            <Text style={{ textAlign: 'center', color: SWATheam.SwaBlack }}>{reportSubIconID == 62 && testType == 7 || subIcon?.subIconID == 104 ? reportData.data.userMarks : reportData.data.userMarks.percentage}%</Text>
                                         </View>
                                         <View style={{ flex: 1, alignItems: 'flex-end' }}>
                                             <View style={{ width: 25, height: 25, borderRadius: 50, backgroundColor: '#c88cad' }}></View>
@@ -130,7 +129,7 @@ const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildI
                                     </View>
                                 </View>
                             </View>
-                            : reportSubIconID == 62 && testType == 6 ?
+                            : reportSubIconID == 62 && testType == 6 || subIcon == 103 ?
                                 <View style={{ width: '90%', alignSelf: 'center', borderRadius: 6, backgroundColor: SWATheam.SwaWhite, marginVertical: 20, elevation: 9, }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }}>
                                         <View style={{ padding: 2, flex: 1, }}>
@@ -200,7 +199,7 @@ const GraphLegend = ({ testType, reportData, type, reportSubIconID, reportChildI
                                         </View>
                                     </View>
                                 </View>
-                                : reportSubIconID == 63 && testType == 1 ?
+                                : (reportSubIconID == 63 && testType == 1) || subIcon == 101 ?
                                     <View style={{ width: '90%', alignSelf: 'center', borderRadius: 6, backgroundColor: SWATheam.SwaWhite, marginVertical: 20, elevation: 9, }}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }}>
                                             <View style={{ padding: 2, flex: 1, }}>

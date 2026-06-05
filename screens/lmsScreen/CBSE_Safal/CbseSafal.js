@@ -1,24 +1,43 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Modal, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Modal, ScrollView, StatusBar, BackHandler, Alert } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import Loader from '../../common/Loader';
 import SwaHeader from '../../common/SwaHeader';
 import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Services from '../../../Services';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CbseSafal({ navigation, route }) {
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = StatusBar.currentHeight
   const { userData } = useContext(GlobleData)
-  const toolName = route.params.getSubIconsData.subIconName
+  const toolName = route?.params?.getSubIconsData != undefined ? route?.params?.getSubIconsData?.subIconName : route.params.subIcon.subIconName
 
   useEffect(() => {
     getList();
   }, [])
+  useEffect(() => {
+    if (route?.params?.getSubIconsData == undefined) {
+      const backAction = () => {
+        navigation.navigate('home')
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+      return () => backHandler.remove();
+    }
+  }, []);
 
   function onClickLeftIcon() {
-    navigation.goBack()
+    if (route?.params?.getSubIconsData != undefined) {
+      navigation.goBack()
+    } else {
+      navigation.navigate('home')
+    }
   }
   function onClickRightIcon() {
     setIsInstruction(true)
@@ -50,7 +69,7 @@ export default function CbseSafal({ navigation, route }) {
             return { ...x, showLoader: false }
           })
         } else {
-          alert("Data not found")
+          Alert.alert("Info!", "Data not found")
         }
       })
       .catch((err) => {
@@ -76,7 +95,6 @@ export default function CbseSafal({ navigation, route }) {
     })
     Services.post(apiRoot.getConpitativeExamList, postData)
       .then((examListData) => {
-        console.log(examListData)
         if (examListData.status == "success") {
           setExamList(examListData?.data)
           setCombo((x) => {
@@ -87,7 +105,7 @@ export default function CbseSafal({ navigation, route }) {
             }
           })
         } else if (examListData.status == "error") {
-          alert(examListData.message)
+          Alert.alert("Info!", examListData.message)
           // setChapterHolder(false)
         }
       })
@@ -157,7 +175,7 @@ export default function CbseSafal({ navigation, route }) {
               examList: false,
             }
           })
-          alert(qData.message);
+          Alert.alert("Info!", qData.message)
 
         }
       })
@@ -171,75 +189,73 @@ export default function CbseSafal({ navigation, route }) {
       })
   }
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', 'right', "top"]} style={{ flex: 1, backgroundColor: userData.data.colors.mainTheme }}>
-        {combo.showLoader ?
-          <Loader /> :
-          <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, marginTop: Platform.OS === "ios" ? 0 : 24 }}>
-            <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-            <ScrollView>
-              <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-                {getListData.map((item, index) => {
-                  return (
-                    <TouchableOpacity style={styles.imgsBox} key={index} onPress={() => { mainIcon(item) }}>
-                      <Image style={styles.imgHolder} source={{ uri: siteUrl + item?.iconPath + item?.iconLogo }} />
-                      <Text style={styles.textFonts}>{item.quesHeadNameLang1}</Text>
-                    </TouchableOpacity>
-                  )
-                })}
-              </View>
-            </ScrollView>
+    <>
+      {combo.showLoader ?
+        <Loader /> :
+        <View style={{ flex: 1, backgroundColor: userData.data.colors.mainTheme, paddingTop: insets.top, marginBottom: insets.bottom }}>
+          <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+          <ScrollView style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', }}>
+              {getListData.map((item, index) => {
+                return (
+                  <TouchableOpacity style={styles.imgsBox} key={index} onPress={() => { mainIcon(item) }}>
+                    <Image style={styles.imgHolder} source={{ uri: siteUrl + item?.iconPath + item?.iconLogo }} />
+                    <Text style={styles.textFonts}>{item.quesHeadNameLang1}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          </ScrollView>
 
-            {combo.examList ?
-              <Modal
-                animationType="slide"
-                transparent={true}
-              >
-                <View style={styles.garyContainer}>
-                  <TouchableOpacity
-                    style={{ flex: 1 }}
-                    onPress={() => hideModels()}
-                  />
+          {combo.examList ?
+            <Modal
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={styles.garyContainer}>
+                <TouchableOpacity
+                  style={{ flex: 1 }}
+                  onPress={() => hideModels()}
+                />
 
-                  <View style={styles.listBox}>
-                    <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
-                    <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
-                      <Text style={{ padding: 4, width: 40, }}></Text>
-                      <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Competitive Exam Practice</Text>
+                <View style={styles.listBox}>
+                  <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
+                  <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
+                    <Text style={{ padding: 4, width: 40 }}></Text>
+                    <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Competitive Exam Practice</Text>
 
-                      <TouchableOpacity style={{ padding: 4, width: 40 }}
-                        onPress={() => hideModels()}>
-                        <Ionicons name="close" size={20} color={SWATheam.SwaGray} />
-                      </TouchableOpacity>
-                    </View>
-                    <ScrollView>
-                      <View style={styles.listHolder}>
-                        {listExdata.map((item, index) => {
-                          return (
-                            <TouchableOpacity key={index} style={[styles.rowList, ({ backgroundColor: checkBox.includes(item.quesGroupID) ? userData.data.colors.liteTheme : '#fff', borderWidth: 1, borderColor: SWATheam.SwaWhite })]} onPress={() => { practList(item) }}>
-                              <View>
-                                <Checkbox.Item color={userData.data.colors.mainTheme} status={checkBox.includes(item.quesGroupID) ? "checked" : 'unchecked'} />
-                              </View>
-                              <View>
-                                <Text>{item.quesGroupNameLang1}</Text>
-                              </View>
-                            </TouchableOpacity>
-                          )
-                        })}
-                      </View>
-                    </ScrollView>
-                    <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, padding: 12, marginBottom: 10, borderRadius: 6 }}
-                      onPress={() => startPractices()}>
-                      <Text style={{ textAlign: 'center', textTransform: 'uppercase', color: SWATheam.SwaWhite, fontWeight: '500' }}>Start Practice</Text>
+                    <TouchableOpacity style={{ padding: 4, width: 40 }}
+                      onPress={() => hideModels()}>
+                      <Ionicons name="close" size={20} color={SWATheam.SwaGray} />
                     </TouchableOpacity>
                   </View>
+                  <ScrollView>
+                    <View style={styles.listHolder}>
+                      {listExdata.map((item, index) => {
+                        return (
+                          <TouchableOpacity key={index} style={[styles.rowList, ({ backgroundColor: checkBox.includes(item.quesGroupID) ? userData.data.colors.liteTheme : '#fff', borderWidth: 1, borderColor: SWATheam.SwaWhite })]} onPress={() => { practList(item) }}>
+                            <View>
+                              <Checkbox.Item color={userData.data.colors.mainTheme} status={checkBox.includes(item.quesGroupID) ? "checked" : 'unchecked'} />
+                            </View>
+                            <View>
+                              <Text>{item.quesGroupNameLang1}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        )
+                      })}
+                    </View>
+                  </ScrollView>
+                  <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, padding: 12, marginBottom: 10, borderRadius: 6 }}
+                    onPress={() => startPractices()}>
+                    <Text style={{ textAlign: 'center', textTransform: 'uppercase', color: SWATheam.SwaWhite, fontWeight: '500' }}>Start Practice</Text>
+                  </TouchableOpacity>
                 </View>
-              </Modal> : null
-            }
-          </View>
-        }
-      </SafeAreaView>
-    </SafeAreaProvider>
+              </View>
+            </Modal> : null
+          }
+        </View>
+      }
+    </>
 
 
   );
@@ -296,6 +312,7 @@ const styles = StyleSheet.create({
     padding: 10,
     display: 'flex',
     alignItems: "center",
+    borderWidth: 1,
     borderColor: "#E1E1E1",
     elevation: 9,
 

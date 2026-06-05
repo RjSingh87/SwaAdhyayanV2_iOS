@@ -1,27 +1,49 @@
-import { StyleSheet, Text, View, Dimensions} from 'react-native'
+import { StyleSheet, Text, View, Dimensions } from 'react-native'
 import React from 'react'
 import { ProgressChart, PieChart } from 'react-native-chart-kit'
 const screenWidth = Dimensions.get("window").width;
-const SubjectWiseStudentComparisionReport = ({reportData, reportSubIconID, testType}) => {
-  
-    const data = [
-        {
-          population: reportData.data.maxMarks.percentage,
-          color: "#7fccff",
-        },
-        {
-          population: reportData.data.minMarks.percentage,
-          color: "#f49d88",
-        },
-        {
-          population: reportSubIconID==62 && testType==7?reportData.data.userMarks:reportData.data.userMarks.percentage,
-          color: "#c88cad",
-        },
-      ];
+const SubjectWiseStudentComparisionReport = ({ reportData, reportSubIconID, testType, subIcon }) => {
+
+  const data = [
+    {
+      population: reportData?.data?.maxMarks?.percentage,
+      color: "#7fccff",
+    },
+    {
+      population: reportData?.data?.minMarks?.percentage,
+      color: "#f49d88",
+    },
+    {
+      population: (reportSubIconID == 62 && testType == 7) || subIcon == 104 ? reportData?.data?.userMarks : reportData?.data?.userMarks?.percentage,
+      color: "#c88cad",
+    },
+  ];
+  const data2 = [
+    {
+      population: reportData?.data?.allSection?.maxMarks,
+      color: "#c88cad",
+    },
+    {
+      population: reportData?.data?.allSection?.minMarks,
+      color: "#7fccff",
+    },
+    {
+      population: reportData?.data?.userMarks?.percentage,
+      color: "#f49d88",
+    },
+    {
+      population: reportData?.data?.thisSection?.maxMarks,
+      color: "#94b180",
+    },
+    {
+      population: reportData?.data?.thisSection?.minMarks,
+      color: "#f1cd87",
+    }
+  ]
   return (
-    
+
     <PieChart
-      data={data}
+      data={subIcon == 103 ? data2 : data}
       width={screenWidth}
       height={250}
       chartConfig={{
@@ -43,7 +65,5 @@ const SubjectWiseStudentComparisionReport = ({reportData, reportSubIconID, testT
     />
   )
 }
-
 export default SubjectWiseStudentComparisionReport
-
 const styles = StyleSheet.create({})

@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View, Dimensions } from 'react-native'
 import React from 'react'
-import {BarChart} from "react-native-chart-kit";
+import { BarChart } from "react-native-chart-kit";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const BrainDominance = ({reportData, testType, type}) => {
+const BrainDominance = ({ reportData, testType, type }) => {
     let data = null
-    if(testType==6||type=="student"){
-        data=[reportData.BD.leftPercentage, reportData.BD.rightPercentage]
-    }else{
+    if (testType == 6 || type == "student") {
+        data = [reportData.BD.leftPercentage, reportData.BD.rightPercentage]
+    } else {
         data = [reportData.data.leftPercentage, reportData.data.rightPercentage]
     }
     return (

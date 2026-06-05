@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import Modal from "react-native-modal";
 import React, { useContext } from 'react'
-import { SwaTheam } from '../../../constant/ConstentValue'
+import { SWATheam } from '../../../constant/ConstentValue'
 import { GlobleData } from '../../../Store'
 import CustomInput from '../../common/CustomInput'
 
@@ -22,7 +22,7 @@ const SubjMarksEntryPopup = ({ closeModule, schoolSubjMarks }) => {
                 <View style={styles.listBox}>
                     <View style={{ flexDirection: 'row', paddingVertical: 4, borderTopWidth: 1, borderColor: userData.data.colors.hoverTheme }}>
                         <View style={{ flex: 1, justifyContent: 'center' }}>
-                            <Text style={{ color: SwaTheam.SwaBlack }}>Priodic Test</Text>
+                            <Text style={{ color: SWATheam.SwaBlack }}>Priodic Test</Text>
                         </View>
                         <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                             <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} />
@@ -30,7 +30,7 @@ const SubjMarksEntryPopup = ({ closeModule, schoolSubjMarks }) => {
                     </View>
                     <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                         <View style={{ flex: 1, justifyContent: 'center' }}>
-                            <Text style={{ color: SwaTheam.SwaBlack }}>Note Book</Text>
+                            <Text style={{ color: SWATheam.SwaBlack }}>Note Book</Text>
                         </View>
                         <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                             <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} />
@@ -38,7 +38,7 @@ const SubjMarksEntryPopup = ({ closeModule, schoolSubjMarks }) => {
                     </View>
                     <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                         <View style={{ flex: 1, justifyContent: 'center' }}>
-                            <Text style={{ color: SwaTheam.SwaBlack }}>SEA</Text>
+                            <Text style={{ color: SWATheam.SwaBlack }}>SEA</Text>
                         </View>
                         <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                             <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} />
@@ -46,14 +46,14 @@ const SubjMarksEntryPopup = ({ closeModule, schoolSubjMarks }) => {
                     </View>
                     <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                         <View style={{ flex: 1, justifyContent: 'center' }}>
-                            <Text style={{ color: SwaTheam.SwaBlack }}>Half Yearly Marks</Text>
+                            <Text style={{ color: SWATheam.SwaBlack }}>Half Yearly Marks</Text>
                         </View>
                         <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                             <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} maxLength={2} />
                         </View>
                     </View>
                     <View style={{ width: 80, padding: 10, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme, alignSelf: 'flex-end', marginTop: 10 }}>
-                        <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase' }}>Save</Text>
+                        <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase' }}>Save</Text>
                     </View>
 
                 </View>
@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
     garyContainer: {
         flex: 1,
         // backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        backgroundColor:'red'
+        backgroundColor: 'red'
     },
     listBox: {
-        backgroundColor: SwaTheam.SwaWhite,
+        backgroundColor: SWATheam.SwaWhite,
         maxHeight: '60%',
         minHeight: 50,
         width: "100%",

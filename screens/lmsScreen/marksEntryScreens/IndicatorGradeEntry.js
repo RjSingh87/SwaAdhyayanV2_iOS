@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Platform } from 'react-native'
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
 import React, { useContext, useState, useEffect } from 'react'
 import SwaHeader from '../../common/SwaHeader'
 import { GlobleData } from '../../../Store'
@@ -6,10 +6,11 @@ import { apiRoot, SWATheam } from '../../../constant/ConstentValue'
 import CustomInput from '../../common/CustomInput'
 import Services from '../../../Services'
 import Loader from '../../common/Loader'
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const IndicatorGradeEntry = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = StatusBar.currentHeight
   const { userData } = useContext(GlobleData)
   const selectedField = route.params.selectedField;
   const gradeType = route.params.marksType
@@ -38,7 +39,9 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
       "academicYear": userData.data.academicYear
     }
     Services.post(apiRoot.getIndicatorDataForMarks, payload)
+
       .then((res) => {
+        console.log(JSON.stringify(res), '----------------4545')
         if (res.status == "success") {
           console.log(JSON.stringify(res.data), 'student Data')
           setGradeData((prev) => {
@@ -92,7 +95,8 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
         }
       }
     })
-    const Payload = {
+    const Payload =
+    {
       "schoolID": userData.data.schoolID,
       "classID": val.classID,
       "sectionID": selectedField.section.sectionID,
@@ -103,9 +107,10 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
       "marksValue": marksValue.toString(),
       "academicYear": userData.data.academicYear
     }
-
+    console.log(Payload, 'check payload')
     Services.post(apiRoot.saveSingleIndicatorMarks, Payload)
       .then((res) => {
+        console.log(JSON.stringify(res))
         if (res.status == "success") {
           alert(res.message)
           setGradeData((prev) => {
@@ -134,84 +139,82 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
   }
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', "right", "top"]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
-        {!gradeData.status ?
-          <Loader /> :
-          <View style={{ marginTop: Platform.OS === "ios" ? 0 : 24, backgroundColor: userData.data.colors.liteTheme, flex: 1 }}>
-            <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-            <View style={{ padding: 10, flex: 1 }}>
-              <ScrollView>
-                {gradeData?.data?.studentData.map((item, index) => {
-                  return (
-                    <View style={{ backgroundColor: userData.data.colors.mainTheme, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 8, marginBottom: 20, paddingBottom: 6 }} key={item.userRefID}>
-                      <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
-                        <View style={{ width: 80, }}>
-                          <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Enroll. No.</Text>
-                        </View>
-                        <View style={{ width: 20 }}>
-                          <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ color: SWATheam.SwaWhite, }}>{item.getStudentName.registrationNo}</Text>
-                        </View>
+    <>
+      {!gradeData.status ?
+        <Loader /> :
+        <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+          <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+          <View style={{ padding: 10, flex: 1, backgroundColor: userData.data.colors.liteTheme, }}>
+            <ScrollView>
+              {gradeData?.data?.studentData.map((item, index) => {
+                return (
+                  <View style={{ backgroundColor: userData.data.colors.mainTheme, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 8, marginBottom: 20, paddingBottom: 6 }} key={item.userRefID}>
+                    <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
+                      <View style={{ width: 80, }}>
+                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Enroll. No.</Text>
                       </View>
-                      <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
-                        <View style={{ width: 80 }}>
-                          <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Name</Text>
-                        </View>
-                        <View style={{ width: 20 }}>
-                          <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ color: SWATheam.SwaWhite }}>{item.getStudentName.firstName + " " + item.getStudentName.lastName}</Text>
-                        </View>
+                      <View style={{ width: 20 }}>
+                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
                       </View>
-                      {item.indicatorData.map((val, ind) => {
-                        return (
-                          <View style={{ padding: 8, borderRadius: 10, backgroundColor: SWATheam.SwaWhite }} key={ind}>
-                            <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 6 }}>
-                              <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', textAlign: 'center', padding: 4, borderBottomWidth: .7, borderColor: userData.data.colors.mainTheme }}>{val.indicatorName}</Text>
-                              {val.subIndicatorData.map((subItem, subIndex) => {
-                                return (
-                                  <View style={{ flexDirection: 'row', marginTop: 6, paddingHorizontal: 8, alignItems: 'center' }} key={subIndex}>
-                                    <View style={{ padding: 6, flex: 1 }}>
-                                      <Text style={{ color: SWATheam.SwaBlack }}>{subItem.subIndicatorName}</Text>
-                                    </View>
-                                    <View style={{ width: 60 }}>
-                                      <CustomInput defaultValue={subItem.subIndMarks} placeHolder={'--'} styleFrom={"GradeEntry"} keyboardType={gradeType == "numerical" ? "numeric" : null} onChangeText={(val) => onChangeText(val, subItem, index, ind, subIndex)} />
-                                    </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: SWATheam.SwaWhite, }}>{item.getStudentName.registrationNo}</Text>
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
+                      <View style={{ width: 80 }}>
+                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Name</Text>
+                      </View>
+                      <View style={{ width: 20 }}>
+                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: SWATheam.SwaWhite }}>{item.getStudentName.firstName + " " + item.getStudentName.lastName}</Text>
+                      </View>
+                    </View>
+                    {item.indicatorData.map((val, ind) => {
+                      return (
+                        <View style={{ padding: 8, borderRadius: 10, backgroundColor: SWATheam.SwaWhite }} key={ind}>
+                          <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 6 }}>
+                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', textAlign: 'center', padding: 4, borderBottomWidth: .7, borderColor: userData.data.colors.mainTheme }}>{val.indicatorName}</Text>
+                            {val.subIndicatorData.map((subItem, subIndex) => {
+                              return (
+                                <View style={{ flexDirection: 'row', marginTop: 6, paddingHorizontal: 8, alignItems: 'center' }} key={subIndex}>
+                                  <View style={{ padding: 6, flex: 1 }}>
+                                    <Text style={{ color: SWATheam.SwaBlack }}>{subItem.subIndicatorName}</Text>
                                   </View>
-                                )
-                              })
-                              }
-                              <View style={{ paddingHorizontal: 8, marginVertical: 8, flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <TouchableOpacity style={{ padding: 6, width: 60, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }} onPress={() => { saveSingleIndicatorMarks(item, val) }}>
-                                  <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Save</Text>
-                                </TouchableOpacity>
-                              </View>
+                                  <View style={{ width: 60 }}>
+                                    <CustomInput defaultValue={subItem.subIndMarks} placeHolder={'--'} styleFrom={"GradeEntry"} keyboardType={gradeType == "numerical" ? "numeric" : null} onChangeText={(val) => onChangeText(val, subItem, index, ind, subIndex)} />
+                                  </View>
+                                </View>
+                              )
+                            })
+                            }
+                            <View style={{ paddingHorizontal: 8, marginVertical: 8, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                              <TouchableOpacity style={{ padding: 6, width: 60, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }} onPress={() => { saveSingleIndicatorMarks(item, val) }}>
+                                <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Save</Text>
+                              </TouchableOpacity>
                             </View>
                           </View>
+                        </View>
 
-                        )
-                      })}
-                    </View>
-                  )
-                })}
-              </ScrollView>
-            </View>
-            {/* {gradeEntry.status &&
+                      )
+                    })}
+                  </View>
+                )
+              })}
+            </ScrollView>
+          </View>
+          {/* {gradeEntry.status &&
             <BottomDrawerList listItem = {gradeEntry} closeModule={closeModule} getSelectedItem={getSelectedItem}/>
       } */}
-            {/* <View style={{ backgroundColor: SWATheam.SwaWhite, width: '100%', justifyContent: 'center', alignItems: 'center', padding: 10, elevation: 9 }}>
+          {/* <View style={{ backgroundColor: SWATheam.SwaWhite, width: '100%', justifyContent: 'center', alignItems: 'center', padding: 10, elevation: 9 }}>
         <View style={{ padding: 10, borderRadius: 8, backgroundColor: userData.data.colors.mainTheme, width: 80 }}>
           <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase' }}>Submit</Text>
         </View>
       </View> */}
-          </View>
-        }
-      </SafeAreaView>
-    </SafeAreaProvider>
+        </View>
+      }
+    </>
   )
 }
 

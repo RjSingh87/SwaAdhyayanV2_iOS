@@ -1,21 +1,18 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, FlatList, TextInput, Platform } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, FlatList, TextInput, StatusBar } from 'react-native'
 import React, { useEffect, useContext, useState } from 'react'
 import { GlobleData } from '../../../Store'
 import SwaHeader from '../../common/SwaHeader'
 import { apiRoot, SWATheam } from '../../../constant/ConstentValue'
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Modal from "react-native-modal";
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Services from '../../../Services'
 import Loader from '../../common/Loader'
 import { Picker } from '@react-native-picker/picker';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-
-
-
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 const AssessMarksEntry = ({ navigation, route }) => {
-  //console.log(JSON.stringify(route), 'check route')
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = StatusBar.currentHeight
   const { userData } = useContext(GlobleData)
   const [studentList, setStudentList] = useState({ data: null, loading: false })
   const [attendance, setAttendance] = useState({ data: [] });
@@ -46,8 +43,10 @@ const AssessMarksEntry = ({ navigation, route }) => {
       "assessmentID": route.params.data.markAss.assessmentID,
       "academicYear": userData.data.academicYear,
     }
+    console.log(payload, 'check payload')
     Services.post(apiRoot.studentListForAssessMarksEntry, payload)
       .then((res) => {
+        console.log(JSON.stringify(res))
         if (res.status == "success") {
           setStudentList((prev) => {
             return { ...prev, data: res.data, loading: false }
@@ -206,218 +205,212 @@ const AssessMarksEntry = ({ navigation, route }) => {
     });
   }
 
-  const insets = useSafeAreaInsets()
-
   return (
-    <SafeAreaProvider>
-      <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
-        <View style={{ flex: 1, marginTop: Platform.OS === "ios" ? 0 : 24, backgroundColor: userData.data.colors.liteTheme, paddingBottom: insets.bottom }}>
-          <SwaHeader title={"Assessment Marks Entry"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-          {studentList.loading ?
-            <Loader /> :
-            <>
-              <View style={{ flex: 1, padding: 10 }}>
-                <FlatList
-                  data={studentList?.data}
-                  keyExtractor={item => item.user_reference_id}
-                  renderItem={({ item, index }) => {
-                    return (
-                      <View style={{ backgroundColor: SWATheam.SwaWhite, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 6, marginVertical: 10, }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <View style={{ width: 95, padding: 10 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Enroll. No.</Text>
-                          </View>
-                          <View style={{ width: 20, paddingVertical: 10 }}>
-                            <Text>:</Text>
-                          </View>
-                          <View style={{ flex: 1, paddingVertical: 10 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>{item.registration_no}</Text>
-                          </View>
-                        </View>
-
-                        <View style={{ flexDirection: 'row' }}>
-                          <View style={{ width: 95, padding: 10 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Name</Text>
-                          </View>
-                          <View style={{ width: 20, paddingVertical: 10 }}>
-                            <Text>:</Text>
-                          </View>
-                          <View style={{ flex: 1, paddingVertical: 10 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>{item.name}</Text>
-                          </View>
-                        </View>
-
-                        <View style={{ flexDirection: 'row' }}>
-                          <View style={{ width: 115, padding: 10, justifyContent: 'center' }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Attendance</Text>
-                          </View>
-                          <View style={{ flex: 1, justifyContent: 'center' }}>
-                            {item.isPresent == 1 ?
-                              <Picker
-                                key={index}
-                                style={{ width: 150, padding: 0, marginVertical: 0, color: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}
-                                selectedValue={attendance.data[index]}
-                                onValueChange={(itemValue, itemIndex) => changeAttendance(itemValue, index)
-                                }>
-                                <Picker.Item style={{ marginVertical: 2 }} label="Present" value="Present" />
-                              </Picker>
-                              :
-                              <Picker
-                                key={index}
-                                style={{ width: 150, padding: 0, marginVertical: 0, color: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}
-                                selectedValue={attendance.data[index]}
-                                onValueChange={(itemValue, itemIndex) => changeAttendance(itemValue, index)
-                                }>
-                                <Picker.Item style={{ marginVertical: 2 }} label="Select" value="Select" />
-                                <Picker.Item style={{ marginVertical: 2 }} label="Present" value="Present" />
-                                <Picker.Item style={{ marginVertical: 2 }} label="Absent" value="Absent" />
-                              </Picker>
-                            }
-                          </View>
-                        </View>
-                        <TouchableOpacity disabled={attendance.data[index] == "Present" || item.isPresent == 1 ? false : true} style={{ backgroundColor: attendance.data[index] == "Present" || item.isPresent == 1 ? userData.data.colors.mainTheme : userData.data.colors.hoverTheme, marginTop: 6, width: '100%', alignSelf: 'center', borderBottomLeftRadius: 6, borderBottomRightRadius: 6 }} onPress={() => assignMarks(item, index)}>
-                          <Text style={{ color: SWATheam.SwaWhite, fontWeight: '500', marginVertical: 10, textAlign: 'center', }}>Assign Mark</Text>
-                        </TouchableOpacity>
+    <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+      <SwaHeader title={"Assessment Marks Entry"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+      {studentList.loading ?
+        <Loader /> :
+        <>
+          <View style={{ flex: 1, padding: 10, backgroundColor: userData.data.colors.liteTheme }}>
+            <FlatList
+              data={studentList?.data}
+              keyExtractor={item => item.user_reference_id}
+              renderItem={({ item, index }) => {
+                return (
+                  <View style={{ backgroundColor: SWATheam.SwaWhite, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 6, marginVertical: 10, }}>
+                    <View style={{ flexDirection: 'row' }}>
+                      <View style={{ width: 95, padding: 10 }}>
+                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Enroll. No.</Text>
                       </View>
+                      <View style={{ width: 20, paddingVertical: 10 }}>
+                        <Text>:</Text>
+                      </View>
+                      <View style={{ flex: 1, paddingVertical: 10 }}>
+                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>{item.registration_no}</Text>
+                      </View>
+                    </View>
 
-                    )
-                  }}
-                />
-              </View>
+                    <View style={{ flexDirection: 'row' }}>
+                      <View style={{ width: 95, padding: 10 }}>
+                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Name</Text>
+                      </View>
+                      <View style={{ width: 20, paddingVertical: 10 }}>
+                        <Text>:</Text>
+                      </View>
+                      <View style={{ flex: 1, paddingVertical: 10 }}>
+                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>{item.name}</Text>
+                      </View>
+                    </View>
 
-              {/* <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 12 }}>
+                    <View style={{ flexDirection: 'row' }}>
+                      <View style={{ width: 115, padding: 10, justifyContent: 'center' }}>
+                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 15, fontWeight: '700' }}>Attendance</Text>
+                      </View>
+                      <View style={{ flex: 1, justifyContent: 'center' }}>
+                        {item.isPresent == 1 ?
+                          <Picker
+                            key={index}
+                            style={{ width: 150, padding: 0, marginVertical: 0, color: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}
+                            selectedValue={attendance.data[index]}
+                            onValueChange={(itemValue, itemIndex) => changeAttendance(itemValue, index)
+                            }>
+                            <Picker.Item style={{ marginVertical: 2 }} label="Present" value="Present" />
+                          </Picker>
+                          :
+                          <Picker
+                            key={index}
+                            style={{ width: 150, padding: 0, marginVertical: 0, color: SWATheam.SwaBlack, backgroundColor: userData.data.colors.liteTheme }}
+                            selectedValue={attendance.data[index]}
+                            onValueChange={(itemValue, itemIndex) => changeAttendance(itemValue, index)
+                            }>
+                            <Picker.Item style={{ marginVertical: 2 }} label="Select" value="Select" />
+                            <Picker.Item style={{ marginVertical: 2 }} label="Present" value="Present" />
+                            <Picker.Item style={{ marginVertical: 2 }} label="Absent" value="Absent" />
+                          </Picker>
+                        }
+                      </View>
+                    </View>
+                    <TouchableOpacity disabled={attendance.data[index] == "Present" || item.isPresent == 1 ? false : true} style={{ backgroundColor: attendance.data[index] == "Present" || item.isPresent == 1 ? userData.data.colors.mainTheme : userData.data.colors.hoverTheme, marginTop: 6, width: '100%', alignSelf: 'center', borderBottomLeftRadius: 6, borderBottomRightRadius: 6 }} onPress={() => assignMarks(item, index)}>
+                      <Text style={{ color: SWATheam.SwaWhite, fontWeight: '500', marginVertical: 10, textAlign: 'center', }}>Assign Mark</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                )
+              }}
+            />
+          </View>
+
+          {/* <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 12 }}>
             <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase', fontWeight: '700' }}>Submit</Text>
           </View> */}
-            </>
-          }
-          {/* marks entry popup start */}
+        </>
+      }
+      {/* marks entry popup start */}
+      <Modal
+        isVisible={questionList.status}
+        animationInTiming={300}
+        animationOutTiming={300}
+        style={{ width: '100%', margin: 0 }}
+      >
+        <View style={styles.garyContainer}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => closeModule()}
+          />
+          <View style={styles.listBox}>
+            <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
+            <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
+              <View style={{ width: 100, flexDirection: 'row', padding: 4, alignItems: 'center' }}>
+                <Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack, width: '50%' }}>Marks:</Text>
+                {route.params.isfullMark.formatID != 2 ?
+                  <Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack, textAlign: 'center', width: '50%' }}>{questionList.totalMarks}</Text> :
+                  <TextInput defaultValue={String(questionList.totalMarks)} value={questionList.totalMarks} keyboardType={'number-pad'} onChangeText={(val) => handleInputChange(val)} style={{ height: 35, borderWidth: 1, textAlign: 'center', padding: 3, width: '50%', borderRadius: 4, }} />
+                }
+              </View>
+              <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Assign Mark</Text>
+
+              <TouchableOpacity style={{ padding: 4, width: 100, justifyContent: 'center', alignItems: 'flex-end' }}
+                onPress={() => closeModule()}>
+                <Ionicons name="close" size={20} color={SWATheam.SwaGray} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={questionList.list}
+              keyExtractor={item => item.questionID}
+              renderItem={({ item, index }) => {
+
+                let asignMark = "--"
+                let data = {
+                  "questionID": item.questionID,
+                  "marks": parseInt(item.P_obtainedMarks) >= 0 ? item.P_obtainedMarks : "NA",
+                  "qMarks": item.marks,
+                  "eadID": item.eadID,
+                  "miID": item.miID,
+                  "P_attemptID": item.P_attemptID == "" ? 0 : item.P_attemptID,
+                }
+                let ind = newIdsArray.stuData.findIndex((res) => res.questionID == item.questionID)
+                if (ind == -1) {
+                  newIdsArray.stuData.push(data)
+                }
+                if (item.P_obtained_marks != "" && route.params.isfullMark.formatID != 2) {
+                  asignMark = item.P_obtainedMarks
+                }
+                return (
+                  <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }} key={item.P_attemptID}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: SWATheam.SwaBlack }}>Question: {index + 1}</Text>
+                    </View>
+
+                    <TouchableOpacity style={{ width: 100, borderWidth: 1, borderColor: userData.data.colors.mainTheme, flexDirection: 'row', borderRadius: 4, justifyContent: 'center', alignItems: 'center' }} onPress={() => openPopup(item, index)}>
+                      <View style={{ flex: 1, padding: 6 }}>
+                        <Text style={{ color: SWATheam.SwaBlack }}>{asignMark !== "" ? asignMark : "--"}</Text>
+                      </View>
+                      <View style={{ width: 40, padding: 3, justifyContent: 'center', alignItems: 'center' }}>
+                        <AntDesign name="down" size={15} color={SWATheam.SwaGray} />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+
+                )
+              }}
+            />
+          </View>
+          <TouchableOpacity style={{ backgroundColor: SWATheam.SwaWhite }} onPress={() => saveSingleAssessMarks("singleMenualEntry")}>
+            <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10, borderTopRightRadius: 10, borderTopLeftRadius: 10, justifyContent: 'center' }}>
+              <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: '500' }}>Save</Text>
+            </View>
+          </TouchableOpacity>
+
+
+
           <Modal
-            isVisible={questionList.status}
+            isVisible={questionMarkList.status}
             animationInTiming={300}
             animationOutTiming={300}
             style={{ width: '100%', margin: 0 }}
           >
             <View style={styles.garyContainer}>
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={() => closeModule()}
-              />
+              <TouchableOpacity style={{ flex: 1 }} onPress={() => closePopup()}>
+              </TouchableOpacity>
               <View style={styles.listBox}>
+
                 <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
                 <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
-                  <View style={{ width: 100, flexDirection: 'row', padding: 4, alignItems: 'center' }}>
-                    <Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack, width: '50%' }}>Marks:</Text>
-                    {route.params.isfullMark.formatID != 2 ?
-                      <Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack, textAlign: 'center', width: '50%' }}>{questionList.totalMarks}</Text> :
-                      <TextInput defaultValue={String(questionList.totalMarks)} value={questionList.totalMarks} keyboardType={'number-pad'} onChangeText={(val) => handleInputChange(val)} style={{ height: 35, borderWidth: 1, textAlign: 'center', padding: 3, width: '50%', borderRadius: 4, }} />
-                    }
-                  </View>
-                  <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Assign Mark</Text>
+                  <View style={{ width: 85 }}></View>
+                  <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Mark List</Text>
 
-                  <TouchableOpacity style={{ padding: 4, width: 100, justifyContent: 'center', alignItems: 'flex-end' }}
-                    onPress={() => closeModule()}>
+                  <TouchableOpacity style={{ padding: 4, width: 85, justifyContent: 'center', alignItems: 'flex-end' }}
+                    onPress={() => closePopup()}>
                     <Ionicons name="close" size={20} color={SWATheam.SwaGray} />
                   </TouchableOpacity>
                 </View>
                 <FlatList
-                  data={questionList.list}
-                  keyExtractor={item => item.questionID}
+                  data={questionMarkList.list}
                   renderItem={({ item, index }) => {
+                    let updateMarks = questionList.studentData
 
-                    let asignMark = "--"
-                    let data = {
-                      "questionID": item.questionID,
-                      "marks": parseInt(item.P_obtainedMarks) >= 0 ? item.P_obtainedMarks : "NA",
-                      "qMarks": item.marks,
-                      "eadID": item.eadID,
-                      "miID": item.miID,
-                      "P_attemptID": item.P_attemptID == "" ? 0 : item.P_attemptID,
-                    }
-                    let ind = newIdsArray.stuData.findIndex((res) => res.questionID == item.questionID)
-                    if (ind == -1) {
-                      newIdsArray.stuData.push(data)
-                    }
-                    if (item.P_obtained_marks != "" && route.params.isfullMark.formatID != 2) {
-                      asignMark = item.P_obtainedMarks
-                    }
                     return (
-                      <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }} key={item.P_attemptID}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ color: SWATheam.SwaBlack }}>Question: {index + 1}</Text>
-                        </View>
-
-                        <TouchableOpacity style={{ width: 100, borderWidth: 1, borderColor: userData.data.colors.mainTheme, flexDirection: 'row', borderRadius: 4, justifyContent: 'center', alignItems: 'center' }} onPress={() => openPopup(item, index)}>
-                          <View style={{ flex: 1, padding: 6 }}>
-                            <Text style={{ color: SWATheam.SwaBlack }}>{asignMark !== "" ? asignMark : "--"}</Text>
-                          </View>
-                          <View style={{ width: 40, padding: 3, justifyContent: 'center', alignItems: 'center' }}>
-                            <AntDesign name="down" size={15} color={SWATheam.SwaGray} />
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-
+                      <TouchableOpacity style={{ padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }} onPress={() => getSelectedMarks(item, updateMarks)}>
+                        <Text style={{ padding: 2, textAlign: 'center', color: SWATheam.SwaBlack }}>{item.val}</Text>
+                      </TouchableOpacity>
                     )
                   }}
                 />
+
               </View>
-              <TouchableOpacity style={{ backgroundColor: SWATheam.SwaWhite }} onPress={() => saveSingleAssessMarks("singleMenualEntry")}>
-                <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10, borderTopRightRadius: 10, borderTopLeftRadius: 10, justifyContent: 'center', paddingBottom: insets.bottom }}>
-                  <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: '500' }}>Save</Text>
-                </View>
-              </TouchableOpacity>
-
-
-
-              <Modal
-                isVisible={questionMarkList.status}
-                animationInTiming={300}
-                animationOutTiming={300}
-                style={{ width: '100%', margin: 0 }}
-              >
-                <View style={styles.garyContainer}>
-                  <TouchableOpacity style={{ flex: 1 }} onPress={() => closePopup()}>
-                  </TouchableOpacity>
-                  <View style={styles.listBox}>
-
-                    <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
-                    <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
-                      <View style={{ width: 85 }}></View>
-                      <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>Mark List</Text>
-
-                      <TouchableOpacity style={{ padding: 4, width: 85, justifyContent: 'center', alignItems: 'flex-end' }}
-                        onPress={() => closePopup()}>
-                        <Ionicons name="close" size={20} color={SWATheam.SwaGray} />
-                      </TouchableOpacity>
-                    </View>
-                    <FlatList
-                      data={questionMarkList.list}
-                      renderItem={({ item, index }) => {
-                        let updateMarks = questionList.studentData
-
-                        return (
-                          <TouchableOpacity style={{ padding: 10, borderBottomWidth: .7, borderColor: userData.data.colors.hoverTheme }} onPress={() => getSelectedMarks(item, updateMarks)}>
-                            <Text style={{ padding: 2, textAlign: 'center', color: SWATheam.SwaBlack }}>{item.val}</Text>
-                          </TouchableOpacity>
-                        )
-                      }}
-                    />
-
-                  </View>
-
-                </View>
-
-
-              </Modal>
-
 
             </View>
 
+
           </Modal>
-          {/* marks entry popup end */}
+
 
         </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+
+      </Modal>
+      {/* marks entry popup end */}
+
+    </View>
   )
 }
 

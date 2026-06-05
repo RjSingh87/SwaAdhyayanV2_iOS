@@ -7,10 +7,10 @@ import {
 	View,
 	Image,
 	Modal,
-	Platform,
+	StatusBar,
 } from "react-native";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Fontisto from "react-native-vector-icons/Fontisto";
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import { TextInput } from 'react-native-paper';
 import DatePicker from 'react-native-date-picker'
 import { Checkbox } from 'react-native-paper';
@@ -19,11 +19,10 @@ import { GlobleData } from "../../../Store";
 import Services from "../../../Services";
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue";
 import Loader from "../../common/Loader";
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LiveClass({ navigation }) {
-	console.log("LiveClass.js")
+	const insets = useSafeAreaInsets();
 	const { userData } = useContext(GlobleData)
 	const [clickedName, setClickedName] = useState();
 	const [clsList, setClsList] = useState();
@@ -47,8 +46,6 @@ export default function LiveClass({ navigation }) {
 	})
 
 	const [isLoad, setIsload] = useState(false);
-	const [meetIds, setMeetIds] = useState()
-
 	const data = [
 		{
 			id: "1",
@@ -100,10 +97,16 @@ export default function LiveClass({ navigation }) {
 	const [totalLength, setTotalLength] = useState(0);
 	const [studentHolder, setStudentHolder] = useState(false);
 	const [stuListModel, setstuListModel] = useState(false);
+	const [currentDate, setCurrentDate] = useState(null)
+	useEffect(() => {
+		formatCurrentDate()
+
+	}, [])
 
 	useEffect(() => {
 		setTotalLength(studentList?.length || 0);
 	}, [studentList]);
+
 
 	function onClickLeftIcon() {
 		navigation.goBack()
@@ -266,11 +269,14 @@ export default function LiveClass({ navigation }) {
 				return { ...x, modelBox: false }
 			})
 		}, 1000);
-
 	}
 
 	function assignToModel() {
-		setstuListModel(true)
+		if (studentList?.length) {
+			setstuListModel(true)
+		} else {
+			alert('Student not found.')
+		}
 	}
 	function closeAssignModal() {
 		setstuListModel(false)
@@ -358,7 +364,55 @@ export default function LiveClass({ navigation }) {
 		});
 	};
 
+	function formattedStringToTimestamp(formattedStr) {
+		// console.info( 'formated :: ', formattedStr )
+		if (!formattedStr) return NaN;
+		const [datePart, timePart] = formattedStr.split(' ');
+		if (!datePart || !timePart) return NaN;
+		const [year, month, day] = datePart.split('/');
+		if (!year || !month || !day) return NaN;
+		const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`;
+		return new Date(iso).getTime();
+	}
+
+	function formatCurrentDate() {
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth() + 1;
+		const date = now.getDate();
+		const hour = now.getHours();
+		const minute = now.getMinutes();
+		console.log(year, month, date, hour, minute, 'now')
+		setCurrentDate(`${year}/${month}/${date} ${hour}:${minute}`)
+
+	}
+
 	function assignMeeting() {
+		// const todayCrntDate = formatCurrentDate();
+		console.log('currentDate', currentDate,);
+		console.log('formattedDateTime', formattedDateTime)
+		console.log('formattedDateTime2', formattedDateTime2)
+
+		const currentDateF = formattedStringToTimestamp(currentDate)
+		const startDateNum = formattedStringToTimestamp(formattedDateTime);
+		const endDateNum = formattedStringToTimestamp(formattedDateTime2);
+
+		console.log('currentDate', currentDateF, 'startDateNum', startDateNum, 'endDateNum', endDateNum);
+
+		console.log(startDateNum < currentDateF)
+
+		console.log(startDateNum > endDateNum)
+
+		if (isNaN(startDateNum) || isNaN(endDateNum)) {
+			alert('Please select valid start and end date/time');
+			return;
+		}
+
+		if (startDateNum < currentDateF || startDateNum > endDateNum) {
+			alert('Please select valid date');
+			return;
+		}
+
 		const payLoad = {
 			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
@@ -372,12 +426,24 @@ export default function LiveClass({ navigation }) {
 			"startDateTime": formattedDateTime,
 			"endDateTime": formattedDateTime2,
 			"studentIDs": studentIdStore
-		}
+		};
+
+		setIsload(true);
 		Services.post(apiRoot.saveLiveClasses, payLoad)
 			.then((result) => {
 				if (result.status === "success") {
 					alert(result.message);
-					setIsload(false);
+					setSelectItem({})
+					setClsIds({})
+					setSectIds({})
+					setSubjectds({})
+					setFillData((prev) => {
+						return { ...prev, topic: '', instruction: '', meetUrl: '' }
+					})
+					setStudentList({})
+					setFormattedDateTime('')
+					setFormattedDateTime2('')
+					setStuNameStore([])
 					getLiveClassListFun();
 				} else {
 					alert(result.message);
@@ -390,7 +456,6 @@ export default function LiveClass({ navigation }) {
 				setIsload(false);
 			});
 	}
-
 	function getLiveClassListFun() {
 		const payLoad = {
 			"schoolID": userData.data.schoolID,
@@ -418,284 +483,275 @@ export default function LiveClass({ navigation }) {
 		navigation.navigate('liveClassList')
 	}
 
-	const insets = useSafeAreaInsets()
-
 
 
 	return (
-		<SafeAreaProvider>
-			<SafeAreaView edges={['left', 'top', 'right']} style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, backgroundColor: userData?.data?.colors?.mainTheme, }}>
-				<View style={{ flex: 1, backgroundColor: SWATheam.SwaWhite, paddingBottom: insets.bottom }}>
-					<SwaHeader title={"Live Class"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-					<View style={styles.headerAss}>
-						<Text style={styles.asslistText}>SCHEDULE LIVE CLASSES</Text>
-						<View style={styles.row}>
-							<TouchableOpacity style={styles.buttonLive} onPress={showList}>
-								<Text style={styles.textInBtn}> Live Classes List</Text>
+		<SafeAreaProvider style={{ flex: 1, paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }} >
+			<SwaHeader title={"Live Class"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+			<View style={styles.headerAss}>
+				<Text style={styles.asslistText}>SCHEDULE LIVE CLASSES</Text>
+				<View style={styles.row}>
+					<TouchableOpacity style={styles.buttonLive} onPress={showList}>
+						<Text style={styles.textInBtn}> Live Classes List</Text>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.buttonLive}>
+						<Text style={styles.textInBtn}> Attendance Report</Text>
+					</TouchableOpacity>
+				</View>
+			</View>
+			<ScrollView style={{ backgroundColor: userData.data.colors.liteTheme }}>
+				<View style={styles.row2}>
+					<ScrollView horizontal>
+						{data.map((item) => {
+							return (
+								<TouchableOpacity key={item.id}
+									style={[styles.buttonClick, { borderColor: meetingIds.includes(item.id) ? "green" : '#e5e9e9' }]}
+									onPress={() => { selectMeetType(item.id) }} >
+									<Image style={styles.iconsImgss} source={item.imgPath} />
+									<Text style={{ fontSize: 13, textAlign: "center", color: SWATheam.SwaBlack }}>{item.name}</Text>
+								</TouchableOpacity>
+							)
+						})}
+					</ScrollView>
+				</View>
+				<View style={styles.formBgs}>
+					<Text style={styles.titleText}>Select Class</Text>
+					<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(1, 'Select Class') }}>
+						<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.class}</Text>
+						<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
+					</TouchableOpacity>
+
+					<Text style={styles.titleText}>Select Section</Text>
+					<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(2, 'Select Section') }}>
+						<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.section}</Text>
+						<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
+					</TouchableOpacity>
+
+					<Text style={styles.titleText}>Select Subject</Text>
+					<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(3, 'Select Subject') }}>
+						<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.subject}</Text>
+						<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
+					</TouchableOpacity>
+
+					<Text style={styles.titleText}>Assign To</Text>
+					<TouchableOpacity style={styles.rowInput} onPress={assignToModel}>
+						<Text style={{ color: SWATheam.SwaBlack }}>{stuNameStore}</Text>
+						<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
+					</TouchableOpacity>
+					<TextInput
+						value={fillData.topic}
+						label="Topic"
+						style={styles.inputBox}
+						onChangeText={(text) => handleChange('topic', text)}
+					/>
+					<TextInput
+						label="Instruction"
+						value={fillData.instruction}
+						style={styles.inputBox}
+						onChangeText={(text) => handleChange('instruction', text)}
+					/>
+					<TextInput
+						label="Meeting URL"
+						value={fillData.meetUrl}
+						style={styles.inputBox}
+						onChangeText={(text) => handleChange('meetUrl', text)}
+					/>
+					<View style={styles.row}>
+						<View style={{ width: "48%" }}>
+							<Text style={styles.titleText}>Start DateTime</Text>
+							<TouchableOpacity style={styles.rowInput} onPress={() => setOpen(true)}>
+								<Text>{formattedDateTime}</Text>
+								<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
 							</TouchableOpacity>
-							<TouchableOpacity style={styles.buttonLive}>
-								<Text style={styles.textInBtn}> Attendance Report</Text>
+						</View>
+						<View style={{ width: "48%" }}>
+							<Text style={styles.titleText}>End DateTime</Text>
+							<TouchableOpacity style={styles.rowInput} onPress={() =>
+								setOpen2(true)}
+							>
+								<Text>{formattedDateTime2}</Text>
+								<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
 							</TouchableOpacity>
 						</View>
 					</View>
-					<ScrollView>
-						<View style={styles.row2}>
-							<ScrollView horizontal>
-								{data.map((item) => {
-									return (
-										<TouchableOpacity key={item.id}
-											style={[styles.buttonClick, { borderColor: meetingIds.includes(item.id) ? "green" : '#e5e9e9' }]}
-											onPress={() => { selectMeetType(item.id) }} >
-											<Image style={styles.iconsImgss} source={item.imgPath} />
-											<Text style={{ fontSize: 13, textAlign: "center", color: SWATheam.SwaBlack }}>{item.name}</Text>
-										</TouchableOpacity>
+
+				</View>
+			</ScrollView>
+			<TouchableOpacity style={styles.assignMeeting} onPress={assignMeeting}>
+				<Text style={{ textAlign: 'center', color: '#fff', fontSize: 15 }}>Assign Meeting</Text>
+			</TouchableOpacity>
+
+			{selectList.modelBox &&
+				<Modal animationType="slide" transparent={true}>
+					<View style={styles.bgModal}>
+						<View style={styles.holderModel}>
+							<View style={styles.headingBox}>
+								<Text style={styles.selectedReq}>{clickedName}</Text>
+							</View>
+							<TouchableOpacity style={styles.closeIcons} onPress={hideBoxModel}>
+								<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
+							</TouchableOpacity>
+							{
+								selectList.classList && clsList?.length > 0 ? (
+									clsList.map((item, index) => {
+										let className = item.getClassDetail.classDesc;
+										let classIDS = item.getClassDetail.classID;
+										return (
+											<TouchableOpacity
+												style={styles.nameOfItem}
+												key={index}
+												onPress={() => getClass(className, classIDS)}
+											>
+												<Text style={styles.textname}>{className}</Text>
+											</TouchableOpacity>
+										);
+									})
+								) : selectList.sectionList && sectionList?.length > 0 ? (
+									sectionList.map((item, index) => {
+										let secName = item.sectionName;
+										let sectionID = item.sectionID;
+										return (
+											<TouchableOpacity
+												style={styles.nameOfItem}
+												key={index}
+												onPress={() => getSection(secName, sectionID)}
+											>
+												<Text style={styles.textname}>{secName}</Text>
+											</TouchableOpacity>
+										);
+									})
+								) : selectList.subjectList && subjectList?.length > 0 ? (
+									subjectList.map((item, index) => {
+										let subName = item.subjectName;
+										let subIds = item.subjectID;
+										return (
+											<TouchableOpacity
+												style={styles.nameOfItem}
+												key={index}
+												onPress={() => getSubject(subName, subIds)}
+											>
+												<Text style={styles.textname}>{subName}</Text>
+											</TouchableOpacity>
+										);
+									})
+								)
+									: (
+										<Text style={styles.errorText}>Please Select Required Field!</Text>
 									)
-								})}
-							</ScrollView>
+							}
 						</View>
-						<View style={styles.formBgs}>
-							<Text style={styles.titleText}>Select Class</Text>
-							<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(1, 'Select Class') }}>
-								<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.class}</Text>
-								<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
-							</TouchableOpacity>
-
-							<Text style={styles.titleText}>Select Section</Text>
-							<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(2, 'Select Section') }}>
-								<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.section}</Text>
-								<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
-							</TouchableOpacity>
-
-							<Text style={styles.titleText}>Select Subject</Text>
-							<TouchableOpacity style={styles.rowInput} onPress={() => { showPopup(3, 'Select Subject') }}>
-								<Text style={{ color: SWATheam.SwaBlack }}>{selectItem.subject}</Text>
-								<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
-							</TouchableOpacity>
-
-							<Text style={styles.titleText}>Assign To</Text>
-							<TouchableOpacity style={styles.rowInput} onPress={assignToModel}>
-								<Text style={{ color: SWATheam.SwaBlack }}>{stuNameStore}</Text>
-								<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
-							</TouchableOpacity>
-							<TextInput
-								value={fillData.topic}
-								label="Topic"
-								style={styles.inputBox}
-								onChangeText={(text) => handleChange('topic', text)}
-							/>
-							<TextInput
-								label="Instruction"
-								value={fillData.instruction}
-								style={styles.inputBox}
-								onChangeText={(text) => handleChange('instruction', text)}
-							/>
-							<TextInput
-								label="Meeting URL"
-								value={fillData.meetUrl}
-								style={styles.inputBox}
-								onChangeText={(text) => handleChange('meetUrl', text)}
-							/>
-							<View style={styles.row}>
-								<View style={{ width: "48%" }}>
-									<Text style={styles.titleText}>Start DateTime</Text>
-									<TouchableOpacity style={styles.rowInput} onPress={() => setOpen(true)}>
-										<Text>{formattedDateTime}</Text>
-										<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
-									</TouchableOpacity>
-								</View>
-								<View style={{ width: "48%" }}>
-									<Text style={styles.titleText}>End DateTime</Text>
-									<TouchableOpacity style={styles.rowInput} onPress={() => setOpen2(true)}>
-										<Text>{formattedDateTime2}</Text>
-										<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
-									</TouchableOpacity>
-								</View>
+					</View>
+				</Modal>
+			}
+			{stuListModel &&
+				<Modal animationType="slide" transparent={true}>
+					<View style={styles.ViewBox}>
+						<View style={styles.boxContainer}>
+							<View style={[styles.headingBox2]}>
+								<Text style={{ fontWeight: "bold" }}>Assign To</Text>
+								<TouchableOpacity onPress={closeAssignModal}>
+									<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
+								</TouchableOpacity>
 							</View>
 
-						</View>
-					</ScrollView>
-					<TouchableOpacity style={styles.assignMeeting} onPress={assignMeeting}>
-						<Text style={{ textAlign: 'center', color: '#fff', fontSize: 15 }}>Assign Meeting</Text>
-					</TouchableOpacity>
+							<View style={{ flex: 1, padding: 15 }}>
 
-					{selectList.modelBox &&
-						<Modal animationType="slide" transparent={true}>
-							<View style={styles.bgModal}>
-								<View style={styles.holderModel}>
-									<View style={styles.headingBox}>
-										<Text style={styles.selectedReq}>{clickedName}</Text>
+								<View style={styles.optionsCheck}>
 
-									</View>
-									<TouchableOpacity style={styles.closeIcons} onPress={hideBoxModel}>
-										<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
-									</TouchableOpacity>
-
-									{
-										selectList.classList && clsList?.length > 0 ? (
-											clsList.map((item, index) => {
-												let className = item.getClassDetail.classDesc;
-												let classIDS = item.getClassDetail.classID;
-												return (
-													<TouchableOpacity
-														style={styles.nameOfItem}
-														key={index}
-														onPress={() => getClass(className, classIDS)}
-													>
-														<Text style={styles.textname}>{className}</Text>
-													</TouchableOpacity>
-												);
-											})
-										) : selectList.sectionList && sectionList?.length > 0 ? (
-											sectionList.map((item, index) => {
-												let secName = item.sectionName;
-												let sectionID = item.sectionID;
-												return (
-													<TouchableOpacity
-														style={styles.nameOfItem}
-														key={index}
-														onPress={() => getSection(secName, sectionID)}
-													>
-														<Text style={styles.textname}>{secName}</Text>
-													</TouchableOpacity>
-												);
-											})
-										) : selectList.subjectList && subjectList?.length > 0 ? (
-											subjectList.map((item, index) => {
-												let subName = item.subjectName;
-												let subIds = item.subjectID;
-												return (
-													<TouchableOpacity
-														style={styles.nameOfItem}
-														key={index}
-														onPress={() => getSubject(subName, subIds)}
-													>
-														<Text style={styles.textname}>{subName}</Text>
-													</TouchableOpacity>
-												);
-											})
+									{data2?.map((item, index) => {
+										return (
+											<TouchableOpacity key={item.id} style={[styles.button, { borderColor: actAnyNone.includes(item.id) ? "green" : "#333" }]}
+												onPress={() => { selectAnyNone(item.id) }}>
+												<Text style={styles.textStu}>{item.btnName}</Text>
+											</TouchableOpacity>
 										)
-											: (
-												<Text style={styles.errorText}>Please Select Required Field!</Text>
-											)
-									}
+									})}
 								</View>
-							</View>
-						</Modal>
-					}
-					{stuListModel &&
-						<Modal animationType="slide" transparent={true}>
-							<View style={styles.ViewBox}>
-								<View style={styles.boxContainer}>
-									<View style={[styles.headingBox2]}>
-										<Text style={{ fontWeight: "bold" }}>Assign To</Text>
-										<TouchableOpacity onPress={closeAssignModal}>
-											<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
-										</TouchableOpacity>
-									</View>
 
-									<View style={{ flex: 1, padding: 15 }}>
 
-										<View style={styles.optionsCheck}>
+								{studentHolder &&
+									<>
+										<View style={styles.rowFlex}>
+											<TouchableOpacity style={styles.rowCheckWith} onPress={selectAll}>
+												<Text>Select All</Text>
+												<Checkbox status={studentIdStore.length === totalLength ? 'checked' : 'unchecked'} />
+											</TouchableOpacity>
+											<TouchableOpacity style={styles.doneBtn} onPress={closeAssignModal}>
+												<Text>Done</Text>
+											</TouchableOpacity>
+										</View>
+										<ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
 
-											{data2?.map((item, index) => {
+											{studentList?.map((item, index) => {
+												let name = item.getStudentName.firstName;
+												let className = item.getStudentName.classID;
+												let contactNum = item.getStudentName.fatherContact;
+												let sectionName = item.getStudentSection.sectionName;
+												let stuIds = item.getStudentName.studentID;
 												return (
-													<TouchableOpacity key={item.id} style={[styles.button, { borderColor: actAnyNone.includes(item.id) ? "green" : "#333" }]}
-														onPress={() => { selectAnyNone(item.id) }}>
-														<Text style={styles.textStu}>{item.btnName}</Text>
-													</TouchableOpacity>
+													<View style={[styles.boxHolder, { backgroundColor: studentIdStore.includes(stuIds) ? '#f0fffa' : '#fff' }]} key={stuIds}>
+														<TouchableOpacity style={[styles.rowView, { height: 40 }]}
+															onPress={() => { selectStudent(stuIds, name) }}>
+															<Text style={styles.number}>{index + 1}</Text>
+															<Checkbox status={studentIdStore.includes(stuIds) ? 'checked' : 'unchecked'} />
+														</TouchableOpacity>
+														<View style={styles.rowView}>
+															<Text style={styles.number}>Name</Text>
+															<Text style={styles.numberRight}>{name}</Text>
+														</View>
+														<View style={styles.rowView}>
+															<Text style={styles.number}>Class : {className}</Text>
+															<Text style={styles.number}>Section : {sectionName}</Text>
+														</View>
+														<View style={styles.rowView}>
+															<Text style={styles.number}>Contact No</Text>
+															<Text style={styles.numberRight}>{contactNum}</Text>
+														</View>
+													</View>
 												)
 											})}
-										</View>
-
-
-										{studentHolder &&
-											<>
-												<View style={styles.rowFlex}>
-													<TouchableOpacity style={styles.rowCheckWith} onPress={selectAll}>
-														<Text>Select All</Text>
-														<Checkbox status={studentIdStore.length === totalLength ? 'checked' : 'unchecked'} />
-													</TouchableOpacity>
-													<TouchableOpacity style={styles.doneBtn} onPress={closeAssignModal}>
-														<Text>Done</Text>
-													</TouchableOpacity>
-												</View>
-												<ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
-
-													{studentList?.map((item, index) => {
-														let name = item.getStudentName.firstName;
-														let className = item.getStudentName.classID;
-														let contactNum = item.getStudentName.fatherContact;
-														let sectionName = item.getStudentSection.sectionName;
-														let stuIds = item.getStudentName.studentID;
-														return (
-															<View style={[styles.boxHolder, { backgroundColor: studentIdStore.includes(stuIds) ? '#f0fffa' : '#fff' }]} key={stuIds}>
-																<TouchableOpacity style={[styles.rowView, { height: 40 }]}
-																	onPress={() => { selectStudent(stuIds, name) }}>
-																	<Text style={styles.number}>{index + 1}</Text>
-																	<Checkbox status={studentIdStore.includes(stuIds) ? 'checked' : 'unchecked'} />
-																</TouchableOpacity>
-																<View style={styles.rowView}>
-																	<Text style={styles.number}>Name</Text>
-																	<Text style={styles.numberRight}>{name}</Text>
-																</View>
-																<View style={styles.rowView}>
-																	<Text style={styles.number}>Class : {className}</Text>
-																	<Text style={styles.number}>Section : {sectionName}</Text>
-																</View>
-																<View style={styles.rowView}>
-																	<Text style={styles.number}>Contact No</Text>
-																	<Text style={styles.numberRight}>{contactNum}</Text>
-																</View>
-															</View>
-														)
-													})}
-												</ScrollView>
-											</>
-										}
-									</View>
-
-								</View>
-
+										</ScrollView>
+									</>
+								}
 							</View>
-						</Modal>
-					}
-					<DatePicker
-						modal
-						mode="datetime"
-						open={open}
-						date={date}
-						onConfirm={(date) => {
-							setOpen(false);
-							setDate(date);
-							const formatted = formatDateTime(date); // Save the formatted date and time
-							setFormattedDateTime(formatted);
-						}}
-						onCancel={() => {
-							setOpen(false);
-						}}
-					/>
-					<DatePicker
-						modal
-						mode="datetime"
-						open={open2}
-						date={date}
-						onConfirm={(date) => {
-							setOpen2(false);
-							setDate(date);
-							const formatted2 = formatDateTime(date); // Save the formatted date and time
-							setFormattedDateTime2(formatted2);
-						}}
-						onCancel={() => {
-							setOpen2(false);
-						}}
-					/>
 
-					{isLoad && <Loader />}
-				</View>
+						</View>
 
-			</SafeAreaView>
+					</View>
+				</Modal>
+			}
+			<DatePicker
+				modal
+				mode="datetime"
+				open={open}
+				date={date}
+				onConfirm={(date) => {
+					setOpen(false);
+					setDate(date);
+					const formatted = formatDateTime(date); // Save the formatted date and time
+					setFormattedDateTime(formatted);
+				}}
+				onCancel={() => {
+					setOpen(false);
+				}}
+			/>
+			<DatePicker
+				modal
+				mode="datetime"
+				open={open2 && formattedDateTime != ''}
+				date={date}
+				onConfirm={(date) => {
+					setOpen2(false);
+					setDate(date);
+					const formatted2 = formatDateTime(date); // Save the formatted date and time
+					setFormattedDateTime2(formatted2);
+				}}
+				onCancel={() => {
+					setOpen2(false);
+				}}
+			/>
 
-
+			{isLoad && <Loader />}
 		</SafeAreaProvider>
 	);
 }
@@ -820,8 +876,8 @@ const styles = StyleSheet.create({
 		width: '95%',
 		borderRadius: 10,
 		flex: 1,
-		marginTop: 150,
-		marginBottom: 20
+		marginTop: 10,
+		marginBottom: 10
 	},
 	errorText: {
 		textAlign: 'center',
@@ -940,7 +996,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: "#fff",
-
 	},
 	textInBtn: {
 		fontSize: 14,
@@ -950,7 +1005,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: "center",
 		justifyContent: "space-around",
-		margin: 15,
+		margin: 15
 	},
 	row: {
 		flexDirection: 'row',

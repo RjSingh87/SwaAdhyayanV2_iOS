@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React, { useContext, useState } from 'react'
-import { apiRoot, SwaTheam } from '../../../constant/ConstentValue'
+import { apiRoot, SWATheam } from '../../../constant/ConstentValue'
 import { GlobleData } from '../../../Store'
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomInput from '../../common/CustomInput'
 import { FlatList } from 'react-native-gesture-handler'
 import Services from '../../../Services'
@@ -26,7 +26,7 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
       "formType": formatName,
       "schMarksID": subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID != undefined ? subjectMarksEntry.list[index].getSubjectMarksEntry.schMarksID : ""
     }
-    console.log(payload, '----------------')
+
     Services.post(apiRoot.saveSubjectMarksEntry, payload)
       .then((res) => {
         console.log(JSON.stringify(res), 'check save response')
@@ -74,7 +74,7 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
 
   return (
     <View style={{ flex: 1, padding: 10 }}>
-      <Text style={{ color: SwaTheam.SwaBlack, fontWeight: '700', marginBottom: 8 }}>Subject Marks Entry (Half-Yearly & Annual)</Text>
+      <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', marginBottom: 8 }}>Subject Marks Entry (Half-Yearly & Annual)</Text>
       <FlatList
         data={subjectMarksEntry.list}
         keyExtractor={item => item.userRefID}
@@ -99,29 +99,27 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
             marksType = "Annual Marks"
           }
 
-          // console.log(item, 'check item')
-
           return (
-            <View style={{ backgroundColor: SwaTheam.SwaWhite, borderRadius: 6, borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10 }}>
+            <View style={{ backgroundColor: SWATheam.SwaWhite, borderRadius: 6, borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10 }}>
               <View style={{ padding: 10, backgroundColor: userData.data.colors.mainTheme, borderTopLeftRadius: 6, borderTopRightRadius: 6 }}>
-                <Text style={{ color: SwaTheam.SwaWhite }}>{subjectMarksEntry.list[index].getStudentName.fullName}</Text>
+                <Text style={{ color: SWATheam.SwaWhite }}>{subjectMarksEntry.list[index].getStudentName.fullName}</Text>
               </View>
               <View style={{ padding: 10 }}>
                 <View style={{ flexDirection: 'row', width: 200, justifyContent: 'space-between', marginBottom: 10 }}>
-                  <TouchableOpacity style={{ flexDirection: 'row', padding: 4, borderRadius: 50, width: 90, backgroundColor: SwaTheam.SwaWhite, elevation: 9, justifyContent: 'space-around' }} onPress={() => { selectTerm(item, 'term1') }}>
-                    <Ionicons name={T1Btn} color={SwaTheam.SwaBlue} size={20} />
-                    <Text style={{ color: SwaTheam.SwaBlack }}>Term 1</Text>
+                  <TouchableOpacity style={{ flexDirection: 'row', padding: 4, borderRadius: 50, width: 90, backgroundColor: SWATheam.SwaWhite, elevation: 9, justifyContent: 'space-around' }} onPress={() => { selectTerm(item, 'term1') }}>
+                    <Ionicons name={T1Btn} color={SWATheam.SwaBlue} size={20} />
+                    <Text style={{ color: SWATheam.SwaBlack }}>Term 1</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={{ flexDirection: 'row', padding: 4, borderRadius: 50, width: 90, backgroundColor: SwaTheam.SwaWhite, elevation: 9, justifyContent: 'space-around' }} onPress={() => { selectTerm(item, 'term2') }}>
-                    <Ionicons name={T2Btn} color={SwaTheam.SwaBlue} size={20} />
-                    <Text style={{ color: SwaTheam.SwaBlack }}>Term 2</Text>
+                  <TouchableOpacity style={{ flexDirection: 'row', padding: 4, borderRadius: 50, width: 90, backgroundColor: SWATheam.SwaWhite, elevation: 9, justifyContent: 'space-around' }} onPress={() => { selectTerm(item, 'term2') }}>
+                    <Ionicons name={T2Btn} color={SWATheam.SwaBlue} size={20} />
+                    <Text style={{ color: SWATheam.SwaBlack }}>Term 2</Text>
                   </TouchableOpacity>
                 </View>
                 <>
                   <View style={{ flexDirection: 'row', paddingVertical: 4, borderTopWidth: 1, borderColor: userData.data.colors.hoverTheme }}>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
-                      <Text style={{ color: SwaTheam.SwaBlack }}>Priodic Test</Text>
+                      <Text style={{ color: SWATheam.SwaBlack }}>Priodic Test</Text>
                     </View>
                     <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                       <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} defaultValue={item?.getSubjectMarksEntry != null && item?.getSubjectMarksEntry?.periodicTestMarks != undefined ? item.getSubjectMarksEntry.periodicTestMarks.toString() : null} onChangeText={(val) => onChangeText(val, index, "perodic")} />
@@ -130,7 +128,7 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
                   </View>
                   <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
-                      <Text style={{ color: SwaTheam.SwaBlack }}>Note Book</Text>
+                      <Text style={{ color: SWATheam.SwaBlack }}>Note Book</Text>
                     </View>
                     <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                       <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} defaultValue={item?.getSubjectMarksEntry != null && item?.getSubjectMarksEntry?.noteBookMarks != undefined ? item.getSubjectMarksEntry.noteBookMarks.toString() : null} onChangeText={(val) => onChangeText(val, index, "noteBook")} />
@@ -138,7 +136,7 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
                   </View>
                   <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
-                      <Text style={{ color: SwaTheam.SwaBlack }}>SEA</Text>
+                      <Text style={{ color: SWATheam.SwaBlack }}>SEA</Text>
                     </View>
                     <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                       <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} defaultValue={item?.getSubjectMarksEntry != null && item?.getSubjectMarksEntry?.seaMarks != undefined ? item.getSubjectMarksEntry.seaMarks.toString() : null} onChangeText={(val) => onChangeText(val, index, "sea")} />
@@ -146,15 +144,15 @@ const SubjectMarksEntryList = ({ subjectMarksEntry, selectedField, selectTerm, t
                   </View>
                   <View style={{ flexDirection: 'row', paddingVertical: 4 }}>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
-                      <Text style={{ color: SwaTheam.SwaBlack }}>{marksType}</Text>
+                      <Text style={{ color: SWATheam.SwaBlack }}>{marksType}</Text>
                     </View>
                     <View style={{ width: 80, height: 40, justifyContent: 'center' }}>
                       <CustomInput styleFrom={"GradeEntry"} keyboardType={"numeric"} maxLength={2} defaultValue={item?.getSubjectMarksEntry != null && item.getSubjectMarksEntry.halfYearlyMarks != undefined ? item.getSubjectMarksEntry.halfYearlyMarks.toString() : null} onChangeText={(val) => onChangeText(val, index, "halfYearly")} />
                     </View>
                   </View>
-                  <TouchableOpacity style={{ width: 80, padding: 10, borderRadius: 6, backgroundColor: item?.getSubjectMarksEntry != null ? SwaTheam.SwaGreen : userData.data.colors.mainTheme, alignSelf: 'flex-end', marginTop: 10 }} onPress={() =>
+                  <TouchableOpacity style={{ width: 80, padding: 10, borderRadius: 6, backgroundColor: item?.getSubjectMarksEntry != null ? SWATheam.SwaGreen : userData.data.colors.mainTheme, alignSelf: 'flex-end', marginTop: 10 }} onPress={() =>
                     saveSubjectMarksEntry(item, formatName, index)}>
-                    <Text style={{ color: SwaTheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase' }}>{formatName}</Text>
+                    <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center', textTransform: 'uppercase' }}>{formatName}</Text>
                   </TouchableOpacity>
                 </>
               </View>

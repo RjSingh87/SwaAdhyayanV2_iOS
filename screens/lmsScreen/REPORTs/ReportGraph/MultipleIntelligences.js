@@ -1,30 +1,30 @@
 import { StyleSheet, Text, View, Dimensions } from 'react-native'
 import React from 'react'
-import {BarChart} from "react-native-chart-kit";
+import { BarChart } from "react-native-chart-kit";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const MultipleINtelligences = ({reportData, testType, type}) => {
+const MultipleINtelligences = ({ reportData, testType, type }) => {
+
     let nameList = null
     let data = null
     let graphLength = null
 
-    if(testType==6 || type=="student"){
-        nameList=reportData.MI.imTypeName
+    if (testType == 6 || type == "student") {
+        nameList = reportData.MI.imTypeName
         data = reportData.MI.miPerCent
-        graphLength=reportData.MI.imTypeName.length
-    }else if(testType==1 || testType==2 || testType==3 || testType==4 || testType==5){
-        nameList=reportData.data.imTypeName
-        data =  reportData.data.miPerCent
-        graphLength=reportData.data.imTypeName.length
-    }else{
-        nameList=reportData.data.imTypeName
-        data =  reportData.data.miPerCent
-        graphLength=reportData.data.imTypeName.length
+        graphLength = reportData.MI.imTypeName.length
+    } else if (testType == 1 || testType == 2 || testType == 3 || testType == 4 || testType == 5) {
+        nameList = reportData.data.imTypeName
+        data = reportData.data.miPerCent
+        graphLength = reportData.data.imTypeName.length
+    } else {
+        nameList = reportData.data.imTypeName
+        data = reportData.data.miPerCent
+        graphLength = reportData.data.imTypeName.length
     }
 
-  
     return (
         <BarChart
             data={{
@@ -45,7 +45,7 @@ const MultipleINtelligences = ({reportData, testType, type}) => {
                     }
                 ]
             }}
-            width={graphLength*100}
+            width={graphLength * 100}
             height={200}
             chartConfig={{
                 backgroundColor: "#fff",
@@ -55,9 +55,9 @@ const MultipleINtelligences = ({reportData, testType, type}) => {
                 color: (opacity = 0) => `#000`,
                 strokeWidth: 5,
                 barPercentage: 0.50
-                
+
             }}
-            
+
             hideLegend={true}
             withCustomBarColorFromData={true}
             flatColor={true}

@@ -7,12 +7,15 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const AcademicProficiency = ({ reportData, testType, type }) => {
+
     let totalPercentage = 0
     if (testType == 6 || type == "student") {
         totalPercentage = reportData?.APP?.totalPercentage
     } else {
         totalPercentage = reportData?.data?.totalPercentage
     }
+
+    // console.log(totalPercentage, 'check totalPercentage')
     return (
         <>
             {!reportData.status ?

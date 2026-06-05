@@ -1,15 +1,10 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, StatusBar } from 'react-native'
 import React, { useContext } from 'react'
 import { GlobleData } from '../../../Store'
 import { SWATheam } from '../../../constant/ConstentValue'
-
 const Co_ScholasticIndicator = ({ indicatorsList, actionOnIndicator, subIconID }) => {
-    console.log("Co_ScholasticIndicator.js")
     const { userData } = useContext(GlobleData)
-
-
-
-
+    const statusBarHeight = StatusBar.currentHeight
 
     return (
         <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>

@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, Alert, StatusBar } from 'react-native'
 import React, { useContext, useState } from 'react'
 import { GlobleData } from '../../../Store'
 import SwaHeader from '../../common/SwaHeader'
@@ -9,15 +9,19 @@ import BottomDrawerList from '../../common/BottomDrawerList'
 import Loader from '../../common/Loader'
 import ReportViwer from '../../common/ReportViwer'
 import ReportInstructions from './ReportInstructions'
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import MsgModal from '../../common/MsgModal'
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { flowRef } from '../flowRef';  //globel variable for check isSearch (subIconScreen pe check karne ke liye)
 
 
 const ViewReport = ({ navigation, route }) => {
-
+    const insets = useSafeAreaInsets();
+    const statusBarHeight = StatusBar.currentHeight
     const { userData } = useContext(GlobleData)
-    const reportName = route.params.data.childIconName
-    const reportSubIconID = route.params.data.subIconID
-    const reportChildIconSequence = route.params.data.childIconSequence
+    const reportName = route.params.data.subIcon != undefined ? route.params.data.subIcon.childIcon.childIconName : route.params.data.childIconName
+    const reportSubIconID = route.params.data.subIcon != undefined ? route.params.data.subIcon.subIconID : route.params.data.subIconID
+    const reportChildIconSequence = route.params.data.subIcon != undefined ? route.params.data.subIcon.childIcon.childIconSequence : route.params.data.childIconSequence
 
     const [selectedField, setSelectedField] = useState({ class: null, section: null, student: null, subject: null, assessment: null })
     const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
@@ -25,11 +29,12 @@ const ViewReport = ({ navigation, route }) => {
     const [reportData, setReportData] = useState({ data: null, status: false })
     const [consolidatedReportData, setConsolidatedReportData] = useState({ APP: null, LS: null, MI: null, KM: null, BD: null, msg: '', status: false })
     const [combineReport, SetCombineReport] = useState(false)
+    const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
 
-    const testType = route.params.data.childIconSequence
-
+    const testType = route.params.data.subIcon != undefined ? route.params.data.subIcon.childIcon.childIconSequence : route.params.data.childIconSequence
 
     function onClickLeftIcon() {
+        flowRef.fromChild2 = true;
         navigation.goBack()
     }
     function onClickRightIcon() {
@@ -54,9 +59,9 @@ const ViewReport = ({ navigation, route }) => {
             })
             if (reportSubIconID == 60) {
                 const payload = {
-                    septID: route.params.data.childIconSequence,
-                    classIDs: route.params.data.classIDs,
-                    classIDs: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.data.classIDs : userData.data.classID,
+                    septID: reportChildIconSequence,
+                    // classIDs: route.params.data.classIDs,
+                    classIDs: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? (route?.params?.data?.subIcon != undefined ? route?.params?.data?.subIcon?.childIcon?.classIDs : route?.params?.data?.classIDs) : userData.data.classID,
                     schoolID: userData.data.schoolID,
                     userTypeID: userData?.data?.userTypeID,
                     userRefID: userData?.data?.userRefID,
@@ -71,11 +76,20 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, list: res.data, status: true, type: "reportClass" }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
                         console.log(err)
+                        setIsLoading(false)
                     })
                     .finally(() => {
                         setIsLoading(false)
@@ -100,7 +114,15 @@ const ViewReport = ({ navigation, route }) => {
                             });
                             setIsLoading(false)
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -134,7 +156,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, list: res.data, status: true, type: "reportSection" }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -144,7 +174,14 @@ const ViewReport = ({ navigation, route }) => {
                         setIsLoading(false)
                     })
             } else {
-                alert('Please select required fields.')
+                setMsgModalVisible((prev) => {
+                    return { ...prev, msg: 'Please select required fields.', status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, status: false }
+                    })
+                }, 2000)
                 setIsLoading(false)
                 setListItem((prev) => {
                     return { ...prev, status: false }
@@ -167,7 +204,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, list: res.data, status: true, type: "reportStudent" }
                             })
                         } else {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -177,14 +222,21 @@ const ViewReport = ({ navigation, route }) => {
                         setIsLoading(false)
                     })
             } else {
-                alert('Please select required fields.')
+                setMsgModalVisible((prev) => {
+                    return { ...prev, msg: "Please select required fields.", status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, status: false }
+                    })
+                }, 2000)
                 setIsLoading(false)
                 setListItem((prev) => {
                     return { ...prev, status: false }
                 })
             }
         } else if (type == 'subject') {
-            if (reportSubIconID == 65 && testType == 1 ? (selectedField.class != null && selectedField.section != null) : (selectedField.class != null && selectedField.section != null && selectedField.student != null)) {
+            if (reportSubIconID == 64 && testType == 2 || reportSubIconID == 65 && testType == 1 || reportSubIconID == 62 && testType == 4 ? (selectedField.class != null && selectedField.section != null) : (selectedField.class != null && selectedField.section != null && selectedField.student != null)) {
                 const payload = {
                     "schoolID": userData?.data?.schoolID,
                     "userTypeID": userData?.data?.userTypeID,
@@ -201,7 +253,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, list: res.data, status: true, type: "reportSubject" }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -212,41 +272,69 @@ const ViewReport = ({ navigation, route }) => {
                         setIsLoading(false)
                     })
             } else {
-                alert('Please select required fields.')
+                setMsgModalVisible((prev) => {
+                    return { ...prev, msg: "Please select required fields.", status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, status: false }
+                    })
+                }, 2000)
                 setIsLoading(false)
                 setListItem((prev) => {
                     return { ...prev, status: false }
                 })
             }
         } else if (type == "assessment") {
-            setIsLoading(true)
+            console.log(reportSubIconID + " " + testType)
             if (reportSubIconID == 62 && (testType == 4 || testType == 7)) {
-
-                const payload = {
-                    "schoolID": userData?.data?.schoolID,
-                    "academicYear": userData?.data?.academicYear,
-                    "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
-                    "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
-                    "subjectID": selectedField.subject.subjectID
-                }
-                Services.post(apiRoot.getAssessmentReportData, payload)
-                    .then((res) => {
-                        if (res.status == "success") {
+                if (((reportSubIconID == 62 && testType == 4) && (selectedField.class != null && selectedField.section != null && selectedField.subject != null)) || ((reportSubIconID == 62 && testType == 7) && (selectedField.class != null && selectedField.section != null && selectedField.student != null && selectedField.subject != null))) {
+                    const payload = {
+                        "schoolID": userData?.data?.schoolID,
+                        // "academicYear": userData?.data?.academicYear,
+                        "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
+                        "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID,
+                        "subjectID": selectedField.subject.subjectID
+                    }
+                    Services.post(apiRoot.getAssessmentReportData, payload)
+                        .then((res) => {
+                            if (res.status == "success") {
+                                setIsLoading(false)
+                                setListItem((prev) => {
+                                    return { ...prev, list: res.data, status: true, type: "reportAss" }
+                                })
+                            } else if (res.status == "error") {
+                                setIsLoading(false)
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                                })
+                                setTimeout(() => {
+                                    setMsgModalVisible((prev) => {
+                                        return { ...prev, status: false }
+                                    })
+                                }, 2000)
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err)
                             setIsLoading(false)
-                            setListItem((prev) => {
-                                return { ...prev, list: res.data, status: true, type: "reportAss" }
-                            })
-                        } else if (res.status == "error") {
-                            alert(res.message)
-                        }
+                        })
+                        .finally(() => {
+                            setIsLoading(false)
+                        })
+                } else {
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: "Please select required fields.", status: true, type: 'error' }
                     })
-                    .catch((err) => {
-                        console.log(err)
-                        setIsLoading(false)
-                    })
-                    .finally(() => {
-                        setIsLoading(false)
-                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
+                    setIsLoading(false)
+
+                }
+
             } else if (reportSubIconID == 64 && testType == 1) {
                 if (selectedField.class != null && selectedField.section != null) {
                     const payload = {
@@ -261,7 +349,15 @@ const ViewReport = ({ navigation, route }) => {
                                 })
 
                             } else if (res.status == 'error') {
-                                alert(res.message)
+                                setIsLoading(false)
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                                })
+                                setTimeout(() => {
+                                    setMsgModalVisible((prev) => {
+                                        return { ...prev, status: false }
+                                    })
+                                }, 2000)
                             }
                         })
                         .catch((err) => {
@@ -272,7 +368,14 @@ const ViewReport = ({ navigation, route }) => {
                         })
 
                 } else {
-                    alert('Please select required fields.')
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: "Please select required fields.", status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                     setIsLoading(false)
                 }
             } else if (reportSubIconID == 64 && testType == 2) {
@@ -291,7 +394,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, list: res.data, status: true, type: "reportAss" }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -337,7 +448,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, data: res.data, status: true }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -369,7 +488,15 @@ const ViewReport = ({ navigation, route }) => {
                                 return { ...prev, data: res.data, status: true }
                             })
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -402,7 +529,15 @@ const ViewReport = ({ navigation, route }) => {
                             })
 
                         } else if (res.status == "error") {
-                            alert(res.message)
+                            setIsLoading(false)
+                            setMsgModalVisible((prev) => {
+                                return { ...prev, msg: res.message, status: true, type: 'error' }
+                            })
+                            setTimeout(() => {
+                                setMsgModalVisible((prev) => {
+                                    return { ...prev, status: false }
+                                })
+                            }, 2000)
                         }
                     })
                     .catch((err) => {
@@ -427,7 +562,16 @@ const ViewReport = ({ navigation, route }) => {
                 setListItem((prev) => {
                     return { ...prev, status: false }
                 });
+                setSelectedField((prev) => {
+                    return { ...prev, student: item }
+                });
             } else if (reportSubIconID == 60) {
+                setSelectedField((prev) => {
+                    return { ...prev, student: item }
+                });
+                setListItem((prev) => {
+                    return { ...prev, status: false }
+                })
                 getReport(item.userRefID)
             } else if (reportSubIconID == 62 && testType == 6) {
                 setSelectedField((prev) => {
@@ -472,9 +616,9 @@ const ViewReport = ({ navigation, route }) => {
                     return { ...prev, status: false }
                 });
             }
-            console.log(reportSubIconID, testType)
 
         } else if (type == 'reportSubject') {
+
             if (reportSubIconID == 62 && testType == 5) {
                 setSelectedField((prev) => {
                     return { ...prev, subject: item }
@@ -509,6 +653,15 @@ const ViewReport = ({ navigation, route }) => {
                     return { ...prev, status: false }
                 });
                 assessmentReportListSubjectWise(item)
+
+            } else if (reportSubIconID == 65 && testType == 2) {
+                setSelectedField((prev) => {
+                    return { ...prev, subject: item }
+                });
+                setListItem((prev) => {
+                    return { ...prev, status: false }
+                });
+                assessmentReportListStudentWise(item)
 
             } else {
                 setSelectedField((prev) => {
@@ -545,8 +698,25 @@ const ViewReport = ({ navigation, route }) => {
         }
     }
 
+    function assessmentReportListStudentWise(item) {
+        const payload = {
+            "schoolID": userData.data.schoolID,
+            "academicYear": userData.data.academicYear,
+            "classID": selectedField.class.classID,
+            "sectionID": selectedField.section.sectionID,
+            "userRefID": selectedField.student.userRefID,
+            "subjectID": item.subjectID
+        }
+        Services.post(apiRoot.assessmentReportListStudentWise, payload)
+            .then((res) => {
+                if (res.status == "success") {
+                    let reportName = "Detailed Analytical Report of Student"
+                    navigation.navigate("detailAnalyticalList", { data: res.data, userRefID: selectedField.student.userRefID, reportName: reportName, selectedField: item, testType: testType })
+                } else if (res.status == "error") {
+                }
+            })
+    }
     function assessmentReportListSubjectWise(item) {
-        console.log(item, 'hari krishan pant')
         const payload = {
             "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
@@ -556,19 +726,18 @@ const ViewReport = ({ navigation, route }) => {
         }
         Services.post(apiRoot.assessmentReportListSubjectWise, payload)
             .then((res) => {
-                console.log(JSON.stringify(res), 'check')
                 if (res.status == "success") {
-                    let reportName = ""
-                    if (reportSubIconID == 65 && testType == 1) {
-                        reportName = "Detailed Analytical Report of Class for Teacher Subject-wise"
-                    } else {
-                        reportName = "Detailed Analytical Report of Student"
-
-                    }
+                    let reportName = "Detailed Analytical Report of Class for Teacher Subject-wise"
                     navigation.navigate("detailAnalyticalList", { data: res.data, reportName: reportName, testType: testType })
-
                 } else if (res.status == "error") {
-
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
 
@@ -592,7 +761,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -606,7 +782,6 @@ const ViewReport = ({ navigation, route }) => {
 
     function classWiseAssWiseSubjReport(item) {
         setIsLoading(true)
-        console.log(item, 'check item')
         const payload = {
             "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
@@ -615,15 +790,24 @@ const ViewReport = ({ navigation, route }) => {
             "assessmentID": item.examID,
             "assessmentName": item.examName
         }
+        console.log(payload)
         Services.post(apiRoot.classAssessmentWiseSubjectReport, payload)
             .then((res) => {
+                console.log(JSON.stringify(res))
                 if (res.status == "success") {
                     setIsLoading(false)
                     setReportData((prev) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -634,7 +818,6 @@ const ViewReport = ({ navigation, route }) => {
             })
 
     }
-
     function getAnnualReport(item) {
         setIsLoading(true)
         const payload = {
@@ -646,13 +829,21 @@ const ViewReport = ({ navigation, route }) => {
         }
         Services.post(apiRoot.getAnnualReport, payload)
             .then((res) => {
+                console.log(JSON.stringify(res), 'annualreport')
                 if (res.status == "success") {
                     setIsLoading(false)
                     setReportData((prev) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -664,6 +855,7 @@ const ViewReport = ({ navigation, route }) => {
     }
 
     function getHalfYearlyReports(item) {
+        console.log()
         setIsLoading(true)
         const payload = {
             "schoolID": userData.data.schoolID,
@@ -672,15 +864,25 @@ const ViewReport = ({ navigation, route }) => {
             "sectionID": item.sectionID,
             "userRefID": item.userRefID
         }
+        console.log(payload)
         Services.post(apiRoot.getHalfYearlyReports, payload)
+
             .then((res) => {
+                console.log(JSON.stringify(res))
                 if (res.status == "success") {
                     setIsLoading(false)
                     setReportData((prev) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -709,7 +911,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -739,7 +948,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -748,7 +964,6 @@ const ViewReport = ({ navigation, route }) => {
             .finally(() => {
                 setIsLoading(false)
             })
-
     }
     function getSubjectWiseDifficultyAnalysis(item) {
         setIsLoading(true)
@@ -767,7 +982,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -777,7 +999,6 @@ const ViewReport = ({ navigation, route }) => {
                 setIsLoading(false)
             })
     }
-
     function assessmentWiseStudentReport(item) {
         setIsLoading(true)
         const payload = {
@@ -797,7 +1018,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -808,9 +1036,12 @@ const ViewReport = ({ navigation, route }) => {
             })
 
     }
+
     function allSubjectStudentComparisonReport(item) {
+
         setIsLoading(true)
         const payload = {
+
             "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
@@ -825,7 +1056,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -836,7 +1074,6 @@ const ViewReport = ({ navigation, route }) => {
             })
     }
     function subjectWiseStudentComparisonReport(item) {
-
         setIsLoading(true)
         const payload = {
             "schoolID": userData.data.schoolID,
@@ -854,7 +1091,14 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -883,7 +1127,15 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else if (res.status == "error") {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
+
                 }
             })
             .catch((err) => {
@@ -900,9 +1152,9 @@ const ViewReport = ({ navigation, route }) => {
             "schoolID": userData.data.schoolID,
             "academicYear": userData.data.academicYear,
             "userRefID": userRefID,
-            "testID": route.params.data.childIconSequence,
+            "testID": reportChildIconSequence,
             "classID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.class.classID : userData.data.classID,
-            "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sect
+            "sectionID": (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? selectedField.section.sectionID : userData.data.sectionID
         }
         Services.post(apiRoot.reportSEPT, payload)
             .then((res) => {
@@ -921,7 +1173,18 @@ const ViewReport = ({ navigation, route }) => {
                         return { ...prev, data: res.data, status: true }
                     })
                 } else {
-                    alert(res.message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: res.message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
+                    setListItem((prev) => {
+                        return { ...prev, status: false }
+                    });
+
                 }
             }).catch((err) => {
                 console.log(err)
@@ -963,7 +1226,6 @@ const ViewReport = ({ navigation, route }) => {
                         setConsolidatedReportData((prev) => {
                             return { ...prev, msg: res.data.LS.message, status: true }
                         })
-
                     }
                     if (res.data.MI.status == "success") {
                         setConsolidatedReportData((prev) => {
@@ -1001,7 +1263,14 @@ const ViewReport = ({ navigation, route }) => {
                     }
                 } else if (res.status == "error") {
                     const message = res.message == undefined ? 'Student has not attempted any of the SEPT test.' : res.message
-                    alert(message)
+                    setMsgModalVisible((prev) => {
+                        return { ...prev, msg: message, status: true, type: 'error' }
+                    })
+                    setTimeout(() => {
+                        setMsgModalVisible((prev) => {
+                            return { ...prev, status: false }
+                        })
+                    }, 2000)
 
                 }
             })
@@ -1011,74 +1280,80 @@ const ViewReport = ({ navigation, route }) => {
             .finally(() => {
                 setIsLoading(false)
             })
-
     }
 
-    // console.log(reportSubIconID, testType)
-
-
-
-
     return (
-        <SafeAreaProvider>
-            <SafeAreaView edges={['left', 'right', 'top']} style={{ flex: 1, backgroundColor: userData.data.colors.mainTheme }}>
-                <View style={{ flex: 1, marginTop: Platform.OS == "ios" ? 0 : 24, backgroundColor: userData.data.colors.liteTheme }}>
-                    {isLoading ?
-                        <Loader /> :
-                        <>
-                            <SwaHeader title={"Report"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-                            <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, padding: 10 }}>
-                                <View style={{ padding: 10 }}>
-                                    <Text style={{ textAlign: 'center', textTransform: 'uppercase', fontWeight: '700', color: SWATheam.SwaBlack }}>{reportName}</Text>
-                                </View>
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.classDesc} type="class" placeholder="Select class" />
-                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
-                                {reportSubIconID == 60 || reportSubIconID == 62 && (testType == 5 || testType == 6 || testType == 7) || (reportSubIconID == 63 && (testType == 1 || testType == 2 || testType == 4 || testType == 5 || testType == 6 || testType == 7)) ?
-                                    <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" /> : null
+        <SafeAreaProvider style={{ flex: 1, paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
+            {isLoading ?
+                <Loader /> :
+                <>
+                    <SwaHeader title={"Report"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                    <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, padding: 10 }}>
+                        <View style={{ padding: 10 }}>
+                            <Text style={{ textAlign: 'center', textTransform: 'uppercase', fontWeight: '700', color: SWATheam.SwaBlack }}>{reportName}</Text>
+                        </View>
+                        <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.classDesc} type="class" placeholder="Select class" />
+                        <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
+                        {reportSubIconID == 60 || reportSubIconID == 62 && (testType == 5 || testType == 6 || testType == 7) || (reportSubIconID == 63 && (testType == 1 || testType == 2 || testType == 4 || testType == 5 || testType == 6 || testType == 7)) ?
+                            <>
+                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" />
+                                {reportSubIconID == 62 && (testType == 5 || testType == 7) ?
+                                    <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" /> : null
                                 }
-                                {reportSubIconID == 62 || reportSubIconID == 63 || reportSubIconID == 64 || reportSubIconID == 65 ?
-                                    <>{(reportSubIconID == 63 && (testType == 2 || testType == 3)) || testType == 4 || testType == 5 || testType == 7 ?
-                                        <>
-                                            {reportSubIconID == 63 && testType == 3 ?
-                                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" /> : null
-                                            }
-                                            {reportSubIconID == 63 && testType != 4 && testType != 5 || reportSubIconID == 65 && testType == 1 ?
-                                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" /> : null
-                                            }
-                                        </> : null
+
+
+                            </> : null
+                        }
+                        {reportSubIconID == 62 || reportSubIconID == 63 || reportSubIconID == 64 || reportSubIconID == 65 ?
+                            <>{(reportSubIconID == 63 && (testType == 2 || testType == 3)) || testType == 4 || testType == 5 || testType == 7 ?
+                                <>
+                                    {reportSubIconID == 63 && testType == 3 ?
+                                        <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" /> : null
                                     }
-                                        {(reportSubIconID == 64 && testType == 2) || (reportSubIconID == 65 && testType == 1 || testType == 2) ?
-                                            <>
-                                                {(reportSubIconID == 64 && testType == 2) || (reportSubIconID == 65 && testType == 2) ?
-                                                    <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" /> : null
-                                                }
-                                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" />
-                                            </> : null
+                                    {reportSubIconID == 63 && testType != 4 && testType != 5 || reportSubIconID == 65 && testType == 1 ?
+                                        <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" /> : null
+                                    }
+                                </> : null
+                            }
+                                {(reportSubIconID == 64 && testType == 2) || (reportSubIconID == 65 && (testType == 1 || testType == 2)) ?
+                                    <>
+                                        {reportSubIconID == 64 && testType == 2 || reportSubIconID == 65 && testType == 2 &&
+                                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" />
                                         }
-                                        {reportSubIconID == 62 || reportSubIconID == 64 && testType == 1 || testType == 2 || testType == 4 || testType == 7 ?
-                                            <>
-
-                                                <SelectionBox getListItem={getListItem} selectedField={reportSubIconID == 64 && testType == 1 ? selectedField?.assessment?.examName : selectedField?.assessment?.assessmentName} type="assessment" placeholder="Select assessment" />
-
-                                            </>
-                                            : null
+                                        {(reportSubIconID == 65 && (testType == 1 || testType == 2)) ?
+                                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" /> : null
                                         }
                                     </> : null
                                 }
-                                <ReportInstructions instruction={route.params.data.iconDescription} />
-                            </View>
-                            {reportData.status || combineReport ?
-                                <ReportViwer closeModule={closeModule} reportData={combineReport ? consolidatedReportData : reportData} selectedField={selectedField} reportName={reportName} testType={testType} reportSubIconID={reportSubIconID} reportChildIconSequence={reportChildIconSequence} /> : null
-                            }
-                            {listItem.status ?
-                                <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} selectedField={selectedField} /> : null
-                            }
 
-                        </>
+                                {(reportSubIconID == 62 && (testType == 4 || testType == 7)) || (reportSubIconID == 64 && (testType == 1 || testType == 2 || testType == 4 || testType == 7)) ?
+                                    <>
+                                        {reportSubIconID == 64 && testType == 2 ?
+                                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.student?.fullName} type="student" placeholder="Select student" /> : null
+                                        }
+                                        {(reportSubIconID == 62 || reportSubIconID == 64) && (testType == 2 || testType == 4) ?
+                                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject " /> : null
+                                        }
+
+                                        <SelectionBox getListItem={getListItem} selectedField={reportSubIconID == 64 && testType == 1 ? selectedField?.assessment?.examName : selectedField?.assessment?.assessmentName} type="assessment" placeholder="Select assessment" />
+                                    </> : null
+                                }
+                            </> : null
+                        }
+                        <ReportInstructions instruction={route?.params?.data?.subIcon != undefined ? route?.params?.data?.subIcon.childIcon?.iconDescription : route?.params?.data?.iconDescription} />
+                    </View>
+                    {reportData.status || combineReport ?
+                        <ReportViwer closeModule={closeModule} reportData={combineReport ? consolidatedReportData : reportData} selectedField={selectedField} reportName={reportName} testType={testType} reportSubIconID={reportSubIconID} reportChildIconSequence={reportChildIconSequence} /> : null
+                    }
+                    {listItem.status ?
+                        <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} selectedField={selectedField} /> : null
                     }
 
-                </View>
-            </SafeAreaView>
+                </>
+            }
+
+            <MsgModal msgModalVisible={msgModalVisible} />
+
         </SafeAreaProvider>
     )
 }

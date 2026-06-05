@@ -1,17 +1,17 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Linking, Modal, Platform } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Linking, Modal, StatusBar } from 'react-native'
 import React, { useState, useContext, useEffect } from 'react'
-import AntDesign from "react-native-vector-icons/AntDesign";
-import EvilIcons from "react-native-vector-icons/EvilIcons";
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import SwaHeader from '../../common/SwaHeader';
 import Services from '../../../Services';
 import Loader from '../../common/Loader';
 import { GlobleData } from '../../../Store';
 import { apiRoot, SWATheam } from '../../../constant/ConstentValue';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const LiveClassList = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const { userData } = useContext(GlobleData)
     const date1 = new Date();
     const todayDate = `${date1.getFullYear()}-${String(
@@ -90,111 +90,105 @@ const LiveClassList = ({ navigation }) => {
             })
     }
 
-    const insets = useSafeAreaInsets()
-
     return (
-        <SafeAreaProvider>
-            <SafeAreaView edges={['left', 'right', 'top']} style={[styles.holderListLive, { backgroundColor: userData?.data?.colors?.mainTheme }]}>
-                <View style={{ flex: 1, paddingBottom: insets.bottom, backgroundColor: userData?.data?.colors?.liteTheme }}>
-                    <SwaHeader title={"Live Classes List"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-                    {isLoad ?
-                        <Loader /> :
-                        <View style={styles.whiteBox}>
-                            <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
-                                {liveClslist?.length > 0 ? (
-                                    liveClslist.map((items, index) => (
-                                        <View style={[styles.boxHolder, { margin: 10 }]} key={index}>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>Sr.No.</Text>
-                                                <Text style={styles.numberRight}>{liveClslist.indexOf(items) + 1}.</Text>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>Class / Section</Text>
-                                                <Text style={styles.numberRight}>
-                                                    {items.getClassName.className} - {items.getSectionName.sectionName}
-                                                </Text>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>Subject</Text>
-                                                <Text style={styles.numberRight}>{items.getSubjectName.subjectName}</Text>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <View>
-                                                    <Text style={styles.number}>Topic</Text>
-                                                    <Text>{items.subjectTopic}</Text>
-                                                </View>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <View>
-                                                    <Text style={styles.number}>Instruction</Text>
-                                                    <Text>{items.meetingInstruction}</Text>
-                                                </View>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>Start Date</Text>
-                                                <Text style={styles.numberRight}>{items.startDateTime}</Text>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>End Date</Text>
-                                                <Text style={styles.numberRight}>{items.endDateTime}</Text>
-                                            </View>
-                                            <View style={styles.rowView}>
-                                                <Text style={styles.number}>Type</Text>
-                                                <View style={styles.numberRight}>
-                                                    {new Date(items.endDateTime) > new Date(todayDate) ? (
-                                                        <TouchableOpacity
-                                                            style={styles.joinBtn}
-                                                            onPress={() => Linking.openURL(items.meetingURL)}
-                                                        >
-                                                            <Text style={{ color: "#fff", fontSize: 14 }}>Join</Text>
-                                                        </TouchableOpacity>
-                                                    ) : (
-                                                        <TouchableOpacity style={styles.held}>
-                                                            <Text style={{ color: "#fff", fontSize: 14 }}>Held</Text>
-                                                        </TouchableOpacity>
-                                                    )}
-                                                </View>
-                                            </View>
-                                            <View style={[styles.rowView, { borderBottomWidth: 0 }]}>
-                                                <Text style={styles.number}>Action</Text>
-                                                <View style={styles.numberRight}>
-                                                    <TouchableOpacity style={styles.deleteCls} onPress={() => showModelConf(items)}>
-                                                        <AntDesign name="delete" size={20} color="red" />
-                                                    </TouchableOpacity>
-                                                </View>
-                                            </View>
+        <SafeAreaProvider style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+            <SwaHeader title={"Live Classes List"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+            {isLoad ?
+                <Loader /> :
+                <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+                    <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+                        {liveClslist?.length > 0 ? (
+                            liveClslist.map((items, index) => (
+                                <View style={[styles.boxHolder, { margin: 10 }]} key={index}>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>Sr.No.</Text>
+                                        <Text style={styles.numberRight}>{liveClslist.indexOf(items) + 1}.</Text>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>Class / Section</Text>
+                                        <Text style={styles.numberRight}>
+                                            {items.getClassName.className} - {items.getSectionName.sectionName}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>Subject</Text>
+                                        <Text style={styles.numberRight}>{items.getSubjectName.subjectName}</Text>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <View>
+                                            <Text style={styles.number}>Topic</Text>
+                                            <Text>{items.subjectTopic}</Text>
                                         </View>
-                                    ))
-                                ) : (
-                                    <Text style={{ textAlign: "center", margin: 20, fontSize: 14 }}>No live classes available</Text>
-                                )}
-                            </ScrollView>
-                        </View>
-                    }
-
-                    {isDlt &&
-                        <Modal animationType="slide" transparent={true}>
-                            <View style={styles.bgModal2}>
-                                <View style={styles.holderModel2}>
-                                    <EvilIcons style={styles.iconsq} name="question" size={100} />
-                                    <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-                                        Are you sure you want to delete this record?
-                                    </Text>
-                                    <Text style={{ textAlign: "center" }}>If you delete this, it will be gone forever.</Text>
-                                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 25 }}>
-                                        <TouchableOpacity style={styles.buttonTouch} onPress={deleteLiveCls}>
-                                            <Text style={{ textAlign: "center", color: '#fff' }}>Confirm</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={noDelete} style={[styles.buttonTouch, { backgroundColor: "red" }]}>
-                                            <Text style={{ textAlign: "center", color: '#fff' }}>Cancel</Text>
-                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <View>
+                                            <Text style={styles.number}>Instruction</Text>
+                                            <Text>{items.meetingInstruction}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>Start Date</Text>
+                                        <Text style={styles.numberRight}>{items.startDateTime}</Text>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>End Date</Text>
+                                        <Text style={styles.numberRight}>{items.endDateTime}</Text>
+                                    </View>
+                                    <View style={styles.rowView}>
+                                        <Text style={styles.number}>Type</Text>
+                                        <View style={styles.numberRight}>
+                                            {new Date(items.endDateTime) > new Date(todayDate) ? (
+                                                <TouchableOpacity
+                                                    style={styles.joinBtn}
+                                                    onPress={() => Linking.openURL(items.meetingURL)}
+                                                >
+                                                    <Text style={{ color: "#fff", fontSize: 14 }}>Join</Text>
+                                                </TouchableOpacity>
+                                            ) : (
+                                                <TouchableOpacity style={styles.held}>
+                                                    <Text style={{ color: "#fff", fontSize: 14 }}>Held</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+                                    <View style={[styles.rowView, { borderBottomWidth: 0 }]}>
+                                        <Text style={styles.number}>Action</Text>
+                                        <View style={styles.numberRight}>
+                                            <TouchableOpacity style={styles.deleteCls} onPress={() => showModelConf(items)}>
+                                                <AntDesign name="delete" size={20} color="red" />
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                        </Modal>
-                    }
+                            ))
+                        ) : (
+                            <Text style={{ textAlign: "center", margin: 20, fontSize: 14 }}>No live classes available</Text>
+                        )}
+                    </ScrollView>
                 </View>
-            </SafeAreaView>
+            }
+
+            {isDlt &&
+                <Modal animationType="slide" transparent={true}>
+                    <View style={styles.bgModal2}>
+                        <View style={styles.holderModel2}>
+                            <EvilIcons style={styles.iconsq} name="question" size={100} />
+                            <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
+                                Are you sure you want to delete this record?
+                            </Text>
+                            <Text style={{ textAlign: "center" }}>If you delete this, it will be gone forever.</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 25 }}>
+                                <TouchableOpacity style={styles.buttonTouch} onPress={deleteLiveCls}>
+                                    <Text style={{ textAlign: "center", color: '#fff' }}>Confirm</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={noDelete} style={[styles.buttonTouch, { backgroundColor: "red" }]}>
+                                    <Text style={{ textAlign: "center", color: '#fff' }}>Cancel</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            }
 
 
         </SafeAreaProvider>
@@ -234,11 +228,6 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 5,
         backgroundColor: 'red'
-    },
-    holderListLive: {
-        flex: 1,
-        marginTop: Platform.OS == "ios" ? 0 : 24,
-
     },
     whiteBox: {
         flex: 1,

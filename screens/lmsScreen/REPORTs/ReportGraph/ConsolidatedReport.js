@@ -15,13 +15,15 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
     let testLable = ''
     if (reportData?.APP?.totalPercentage <= 40) {
         testLable = "Beginner"
-    } else if (reportData?.APP?.totalPercentage >= 40 && reportData?.APP?.totalPercentage >= 60) {
+    } else if (reportData?.APP?.totalPercentage >= 40 && reportData?.APP?.totalPercentage <= 60) {
         testLable = "Average"
     } else if (reportData?.APP?.totalPercentage >= 61 && reportData?.APP?.totalPercentage <= 80) {
         testLable = "Advance"
     } else {
         testLable = "Proficient"
     }
+
+    console.log(type)
 
     return (
         <View style={{ width: '100%' }}>
@@ -50,7 +52,7 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
                             <LearningStyle reportData={reportData} testType={testType} />
                         </ScrollView>
                     </View> :
-                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue }}>
+                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue, marginVertical: 2 }}>
                         <Text style={{ textAlign: 'center', color: SWATheam.SwaBlue }}>Learning Style Test Not Attempted.</Text>
                     </View>
                 }
@@ -61,7 +63,7 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
                             <MultipleIntelligences reportData={reportData} testType={testType} type={type} />
                         </ScrollView>
                     </View> :
-                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue }}>
+                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue, marginVertical: 2 }}>
                         <Text style={{ textAlign: 'center', color: SWATheam.SwaBlue }}>Multiple Intelligence Test Not Attempted.</Text>
                     </View>
                 }
@@ -73,7 +75,7 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
                             <KnowingMe reportData={reportData} testType={testType} type={type} />
                         </ScrollView>
                     </View> :
-                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue }}>
+                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue, marginVertical: 2 }}>
                         <Text style={{ textAlign: 'center', color: SWATheam.SwaBlue }}>Knowing Me Test Not Attempted.</Text>
                     </View>
                 }
@@ -84,7 +86,7 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
                             <BrainDominance reportData={reportData} testType={testType} type={type} />
                         </ScrollView>
                     </View> :
-                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue }}>
+                    <View style={{ padding: 10, backgroundColor: SWATheam.SwaLightBlue, marginVertical: 2 }}>
                         <Text style={{ textAlign: 'center', color: SWATheam.SwaBlue }}>Brain Dominance Test Not Attempted.</Text>
                     </View>
                 }

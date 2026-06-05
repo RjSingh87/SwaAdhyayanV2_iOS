@@ -1,16 +1,15 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Button, useWindowDimensions, Modal, Platform } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Button, useWindowDimensions, Modal, StatusBar } from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { RadioButton } from 'react-native-paper';
-import Loader from './Loader';
 import Report from './Report';
 import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import Services from '../../../Services';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function McqActy({ navigation, route }) {
+    const insets = useSafeAreaInsets();
+    const statusBarHeight = StatusBar.currentHeight
     const tagsStyles = {
         body: {
             fontSize: 17,
@@ -163,391 +162,388 @@ export default function McqActy({ navigation, route }) {
 
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1, backgroundColor: userData.data.colors.mainTheme }}>
-                <View style={{ flex: 1, marginTop: Platform.OS === "ios" ? 0 : 20, backgroundColor: userData.data.colors.liteTheme }}>
-                    <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10 }}>
-                        <Text style={styles.booknameHeading}>Safal Exam Test</Text>
-                        <View style={styles.rowView}>
-                            <View style={styles.rowForTExt}>
-                                <Text style={styles.textSmall}>Total Ques. :{totaQuest} </Text>
-                                <Text style={styles.textSmall}>Attempted Ques. : {startPoint}</Text>
-                            </View>
-                        </View>
+
+        <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
+            <View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10 }}>
+                <Text style={styles.booknameHeading}>Safal Exam Test</Text>
+                <View style={styles.rowView}>
+                    <View style={styles.rowForTExt}>
+                        <Text style={styles.textSmall}>Total Ques. :{totaQuest} </Text>
+                        <Text style={styles.textSmall}>Attempted Ques. : {startPoint}</Text>
                     </View>
-                    <View style={{ flex: 1, padding: 10 }}>
-                        <ScrollView>
-                            {question[currentQuestionIndex]?.questionPart1 ?
-                                <View>
-                                    {question[currentQuestionIndex]?.questionPart1.endsWith('.png') || question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
-                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} /> :
-
-                                        <RenderHtml
-                                            contentWidth={width}
-                                            source={{ html: question[currentQuestionIndex]?.questionPart1 }}
-                                            tagsStyles={tagsStyles}
-                                        />
-                                    }
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.questionPart2 ?
-                                <View>
-                                    {question[currentQuestionIndex]?.questionPart2.endsWith('.png') || question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
-                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
-                                        :
-                                        <RenderHtml
-                                            contentWidth={width}
-                                            source={{ html: question[currentQuestionIndex].questionPart2 }}
-                                            tagsStyles={tagsStyles}
-                                        />
-                                    }
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.questionPart3 ?
-                                <View>
-                                    {question[currentQuestionIndex]?.questionPart3.endsWith('.png') || question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
-                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
-                                        :
-                                        <RenderHtml
-                                            contentWidth={width}
-                                            source={{ html: question[currentQuestionIndex]?.questionPart3 }}
-                                            tagsStyles={tagsStyles}
-                                        />
-                                    }
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.questionPart4 ?
-                                <View>
-                                    {question[currentQuestionIndex]?.questionPart4.endsWith('.png') || question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
-                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
-                                        :
-                                        <RenderHtml
-                                            contentWidth={width}
-                                            source={{ html: question[currentQuestionIndex]?.questionPart4 }}
-                                            tagsStyles={tagsStyles}
-                                        />
-                                    }
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.questionPart5 ?
-                                <View>
-                                    {question[currentQuestionIndex]?.questionPart5.endsWith('.png') || question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
-                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
-                                        :
-                                        <RenderHtml
-                                            contentWidth={width}
-                                            source={{ html: question[currentQuestionIndex]?.questionPart5 }}
-                                            tagsStyles={tagsStyles}
-                                        />
-                                    }
-                                </View>
-                                : null}
-
-                            {question[currentQuestionIndex]?.optionText1 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID1,
-                                                question[currentQuestionIndex]?.questionID,
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, { backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? '#F4F4F4' : 'white' }]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID1,
-                                                            question[currentQuestionIndex]?.questionID,
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(a)</Text>
-                                            {question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={styles.optImgs} />
-                                                :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText1 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.optionText2 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID2,
-                                                question[currentQuestionIndex]?.questionID
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID2 ? '#F4F4F4' : 'white' })]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID2,
-                                                            question[currentQuestionIndex]?.questionID
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID2 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(b)</Text>
-                                            {question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={styles.optImgs} /> :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText2 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.optionText3 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID3,
-                                                question[currentQuestionIndex]?.questionID
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID3 ? '#F4F4F4' : 'white' })]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID3,
-                                                            question[currentQuestionIndex]?.questionID
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID3 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(c)</Text>
-                                            {question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={styles.optImgs} /> :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText3 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.optionText4 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID4,
-                                                question[currentQuestionIndex]?.questionID
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID4 ? '#F4F4F4' : 'white' })]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID4,
-                                                            question[currentQuestionIndex]?.questionID
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID4 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(d)</Text>
-                                            {question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={styles.optImgs} /> :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText4 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.optionText5 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID5,
-                                                question[currentQuestionIndex]?.questionID
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID5 ? '#F4F4F4' : 'white' })]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID5,
-                                                            question[currentQuestionIndex]?.questionID
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID5 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(e)</Text>
-                                            {question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={styles.optImgs} /> :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText5 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-                            {question[currentQuestionIndex]?.optionText6 ?
-                                <View style={styles.optionsView}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            mcqClicked(
-                                                question[currentQuestionIndex]?.optionID6,
-                                                question[currentQuestionIndex]?.questionID
-                                            )
-                                        }}
-                                        style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID6 ? '#F4F4F4' : 'white' })]}>
-                                        <View style={styles.AWithContent}>
-                                            <View>
-                                                <RadioButton.Item
-                                                    onPress={() => {
-                                                        mcqClicked(
-                                                            question[currentQuestionIndex]?.optionID6,
-                                                            question[currentQuestionIndex]?.questionID
-                                                        )
-                                                    }}
-                                                    status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID6 ? 'checked' : 'unchecked'} />
-                                            </View>
-                                            <Text style={styles.indty}>(f)</Text>
-                                            {question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
-                                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={styles.optImgs} /> :
-                                                <RenderHtml
-                                                    contentWidth={width}
-                                                    source={{ html: question[currentQuestionIndex]?.optionText6 }}
-                                                    tagsStyles={optionStyle}
-                                                />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                : null}
-
-                        </ScrollView>
-                    </View>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        bottom: 0,
-                        left: 0,
-                        backgroundColor: userData.data.colors.hoverTheme,
-                        padding: 5,
-                        width: '100%'
-                    }}>
-                        <View>
-                            <View style={styles.rowFristCol}>
-                                <Button title="Previous" color={userData.data.colors.mainTheme} onPress={prev} disabled={currentQuestionIndex === 0} />
-                                <View style={styles.buttonBox}>
-                                    <Button title="Next" color={userData.data.colors.mainTheme} onPress={next} disabled={currentQuestionIndex === question.length - 1} />
-                                </View>
-                            </View>
-                        </View>
-                        <View>
-                            <Button title="Submit" color={SWATheam.SwaBlue} onPress={() => submitAss()} />
-                        </View>
-                    </View>
-
-
-                    {areYouSure ?
-                        <Modal
-                            animationType="slide"
-                            transparent={true}
-                        >
-                            <View style={styles.garyContainer}>
-                                <TouchableOpacity
-                                    style={{ flex: 1 }}
-                                    onPress={() => setAreYouSure(!areYouSure)}
-                                />
-                                <View style={styles.listBox}>
-                                    <Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
-                                    <Text style={styles.textAlinCenetr}>Are you sure ??</Text>
-                                    <Text style={styles.runningTest}>Do you want to submit your exam</Text>
-                                    <View style={styles.rowAreYousure}>
-                                        <View style={{ width: 80 }}>
-                                            <Button onPress={() => { submitAssessment(0) }}
-                                                title="Cacel"
-                                                color="#dc143c"
-                                            />
-                                        </View>
-                                        <View style={{ width: 80 }}>
-                                            <Button onPress={() => { submitAssessment(1) }}
-                                                title="OK"
-                                                color="#228b22"
-                                            />
-                                        </View>
-                                    </View>
-
-                                </View>
-
-                                <TouchableOpacity
-                                    style={{ flex: 1 }}
-                                    onPress={() => setAreYouSure(!areYouSure)}
-                                />
-                            </View>
-                        </Modal> : null
-                    }
-
-
-
-                    {/* attempt report Model */}
-                    {manage.reportHolder &&
-                        <View style={styles.ReportHolder}>
-                            <View style={styles.mainHolder}>
-                                <Modal animationType="slide" transparent={true}>
-                                    <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10, marginTop: 63, }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student Exam Report</Text>
-                                        <View><Icon onPress={hideReportHolder} name="close" size={20} color="#231e1a" /></View>
-                                    </View>
-
-
-                                    {manage.mesgHolder &&
-                                        <View style={styles.showSms}>
-                                            <Text style={styles.youHaveSucc}>{manage.msg}</Text>
-                                            <View style={styles.viewReortBtns}>
-                                                <Button onPress={viewReport} title="View Report" color={SWATheam.SwaBlue} />
-                                            </View>
-                                        </View>
-                                    }
-                                    {manage.reportComponet &&
-                                        <Report qSetIds={qSetIds} imgUrl={imgUrl} />
-                                    }
-                                </Modal>
-                            </View>
-                        </View>
-                    }
-
-                    {/* attempt report Model */}
-
                 </View>
-            </SafeAreaView>
-        </SafeAreaProvider>
+            </View>
+            <View style={{ flex: 1, padding: 10, backgroundColor: userData.data.colors.liteTheme }}>
+                <ScrollView>
+                    {question[currentQuestionIndex]?.questionPart1 ?
+                        <View>
+                            {question[currentQuestionIndex]?.questionPart1.endsWith('.png') || question[currentQuestionIndex]?.questionPart1.endsWith('.jpg') ?
+                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} /> :
+
+                                <RenderHtml
+                                    contentWidth={width}
+                                    source={{ html: question[currentQuestionIndex]?.questionPart1 }}
+                                    tagsStyles={tagsStyles}
+                                />
+                            }
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.questionPart2 ?
+                        <View>
+                            {question[currentQuestionIndex]?.questionPart2.endsWith('.png') || question[currentQuestionIndex]?.questionPart2.endsWith('.jpg') ?
+                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
+                                :
+                                <RenderHtml
+                                    contentWidth={width}
+                                    source={{ html: question[currentQuestionIndex].questionPart2 }}
+                                    tagsStyles={tagsStyles}
+                                />
+                            }
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.questionPart3 ?
+                        <View>
+                            {question[currentQuestionIndex]?.questionPart3.endsWith('.png') || question[currentQuestionIndex]?.questionPart3.endsWith('.jpg') ?
+                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
+                                :
+                                <RenderHtml
+                                    contentWidth={width}
+                                    source={{ html: question[currentQuestionIndex]?.questionPart3 }}
+                                    tagsStyles={tagsStyles}
+                                />
+                            }
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.questionPart4 ?
+                        <View>
+                            {question[currentQuestionIndex]?.questionPart4.endsWith('.png') || question[currentQuestionIndex]?.questionPart4.endsWith('.jpg') ?
+                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
+                                :
+                                <RenderHtml
+                                    contentWidth={width}
+                                    source={{ html: question[currentQuestionIndex]?.questionPart4 }}
+                                    tagsStyles={tagsStyles}
+                                />
+                            }
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.questionPart5 ?
+                        <View>
+                            {question[currentQuestionIndex]?.questionPart5.endsWith('.png') || question[currentQuestionIndex]?.questionPart5.endsWith('.jpg') ?
+                                <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
+                                :
+                                <RenderHtml
+                                    contentWidth={width}
+                                    source={{ html: question[currentQuestionIndex]?.questionPart5 }}
+                                    tagsStyles={tagsStyles}
+                                />
+                            }
+                        </View>
+                        : null}
+
+                    {question[currentQuestionIndex]?.optionText1 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID1,
+                                        question[currentQuestionIndex]?.questionID,
+                                    )
+                                }}
+                                style={[styles.textWithInput, { backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? '#F4F4F4' : 'white' }]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID1,
+                                                    question[currentQuestionIndex]?.questionID,
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID1 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(a)</Text>
+                                    {question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={styles.optImgs} />
+                                        :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText1 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.optionText2 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID2,
+                                        question[currentQuestionIndex]?.questionID
+                                    )
+                                }}
+                                style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID2 ? '#F4F4F4' : 'white' })]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID2,
+                                                    question[currentQuestionIndex]?.questionID
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID2 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(b)</Text>
+                                    {question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={styles.optImgs} /> :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText2 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.optionText3 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID3,
+                                        question[currentQuestionIndex]?.questionID
+                                    )
+                                }}
+                                style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID3 ? '#F4F4F4' : 'white' })]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID3,
+                                                    question[currentQuestionIndex]?.questionID
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID3 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(c)</Text>
+                                    {question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={styles.optImgs} /> :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText3 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.optionText4 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID4,
+                                        question[currentQuestionIndex]?.questionID
+                                    )
+                                }}
+                                style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID4 ? '#F4F4F4' : 'white' })]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID4,
+                                                    question[currentQuestionIndex]?.questionID
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID4 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(d)</Text>
+                                    {question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={styles.optImgs} /> :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText4 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.optionText5 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID5,
+                                        question[currentQuestionIndex]?.questionID
+                                    )
+                                }}
+                                style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID5 ? '#F4F4F4' : 'white' })]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID5,
+                                                    question[currentQuestionIndex]?.questionID
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID5 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(e)</Text>
+                                    {question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={styles.optImgs} /> :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText5 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+                    {question[currentQuestionIndex]?.optionText6 ?
+                        <View style={styles.optionsView}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    mcqClicked(
+                                        question[currentQuestionIndex]?.optionID6,
+                                        question[currentQuestionIndex]?.questionID
+                                    )
+                                }}
+                                style={[styles.textWithInput, ({ backgroundColor: currentAns?.questionID == question[currentQuestionIndex].questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex].optionID6 ? '#F4F4F4' : 'white' })]}>
+                                <View style={styles.AWithContent}>
+                                    <View>
+                                        <RadioButton.Item
+                                            onPress={() => {
+                                                mcqClicked(
+                                                    question[currentQuestionIndex]?.optionID6,
+                                                    question[currentQuestionIndex]?.questionID
+                                                )
+                                            }}
+                                            status={currentAns?.questionID == question[currentQuestionIndex]?.questionID && currentAns?.selectedAnswerID == question[currentQuestionIndex]?.optionID6 ? 'checked' : 'unchecked'} />
+                                    </View>
+                                    <Text style={styles.indty}>(f)</Text>
+                                    {question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
+                                        <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={styles.optImgs} /> :
+                                        <RenderHtml
+                                            contentWidth={width}
+                                            source={{ html: question[currentQuestionIndex]?.optionText6 }}
+                                            tagsStyles={optionStyle}
+                                        />
+                                    }
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                        : null}
+
+                </ScrollView>
+            </View>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: "space-between",
+                alignItems: "center",
+                bottom: 0,
+                left: 0,
+                backgroundColor: userData.data.colors.hoverTheme,
+                padding: 5,
+                width: '100%'
+            }}>
+                <View>
+                    <View style={styles.rowFristCol}>
+                        <Button title="Previous" color={userData.data.colors.mainTheme} onPress={prev} disabled={currentQuestionIndex === 0} />
+                        <View style={styles.buttonBox}>
+                            <Button title="Next" color={userData.data.colors.mainTheme} onPress={next} disabled={currentQuestionIndex === question.length - 1} />
+                        </View>
+                    </View>
+                </View>
+                <View>
+                    <Button title="Submit" color={SWATheam.SwaBlue} onPress={() => submitAss()} />
+                </View>
+            </View>
+
+
+            {areYouSure ?
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                >
+                    <View style={styles.garyContainer}>
+                        <TouchableOpacity
+                            style={{ flex: 1 }}
+                            onPress={() => setAreYouSure(!areYouSure)}
+                        />
+                        <View style={styles.listBox}>
+                            <Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
+                            <Text style={styles.textAlinCenetr}>Are you sure ??</Text>
+                            <Text style={styles.runningTest}>Do you want to submit your exam</Text>
+                            <View style={styles.rowAreYousure}>
+                                <View style={{ width: 80 }}>
+                                    <Button onPress={() => { submitAssessment(0) }}
+                                        title="Cacel"
+                                        color="#dc143c"
+                                    />
+                                </View>
+                                <View style={{ width: 80 }}>
+                                    <Button onPress={() => { submitAssessment(1) }}
+                                        title="OK"
+                                        color="#228b22"
+                                    />
+                                </View>
+                            </View>
+
+                        </View>
+
+                        <TouchableOpacity
+                            style={{ flex: 1 }}
+                            onPress={() => setAreYouSure(!areYouSure)}
+                        />
+                    </View>
+                </Modal> : null
+            }
+
+
+
+            {/* attempt report Model */}
+            {manage.reportHolder &&
+                <View style={styles.ReportHolder}>
+                    <View style={styles.mainHolder}>
+                        <Modal animationType="slide" transparent={true}>
+                            <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student Exam Report</Text>
+                                <View><Icon onPress={hideReportHolder} name="close" size={20} color="#231e1a" /></View>
+                            </View>
+
+
+                            {manage.mesgHolder &&
+                                <View style={styles.showSms}>
+                                    <Text style={styles.youHaveSucc}>{manage.msg}</Text>
+                                    <View style={styles.viewReortBtns}>
+                                        <Button onPress={viewReport} title="View Report" color={SWATheam.SwaBlue} />
+                                    </View>
+                                </View>
+                            }
+                            {manage.reportComponet &&
+                                <Report qSetIds={qSetIds} imgUrl={imgUrl} />
+                            }
+                        </Modal>
+                    </View>
+                </View>
+            }
+
+            {/* attempt report Model */}
+
+        </View>
     );
 }
 
@@ -642,7 +638,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     mainHolder: {
-        backgroundColor: "#fff",
+        backgroundColor: "#fff"
     },
     headesHead: {
         flexDirection: "row",
@@ -677,10 +673,12 @@ const styles = StyleSheet.create({
         padding: 5,
         position: "absolute",
         width: "100%",
+        flex: 1,
         height: "100%",
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
+
     },
     buttonSame: {
         width: 150,

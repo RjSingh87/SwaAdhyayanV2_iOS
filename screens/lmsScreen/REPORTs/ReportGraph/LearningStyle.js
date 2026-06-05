@@ -8,7 +8,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const LearningStyle = ({ reportData, testType }) => {
-    console.log("LearningStyle.js")
+
     const { userData } = useContext(GlobleData)
 
     let reportLables = null

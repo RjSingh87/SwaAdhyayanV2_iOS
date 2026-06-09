@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, PermissionsAndroid, Platform, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
 
 import ImageViewer from "../../../common/ImageViewer"
@@ -6,10 +6,11 @@ import Services from "../../../../Services"
 import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Loader from "../../../common/Loader"
+// import RNFetchBlob from 'rn-fetch-blob';
+import RNBlobUtil from 'react-native-blob-util';
 
 
 const CheckedHomeWork = () => {
-    console.log("CheckedHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [checkedHomeWork, setCheckedHomeWork] = useState({ data: null, status: false })
@@ -52,22 +53,116 @@ const CheckedHomeWork = () => {
 
     const viewFile = (item, type) => {
         if (item != null) {
-            if (type == 1) {
-                const fType = item.submittedHomework.studentUploaded.split('.')
-                const itemLowerCase = fType[fType.length - 1].toLowerCase()
-                setFileType((prev) => {
-                    return { ...prev, data: item, type: itemLowerCase, fileSrc: item.submittedHomework.studentUploaded, status: true }
-                })
+            let filePath = null;
+
+            if (type === 1) {
+                filePath = item?.submittedBy?.uploadedFile;
+            } else if (type === 2) {
+                filePath = item?.checkedBy?.checkedFile;
             }
-            else if (type == 2) {
-                const fType = item.submittedHomework.checkedFile.split('.')
-                const itemLowerCase = fType[fType.length - 1].toLowerCase()
-                setFileType((prev) => {
-                    return { ...prev, data: item, type: itemLowerCase, fileSrc: item.submittedHomework.checkedFile, status: true }
-                })
+
+            if (!filePath) {
+                Alert.alert("Error", "File source not found!");
+                return;
+            }
+
+            const fType = filePath.split(".");
+            const itemLowerCase = fType[fType.length - 1].toLowerCase();
+
+            setFileType((prev) => {
+                return {
+                    ...prev,
+                    data: item,
+                    type: itemLowerCase,
+                    fileSrc: filePath,
+                    status: true,
+                };
+            });
+        }
+    };
+
+    const downloadDoc = async (docPath, type) => {
+        if (Platform.OS === 'android' && Platform.Version >= 33) {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
+                ]);
+
+                if (
+                    granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED
+                ) {
+                    downloadFile(docPath, type)
+                    setLoading(false)
+                } else {
+                    console.log('Permissions denied');
+                }
+            } catch (err) {
+                console.warn(err);
             }
         }
+    };
+
+    const downloadFile = (docPath, type) => {
+        const { config, fs } = RNBlobUtil
+        const date = new Date()
+        const fileDir = fs.dirs.DownloadDir
+        let fileExtension = ''
+        if (type == 'img') {
+            if (docPath.endsWith('png')) {
+                fileExtension = '.png'
+            } else if (docPath.endsWith('jpg')) {
+                fileExtension = '.jpg'
+            } else if (docPath.endsWith('jpeg')) {
+                fileExtension = '.jpeg'
+            } else if (docPath.endsWith('gif')) {
+                fileExtension = '.gif'
+            }
+        } else if (type == "video") {
+            if (docPath.endsWith('mp4')) {
+                fileExtension = '.mp4'
+            } else if (docPath.endsWith('ogg')) {
+                fileExtension = '.ogg'
+            }
+
+        } else if (type == "audio") {
+            fileExtension = '.mp3'
+        } else if (type == 'doc') {
+            if (docPath.endsWith('doc')) {
+                fileExtension = '.doc'
+            } else if (docPath.endsWith('docx')) {
+                fileExtension = '.docx'
+            } else if (docPath.endsWith('pdf')) {
+                fileExtension = '.pdf'
+            } else if (docPath.endsWith('ott')) {
+                fileExtension = '.ott'
+            }
+        }
+        RNBlobUtil.config({
+            fileCache: true,
+            addAndroidDownloads: {
+                useDownloadManager: true,
+                notification: true,
+                path: fileDir + "/homeWork" + Math.floor(date.getDate() + date.getSeconds() / 2) + fileExtension,
+                description: "file download"
+            },
+        })
+            .fetch('GET', docPath, {
+            })
+            .then((res) => {
+                console.log('The file saved to', res.path())
+                Alert.alert('Info!', "File downloaded successfully.")
+                setLoading(false)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                setLoading(false)
+            })
     }
+
 
     return (
         <>
@@ -185,7 +280,7 @@ const CheckedHomeWork = () => {
                                     }
                                 </View>
                                 :
-                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5 }}>
+                                <View style={{ borderWidth: 1, backgroundColor: SWATheam.SwaWhite, borderColor: 'grey', borderRadius: 5 }}>
                                     <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
                                 </View>
                         }
@@ -194,7 +289,7 @@ const CheckedHomeWork = () => {
 
             </View>
             {fileType.status &&
-                <ImageViewer fileType={fileType} setFileType={setFileType} />
+                <ImageViewer fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
             }
         </>
     )

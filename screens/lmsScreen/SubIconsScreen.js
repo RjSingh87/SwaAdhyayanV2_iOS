@@ -76,8 +76,6 @@ import { flowRef } from './flowRef';
 
 const SubIconsScreen = ({ navigation, route }) => {
 
-  console.log("SubIconsScreen.js")
-
 
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -196,6 +194,8 @@ const SubIconsScreen = ({ navigation, route }) => {
   const trmTypeList = [
     { trmType: 'Complete Solutions/Answers', trmID: 6 },
     { trmType: 'Lesson Plans', trmID: 5 },
+    { trmType: 'Assessment Papers', trmID: 18 },
+    { trmType: 'Worksheet', trmID: 19 },
   ];
   const trkSubjectList = [
     { subjectName: 'Hindi', subjectID: 1 },
@@ -372,7 +372,7 @@ const SubIconsScreen = ({ navigation, route }) => {
             });
 
             if (
-              !searchDataList?.loading &&
+              !searchDataList.loading &&
               route?.params?.getMainIconsData == undefined
             ) {
               getIconDetail(route.params);
@@ -928,8 +928,8 @@ const SubIconsScreen = ({ navigation, route }) => {
               classID:
                 userData?.data?.userTypeID == 4 ||
                   userData?.data?.userTypeID == 2
-                  ? selectedField?.class?.classID
-                  : userData?.data?.classID,
+                  ? selectedField.class.classID
+                  : userData.data.classID,
             })
               .then(res => {
                 if (res.status == 'success') {
@@ -980,8 +980,12 @@ const SubIconsScreen = ({ navigation, route }) => {
                   ? selectedField.section.sectionID
                   : userData.data.sectionID,
             };
+            console.log('subject payload', JSON.stringify(subjectPayload));
             Services.post(apiRoot.getSubjectList, subjectPayload)
               .then(res => {
+
+                console.log('subject list response', JSON.stringify(res));
+
                 if (res.status == 'success') {
                   setListItem(prev => {
                     return {
@@ -1005,7 +1009,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           }
         }
       }
-    } else if (type == 'book') {
+    } else if (type == 'book' || type == 'trmBook') {
       setLoading(true);
       if (ncertIDs.includes(selectedIcon.subIconID)) {
         if (
@@ -1313,7 +1317,6 @@ const SubIconsScreen = ({ navigation, route }) => {
     } else if (
       type == 'subject' ||
       type == 'gameSubject' ||
-      type == 'trmSubject' ||
       type == 'subjAddBySchool'
     ) {
       setSelectedField(prev => {
@@ -1364,30 +1367,6 @@ const SubIconsScreen = ({ navigation, route }) => {
             }
           })
           .catch(err => {
-            console.log(err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } else if (type == 'trmSubject') {
-        setLoading(true);
-        const payload = {
-          classID: selectedField.class.classID,
-          subjectID: item.subjectID,
-          schoolID: userData?.data?.schoolID,
-          lessonType: selectedField.trmType.trmID,
-        };
-        Services.post(apiRoot.trmLessonPlanOfClass, payload)
-          .then(res => {
-            if (res.status == 'success') {
-              navigation.navigate('pdfView', {
-                url: res.data.siteUrl + res.data.mainData[0].pdfPath,
-                title: 'TRM',
-              });
-              setLoading(false);
-            }
-          })
-          .then(err => {
             console.log(err);
           })
           .finally(() => {
@@ -1515,7 +1494,7 @@ const SubIconsScreen = ({ navigation, route }) => {
             setLoading(false);
           });
       }
-    } else if (type == 'book') {
+    } else if (type == 'book' || type == 'trmBook') {
       if (ncertIDs.includes(selectedIcon.subIconID)) {
         setSelectedField(prev => {
           return { ...prev, book: item };
@@ -1541,6 +1520,41 @@ const SubIconsScreen = ({ navigation, route }) => {
             });
           }
         });
+      } else if (type === "trmBook") {
+        setLoading(true);
+        const payload = {
+          classID: selectedField?.class?.classID,
+          subjectID: selectedField?.subject?.subjectID,
+          schoolID: userData?.data?.schoolID,
+          lessonType: selectedField?.trmType?.trmID,
+          bookID: item.bookID,
+        };
+
+        Services.post(apiRoot.trmLessonPlanOfClass, payload)
+          .then(res => {
+            if (res.status == 'success') {
+              navigation.navigate('pdfView', {
+                url: res.data.siteUrl + res.data.mainData[0].pdfPath,
+                title: 'TRM',
+              });
+              setListItem(prev => {
+                return { ...prev, status: false };
+              });
+              setLoading(false);
+            } else {
+              alert(res.message);
+              setListItem(prev => {
+                return { ...prev, status: false };
+              });
+            }
+          })
+          .then(err => {
+            console.log(err);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+
       } else {
         setSelectedField(prev => {
           return { ...prev, book: item };
@@ -1615,6 +1629,7 @@ const SubIconsScreen = ({ navigation, route }) => {
           book: null,
           level: null,
           trkSub: null,
+          subject: null,
         };
       });
       setListItem(prev => {
@@ -2429,8 +2444,18 @@ const SubIconsScreen = ({ navigation, route }) => {
                     <SelectionBox
                       getListItem={getListItem}
                       selectedField={selectedField?.subject?.subjectName}
-                      type="trmSubject"
+                      type="subject"
                       placeholder="Select subject"
+                    />
+                    <SelectionBox
+                      getListItem={getListItem}
+                      selectedField={
+                        selectedField?.subject?.subjectID == 1
+                          ? selectedField?.book?.bookNameLang2
+                          : selectedField?.book?.bookName
+                      }
+                      type="trmBook"
+                      placeholder="Select book"
                     />
                   </View>
                 ) : null}

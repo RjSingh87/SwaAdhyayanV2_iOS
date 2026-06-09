@@ -1,7 +1,5 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button, PermissionsAndroid } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, PermissionsAndroid, Platform, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import Entypo from 'react-native-vector-icons/Entypo'
 import ImageViewer from "../../../common/ImageViewer"
 import HWPdfViewer from '../../../common/HWPdfViewer'
 import YouTubeUrlView from "../../../common/YoutubeUrlView";
@@ -9,11 +7,10 @@ import Loader from "../../../common/Loader"
 import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
-// import RNFetchBlob from 'rn-fetch-blob';
+import RNBlobUtil from 'react-native-blob-util';
 
 
 const AssignedHomeWork = () => {
-    console.log("AssignedHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [assignedHomework, setAssignedHomework] = useState({ data: null, status: false })
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
@@ -83,93 +80,145 @@ const AssignedHomeWork = () => {
 
     }
 
-    const viewFile = (item) => {
-        console.log(item, 'itemds')
-        if (item.fileType != null) {
-            const fType = item?.filePath != null ? item?.filePath?.split('.') : ''
-            let itemLowerCase = ''
-            if (fType != '') {
-                itemLowerCase = fType[fType.length - 1].toLowerCase()
+    const viewFile = async (item) => {
+        if (item) {
+            const fType = item?.filePath ? item.filePath.split('.') : '';
+            let itemLowerCase = '';
+
+            if (fType !== '') {
+                itemLowerCase = fType[fType.length - 1].toLowerCase();
             }
-            console.log(itemLowerCase)
-            setFileType((prev) => {
-                return { ...prev, data: item, type: itemLowerCase, fileSrc: item.filePath, status: true }
-            })
-        }
-    }
-    const downloadDoc = async (item, type) => {
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                {
-                    title: 'Swaadhyayan LMS Storage Permission',
-                    message:
-                        'Swaadhyayan LMS App needs access to your storag ' +
-                        'so you can download files.',
-                    buttonNeutral: 'Ask Me Later',
-                    buttonNegative: 'Cancel',
-                    buttonPositive: 'OK',
-                },
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                downloadFile(item, type)
+
+            console.log('File type:', itemLowerCase);
+
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+
+            if (imageTypes.includes(itemLowerCase)) {
+                if (item?.filePath) {
+                    try {
+                        await Image.prefetch(item.filePath);
+                        setFileType((prev) => ({
+                            ...prev,
+                            data: item,
+                            type: itemLowerCase,
+                            fileSrc: item.filePath,
+                            status: true,
+                        }));
+                    } catch (err) {
+                        Alert.alert('Error', 'Image not found at given path!');
+                    }
+                } else {
+                    Alert.alert('Error', 'Image source not found!');
+                }
             } else {
-                console.log('Storage permission denied');
+                if (item?.filePath) {
+                    setFileType((prev) => ({
+                        ...prev,
+                        data: item,
+                        type: itemLowerCase,
+                        fileSrc: item.filePath,
+                        status: true,
+                    }));
+                } else {
+                    Alert.alert('Error', 'File source not found!');
+                }
             }
-        } catch (err) {
-            console.warn(err);
+        }
+    };
+    // const viewFile = (item) => {
+    //     if (item.fileType != null) {
+    //         const fType = item?.filePath!=null?item?.filePath?.split('.'):''
+    //         let itemLowerCase = ''
+    //         if(fType!=''){
+    //             itemLowerCase = fType[fType.length - 1].toLowerCase()
+    //         }
+    //         console.log(itemLowerCase)
+    //         setFileType((prev) =>{
+    //             return{...prev, data: item, type: itemLowerCase, fileSrc: item.filePath, status: true}
+    //         })
+    //     }
+    // }
+    const downloadDoc = async (docPath, type) => {
+        if (Platform.OS === 'android' && Platform.Version >= 33) {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
+                ]);
+
+                if (
+                    granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED
+                ) {
+                    downloadFile(docPath, type)
+                    setLoading(false)
+                } else {
+                    console.log('Permissions denied');
+                }
+            } catch (err) {
+                console.warn(err);
+            }
         }
     };
 
-    //   const downloadFile = (item, type)=>{
-    //     const {config, fs} = RNFetchBlob
-    //     const date = new Date()
-    //     const fileDir = fs.dirs.DownloadDir
-    //     let fileExtension=''
-    //     if(type=='img'){
-    //         if(item.endsWith('png')){
-    //                 fileExtension='.png'
-    //         }else if(item.endsWith('jpg')){
-    //             fileExtension='.jpg'
-    //         }else if(item.endsWith('jpeg')){
-    //             fileExtension='.jpeg'
-    //         }else if(item.endsWith('gif')){
-    //             fileExtension='.gif'
-    //         }
-    //     }else if(type=='doc'){
-    //         if(item.endsWith('doc')){
-    //             fileExtension='.doc'
-    //         }else if(item.endsWith('docx')){
-    //             fileExtension='.docx'
-    //         }else if(item.endsWith('pdf')){
-    //             fileExtension='.pdf'
-    //         }else if(item.endsWith('ott')){
-    //             fileExtension='.ott'
-    //         }
-    //     }
-    //     config({
-    //         fileCache : true,
-    //         addAndroidDownloads:{
-    //             useDownloadManager:true,
-    //             notification:true,
-    //             path:fileDir+"/homeWork"+Math.floor(date.getDate()+date.getSeconds()/2)+fileExtension,
-    //             description:"file download"
-    //         }
-    //     })
-    //     .fetch('GET', item,{
-    //     })
-    //     .then((res) => {
-    //         console.log('The file saved to ', res.path())
-    //         alert("File downloaded successfully.")
-    //         setLoading(false)
-    //     })
-    //     .catch((err)=>{
-    //         console.log(err)
-    //     })
-    //     .finally(()=>{
-    //         setLoading(false)
-    //     })
-    // }
+    const downloadFile = (docPath, type) => {
+        const { config, fs } = RNBlobUtil
+        const date = new Date()
+        const fileDir = fs.dirs.DownloadDir
+        let fileExtension = ''
+        if (type == 'img') {
+            if (docPath.endsWith('png')) {
+                fileExtension = '.png'
+            } else if (docPath.endsWith('jpg')) {
+                fileExtension = '.jpg'
+            } else if (docPath.endsWith('jpeg')) {
+                fileExtension = '.jpeg'
+            } else if (docPath.endsWith('gif')) {
+                fileExtension = '.gif'
+            }
+        } else if (type == "video") {
+            if (docPath.endsWith('mp4')) {
+                fileExtension = '.mp4'
+            } else if (docPath.endsWith('ogg')) {
+                fileExtension = '.ogg'
+            }
+
+        } else if (type == "audio") {
+            fileExtension = '.mp3'
+        } else if (type == 'doc') {
+            if (docPath.endsWith('doc')) {
+                fileExtension = '.doc'
+            } else if (docPath.endsWith('docx')) {
+                fileExtension = '.docx'
+            } else if (docPath.endsWith('pdf')) {
+                fileExtension = '.pdf'
+            } else if (docPath.endsWith('ott')) {
+                fileExtension = '.ott'
+            }
+        }
+        RNBlobUtil.config({
+            fileCache: true,
+            addAndroidDownloads: {
+                useDownloadManager: true,
+                notification: true,
+                path: fileDir + "/homeWork" + Math.floor(date.getDate() + date.getSeconds() / 2) + fileExtension,
+                description: "file download"
+            },
+        })
+            .fetch('GET', docPath, {
+            })
+            .then((res) => {
+                console.log('The file saved to', res.path())
+                Alert.alert('Info!', "File downloaded successfully.")
+                setLoading(false)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                setLoading(false)
+            })
+    }
 
 
     return (
@@ -303,7 +352,7 @@ const AssignedHomeWork = () => {
                                     }
                                 </View>
                                 :
-                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5 }}>
+                                <View style={{ borderWidth: 1, backgroundColor: SWATheam.SwaWhite, borderColor: 'grey', borderRadius: 5 }}>
                                     <Text style={{ color: SWATheam.SwaRed, fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
                                 </View>
                         }

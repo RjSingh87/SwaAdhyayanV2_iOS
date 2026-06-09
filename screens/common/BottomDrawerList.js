@@ -17,7 +17,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
     ListName = "Section List"
   } else if (listItem.type == "subject" || listItem.type == 'trksub' || listItem.type == 'reportSubject' || listItem.type == "gameSubject" || listItem.type == "trmSubject" || listItem.type == "subjAddBySchool") {
     ListName = "Subject List"
-  } else if (listItem.type == "book") {
+  } else if (listItem.type == "book" || listItem.type == "trmBook") {
     ListName = "Book List"
   } else if (listItem.type == "act") {
     ListName = listItem.listName.length > 30 ? listItem.listName.substring(0, 30) + '...' : listItem.listName
@@ -150,7 +150,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                     printValue = item.subjectName
                     listKeys = item.subjectID
                     listItemId = selectedField?.subject?.subjectID
-                  } else if (listItem.type == "book") {
+                  } else if (listItem.type == "book" || listItem.type == "trmBook") {
                     printValue = selectedField.subject.subjectID == 1 ? (item.bookNameLang2 == undefined ? item.bookName : item.bookNameLang2) : item.bookName
                     listKeys = item.bookID
                     listItemId = selectedField?.book?.bookID

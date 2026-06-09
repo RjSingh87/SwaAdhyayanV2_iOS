@@ -1,8 +1,8 @@
 import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button } from "react-native"
 import { useEffect, useState, useContext } from "react"
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DatePicker from 'react-native-date-picker'
 import { GlobleData } from "../../../../Store"
 import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
@@ -15,7 +15,6 @@ var homeWorkIDNew = "";
 const finalDateArr = []
 
 const SaveHomeWork = () => {
-    console.log("SaveHomeWork.js")
     const { userData } = useContext(GlobleData)
     const [sectionData, setSectionData] = useState({ data: null, status: false })
     const [loading, setLoading] = useState(false)
@@ -24,6 +23,8 @@ const SaveHomeWork = () => {
     const [showStartDatePicker, setShowStartDatePicker] = useState(false)
     const [showEndDatePicker, setShowEndDatePicker] = useState(false)
     const [datePickerControl, setDatePickerControl] = useState({ date: null, status: false, index: null, type: "" })
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
     const [date, setDate] = useState(new Date())
     let [selectSectionArr, setSelectSectionArr] = useState([])
 
@@ -65,39 +66,49 @@ const SaveHomeWork = () => {
     }
 
     function editDate(dateStr, type) {
-        alert("hello")
-        console.log(dateStr, type, 'jfkjfkfj ffkfjk')
-        let data = {
-            "homeworkID": homeWorkIDNew,
-            "startDate": "",
-            "endDate": ""
-        }
-
-        let index = finalDateArr.findIndex((res) => res.homeworkID == homeWorkIDNew)
-        if (index == -1) {
-            finalDateArr.push(data)
-        }
-        let index1 = finalDateArr.findIndex((res) => res.homeworkID == homeWorkIDNew)
+        console.log(dateStr, 'check dateStr')
 
         if (type == 'startDate') {
-            const tempDate = new Date(dateStr).toLocaleDateString()
-            const tempTime = new Date(dateStr).toLocaleTimeString()
-            const splitDate = tempDate.split('/')
-            const selectedDate = splitDate[1] + '/' + splitDate[0] + '/' + splitDate[2] + ' ' + tempTime
-            finalDateArr[index1].startDate = selectedDate
+            let day = dateStr.getDate()
+            let month = dateStr.getMonth() + 1
+            let year = dateStr.getFullYear()
 
+            let hours = dateStr.getHours()
+            let minutes = dateStr.getMinutes()
+
+            const fTime = hours + ':' + minutes
+
+            if (day < 10) {
+                day = "0" + day
+            } else if (month < 10) {
+                month = "0" + month
+            }
+            const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
+            console.log(selectedDate, 'selectDateh')
+            setStartDate(selectedDate)
             setSavedHomework((prev) => {
                 return { ...prev, }
             })
 
         }
         else if (type == 'endDate') {
-            const tempDate = new Date(dateStr).toLocaleDateString()
-            const tempTime = new Date(dateStr).toLocaleTimeString()
-            const splitDate = tempDate.split('/')
-            const selectedDate = splitDate[1] + '/' + splitDate[0] + '/' + splitDate[2] + ' ' + tempTime
-            finalDateArr[index1].endDate = selectedDate
+            let day = dateStr.getDate()
+            let month = dateStr.getMonth() + 1
+            let year = dateStr.getFullYear()
 
+            let hours = dateStr.getHours()
+            let minutes = dateStr.getMinutes()
+
+            const fTime = hours + ':' + minutes
+
+            if (day < 10) {
+                day = "0" + day
+            } else if (month < 10) {
+                month = "0" + month
+            }
+            const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
+
+            setEndDate(selectedDate)
             setSavedHomework((prev) => {
                 return { ...prev, }
             })
@@ -131,35 +142,40 @@ const SaveHomeWork = () => {
     }
 
     function getSections(item) {
-        // setHomeWorkIDNew(item.homeWorkID)
-        homeWorkIDNew = item.homeWorkID
-        setLoading(true)
-        const payload = {
-            "schoolID": userData.data.schoolID,
-            "academicYear": userData.data.academicYear,
-            "classID": item.classID,
-            "userTypeID": userData.data.userTypeID,
-            "userRefID": userData.data.userRefID
-        }
-        Services.post(apiRoot.getSectionList, payload)
-            .then((res) => {
-                if (res.status == "success") {
+        if (startDate != endDate) {
+            homeWorkIDNew = item.homeWorkID
+            setLoading(true)
+            const payload = {
+                "schoolID": userData.data.schoolID,
+                "academicYear": userData.data.academicYear,
+                "classID": item.classID,
+                "userTypeID": userData.data.userTypeID,
+                "userRefID": userData.data.userRefID
+            }
+            Services.post(apiRoot.getSectionList, payload)
+                .then((res) => {
+                    if (res.status == "success") {
+                        setLoading(false)
+                        const data = res.data
+                        setSectionData((prev) => {
+                            return { ...prev, data: data, status: true }
+                        })
+                        setShowPopUp(true)
+                    } else {
+                        alert(res.message)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+                .finally(() => {
                     setLoading(false)
-                    const data = res.data
-                    setSectionData((prev) => {
-                        return { ...prev, data: data, status: true }
-                    })
-                    setShowPopUp(true)
-                } else {
-                    alert(res.message)
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-            .finally(() => {
-                setLoading(false)
-            })
+                })
+        } else {
+            alert("Please select valid Date.")
+
+        }
+
     }
 
     function closePopUp() {
@@ -177,37 +193,12 @@ const SaveHomeWork = () => {
 
     function assingHomeWork() {
         setLoading(true)
-        let tempSDate = ""
-        let tempSTime = ""
-        let tempEDate = ""
-        let tempETime = ""
-        let startDate = ""
-        let endDate = ""
-        let startTime = ""
-        let endTime = ""
-        finalDateArr.map((item) => {
-            if (item.homeworkID == homeWorkIDNew) {
-                tempSDate = item.startDate.split(' ')[0]
-                tempEDate = item.endDate.split(' ')[0]
-                startDate = tempSDate.split('/')[2] + '-' + tempSDate.split('/')[1] + '-' + tempSDate.split('/')[0]
-                endDate = tempEDate.split('/')[2] + '-' + tempEDate.split('/')[1] + '-' + tempEDate.split('/')[0]
-                tempSTime = item.startDate.split(' ')[1]
-                tempETime = item.endDate.split(' ')[1]
-                const tempStart = item.startDate.split(' ')
-                const tempEnd = item.endDate.split(' ')
-
-                startTime = tempSTime ? tempStart[1] + ' ' + tempStart[2] : null
-                endTime = tempETime ? tempEnd[1] + ' ' + tempEnd[2] : null
-            }
-        })
-
-
         const payload = {
             "schoolID": userData.data.schoolID,
             "userRefID": userData.data.userRefID,
-            "homeWorkID": homeWorkIDNew,
-            "startDate": startDate + ' ' + startTime,
-            "endDate": endDate + ' ' + endTime,
+            "homeWorkID": datePickerControl?.data?.homeWorkID,
+            "startDate": startDate,
+            "endDate": endDate,
             "sectionIDs": selectSectionArr,
         }
 
@@ -221,7 +212,7 @@ const SaveHomeWork = () => {
                     finalDateArr.length = 0
                 } else {
                     setLoading(false)
-                    alert(res.message)
+                    // alert(res.message)
                 }
             })
             .catch((err) => {
@@ -232,6 +223,12 @@ const SaveHomeWork = () => {
             })
     }
     function setAssignDate(item, index, type) {
+        if (type == "startDate") {
+            setStartDate("")
+            setEndDate("")
+        } else if (type == "endDate") {
+            setEndDate("")
+        }
         setShowEndDatePicker(true)
         setDatePickerControl((prev) => {
             return { ...prev, data: item, status: true, index: index, type: type }
@@ -240,7 +237,7 @@ const SaveHomeWork = () => {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
             <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 5, flex: 1, padding: 10 }}>
                 {loading ?
                     <Loader /> :
@@ -250,8 +247,14 @@ const SaveHomeWork = () => {
                                 <View>
                                     {
                                         savedHomework.data.map((item, index) => {
-                                            let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : "";
-                                            let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : "";
+                                            let newStartDate = ""
+                                            let newEndDate = ""
+                                            if (datePickerControl.index == index) {
+                                                newStartDate = startDate
+                                                newEndDate = endDate
+                                            }
+                                            {/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
+                                            {/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
                                             return (
                                                 <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
@@ -278,7 +281,7 @@ const SaveHomeWork = () => {
                                                     </View>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                                                         <View style={{ width: 100 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description </Text>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
                                                         </View>
                                                         <View style={{ paddingRight: 10 }}>
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
@@ -334,7 +337,7 @@ const SaveHomeWork = () => {
                                                         <View style={{ flex: 1 }}>
                                                             <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
                                                                 <View style={{ flex: 1 }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{startDate}</Text>
+                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
                                                                 </View>
                                                                 <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
                                                                     <FontAwesome6 name={"calendar"} size={16} color={'grey'} />
@@ -352,7 +355,7 @@ const SaveHomeWork = () => {
                                                         <View style={{ flex: 1 }}>
                                                             <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
                                                                 <View style={{ flex: 1 }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{endDate}</Text>
+                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
                                                                 </View>
                                                                 <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
                                                                     <FontAwesome6 name={"calendar"} size={16} color={'grey'} />
@@ -374,13 +377,12 @@ const SaveHomeWork = () => {
                                     }
                                 </View>
                                 :
-                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5 }}>
+                                <View style={{ borderWidth: 1, backgroundColor: SWATheam.SwaWhite, borderColor: 'grey', borderRadius: 5 }}>
                                     <Text style={{ color: SWATheam.SwaRed, fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
                                 </View>
                         }
                     </ScrollView>
                 }
-
                 <DatePicker
                     modal
                     open={datePickerControl.status}
@@ -398,24 +400,7 @@ const SaveHomeWork = () => {
                         })
                     }}
                 />
-                {/* {datePickerControl.status &&
-                } */}
 
-                {/* {showEndDatePicker &&
-                    <DatePicker
-                        modal
-                        open={showEndDatePicker}
-                        date={date}
-                        mode='datetime'
-                        onConfirm={(date) => {
-                            setShowEndDatePicker(false)
-                            // editDate(date, 'endDate')
-                        }}
-                        onCancel={(date) => {
-                            setShowEndDatePicker(false)
-                        }}
-                    />
-                } */}
             </View>
             {showPopUp &&
                 <View style={styles.selectFieldPopUp}>
@@ -452,7 +437,7 @@ const SaveHomeWork = () => {
                     </View>
                 </View>
             }
-        </SafeAreaView>
+        </View>
 
     )
 }

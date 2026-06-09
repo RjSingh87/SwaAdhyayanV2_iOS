@@ -1,14 +1,20 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, PermissionsAndroid, Platform, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
-import AntDesign from 'react-native-vector-icons/AntDesign'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import ImageViewer from "../../../common/ImageViewer"
 import PdfViewer from "../../../common/HWPdfViewer"
 import YouTubeUrlView from "../../../common/YoutubeUrlView";
+
 import DocumentPicker from 'react-native-document-picker';
-import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
+// import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+
+import RNBlobUtil from 'react-native-blob-util';
+import { apiRoot, SWATheam } from "../../../../constant/ConstentValue";
+// import RNFetchBlob from 'rn-fetch-blob';
+
 
 const ViewAndSubmitHomework = () => {
     const { userData } = useContext(GlobleData)
@@ -42,7 +48,7 @@ const ViewAndSubmitHomework = () => {
                     })
                 } else {
                     setLoading(false)
-                    // Alert.alert("", res.message)
+                    alert(res.message)
                     setAssignedHomework({ data: null, status: false })
                 }
             })
@@ -55,15 +61,61 @@ const ViewAndSubmitHomework = () => {
 
     }
 
-    const viewFile = (item) => {
-        if (item.fileType != null) {
-            const fType = item.assignedfilePath.split('.')
-            const itemLowerCase = fType[fType.length - 1].toLowerCase()
-            setFileType((prev) => {
-                return { ...prev, data: item, type: itemLowerCase, fileSrc: item.assignedfilePath, status: true }
-            })
+    const viewFile = async (item) => {
+        if (item?.fileType != null) {
+            if (!item?.assignedfilePath) {
+                Alert.alert('Error', 'File source not found!');
+                return;
+            }
+
+            const fType = item.assignedfilePath.split('.');
+            const itemLowerCase = fType[fType.length - 1].toLowerCase();
+
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+            if (imageTypes.includes(itemLowerCase)) {
+                try {
+                    // Check if image is loadable
+                    await Image.prefetch(item.assignedfilePath);
+
+                    setFileType((prev) => {
+                        return {
+                            ...prev,
+                            data: item,
+                            type: itemLowerCase,
+                            fileSrc: item.assignedfilePath,
+                            status: true,
+                            from: 'base64',
+                        };
+                    });
+                } catch (err) {
+                    Alert.alert('Error', 'Image not found at given path!');
+                }
+            } else {
+                // Non-image files (like pdf/doc)
+                setFileType((prev) => {
+                    return {
+                        ...prev,
+                        data: item,
+                        type: itemLowerCase,
+                        fileSrc: item.assignedfilePath,
+                        status: true,
+                        from: 'base64',
+                    };
+                });
+            }
         }
-    }
+    };
+
+    // const viewFile = (item) => {
+    //     if (item.fileType != null) {
+    //         const fType = item.assignedfilePath.split('.')
+    //         const itemLowerCase = fType[fType.length - 1].toLowerCase()
+    //         setFileType((prev) => {
+    //             return { ...prev, data: item, type: itemLowerCase, fileSrc: item.assignedfilePath, status: true, from: 'base64' }
+    //         })
+    //     }
+    // }
 
     function closeModal() {
         setShowSubmitPopUp(false)
@@ -81,172 +133,278 @@ const ViewAndSubmitHomework = () => {
     }
 
     const submitBtn = (item) => {
-        console.log('hello')
         setShowSubmitPopUp(true)
         setSingleHomeworkData(item)
     }
 
     const submitHomeWork = () => {
-        const formData = new FormData();
-        formData.append("schoolID", userData.data.schoolID)
-        formData.append("userTypeID", userData.data.userTypeID)
-        formData.append("userRefID", userData.data.userRefID)
-        formData.append("classID", singleHomeworkData?.classID)
-        formData.append("sectionID", singleHomeworkData?.sectionID)
-        formData.append("homeworkID", singleHomeworkData?.homeWorkID)
-        formData.append("homeworkFile", selectFile[0])
 
-        Services.formMethod(apiRoot.submitHomework, formData)
-            .then((res) => {
-                if (res.status == "success") {
-                    alert(res.message)
-                    getAssignedHomeWork()
-                    setSingleHomeworkData(null)
-                    setSelectFile(null)
+        if (selectFile == null) {
+            Alert.alert("Info!", "Please Select your homework file in image.")
+        } else {
+            const formData = new FormData();
+            formData.append("schoolID", userData.data.schoolID)
+            formData.append("userTypeID", userData.data.userTypeID)
+            formData.append("userRefID", userData.data.userRefID)
+            formData.append("classID", singleHomeworkData?.classID)
+            formData.append("sectionID", singleHomeworkData?.sectionID)
+            formData.append("homeworkID", singleHomeworkData?.homeWorkID)
+            formData.append("homeworkFile", selectFile[0])
+
+            Services.formMethod(apiRoot.submitHomework, formData)
+                .then((res) => {
+                    if (res.status == "success") {
+                        Alert.alert("Info!", res.message)
+                        getAssignedHomeWork()
+                        setSingleHomeworkData(null)
+                        setSelectFile(null)
+                    } else {
+                        Alert.alert("Info!", res.message)
+                    }
+                })
+        }
+    }
+
+
+    function downloadDoc(item, type, baseUrl,) {
+        setLoading(true)
+        if (type == "video") {
+            // navigation.navigate('videoView', { url: item })
+            requestDownloadPermission(item, type)
+        } else if (type == "img") {
+            requestDownloadPermission(item, type)
+            // setFileType((prev) =>{
+            //     return {...prev, fileSrc: item, status: true}
+            // })
+        } else if (type == 'audio') {
+            requestDownloadPermission(item, type)
+        }
+        else if (type == "doc") {
+            const docPath = baseUrl + item.docFileNPath
+            requestDownloadPermission(docPath, type, item)
+            // if(docPath.endsWith('pdf')){
+            //     navigation.navigate('pdfView', { url: docPath, title: "Swa-Sharing"})
+            // }else if(docPath.endsWith('doc') || docPath.endsWith('docx')){
+            //     requestDownloadPermission(docPath)
+            // }
+        }
+    }
+
+    const requestDownloadPermission = async (docPath, type) => {
+        if (Platform.OS === 'android' && Platform.Version >= 33) {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
+                ]);
+                if (
+                    granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED
+                ) {
+                    downloadFile(docPath, type)
+                    setLoading(false)
                 } else {
-                    alert(res.message)
+                    console.log('Permissions denied');
                 }
+            } catch (err) {
+                console.warn(err);
+            }
+        }
+    };
+
+    const downloadFile = (docPath, type) => {
+        const { config, fs } = RNBlobUtil
+        const date = new Date()
+        const fileDir = fs.dirs.DownloadDir
+        let fileExtension = ''
+        if (type == 'img') {
+            if (docPath.endsWith('png')) {
+                fileExtension = '.png'
+            } else if (docPath.endsWith('jpg')) {
+                fileExtension = '.jpg'
+            } else if (docPath.endsWith('jpeg')) {
+                fileExtension = '.jpeg'
+            } else if (docPath.endsWith('gif')) {
+                fileExtension = '.gif'
+            }
+        } else if (type == "video") {
+            if (docPath.endsWith('mp4')) {
+                fileExtension = '.mp4'
+            } else if (docPath.endsWith('ogg')) {
+                fileExtension = '.ogg'
+            }
+        } else if (type == "audio") {
+            fileExtension = '.mp3'
+        } else if (type == 'doc') {
+            if (docPath.endsWith('doc')) {
+                fileExtension = '.doc'
+            } else if (docPath.endsWith('docx')) {
+                fileExtension = '.docx'
+            } else if (docPath.endsWith('pdf')) {
+                fileExtension = '.pdf'
+            } else if (docPath.endsWith('ott')) {
+                fileExtension = '.ott'
+            }
+        }
+
+        RNBlobUtil.config({
+            fileCache: true,
+            addAndroidDownloads: {
+                useDownloadManager: true,
+                notification: true,
+                path: fileDir + "/homeWork" + Math.floor(date.getDate() + date.getSeconds() / 2) + fileExtension,
+                description: "file download"
+            },
+        })
+            .fetch('GET', docPath, {
+            })
+            .then((res) => {
+                console.log('The file saved to', res.path())
+                Alert.alert("Info!", "File downloaded successfully.")
+                setLoading(false)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                setLoading(false)
             })
     }
 
     return (
         <>
-            <View style={{ flex: 1, }}>
-                {loading ?
-                    <Loader /> :
-                    <View style={{ flex: 1, padding: 10 }}>
-                        <ScrollView>
-                            {
-                                assignedHomework.status ?
-                                    <View>
-                                        {
-                                            assignedHomework.data.map((item, index) => {
-                                                const fileName = item.uploadFileName
-                                                return (
-                                                    <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class </Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
-                                                            </View>
+            {loading ?
+                <Loader /> :
+                <View style={{ flex: 1, padding: 10 }}>
+                    <ScrollView>
+                        {
+                            assignedHomework.status ?
+                                <View>
+                                    {
+                                        assignedHomework.data.map((item, index) => {
+                                            const fileName = item.uploadFileName
+                                            return (
+                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class </Text>
                                                         </View>
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
-                                                            </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
                                                         </View>
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
-                                                            </View>
-                                                        </View>
-                                                        {item.uploadFileName != null ?
-                                                            <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                                <View style={{ width: 100, }}>
-                                                                    <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
-                                                                </View>
-                                                                <View style={{ paddingRight: 10 }}>
-                                                                    <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                                </View>
-                                                                <View style={{ flex: 1, }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{fileName}</Text>
-                                                                </View>
-                                                            </View> : null
-                                                        }
-                                                        {item.youTubeUrl != null ?
-                                                            <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                                <View style={{ width: 100, }}>
-                                                                    <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
-                                                                </View>
-                                                                <View style={{ paddingRight: 10 }}>
-                                                                    <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                                </View>
-                                                                <View style={{ flex: 1, }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
-                                                                </View>
-                                                            </View> : null
-                                                        }
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1 }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedDate}</Text>
-                                                            </View>
-                                                        </View>
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1 }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submissionDate}</Text>
-                                                            </View>
-                                                        </View>
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Assign By</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1 }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.teacherData.fullName}</Text>
-                                                            </View>
-                                                        </View>
-                                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
-                                                            <TouchableOpacity style={{ backgroundColor: SWATheam.SwaGreen, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
-                                                                <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>View</Text>
-                                                            </TouchableOpacity>
-                                                            <TouchableOpacity style={{ backgroundColor: item.submittedData == null ? userData.data.colors.mainTheme : SWATheam.SwaGray, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => item.submittedData != null ? null : submitBtn(item)}>
-                                                                <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>{item.submittedData == null ? "Submit" : "Submited"}</Text>
-                                                            </TouchableOpacity>
+                                                        <View style={{ flex: 1, }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
                                                         </View>
                                                     </View>
-                                                )
-                                            })
-                                        }
-                                    </View>
-                                    :
-                                    <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5 }}>
-                                        <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
-                                    </View>
-                            }
-                        </ScrollView>
-                    </View>
-                }
-
-
-            </View>
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
+                                                        </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                        </View>
+                                                        <View style={{ flex: 1, }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
+                                                        </View>
+                                                    </View>
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
+                                                        </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                        </View>
+                                                        <View style={{ flex: 1, }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
+                                                        </View>
+                                                    </View>
+                                                    {item.uploadFileName != null ?
+                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                            <View style={{ width: 100, }}>
+                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
+                                                            </View>
+                                                            <View style={{ paddingRight: 10 }}>
+                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                            </View>
+                                                            <View style={{ flex: 1, }}>
+                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{fileName}</Text>
+                                                            </View>
+                                                        </View> : null
+                                                    }
+                                                    {item.youTubeUrl != null ?
+                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                            <View style={{ width: 100, }}>
+                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
+                                                            </View>
+                                                            <View style={{ paddingRight: 10 }}>
+                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                            </View>
+                                                            <View style={{ flex: 1, }}>
+                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
+                                                            </View>
+                                                        </View> : null
+                                                    }
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
+                                                        </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                        </View>
+                                                        <View style={{ flex: 1 }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedDate}</Text>
+                                                        </View>
+                                                    </View>
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
+                                                        </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                        </View>
+                                                        <View style={{ flex: 1 }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submissionDate}</Text>
+                                                        </View>
+                                                    </View>
+                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                        <View style={{ width: 100, }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Assign By</Text>
+                                                        </View>
+                                                        <View style={{ paddingRight: 10 }}>
+                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                                        </View>
+                                                        <View style={{ flex: 1 }}>
+                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.teacherData.fullName}</Text>
+                                                        </View>
+                                                    </View>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
+                                                        <TouchableOpacity style={{ backgroundColor: SWATheam.SwaGreen, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
+                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>View</Text>
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity style={{ backgroundColor: item.submittedData == null ? userData.data.colors.mainTheme : SWATheam.SwaGray, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => item.submittedData != null ? null : submitBtn(item)}>
+                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>{item.submittedData == null ? "Submit" : "Submited"}</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                </View>
+                                :
+                                <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5 }}>
+                                    <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
+                                </View>
+                        }
+                    </ScrollView>
+                </View>
+            }
             {(fileType.status && fileType.type == 'image' || fileType.type == 'png' || fileType.type == 'jpg' || fileType.type == 'jpeg') &&
-                <ImageViewer fileType={fileType} setFileType={setFileType} />
+                <ImageViewer fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
             }
 
 
             {(fileType.status && fileType.type == 'pdf') &&
-                <PdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} />
+                <PdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
             }
 
             {(fileType.status && fileType.type == 'url') &&
@@ -289,15 +447,6 @@ const ViewAndSubmitHomework = () => {
 }
 
 const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 20,
-        marginBottom: 5,
-        fontWeight: 'bold',
-        color: SWATheam.SwaBlack,
-        paddingVertical: 5,
-        flexDirection: 'row',
-        justifyContent: 'center'
-    },
 
     flexContainer: {
         flexDirection: 'row',
@@ -310,12 +459,6 @@ const styles = StyleSheet.create({
 
     thClr: {
         color: '#654b25'
-    },
-
-
-
-    WtextClr: {
-        color: SWATheam.SwaWhite
     },
 
     selectFieldPopUp: {

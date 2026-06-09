@@ -3,7 +3,6 @@ import React from 'react'
 import { SWATheam } from '../../../../constant/ConstentValue'
 
 const CertificateIconsView = ({ certificateAction }) => {
-  console.log("CertificateIconsView.js")
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>

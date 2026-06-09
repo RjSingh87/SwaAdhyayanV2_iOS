@@ -683,7 +683,7 @@ const Attendance = ({ navigation }) => {
   }
 
   function checkAcademicYear() {
-    const schStartDate = userData?.data?.startSchool?.split(" ")[0]
+    const schStartDate = userData.data.startSchool.split(" ")[0]
     const schEndDate = userData.data.endSchool
     setSchoolSession((prev) => {
       return { ...prev, start: schStartDate, end: schEndDate }
@@ -775,18 +775,24 @@ const Attendance = ({ navigation }) => {
             {showClassTeacherButtons &&
               <View style={{ borderTopWidth: .7, borderColor: userData.data.colors.mainTheme, flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 10, paddingVertical: 10 }}>
                 <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 20, paddingHorizontal: 20, paddingVertical: 5 }} onPress={() => {
-                  if ((new Date(currentDate) >= new Date(calenderSelect))) {
-                    setMarkAttendanceView(true)
-                    setShowCalender(false)
+
+                  if (new Date(calenderSelect) >= new Date(currentDate)) {
+                    setMarkAttendanceView(true);
+                    setShowCalender(false);
                   } else {
-                    setMsgModalVisible((prev) => {
-                      return { ...prev, msg: "Please select valid date.", status: true, type: "error" }
-                    })
+                    setMsgModalVisible((prev) => ({
+                      ...prev,
+                      msg: "Please select valid date.",
+                      status: true,
+                      type: "error"
+                    }));
+
                     setTimeout(() => {
-                      setMsgModalVisible((prev) => {
-                        return { ...prev, status: false }
-                      })
-                    }, 2000)
+                      setMsgModalVisible((prev) => ({
+                        ...prev,
+                        status: false
+                      }));
+                    }, 2000);
                   }
 
                 }}>

@@ -4,6 +4,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { WebView } from 'react-native-webview';
 
 const UrlView = ({ fileType, colorSwa, setFileType }) => {
+    clg(fileType, "fileTypeYoutube")
     const statusBarHeight = StatusBar.currentHeight
     const videoUrl = fileType.data.youTubeUrl
     return (

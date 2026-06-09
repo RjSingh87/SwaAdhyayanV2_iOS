@@ -1,10 +1,13 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, PermissionsAndroid, Alert } from "react-native"
 import { useEffect, useState, useContext } from "react"
 import HWPdfViewer from "../../../common/HWPdfViewer"
-import { apiRoot, SwaTheam } from "../../../../constant/ConstentValue"
+import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+
+import RNBlobUtil from 'react-native-blob-util';
+// import RNFetchBlob from 'rn-fetch-blob';
 
 const CertificateAwarded = () => {
     const { userData } = useContext(GlobleData)
@@ -78,6 +81,115 @@ const CertificateAwarded = () => {
             })
     }
 
+    function downloadDoc(item, type, baseUrl,) {
+        setLoading(true)
+        if (type == "video") {
+            // navigation.navigate('videoView', { url: item })
+            requestDownloadPermission(item, type)
+        } else if (type == "img") {
+            requestDownloadPermission(item, type)
+            // setFileType((prev) =>{
+            //     return {...prev, fileSrc: item, status: true}
+            // })
+        } else if (type == 'audio') {
+            requestDownloadPermission(item, type)
+        }
+        else if (type == "doc") {
+            const docPath = baseUrl + item.docFileNPath
+            requestDownloadPermission(docPath, type, item)
+            // if(docPath.endsWith('pdf')){
+            //     navigation.navigate('pdfView', { url: docPath, title: "Swa-Sharing"})
+            // }else if(docPath.endsWith('doc') || docPath.endsWith('docx')){
+            //     requestDownloadPermission(docPath)
+            // }
+        }
+    }
+
+    const requestDownloadPermission = async (docPath, type) => {
+
+
+
+        if (Platform.OS === 'android' && Platform.Version >= 33) {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
+                ]);
+
+                if (
+                    granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED
+                ) {
+                    downloadFile(docPath, type)
+                    setLoading(false)
+                } else {
+                    console.log('Permissions denied');
+                }
+            } catch (err) {
+                console.warn(err);
+            }
+        }
+    };
+
+    const downloadFile = (docPath, type) => {
+        const { config, fs } = RNBlobUtil
+        const date = new Date()
+        const fileDir = fs.dirs.DownloadDir
+        let fileExtension = ''
+        if (type == 'img') {
+            if (docPath.endsWith('png')) {
+                fileExtension = '.png'
+            } else if (docPath.endsWith('jpg')) {
+                fileExtension = '.jpg'
+            } else if (docPath.endsWith('jpeg')) {
+                fileExtension = '.jpeg'
+            } else if (docPath.endsWith('gif')) {
+                fileExtension = '.gif'
+            }
+        } else if (type == "video") {
+            if (docPath.endsWith('mp4')) {
+                fileExtension = '.mp4'
+            } else if (docPath.endsWith('ogg')) {
+                fileExtension = '.ogg'
+            }
+        } else if (type == "audio") {
+            fileExtension = '.mp3'
+        } else if (type == 'doc') {
+            if (docPath.endsWith('doc')) {
+                fileExtension = '.doc'
+            } else if (docPath.endsWith('docx')) {
+                fileExtension = '.docx'
+            } else if (docPath.endsWith('pdf')) {
+                fileExtension = '.pdf'
+            } else if (docPath.endsWith('ott')) {
+                fileExtension = '.ott'
+            }
+        }
+
+        RNBlobUtil.config({
+            fileCache: true,
+            addAndroidDownloads: {
+                useDownloadManager: true,
+                notification: true,
+                path: fileDir + "/homeWork" + Math.floor(date.getDate() + date.getSeconds() / 2) + fileExtension,
+                description: "file download"
+            },
+        })
+            .fetch('GET', docPath, {
+            })
+            .then((res) => {
+                console.log('The file saved to', res.path())
+                Alert.alert("Info!", "File downloaded successfully.")
+                setLoading(false)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                setLoading(false)
+            })
+    }
+
     return (
         <>
             {loading ?
@@ -91,7 +203,7 @@ const CertificateAwarded = () => {
                                         certificate.data.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
-                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SwaTheam.SwaWhite }} key={index}>
+                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                                                         <View style={{ width: 120, }}>
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Class </Text>
@@ -188,7 +300,7 @@ const CertificateAwarded = () => {
                 </View>
             }
             {(fileType.status && fileType.type == 'pdf') &&
-                <HWPdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} />
+                <HWPdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
             }
         </>
 

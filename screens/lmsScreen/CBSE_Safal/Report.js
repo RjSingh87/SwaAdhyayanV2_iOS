@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Modal, ScrollView, Button, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import Icon from 'react-native-vector-icons/';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { RadioButton, DataTable } from 'react-native-paper';
 import { GlobleData } from '../../../Store';
 import { apiRoot, SWATheam } from '../../../constant/ConstentValue';
@@ -82,7 +82,7 @@ export default function Report({ imgUrl, qSetIds }) {
 
                 if (res.status == "success") {
                     console.log(res)
-                    setreport(res.data)
+                    setreport(res?.data)
                     let totalP = res.data.percentage;
                     let totlPresent = parseFloat(totalP.toFixed(2));
                     setManage((x) => {
@@ -219,8 +219,8 @@ export default function Report({ imgUrl, qSetIds }) {
                                         </DataTable.Cell>
                                         <DataTable.Cell>
                                             {item.selectedAnswerID == item.correctAnswerID ?
-                                                <Text><Icon name="check" size={20} color="#38761d" /></Text> :
-                                                <Text><Icon name="close" size={20} color="#cd0027" /></Text>
+                                                <Text><AntDesign name="check" size={20} color="#38761d" /></Text> :
+                                                <Text><AntDesign name="close" size={20} color="#cd0027" /></Text>
                                             }
                                         </DataTable.Cell>
                                         <DataTable.Cell>
@@ -241,7 +241,7 @@ export default function Report({ imgUrl, qSetIds }) {
                         <Modal animationType="slide">
                             <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Exam Question</Text>
-                                <View><Icon onPress={hideExamQuest} name="close" size={20} color="#231e1a" /></View>
+                                <View><AntDesign onPress={hideExamQuest} name="close" size={20} color="#231e1a" /></View>
                             </View>
                             <View style={styles.holderActQuest}>
 
@@ -396,7 +396,7 @@ export default function Report({ imgUrl, qSetIds }) {
                         <Modal animationType="slide">
                             <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student All Exam Report</Text>
-                                <View><Icon onPress={hideReportSection} name="close" size={20} color="#231e1a" /></View>
+                                <View><AntDesign onPress={hideReportSection} name="close" size={20} color="#231e1a" /></View>
                             </View>
                             <View style={{ padding: 10, flex: 1, backgroundColor: userData.data.colors.liteTheme, }}>
                                 <ScrollView >

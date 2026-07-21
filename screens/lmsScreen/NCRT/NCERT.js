@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Modal, Button, TextInput, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TextInput, Alert, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useState, useContext } from 'react';
 import { DataTable } from 'react-native-paper';
 import RenderHtml from 'react-native-render-html';
@@ -8,6 +8,7 @@ import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import SwaHeader from '../../common/SwaHeader';
 import Services from '../../../Services';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NCERT({ navigation, route }) {
@@ -295,7 +296,7 @@ export default function NCERT({ navigation, route }) {
 							}
 						})
 					} else {
-						alert(finalAssess.message);
+						Alert.alert("Info", finalAssess.message);
 					}
 
 				})
@@ -1629,7 +1630,7 @@ export default function NCERT({ navigation, route }) {
 								>
 									<View style={styles.headerHolder}>
 										<Text style={{ color: SWATheam.SwaBlack }}>Student Exam Report</Text>
-										<View><Icon onPress={closeReportHolder} name="close" size={20} color="#9ba8ae" /></View>
+										<View><AntDesign onPress={closeReportHolder} name="close" size={20} color="#9ba8ae" /></View>
 									</View>
 
 									{reportDat.attemptSuccess &&
@@ -1685,8 +1686,8 @@ export default function NCERT({ navigation, route }) {
 																		{item.selectedAnswerID == item.correctAnswerID && item.activityID == 1
 																			|| item.answerID == item.selectedAnswerID && item.activityID == 2
 																			|| item.selectedAnswerID == item.answerText && item.activityID == 3 ?
-																			<Text><Icon name="check" size={20} color="#0d9048" /></Text> :
-																			<Text><Icon name="close" size={20} color="red" /></Text>
+																			<Text><AntDesign name="check" size={20} color="#0d9048" /></Text> :
+																			<Text><AntDesign name="close" size={20} color="red" /></Text>
 																		}
 																	</DataTable.Cell>
 																	<DataTable.Cell>
@@ -1713,7 +1714,7 @@ export default function NCERT({ navigation, route }) {
 							<Modal animationType="slide">
 								<View style={styles.headerCloseIcons}>
 									<Text style={{ color: SWATheam.SwaBlack }}>Exam Question</Text>
-									<View><Icon onPress={hideExamQuest} name="close" size={20} color="#9ba8ae" /></View>
+									<View><AntDesign onPress={hideExamQuest} name="close" size={20} color="#9ba8ae" /></View>
 								</View>
 								<View style={styles.holderActQuest}>
 									{actData.showQuestActId == 1 ?
@@ -2012,7 +2013,7 @@ export default function NCERT({ navigation, route }) {
 							<Modal animationType="slide">
 								<View style={styles.allExamHeader}>
 									<Text style={{ color: SWATheam.SwaBlack }} >Student All Exam Report</Text>
-									<View><Icon name="close" size={20} color="#231e1a" onPress={hideReportList} /></View>
+									<View><AntDesign name="close" size={20} color="#231e1a" onPress={hideReportList} /></View>
 								</View>
 								<ScrollView >
 									{allReportData.map((item, index) => {

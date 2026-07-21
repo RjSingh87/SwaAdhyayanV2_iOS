@@ -6,6 +6,7 @@ import Report from './Report';
 import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import Services from '../../../Services';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function McqActy({ navigation, route }) {
     const insets = useSafeAreaInsets();
@@ -521,7 +522,7 @@ export default function McqActy({ navigation, route }) {
                         <Modal animationType="slide" transparent={true}>
                             <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student Exam Report</Text>
-                                <View><Icon onPress={hideReportHolder} name="close" size={20} color="#231e1a" /></View>
+                                <View><AntDesign onPress={hideReportHolder} name="close" size={20} color="#231e1a" /></View>
                             </View>
 
 

@@ -8,6 +8,8 @@ import Orientation from 'react-native-orientation-locker';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChapterItemList = ({ navigation, route }) => {
+  const isTrm = route?.params?.sendData?.type == 'trm' ? true : false
+
   const insets = useSafeAreaInsets();
 
   const { userData } = useContext(GlobleData)
@@ -26,43 +28,48 @@ const ChapterItemList = ({ navigation, route }) => {
     setIsInstruction(true)
   }
   async function getModuleActivityData(item) {
-
     if (item.subPartID == 10003) {
       navigation.navigate('videoView', { url: item.siteUrl + item.filePath + '/' + item.uploadFileName, data: item.chapterName, youtubeReferenceLink: item?.referenceLink })
-    } else if (item.subPartID == 10001) {
-      navigation.navigate('pdfView', item)
+    } else if (item.subPartID == 10001 || isTrm) {
+      if (isTrm) {
+        navigation.navigate('pdfView', {
+          url: route.params.data.siteUrl + item.pdfPath,
+          title: item.pdfName,
+        });
+      } else {
+        navigation.navigate('pdfView', item)
+      }
     } else {
       navigation.navigate('activityView', { url: item.activityUrl, title: item.activityName })
     }
   }
-  // console.log(route.params.sendData.screenName)
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
-      <SwaHeader title={route.params.sendData.screenName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+      <SwaHeader title={route?.params?.sendData?.screenName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
       <ScrollView style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10, }}>
-          {route.params.data.map((item, index) => {
+          {(isTrm ? route?.params?.data?.mainData : route?.params?.data)?.map((item, index) => {
             let iconPath = null
             let iconName = ''
             let imgColor = null
-            if (item.subPartID == 10003) {
+            if (item?.subPartID == 10003) {
               iconPath = require('../assets/video.png')
               // iconName = "Video "+ (index+1)
               iconName = item.chapterName
               imgColor = userData.data.colors.mainTheme
-            } else if (item.subPartID == 10001) {
+            } else if (item.subPartID == 10001 || isTrm) {
               iconPath = require('../assets/pdf.png')
               // iconName = "PDF "+ (index+1)
-              iconName = item.chapterName
-              imgColor = userData.data.colors.mainTheme
+              iconName = isTrm ? item?.pdfName : item?.chapterName
+              imgColor = userData?.data?.colors?.mainTheme
             } else {
               iconPath = { uri: item.imgPath }
               iconName = item.activityName
               imgColor = null
             }
             return (
-              <TouchableOpacity style={{ height: 160, marginVertical: 10, width: "40%", justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', elevation: 9, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.lcContentID}
+              <TouchableOpacity style={{ height: 160, marginVertical: 10, width: "40%", justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', elevation: 9, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={isTrm ? item?.id : item?.lcContentID}
                 onPress={() => {
                   getModuleActivityData(item)
                 }}>

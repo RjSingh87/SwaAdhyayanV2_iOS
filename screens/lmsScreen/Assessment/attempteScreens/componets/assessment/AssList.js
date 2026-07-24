@@ -53,6 +53,7 @@ export default function AssiList({ navigation }) {
 		}
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
+				// console.log(res, "timelelelel?")
 				if (res.status == "success") {
 					setLoader(false)
 					setAssessList(res.data);
@@ -235,7 +236,7 @@ export default function AssiList({ navigation }) {
 									{item.endDate >= todayDate && attemptIds === 0 ?
 										<TouchableOpacity
 											style={[styles.btnsStatus_4, { width: "50%", alignSelf: 'center' }]}
-											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder') }}
+											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder', { totalTime: item.totalTime }) }}
 										>
 											<Text
 												style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Attempt Waiting</Text>

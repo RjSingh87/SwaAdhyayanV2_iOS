@@ -20,8 +20,23 @@ import Services from "../../../Services";
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue";
 import Loader from "../../common/Loader";
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import dataObject from "../../../dataObject";
 
 export default function LiveClass({ navigation }) {
+
+	const objData = Object.entries(dataObject)
+	// console.log(objData, "DATAobje.")
+	const mapping = objData.map((item, index) => {
+		console.log(item, "VARRRR")
+		return (
+			<View>
+				<Text>{item}</Text>
+			</View>
+		)
+	})
+
+
+
 	const insets = useSafeAreaInsets();
 	const { userData } = useContext(GlobleData)
 	const [clickedName, setClickedName] = useState();

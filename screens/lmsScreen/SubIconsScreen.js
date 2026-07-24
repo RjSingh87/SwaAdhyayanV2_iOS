@@ -71,12 +71,9 @@ const marksEntrySubIconID = [
 ];
 // const homeWorkSubIconID = [87,88,89,90,91,92,93, 109,110,111,112]
 
-
 import { flowRef } from './flowRef';
 
 const SubIconsScreen = ({ navigation, route }) => {
-
-
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const { userData } = useContext(GlobleData);
@@ -280,7 +277,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               return { ...prev, listItem: res.data, status: true };
             });
           } else if (res.status == 'error') {
-            alert(res.message);
+            setMsgModalVisible((prev) => {
+              return { ...prev, msg: res.message, status: true, type: 'error' }
+            })
+            setTimeout(() => {
+              setMsgModalVisible((prev) => {
+                return { ...prev, status: false }
+              })
+            }, 2000)
           }
         })
         .catch(err => {
@@ -321,7 +325,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               };
             });
           } else if (res.status == 'error') {
-            alert(res.message);
+            setMsgModalVisible((prev) => {
+              return { ...prev, msg: res.message, status: true, type: 'error' }
+            })
+            setTimeout(() => {
+              setMsgModalVisible((prev) => {
+                return { ...prev, status: false }
+              })
+            }, 2000)
             if (navigation.canGoBack()) {
               navigation.goBack();
             } else {
@@ -395,7 +406,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               getLearningToolsList(route.params, 'search');
             }
           } else if (res.status == 'error') {
-            alert(res.message);
+            setMsgModalVisible((prev) => {
+              return { ...prev, msg: res.message, status: true, type: 'error' }
+            })
+            setTimeout(() => {
+              setMsgModalVisible((prev) => {
+                return { ...prev, status: false }
+              })
+            }, 2000)
             if (navigation.canGoBack()) {
               navigation.goBack();
             } else {
@@ -458,7 +476,6 @@ const SubIconsScreen = ({ navigation, route }) => {
     setIndicatorsList(prev => {
       return { ...prev, status: false };
     });
-
 
     if (val.testID != undefined) {
       if (val.isSeptAttempt) {
@@ -595,7 +612,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   res.message == undefined
                     ? 'Student has not attempted any of the SEPT test.'
                     : res.message;
-                alert(message);
+                setMsgModalVisible((prev) => {
+                  return { ...prev, msg: message, status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, status: false }
+                  })
+                }, 2000)
               }
             })
             .catch(err => {
@@ -626,7 +650,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   res.message == undefined
                     ? 'Student has not attempted this test.'
                     : res.message;
-                alert(message);
+                setMsgModalVisible((prev) => {
+                  return { ...prev, msg: message, status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, status: false }
+                  })
+                }, 2000)
               }
             })
             .catch(err => {
@@ -762,7 +793,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                 return { ...prev, listItem: res.data, status: true };
               });
             } else if (res.status == 'error') {
-              alert(res.message);
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
             }
           })
           .catch(err => {
@@ -810,9 +848,39 @@ const SubIconsScreen = ({ navigation, route }) => {
 
     if (type == 'class' || type == 'trmClass') {
       setLoading(true);
-      if (type == 'trmClass' && selectedField.trmType == null) {
-        alert('Please select type.');
-        setLoading(false);
+      if (type == 'trmClass') {
+        if (selectedField.trmType == null) {
+          alert('Please select type.');
+          setLoading(false);
+        } else {
+          const payload = {
+            trmTypeID: selectedField.trmType.pdfTypeID,
+            userTypeID: userData.data.userTypeID,
+            userRefID: userData.data.userRefID,
+            schoolID: userData.data.schoolID,
+            academicYear: userData.data.academicYear,
+            classID: userData.data.userTypeID == 5 ? userData.data.classID : '',
+          };
+          Services.post(apiRoot.getAllTrmClassList, payload)
+            .then(res => {
+              if (res.status == 'success') {
+                setListItem(prev => {
+                  return {
+                    ...prev,
+                    list: res.classData,
+                    status: true,
+                    type: type,
+                  };
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        }
       } else {
         const classPayload = {
           schoolID: userData?.data?.schoolID,
@@ -830,7 +898,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               });
               setLoading(false);
             } else if (res.status == 'error') {
-              alert(res.message);
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
             }
           })
           .catch(err => {
@@ -858,15 +933,24 @@ const SubIconsScreen = ({ navigation, route }) => {
           userRefID: userData?.data?.userRefID,
           academicYear: userData?.data?.academicYear,
         };
+        console.log(sectionPayload);
         Services.post(apiRoot.getSectionList, sectionPayload)
           .then(res => {
+            console.log('section list res', res);
             if (res.status == 'success') {
               setListItem(prev => {
                 return { ...prev, list: res.data, status: true, type: type };
               });
               setLoading(false);
-            } else if (res.statue == 'error') {
-              alert(res.message);
+            } else if (res.status == 'error') {
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
               setLoading(false);
             }
           })
@@ -903,7 +987,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                 });
               } else if (res.status == 'failed') {
                 setLoading(false);
-                alert(res.message);
+                setMsgModalVisible((prev) => {
+                  return { ...prev, msg: res.message, status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, status: false }
+                  })
+                }, 2000)
               }
             })
             .catch(err => {
@@ -944,7 +1035,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   setLoading(false);
                 } else if (res.status == 'error') {
                   setLoading(false);
-                  alert(res.message);
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                  })
+                  setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                      return { ...prev, status: false }
+                    })
+                  }, 2000)
                 }
               })
               .catch(err => {
@@ -980,12 +1078,8 @@ const SubIconsScreen = ({ navigation, route }) => {
                   ? selectedField.section.sectionID
                   : userData.data.sectionID,
             };
-            console.log('subject payload', JSON.stringify(subjectPayload));
             Services.post(apiRoot.getSubjectList, subjectPayload)
               .then(res => {
-
-                console.log('subject list response', JSON.stringify(res));
-
                 if (res.status == 'success') {
                   setListItem(prev => {
                     return {
@@ -997,7 +1091,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   });
                   setLoading(false);
                 } else if (res.status == 'failed') {
-                  alert(res.message);
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                  })
+                  setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                      return { ...prev, status: false }
+                    })
+                  }, 2000)
                 }
               })
               .catch(err => {
@@ -1044,7 +1145,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                 setLoading(false);
               } else if (res.status == 'failed') {
                 setLoading(false);
-                alert(res.msg);
+                setMsgModalVisible((prev) => {
+                  return { ...prev, msg: res.msg, status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, status: false }
+                  })
+                }, 2000)
               }
             })
             .catch(err => {
@@ -1093,7 +1201,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   setLoading(false);
                 } else {
                   setLoading(false);
-                  alert(res.message);
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                  })
+                  setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                      return { ...prev, status: false }
+                    })
+                  }, 2000)
                 }
               })
               .catch(err => {
@@ -1155,10 +1270,26 @@ const SubIconsScreen = ({ navigation, route }) => {
           });
       }
     } else if (type == 'trmType') {
-      setListItem(prev => {
-        return { ...prev, list: trmTypeList, status: true, type: type };
-      });
-      setLoading(false);
+      Services.get(apiRoot.getTrmTypeList)
+        .then(res => {
+          if (res.status == 'success') {
+            setListItem(prev => {
+              return {
+                ...prev,
+                list: res.trmTypeList,
+                status: true,
+                type: type,
+              };
+            });
+            setLoading(false);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     } else if (type == 'assessment') {
       if (selectedField.subject == null) {
         alert('Please select subject.');
@@ -1188,7 +1319,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               });
             } else if (res.status == 'failed') {
               setLoading(false);
-              alert(res.message);
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
             }
           })
           .catch(err => {
@@ -1266,7 +1404,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               });
             } else {
               setLoading(false);
-              alert(res.message);
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
             }
           })
           .catch(err => {
@@ -1283,6 +1428,7 @@ const SubIconsScreen = ({ navigation, route }) => {
   }
 
   function getSelectedItem(item, type) {
+    console.log(selectedIcon.subIconID);
     if (type == 'class' || type == 'trmClass') {
       setSelectedField(prev => {
         return {
@@ -1317,7 +1463,8 @@ const SubIconsScreen = ({ navigation, route }) => {
     } else if (
       type == 'subject' ||
       type == 'gameSubject' ||
-      type == 'subjAddBySchool'
+      type == 'subjAddBySchool' ||
+      type == 'trmSubject'
     ) {
       setSelectedField(prev => {
         return {
@@ -1374,6 +1521,68 @@ const SubIconsScreen = ({ navigation, route }) => {
           });
       } else if (type == 'subjAddBySchool') {
         getStudentListWithSubjectMarks(item, (type = 'subject'));
+      } else if (
+        type === 'trmSubject' &&
+        !(
+          [6, 7, 8].includes(selectedField?.class?.classID) &&
+          [3, 4, 5].includes(item.subjectID)
+        )
+      ) {
+        setLoading(true);
+        const payload = {
+          classID: selectedField?.class?.classID,
+          subjectID: item.subjectID,
+          schoolID: userData?.data?.schoolID,
+          lessonType: selectedField?.trmType?.pdfTypeID,
+          bookID: '',
+        };
+        Services.post(apiRoot.trmLessonPlanOfClass, payload)
+          .then(res => {
+            if (res.status == 'success') {
+              if (res.data.mainData.length > 1) {
+                const sendData = {
+                  screenName: selectedField?.trmType?.pdfTypeDesc,
+                  type: 'trm',
+                };
+                navigation.navigate('chapterItem', {
+                  data: res.data,
+                  sendData: sendData,
+                  navigation,
+                });
+                setListItem(prev => {
+                  return { ...prev, status: false };
+                });
+                setLoading(false);
+              } else {
+                navigation.navigate('pdfView', {
+                  url: res.data.siteUrl + res.data.mainData[0].pdfPath,
+                  title: selectedField?.trmType?.pdfTypeDesc,
+                });
+                setListItem(prev => {
+                  return { ...prev, status: false };
+                });
+                setLoading(false);
+              }
+            } else {
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
+              setListItem(prev => {
+                return { ...prev, status: false };
+              });
+            }
+          })
+          .then(err => {
+            console.log(err);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       } else if (selectedIcon.subIconID == 102) {
         setLoading(true);
         const payload = {
@@ -1511,7 +1720,6 @@ const SubIconsScreen = ({ navigation, route }) => {
           // schoolID: userData.data.schoolID,
           bookID: item.bookID,
         };
-        console.log(payload, 'pay')
         Services.post(apiRoot.getChapterOfNcertBook, payload).then(res => {
           if (res.status == 'success') {
             navigation.navigate('ncert', {
@@ -1520,16 +1728,15 @@ const SubIconsScreen = ({ navigation, route }) => {
             });
           }
         });
-      } else if (type === "trmBook") {
+      } else if (type === 'trmBook') {
         setLoading(true);
         const payload = {
           classID: selectedField?.class?.classID,
           subjectID: selectedField?.subject?.subjectID,
           schoolID: userData?.data?.schoolID,
-          lessonType: selectedField?.trmType?.trmID,
+          lessonType: selectedField?.trmType?.pdfTypeID,
           bookID: item.bookID,
         };
-
         Services.post(apiRoot.trmLessonPlanOfClass, payload)
           .then(res => {
             if (res.status == 'success') {
@@ -1542,7 +1749,14 @@ const SubIconsScreen = ({ navigation, route }) => {
               });
               setLoading(false);
             } else {
-              alert(res.message);
+              setMsgModalVisible((prev) => {
+                return { ...prev, msg: res.message, status: true, type: 'error' }
+              })
+              setTimeout(() => {
+                setMsgModalVisible((prev) => {
+                  return { ...prev, status: false }
+                })
+              }, 2000)
               setListItem(prev => {
                 return { ...prev, status: false };
               });
@@ -1554,7 +1768,6 @@ const SubIconsScreen = ({ navigation, route }) => {
           .finally(() => {
             setLoading(false);
           });
-
       } else {
         setSelectedField(prev => {
           return { ...prev, book: item };
@@ -1810,7 +2023,14 @@ const SubIconsScreen = ({ navigation, route }) => {
             return { ...prev, list: res.data, termID: termID, status: true };
           });
         } else if (res.status == 'failed') {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'error' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
         }
       })
       .catch(err => {
@@ -1829,7 +2049,14 @@ const SubIconsScreen = ({ navigation, route }) => {
           setLoading(false);
           navigation.navigate('homeWorkReport', res.data);
         } else {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'error' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
         }
       })
       .catch(err => {
@@ -1858,7 +2085,7 @@ const SubIconsScreen = ({ navigation, route }) => {
         : userData?.data?.userTypeID == 4 || userData?.data?.userTypeID == 2
           ? selectedField.class.classID
           : userData.data.classID;
-    let subjectID = type == 'search' ? item.chapter.sectionID : item.subjectID;
+    let subjectID = type == 'search' ? item.chapter.subjectID : item.subjectID;
     let bookID = type == 'search' ? item.chapter.bookID : item.bookID;
     setGameList(prev => {
       return { ...prev, status: false };
@@ -1869,13 +2096,13 @@ const SubIconsScreen = ({ navigation, route }) => {
       subjectID: subjectID,
       bookID: bookID,
       userTypeID: userData?.data?.userTypeID,
-      schoolID: userData.data.schoolID
+      schoolID: userData.data.schoolID,
     };
     dispatch(fetchLearningTool(toolsPayload));
     Services.post(apiRoot.getLearningTools, toolsPayload)
       .then(res => {
         if (res.status == 'success') {
-          setToolItems(res)
+          setToolItems(res);
           if (item.mainIconID == 17 || item.mainIconID == 28) {
             getModuleActivityData(item, type, '', '', navigation);
           }
@@ -1925,7 +2152,21 @@ const SubIconsScreen = ({ navigation, route }) => {
       if (classID == 13) {
         actArr = ['134', '135', '136', '137', '77', '171'];
       }
-      let pdfact = ['169', '73', '74', '186', '191', '170', '69', '187', '192', '76', '78', '188', '193'];
+      let pdfact = [
+        '169',
+        '73',
+        '74',
+        '186',
+        '191',
+        '170',
+        '69',
+        '187',
+        '192',
+        '76',
+        '78',
+        '188',
+        '193',
+      ];
       const sendData = {
         screenName:
           subjectID == 1
@@ -1969,7 +2210,14 @@ const SubIconsScreen = ({ navigation, route }) => {
                   classID: selectedField,
                 });
               } else {
-                alert(res.message);
+                setMsgModalVisible((prev) => {
+                  return { ...prev, msg: res.message, status: true, type: 'error' }
+                })
+                setTimeout(() => {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, status: false }
+                  })
+                }, 2000)
               }
             })
             .catch(err => {
@@ -2110,10 +2358,29 @@ const SubIconsScreen = ({ navigation, route }) => {
       Services.post(apiRoot.coScholasticIndicatorSave, payload)
         .then(res => {
           if (res.status == 'success') {
-            alert(res.message);
+            setMsgModalVisible(prev => {
+              return {
+                ...prev,
+                msg: res.message,
+                status: true,
+                type: 'success',
+              };
+            });
+            setTimeout(() => {
+              setMsgModalVisible(prev => {
+                return { ...prev, status: false };
+              });
+            }, 2000);
             getIndicatorList('', subIconID);
           } else if (res.status == 'error') {
-            alert(res.message);
+            setMsgModalVisible(prev => {
+              return { ...prev, msg: res.message, status: true, type: 'error' };
+            });
+            setTimeout(() => {
+              setMsgModalVisible(prev => {
+                return { ...prev, status: false };
+              });
+            }, 2000);
           }
         })
         .catch(err => {
@@ -2182,10 +2449,34 @@ const SubIconsScreen = ({ navigation, route }) => {
       };
       Services.post(apiRoot.deleteAppIndicator, payload).then(res => {
         if (res.status == 'success') {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'success' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
           getIndicatorList('', selectedIcon.subIconID);
+        } else {
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'error' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
         }
-      });
+
+      })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+
+        })
+
     }
   }
 
@@ -2204,7 +2495,14 @@ const SubIconsScreen = ({ navigation, route }) => {
         setsubIndicatorName('');
         getIndicatorList(indicatorID, selectedIcon.subIconID);
       } else {
-        alert(res.message);
+        setMsgModalVisible((prev) => {
+          return { ...prev, msg: res.message, status: true, type: 'error' }
+        })
+        setTimeout(() => {
+          setMsgModalVisible((prev) => {
+            return { ...prev, status: false }
+          })
+        }, 2000)
       }
     });
   }
@@ -2218,7 +2516,14 @@ const SubIconsScreen = ({ navigation, route }) => {
         if (res.status == 'success') {
           getIndicatorList(indicatorID, selectedIcon.subIconID);
         } else {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'error' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
         }
       })
       .catch(err => {
@@ -2247,13 +2552,27 @@ const SubIconsScreen = ({ navigation, route }) => {
     Services.post(apiRoot.editIndicatorNSubIndicator, payload)
       .then(res => {
         if (res.status == 'success') {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'success' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
           seteditIndicator(prev => {
             return { ...prev, status: false };
           });
           getIndicatorList('', selectedIcon.subIconID);
         } else if (res.status == 'error') {
-          alert(res.message);
+          setMsgModalVisible((prev) => {
+            return { ...prev, msg: res.message, status: true, type: 'error' }
+          })
+          setTimeout(() => {
+            setMsgModalVisible((prev) => {
+              return { ...prev, status: false }
+            })
+          }, 2000)
         }
       })
       .catch(err => {
@@ -2281,7 +2600,6 @@ const SubIconsScreen = ({ navigation, route }) => {
   function iconLoader() {
     setLoading(false);
   }
-
   return (
     <SafeAreaProvider
       style={{
@@ -2423,15 +2741,13 @@ const SubIconsScreen = ({ navigation, route }) => {
                   <View style={{ padding: 10 }}>
                     <SelectionBox
                       getListItem={getListItem}
-                      selectedField={selectedField?.trmType?.trmType}
+                      selectedField={selectedField?.trmType?.pdfTypeDesc}
                       type="trmType"
                       placeholder="Select type"
                     />
                     <SelectionBox
                       getListItem={getListItem}
-                      selectedField={
-                        selectedField?.class?.getClassDetail?.classDesc
-                      }
+                      selectedField={selectedField?.class?.classDesc}
                       type="trmClass"
                       placeholder="Select class"
                     />
@@ -2444,19 +2760,26 @@ const SubIconsScreen = ({ navigation, route }) => {
                     <SelectionBox
                       getListItem={getListItem}
                       selectedField={selectedField?.subject?.subjectName}
-                      type="subject"
+                      type="trmSubject"
                       placeholder="Select subject"
                     />
-                    <SelectionBox
-                      getListItem={getListItem}
-                      selectedField={
-                        selectedField?.subject?.subjectID == 1
-                          ? selectedField?.book?.bookNameLang2
-                          : selectedField?.book?.bookName
-                      }
-                      type="trmBook"
-                      placeholder="Select book"
-                    />
+                    {(selectedField?.class?.classID == 6 ||
+                      selectedField?.class?.classID == 7 ||
+                      selectedField?.class?.classID == 8) &&
+                      (selectedField?.subject?.subjectID == 3 ||
+                        selectedField?.subject?.subjectID == 4 ||
+                        selectedField?.subject?.subjectID == 5) ? (
+                      <SelectionBox
+                        getListItem={getListItem}
+                        selectedField={
+                          selectedField?.subject?.subjectID == 1
+                            ? selectedField?.book?.bookNameLang2
+                            : selectedField?.book?.bookName
+                        }
+                        type="trmBook"
+                        placeholder="Select book"
+                      />
+                    ) : null}
                   </View>
                 ) : null}
                 {selectField && selectedIcon.subIconID == 124 ? (
@@ -2721,75 +3044,214 @@ const SubIconsScreen = ({ navigation, route }) => {
           ) : null}
           {toolItems?.data.length ? (
             <>
-              {!toolItems?.categoryView ?
-                <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
+              {!toolItems?.categoryView ? (
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: userData.data.colors.liteTheme,
+                  }}
+                >
                   <ScrollView>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10 }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-around',
+                        marginVertical: 10,
+                        paddingHorizontal: 10,
+                      }}
+                    >
                       {toolItems?.data.map((item, index) => {
-                        let toolName = ''
-                        let subjectID = selectedField?.subject?.subjectID != undefined ? selectedField.subject.subjectID : selectedField.subject
+                        let toolName = '';
+                        let subjectID =
+                          selectedField?.subject?.subjectID != undefined
+                            ? selectedField.subject.subjectID
+                            : selectedField.subject;
                         if (subjectID == 1) {
-                          toolName = item.subjectSubCatLang2?.replace('<br>', '')
+                          toolName = item.subjectSubCatLang2?.replace(
+                            '<br>',
+                            '',
+                          );
                         } else {
-                          toolName = item.subjectSubCategory?.replace('<br>', '')
+                          toolName = item.subjectSubCategory?.replace(
+                            '<br>',
+                            '',
+                          );
                         }
                         return (
-                          <TouchableOpacity style={{ height: 180, marginVertical: 10, width: "45%", justifyContent: 'center', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, elevation: 9, borderRadius: 6, justifyContent: 'space-around', padding: 8 }} key={item.subTypeID}
-                            onPress={() => getModuleActivityData(item, 'manual', '', '', navigation)}>
-                            <View style={{ height: item.subTypeID != undefined ? 80 : 144, width: item.subTypeID != undefined ? 80 : 90, justifyContent: 'center', alignItems: 'center', }}>
-                              <Image source={{ uri: toolItems?.imgUrl + item?.iconName }} style={{ height: "100%", width: "100%", resizeMode: "contain" }} />
-                            </View>
-                            {item.subTypeID != undefined &&
-                              <View style={{ height: 40, alignItems: 'center' }}>
-                                <Text style={{ textAlign: 'center', color: SWATheam.SwaGray }}>{toolName}</Text>
-                              </View>
+                          <TouchableOpacity
+                            style={{
+                              height: 180,
+                              marginVertical: 10,
+                              width: '45%',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              backgroundColor: SWATheam.SwaWhite,
+                              elevation: 9,
+                              borderRadius: 6,
+                              justifyContent: 'space-around',
+                              padding: 8,
+                            }}
+                            key={item.subTypeID}
+                            onPress={() =>
+                              getModuleActivityData(
+                                item,
+                                'manual',
+                                '',
+                                '',
+                                navigation,
+                              )
                             }
+                          >
+                            <View
+                              style={{
+                                height: item.subTypeID != undefined ? 80 : 144,
+                                width: item.subTypeID != undefined ? 80 : 90,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Image
+                                source={{
+                                  uri: toolItems?.imgUrl + item?.iconName,
+                                }}
+                                style={{
+                                  height: '100%',
+                                  width: '100%',
+                                  resizeMode: 'contain',
+                                }}
+                              />
+                            </View>
+                            {item.subTypeID != undefined && (
+                              <View
+                                style={{ height: 40, alignItems: 'center' }}
+                              >
+                                <Text
+                                  style={{
+                                    textAlign: 'center',
+                                    color: SWATheam.SwaGray,
+                                  }}
+                                >
+                                  {toolName}
+                                </Text>
+                              </View>
+                            )}
                           </TouchableOpacity>
-                        )
+                        );
                       })}
                     </View>
                   </ScrollView>
-                </View> :
+                </View>
+              ) : (
                 <View
-                  style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme, }}
+                  style={{
+                    flex: 1,
+                    backgroundColor: userData.data.colors.liteTheme,
+                  }}
                 >
                   <ScrollView>
                     {toolItems?.data?.map((group, gIndex) => {
                       return (
                         <View key={group.lcID} style={{ marginVertical: 10 }}>
                           {/* 🔷 Group Title */}
-                          {group?.subjectSubType?.length ?
+                          {group?.subjectSubType?.length ? (
                             <Text
-                              style={{ fontSize: 16, fontWeight: 'bold', marginHorizontal: 0, marginBottom: 5, color: SWATheam.SwaBlack, textAlign: 'center', backgroundColor: userData.data.colors.mainTheme, paddingVertical: 4, color: SWATheam.SwaWhite, }}
+                              style={{
+                                fontSize: 16,
+                                fontWeight: 'bold',
+                                marginHorizontal: 0,
+                                marginBottom: 5,
+                                color: SWATheam.SwaBlack,
+                                textAlign: 'center',
+                                backgroundColor: userData.data.colors.mainTheme,
+                                paddingVertical: 4,
+                                color: SWATheam.SwaWhite,
+                              }}
                             >
                               {group.learningCategory}
-                            </Text> : null
-                          }
+                            </Text>
+                          ) : null}
 
                           {/* 🔷 Icons Grid */}
                           <View
-                            style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', paddingHorizontal: 10, }}
+                            style={{
+                              flexDirection: 'row',
+                              flexWrap: 'wrap',
+                              justifyContent: 'space-around',
+                              paddingHorizontal: 10,
+                            }}
                           >
                             {group.subjectSubType.map((item, index) => {
-                              let subjectID = selectedField?.subject?.subjectID != undefined ? selectedField.subject.subjectID : selectedField.subject;
+                              let subjectID =
+                                selectedField?.subject?.subjectID != undefined
+                                  ? selectedField.subject.subjectID
+                                  : selectedField.subject;
 
-                              let toolName = subjectID == 1 ? item.subjectSubCatLang2?.replace(/<br>/g, '') : item.subjectSubCatLang1?.replace(/<br>/g, '');
+                              let toolName =
+                                subjectID == 1
+                                  ? item.subjectSubCatLang2?.replace(
+                                    /<br>/g,
+                                    '',
+                                  )
+                                  : item.subjectSubCatLang1?.replace(
+                                    /<br>/g,
+                                    '',
+                                  );
 
                               return (
-                                <TouchableOpacity key={item.subTypeID || index}
-                                  style={{ height: 160, width: '45%', marginVertical: 10, backgroundColor: SWATheam.SwaWhite, elevation: 5, borderRadius: 0, justifyContent: 'space-around', alignItems: 'center', padding: 8, borderRadius: 6, }}
-                                  onPress={() => getModuleActivityData(item, 'manual', '', '', navigation,)}>
+                                <TouchableOpacity
+                                  key={item.subTypeID || index}
+                                  style={{
+                                    height: 160,
+                                    width: '45%',
+                                    marginVertical: 10,
+                                    backgroundColor: SWATheam.SwaWhite,
+                                    elevation: 5,
+                                    borderRadius: 0,
+                                    justifyContent: 'space-around',
+                                    alignItems: 'center',
+                                    padding: 8,
+                                    borderRadius: 6,
+                                  }}
+                                  onPress={() =>
+                                    getModuleActivityData(
+                                      item,
+                                      'manual',
+                                      '',
+                                      '',
+                                      navigation,
+                                    )
+                                  }
+                                >
                                   {/* 🔷 Icon */}
                                   <View
-                                    style={{ height: 70, width: 70, justifyContent: 'center', alignItems: 'center', }}
+                                    style={{
+                                      height: 70,
+                                      width: 70,
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                    }}
                                   >
                                     <Image
-                                      source={{ uri: toolItems?.imgUrl + item?.iconName, }}
-                                      style={{ height: '100%', width: '100%', resizeMode: 'contain', }} />
+                                      source={{
+                                        uri: toolItems?.imgUrl + item?.iconName,
+                                      }}
+                                      style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        resizeMode: 'contain',
+                                      }}
+                                    />
                                   </View>
 
                                   {/* 🔷 Name */}
-                                  <Text style={{ textAlign: 'center', color: SWATheam.SwaGray, fontSize: 13, }}>
+                                  <Text
+                                    style={{
+                                      textAlign: 'center',
+                                      color: SWATheam.SwaGray,
+                                      fontSize: 13,
+                                    }}
+                                  >
                                     {toolName}
                                   </Text>
                                 </TouchableOpacity>
@@ -2801,12 +3263,9 @@ const SubIconsScreen = ({ navigation, route }) => {
                     })}
                   </ScrollView>
                 </View>
-
-              }
+              )}
             </>
-
-          )
-            : null}
+          ) : null}
 
           {combineReport || reportData.status ? (
             <ReportViwer

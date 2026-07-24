@@ -38,7 +38,7 @@ const Assessment = ({ navigation }) => {
 		}
 		Services.post(apiRoot.getGeneratedAssessmentList, payload)
 			.then((res) => {
-				console.log(res, 'check res---------')
+				// console.log(res, 'check res---------')
 				if (res.status == "success") {
 					setAssessList(res.data)
 					setIsLoading(false)

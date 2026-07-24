@@ -5,6 +5,7 @@ import MainRoot from './MainRoot';
 import Store from './Store';
 import { Provider } from 'react-redux';
 import ReduxStore from './screens/redux/ReduxStore';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 
@@ -12,11 +13,13 @@ import ReduxStore from './screens/redux/ReduxStore';
 
 const App = () => {
   return (
-    <Store>
-      <Provider store={ReduxStore}>
-        <MainRoot />
-      </Provider>
-    </Store>
+    <SafeAreaProvider>
+      <Store>
+        <Provider store={ReduxStore}>
+          <MainRoot />
+        </Provider>
+      </Store>
+    </SafeAreaProvider>
   )
 }
 

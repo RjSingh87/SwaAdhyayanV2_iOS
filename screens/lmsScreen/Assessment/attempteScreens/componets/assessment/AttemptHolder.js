@@ -29,6 +29,8 @@ import Orientation from 'react-native-orientation-locker';
 export default function AttemptHolder({ navigation, route }) {
 	// console.log("AttemptHolder.js")
 
+	const totaltime = route?.params?.totalTime
+
 	const webviewRef = useRef(null);
 
 
@@ -269,7 +271,8 @@ export default function AttemptHolder({ navigation, route }) {
 			"assessmentID": attemptStore?.assMentIds,
 			"classID": userData?.data?.classID,
 			"schoolID": userData?.data?.schoolID,
-			"userRefID": userData?.data?.userRefID
+			"userRefID": userData?.data?.userRefID,
+			"totalTime": totaltime
 		};
 		// console.log(payload, "4Data")
 		const jsCode = `

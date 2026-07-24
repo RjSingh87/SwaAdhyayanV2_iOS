@@ -13,6 +13,8 @@ export const apiRoot = Object.freeze({
     getSectionList: "getSectionList",
     getSubjectList: "getSubjectList",
     getBooksList: "getBooksList",
+    getTrmTypeList: "getTrmTypeList",   // add 23 july 2026
+    getAllTrmClassList: "getAllTrmClassList", // add 23 july 2026
     // getLearningToolsList:"getLearningToolsList",
     getLearningTools: "getLearningTools",
     getModuleActivityData: "getModuleActivityData",

@@ -3,12 +3,7 @@ import React, { useContext } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SWATheam } from '../../constant/ConstentValue'
 import { GlobleData } from '../../Store'
-
-
-
 const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedField, navigation, languageID }) => {
-
-
   const { userData } = useContext(GlobleData)
   let ListName = ''
   if (listItem.type == "class" || listItem.type == "trmClass" || listItem.type == "reportClass") {
@@ -20,7 +15,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
   } else if (listItem.type == "book" || listItem.type == "trmBook") {
     ListName = "Book List"
   } else if (listItem.type == "act") {
-    ListName = listItem.listName.length > 30 ? listItem.listName.substring(0, 30) + '...' : listItem.listName
+    ListName = listItem.listName.length > 35 ? listItem.listName.substring(0, 35) + '...' : listItem.listName
   } else if (listItem.type == 'trk') {
     ListName = "Level List"
   } else if (listItem.type == 'trmType') {
@@ -65,6 +60,8 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
     ListName = "Select Month"
   }
 
+  console.log(ListName, 'ListName')
+
   return (
     <Modal
       animationType="slide"
@@ -80,7 +77,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
           <View style={{ backgroundColor: SWATheam.SwaLightGray, width: 30, height: 6, borderRadius: 4, alignSelf: 'center' }}></View>
           <View style={{ flexDirection: 'row', marginVertical: 10, borderBottomWidth: 1.5, borderColor: SWATheam.SwaLightGray, paddingVertical: 10 }}>
             <Text style={{ padding: 4, width: 40, }}></Text>
-            <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>{ListName}</Text>
+            <Text style={{ padding: 4, flex: 1, textAlign: 'center', fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 15 }}>{ListName?.replace(/\r?\n/g, ' ')}</Text>
 
             <TouchableOpacity style={{ padding: 4, width: 40 }}
               onPress={() => closeModule()}>
@@ -92,7 +89,6 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
               (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10, }}>
                   {listItem.list.map((item, index) => {
-
                     let iconName = ''
                     if (languageID == 1) {
                       iconName = item.subPartNameLang2
@@ -124,7 +120,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                   let listKeys = ''
                   let listItemId = ''
                   if (listItem.type == "class" || listItem.type == "trmClass" || listItem.type == "reportClass") {
-                    if (listItem.type == "reportClass") {
+                    if (listItem.type == "reportClass" || listItem.type == "trmClass") {
                       printValue = item?.classDesc
                       listKeys = item.classID
                       listItemId = selectedField?.class?.classID
@@ -148,10 +144,10 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                     }
                   } else if (listItem.type == "subject" || listItem.type == "gameSubject" || listItem.type == "trmSubject" || listItem.type == "reportSubject" || listItem.type == "subjAddBySchool") {
                     printValue = item.subjectName
-                    listKeys = item.subjectID
+                    listKeys = item?.subjectID
                     listItemId = selectedField?.subject?.subjectID
                   } else if (listItem.type == "book" || listItem.type == "trmBook") {
-                    printValue = selectedField.subject.subjectID == 1 ? (item.bookNameLang2 == undefined ? item.bookName : item.bookNameLang2) : item.bookName
+                    printValue = selectedField?.subject?.subjectID == 1 ? (item.bookNameLang2 == undefined ? item.bookName : item.bookNameLang2) : item.bookName
                     listKeys = item.bookID
                     listItemId = selectedField?.book?.bookID
                   } else if (listItem.type == "trk") {
@@ -160,12 +156,12 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                     listItemId = selectedField?.level?.levelID
                   } else if (listItem.type == "trksub") {
                     printValue = item.subjectName
-                    listKeys = item.subjectID
+                    listKeys = item?.subjectID
                     listItemId = selectedField?.trkSub?.subjectID
                   } else if (listItem.type == "trmType") {
-                    printValue = item.trmType
-                    listKeys = item.trmID
-                    listItemId = selectedField?.trmType?.trmID
+                    printValue = item.pdfTypeDesc
+                    listKeys = item.pdfTypeID
+                    listItemId = selectedField?.trmType?.pdfTypeID
                   } else if (listItem.type == "reportStudent") {
                     printValue = item.fullName
                     listKeys = item.userRefID
@@ -221,7 +217,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                     listKeys = item.typeID
                     listItemId = selectedField?.type?.typeID
                   } else if (listItem.type == "chapter") {
-                    printValue = selectedField.subject.subjectID == 1 ? item.chapterNameLang2 : item.chapterName
+                    printValue = selectedField?.subject?.subjectID == 1 ? item.chapterNameLang2 : item.chapterName
                     listKeys = item.chapterID
                     listItemId = selectedField?.chapter?.chapterID
                   } else if (listItem.type == "diffLevel") {
@@ -300,7 +296,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingTop: 10,
     paddingHorizontal: 10,
-    paddingBottom: 30,
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },
@@ -316,6 +311,5 @@ const styles = StyleSheet.create({
   },
   radioBox: {
     paddingHorizontal: 10,
-
   },
 })

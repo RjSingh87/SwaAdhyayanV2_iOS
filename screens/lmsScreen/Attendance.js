@@ -7,7 +7,7 @@ import { Calendar } from 'react-native-calendars';
 import DatePicker from 'react-native-date-picker'
 import { GlobleData } from "../../Store"
 import SwaHeader from "../common/SwaHeader"
-import { apiRoot, SWATheam } from "../../constant/ConstentValue"
+import { apiRoot, SWATheam, } from "../../constant/ConstentValue"
 import Services from "../../Services"
 import SelectionBox from "../common/SelectionBox"
 import Loader from "../common/Loader"
@@ -116,13 +116,13 @@ const Attendance = ({ navigation }) => {
 
 
     } else if (type == "section") {
-      if (selectedField.class != null) {
+      if (selectedField?.class != null) {
         const payload = {
-          "schoolID": userData.data.schoolID,
-          "academicYear": userData.data.academicYear,
-          "classID": selectedField.class.classID,
-          "userTypeID": userData.data.userTypeID,
-          "userRefID": userData.data.userRefID
+          "schoolID": userData?.data?.schoolID,
+          "academicYear": userData?.data?.academicYear,
+          "classID": selectedField?.class?.classID,
+          "userTypeID": userData?.data?.userTypeID,
+          "userRefID": userData?.data?.userRefID
         }
         Services.post(apiRoot.getSectionList, payload)
           .then((res) => {
@@ -264,11 +264,11 @@ const Attendance = ({ navigation }) => {
 
   function checkStatus(sectionID) {
     const payload = {
-      "schoolID": userData.data.schoolID,
-      "academicYear": userData.data.academicYear,
-      "userRefID": userData.data.userRefID,
-      "userTypeID": userData.data.userTypeID,
-      "classID": selectedField.class.classID,
+      "schoolID": userData?.data?.schoolID,
+      "academicYear": userData?.data?.academicYear,
+      "userRefID": userData?.data?.userRefID,
+      "userTypeID": userData?.data?.userTypeID,
+      "classID": selectedField?.class?.classID,
       "sectionID": sectionID.sectionID
     }
     Services.post(apiRoot.getAttendanceTeacherStatus, payload)
@@ -293,10 +293,7 @@ const Attendance = ({ navigation }) => {
       .finally(() => {
 
       })
-
-
   }
-
   function getAttendanceViewStatusWise() {
     const payload = {
       "schoolID": userData.data.schoolID,
@@ -307,8 +304,10 @@ const Attendance = ({ navigation }) => {
       "sectionID": selectedField?.section?.sectionID,
       "day": dayNo
     }
+    console.log(payload, 'check payload222')
     Services.post(apiRoot.getAttendanceStatusClassSectionDayWise, payload)
       .then((res) => {
+        console.log(res, 'check response')
         if (res.status == "success") {
           const data = res.data
           setClassData((prev) => {
@@ -318,7 +317,6 @@ const Attendance = ({ navigation }) => {
           getStudentDataList()
           setShowCalender(false)
         } else if (res.status == 'error') {
-
           setMsgModalVisible((prev) => {
             return { ...prev, msg: res.message, status: true, type: 'error' }
           })
@@ -336,11 +334,9 @@ const Attendance = ({ navigation }) => {
         console.log(err)
       })
       .finally(() => {
-
       })
   }
   // console.log(userData, 'check academit year')
-
   function getPeriodAttendance(selectPeriod, subjectID, selectTeacherDate) {
     const date = selectTeacherDate.split('/').reverse().join('-')
     const payload = {
@@ -353,6 +349,7 @@ const Attendance = ({ navigation }) => {
     }
     Services.post(apiRoot.getPeriodicAttendanceWithStudentList, payload)
       .then((res) => {
+        console.log(res, 'check response')
         if (res.status == "success") {
           const data = res.data.attendanceData
           periodMarkAttendanceArr.length = 0
@@ -381,11 +378,8 @@ const Attendance = ({ navigation }) => {
         console.log(err)
       })
       .finally(() => {
-
       })
-
   }
-
   function searchStuAttendance() {
     getCurrentDate()
     getStudentDataList()
@@ -401,7 +395,7 @@ const Attendance = ({ navigation }) => {
     } else if (teacherStatus == 3) {
       setShowCalender(true)
     } else {
-      // alert(res.message)
+      // alert("Please Select required fields")
     }
   }
 
@@ -417,7 +411,7 @@ const Attendance = ({ navigation }) => {
     setSelectAll(true)
     classMarkAttendanceArr.length = 0
     totalclassMarkAttendance.length = 0
-    dateAttendance.data.map((item) => {
+    dateAttendance?.data?.map((item) => {
       const wholeClassAttendanceData = {
         attendanceStatus: 4,
         studentRefID: item.userRefID
@@ -504,11 +498,11 @@ const Attendance = ({ navigation }) => {
   function getWholeMonthAttendanceSummary(year, month) {
     setLoading(true)
     const payload = {
-      "schoolID": userData.data.schoolID,
-      "academicYear": userData.data.academicYear,
-      "userRefID": userData.data.userRefID,
-      "classID": selectedField.class.classID,
-      "sectionID": selectedField.section.sectionID,
+      "schoolID": userData?.data?.schoolID,
+      "academicYear": userData?.data?.academicYear,
+      "userRefID": userData?.data?.userRefID,
+      "classID": selectedField?.class?.classID,
+      "sectionID": selectedField?.section?.sectionID,
       "year": year,
       "month": month
     }
@@ -543,11 +537,11 @@ const Attendance = ({ navigation }) => {
   function getClassMonthAttendance(dateStr) {
     setLoading(true)
     const payload = {
-      "schoolID": userData.data.schoolID,
-      "academicYear": userData.data.academicYear,
-      "transYear": userData.data.transYear,
-      "classID": selectedField.class.classID,
-      "sectionID": selectedField.section.sectionID,
+      "schoolID": userData?.data?.schoolID,
+      "academicYear": userData?.data?.academicYear,
+      "transYear": userData?.data?.transYear,
+      "classID": selectedField?.class?.classID,
+      "sectionID": selectedField?.section?.sectionID,
       "date": dateStr || date
     }
     Services.post(apiRoot.getStudentAttendanceDateWise, payload)
@@ -634,11 +628,11 @@ const Attendance = ({ navigation }) => {
     setLoading(true)
     const date = selectTeacherDate.split('/').reverse().join('-')
     const payload = {
-      "schoolID": userData.data.schoolID,
-      "academicYear": userData.data.academicYear,
-      "userRefID": userData.data.userRefID,
-      "classID": selectedField.class.classID,
-      "sectionID": selectedField.section.sectionID,
+      "schoolID": userData?.data?.schoolID,
+      "academicYear": userData?.data?.academicYear,
+      "userRefID": userData?.data?.userRefID,
+      "classID": selectedField?.class?.classID,
+      "sectionID": selectedField?.section?.sectionID,
       "date": calenderSelect || date,
       "attendance": totalclassMarkAttendance
     }
@@ -843,7 +837,7 @@ const Attendance = ({ navigation }) => {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, alignItems: 'center', borderBottomWidth: .5, paddingVertical: 10, backgroundColor: userData.data.colors.mainTheme }}>
                 <View style={{ width: 90, }}>
                   <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>
-                    Class {selectedField.class.getClassDetail.classDesc} / {selectedField.section.sectionName}
+                    Class {selectedField?.class?.getClassDetail?.classDesc} / {selectedField?.section?.sectionName}
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>

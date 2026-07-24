@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, StatusBar, SafeAreaView, Platform } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, StatusBar, SafeAreaView, } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import SwaHeader from '../common/SwaHeader'
@@ -15,8 +15,6 @@ import SearchList from '../common/SearchList'
 import MsgModal from '../common/MsgModal'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { flowRef } from './flowRef';
-
-
 
 const Dashboard = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -76,7 +74,7 @@ const Dashboard = ({ navigation, route }) => {
         dispatch(resetSearchDataList());
         return;
       }
-      if (!searchDataList?.loading) {
+      if (!searchDataList.loading) {
 
         if (flowRef.fromChild2) {
           console.log('1212')
@@ -84,7 +82,7 @@ const Dashboard = ({ navigation, route }) => {
           return; // ❌ skip getSubIcons
         }
 
-        if (searchDataList?.data.length > 0) {
+        if (searchDataList.data.length > 0) {
           setSearchItem(prev => ({ ...prev, list: searchDataList.data, status: true }));
         } else {
           dispatch(resetSearchDataList());
@@ -128,7 +126,7 @@ const Dashboard = ({ navigation, route }) => {
         if (res.status == "success") {
           renderTimeTable(res.data.timeTable)
           setDeshboardData((prev) => {
-            return { ...prev, icons: res.data.dashIcons, timeTable: res.data.timeTable, iconUrl: res.data.dashIcons.domain, status: false }
+            return { ...prev, icons: res.data.dashIcons, timeTable: res.data.timeTable, iconUrl: res.data.dashIcons.domain, attendance: res.data.attendanceData, status: false }
           })
         } else if (res.status == "error") {
           alert(res.message)
@@ -278,20 +276,87 @@ const Dashboard = ({ navigation, route }) => {
     })
   }
 
+  const AttendanceCell = ({ title, value }) => (
+    <View style={{ width: 200, alignSelf: 'stretch' }}>
+      <View
+        style={{
+          minHeight: 60,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: userData?.data?.colors?.mainTheme,
+          borderWidth: 1,
+          borderColor: userData?.data?.colors.hoverTheme,
+          paddingHorizontal: 8,
+        }}>
+        <Text
+          style={{
+            color: '#fff',
+            fontWeight: '500',
+            textAlign: 'center',
+          }}>
+          {title}
+        </Text>
+      </View>
+
+      <View
+        style={{
+          minHeight: 45,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: userData?.data?.colors.hoverTheme,
+        }}>
+        <Text style={{ color: SWATheam.SwaGray }}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
+
+
   return (
-    <SafeAreaView edges={['left', 'right', 'top',]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: userData?.data?.colors?.mainTheme }}>
+    <>
       {isConnected ?
         <>
           {deshboardData.status ?
             <Loader /> :
             <>
-              <View style={{ marginTop: Platform.OS == "ios" ? 0 : 20, backgroundColor: userData?.data?.colors.mainTheme }}>
+              <View style={{ paddingTop: insets.top, backgroundColor: userData?.data?.colors.mainTheme }}>
                 <SwaHeader title={'Swa-Adhyayan LMS'} leftIcon={"bars"} rightIcon={"search1"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} dictionaryIcon={"book"} isDashboard={"dashboard"} setDictionaryData={setDictionaryData} setMsgModalVisible={setMsgModalVisible} />
                 <IconsContainer deshboardData={deshboardData} getIconDetail={getIconDetail} type={"mainIcon"} activeMainIconIds={activeMainIconIds} iconLoader={iconLoader} />
               </View>
-              <View style={{ marginTop: 0, paddingHorizontal: 10, flex: 1, backgroundColor: userData?.data?.colors.liteTheme, }}>
+              <View style={{ marginTop: 20, paddingHorizontal: 10, flex: 1, }}>
+                <View style={{ width: '100%', marginBottom: 10 }}>
+                  <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, padding: 8, borderRightWidth: 1, borderLeftWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
+                    <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: 'bold', textTransform: 'uppercase' }}> ATTENDANCE STATUS</Text>
+                  </View>
+                  <ScrollView horizontal style={{ backgroundColor: SWATheam.SwaWhite }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'stretch' }}>
+                      <AttendanceCell
+                        title="Today's Status"
+                        value={deshboardData?.attendance[0]?.attendance_status}
+                      />
+
+                      <AttendanceCell
+                        title="Total Present"
+                        value={deshboardData?.attendance[0]?.total_present}
+                      />
+
+                      <AttendanceCell
+                        title="Total Absent"
+                        value={deshboardData?.attendance[0]?.total_absent}
+                      />
+
+                      <AttendanceCell
+                        title="Present Percentage"
+                        value={`${deshboardData?.attendance[0]?.percentage}%`}
+                      />
+                    </View>
+                  </ScrollView>
+                </View>
+
                 <View style={{ width: '100%' }}>
-                  <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, padding: 8, borderRightWidth: 1, borderLeftWidth: 1, borderColor: userData?.data?.colors.hoverTheme, marginTop: 10, }}>
+                  <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, padding: 8, borderRightWidth: 1, borderLeftWidth: 1, borderColor: userData?.data?.colors.hoverTheme }}>
                     <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: 'bold', textTransform: 'uppercase' }}> {dayname} Time Table</Text>
                   </View>
                   <ScrollView horizontal style={{ backgroundColor: SWATheam.SwaWhite }}>
@@ -370,11 +435,10 @@ const Dashboard = ({ navigation, route }) => {
         </> : null
       }
       <CheckInternet isConnected={isConnected} setIsConnected={setIsConnected} />
-    </SafeAreaView >
+    </>
   )
 }
 export default Dashboard
-
 const styles = StyleSheet.create({
   tableCellHead1: {
     width: 60,

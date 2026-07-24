@@ -526,6 +526,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const checkPaperBtn = async (item) => {
+
     item?.solutionSheet?.map((src, index) => {
       convertImgToDataUrl(src, (myBase64) => {
         imgDataUriArr.push(myBase64)

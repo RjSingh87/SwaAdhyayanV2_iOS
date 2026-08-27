@@ -8,8 +8,16 @@ import { apiRoot } from '../../../../../../constant/ConstentValue';
 import Loader from '../../../../../common/Loader';
 import Orientation from 'react-native-orientation-locker';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { sendActivityLog } from '../../../../../../ActivityTracker';
 
-const Assessment = ({ navigation }) => {
+
+const Assessment = ({ navigation, route }) => {
+
+	sendActivityLog({
+		mainIconID: route.params?.mainIconID,
+	});
+
+
 	const insets = useSafeAreaInsets();
 	const { userData } = useContext(GlobleData)
 	const [isLoading, setIsLoading] = useState(true)

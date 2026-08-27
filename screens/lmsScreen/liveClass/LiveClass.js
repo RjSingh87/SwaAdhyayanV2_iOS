@@ -22,7 +22,9 @@ import Loader from "../../common/Loader";
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import dataObject from "../../../dataObject";
 
-export default function LiveClass({ navigation }) {
+
+export default function LiveClass({ navigation, route }) {
+
 
 	const objData = Object.entries(dataObject)
 	// console.log(objData, "DATAobje.")

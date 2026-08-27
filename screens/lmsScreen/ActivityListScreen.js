@@ -6,11 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import SubIconActivityList from '../common/SubIconActivityList'
 import { GlobleData } from '../../Store'
 import Services from '../../Services';
-import { apiRoot, SWATheam } from '../../constant/ConstentValue';
+import { apiRoot, assetsPath, SWATheam } from '../../constant/ConstentValue';
 import BottomDrawerList from '../common/BottomDrawerList';
 import Orientation from 'react-native-orientation-locker';
 import Loader from '../common/Loader';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const ActivityListScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -104,22 +105,90 @@ const ActivityListScreen = ({ navigation, route }) => {
         }
         if (srcPath.endsWith('mp4') || srcPath.endsWith('ogg')) {
           // This Video of elearning
-          navigation.navigate('videoView', { url: srcPath, data: item })
+          navigation.navigate('videoView', {
+            data: { ...item, url: srcPath, },
+            mainIconID: route.params?.mainIconID,
+            subIconID: route.params?.subIconID,
+          });
         } else if ((bookId == 3 || bookId == 7)) {
           // This PDF of learning without downloadable
-          navigation.navigate('pdfView', { url: srcPath, title: item.activityName })
+          navigation.navigate('pdfView', {
+            data: {
+              ...item,
+              url: srcPath,
+              title: item.activityName,
+            },
+            mainIconID: route.params?.mainIconID,
+            subIconID: route.params?.subIconID,
+          })
         } else if (srcPath.endsWith('pdf')) {
-          navigation.navigate('pdfView', { url: srcPath, title: item.activityName })
+          navigation.navigate('pdfView', {
+            data: {
+              ...item,
+              url: srcPath,
+              title: item.activityName,
+            },
+            mainIconID: route.params?.mainIconID,
+            subIconID: route.params?.subIconID,
+          })
         } else {
           // GlossaryMoralSummaryLbdView//
-          navigation.navigate('activityView', { url: actUrl, title: item.activityName })
+          navigation.navigate('activityView', {
+            url: actUrl,
+            title: item.activityName,
+
+            data: { //for user actvity tracking
+              classID: classId,
+              subjectID: subjectID,
+              activityID: item?.activityID,
+              bookID: null,
+              chapterID: item?.chapterID,
+              subjectSubID: item?.subjectSubID,
+              subPartID: null,
+              mainIconID: route?.params?.mainIconID,
+              subIconID: route?.params?.subIconID,
+              subTypeID: subTypeID
+            },
+          })
         }
       } else if (actUrl.includes('otherActivity')) {
 
-        navigation.navigate('activityView', { url: actUrl, title: item.activityName })
+        navigation.navigate('activityView', {
+          url: actUrl,
+          title: item.activityName,
+
+          data: { //for user actvity tracking
+            classID: classId,
+            subjectID: subjectID,
+            activityID: item?.activityID,
+            bookID: null,
+            chapterID: item?.chapterID,
+            subjectSubID: item?.subjectSubID,
+            subPartID: null,
+            mainIconID: route?.params?.mainIconID,
+            subIconID: route?.params?.subIconID,
+            subTypeID: subTypeID
+          },
+        })
       } else {
-        // GlossaryMoralSummaryLbdView//
-        navigation.navigate('activityView', { url: actUrl, title: item.activityName })
+        // Glossary, Moral, Summary, LbdView, Lab Activities, Projects, Cyber Security, Computer Quiz, NCO Sample Question, Computational Thinking, Test Papers, //
+        navigation.navigate('activityView', {
+          url: actUrl,
+          title: item.activityName,
+
+          data: { //for user actvity tracking
+            classID: classId,
+            subjectID: subjectID,
+            activityID: item?.activityID,
+            bookID: null,
+            chapterID: item?.chapterID,
+            subjectSubID: item?.subjectSubID,
+            subPartID: null,
+            mainIconID: route?.params?.mainIconID,
+            subIconID: route?.params?.subIconID,
+            subTypeID: subTypeID
+          },
+        })
       }
     } else {
 
@@ -189,15 +258,46 @@ const ActivityListScreen = ({ navigation, route }) => {
               screenName: route.params.sendData.subjectID == 1 ? item.subPartNameLang2 : item.subPartName.replace('<br>', ''),
               subTypeID: route.params.sendData.subTypeID,
               classID: (userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2) ? route.params.sendData.classID : userData.data.classID,
-              subjectID: route.params.sendData.subjectID
+              subjectID: route.params.sendData.subjectID,
+              mainIconID: route.params?.mainIconID,
+              subIconID: route.params?.subIconID,
             }
             navigation.navigate('chapterItem', { data: res.data, sendData: sendData, navigation })
           } else if (res.data[0]?.uploadFileName?.split('.').pop() === "pdf") {
-            navigation.navigate('pdfView', res.data[0])
+            navigation.navigate('pdfView', {
+              data: {
+                ...res.data[0],
+                url: assetsPath + res.data[0]?.filePath + '/' + res.data[0]?.uploadFileName,
+                title: res.data[0]?.chapterName,
+              },
+              mainIconID: route.params?.mainIconID,
+              subIconID: route.params?.subIconID,
+            })
           } else if (res.data[0]?.uploadFileName?.split('.').pop() === "mp4" || res.data[0]?.referenceLink != null) {
-            navigation.navigate('videoView', res.data[0])
+            navigation.navigate('videoView', {
+              data: { ...res.data[0], url: res.data[0]?.referenceLink || res.data[0]?.url, },
+              mainIconID: route.params?.mainIconID,
+              subIconID: route.params?.subIconID,
+            });
           } else if (res.data[0].activityUrl != null || res.data[0].activityUrl != undefined) {
-            navigation.navigate('activityView', { url: res.data[0].activityUrl, title: res.data[0].activityName })
+
+            navigation.navigate('activityView', {
+              url: res.data[0].activityUrl,
+              title: res.data[0].activityName,
+
+              data: { //for user actvity tracking
+                classID: res?.data[0]?.classID,
+                subjectID: res?.data[0]?.subjectID,
+                activityID: res?.data[0]?.activityID,
+                bookID: res?.data[0]?.bookID,
+                chapterID: res?.data[0]?.chapterID,
+                subjectSubID: res?.data[0]?.subjectSubID,
+                subPartID: res?.data[0]?.subPartID,
+                mainIconID: route?.params?.mainIconID,
+                subIconID: route?.params?.subIconID,
+                subTypeID: route?.params?.subTypeID
+              },
+            })
           }
         } else if (res.status == "error") {
           alert(res.message)

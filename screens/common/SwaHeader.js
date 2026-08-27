@@ -152,7 +152,7 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
 
 
   return (
-    <View style={[styles.header, { backgroundColor: yTubeStatus == true ? null : userData?.data?.colors?.mainTheme, borderBottomWidth: .5, borderColor: 'rgba(0, 0, 0, 0.8)' }]}>
+    <View style={[styles.header, { backgroundColor: yTubeStatus == true ? null : userData?.data?.colors?.mainTheme, borderBottomWidth: 0, borderColor: 'rgba(0, 0, 0, 0.8)' }]}>
       <TouchableOpacity style={styles.btn}
         onPress={() => onClickLeftIcon()}
       >

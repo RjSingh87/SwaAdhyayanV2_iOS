@@ -30,6 +30,7 @@ import FileViewer from 'react-native-file-viewer';
 import Share from 'react-native-share';
 
 
+
 const greyClr = SWATheam.SwaBlack
 const font20 = 20
 const font17 = 17
@@ -38,7 +39,12 @@ let totalStudentIDsArr = []
 let totalTeacherIDsArr = []
 let studentCount = 0;
 let teacherCount = 0;
-const SwaSharing = ({ navigation }) => {
+const SwaSharing = ({ navigation, route }) => {
+
+
+
+
+
   const insets = useSafeAreaInsets();
   const { userData } = useContext(GlobleData)
 
@@ -1184,7 +1190,13 @@ const SwaSharing = ({ navigation }) => {
     } else if (type == "doc") {
       const docPath = baseUrl + item.docFileNPath
       if (docPath.endsWith('pdf')) {
-        navigation.navigate('pdfView', { url: docPath, title: "Swa-Sharing", type: 'sharing' })
+        navigation.navigate('pdfView', {
+          data: {
+            url: docPath,
+            title: "Swa-Sharing",
+            type: 'sharing'
+          }
+        })
       } else if (docPath.endsWith('doc') || docPath.endsWith('docx')) {
         requestDownloadPermission(docPath)
       }

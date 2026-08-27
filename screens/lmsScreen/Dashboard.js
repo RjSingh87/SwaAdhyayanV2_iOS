@@ -15,8 +15,13 @@ import SearchList from '../common/SearchList'
 import MsgModal from '../common/MsgModal'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { flowRef } from './flowRef';
+import { useActivityTracker } from '../../ActivityTracker';
+
 
 const Dashboard = ({ navigation, route }) => {
+
+  const trackActivity = useActivityTracker();
+
   const dispatch = useDispatch();
   const hasMounted = useRef(false);
   const insets = useSafeAreaInsets();
@@ -232,23 +237,47 @@ const Dashboard = ({ navigation, route }) => {
     if (activeMainIconIds.includes(mainIconID)) {
       if (mainIconID == 29) {
         navigation.navigate('Assessment')
+        trackActivity({
+          mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+        });
       } else {
         navigation.navigate("subIconScreen", item, type, { fromSearch: type == 'search' ? true : false })
       }
     } else if (timeTable.includes(mainIconID)) {
       navigation.navigate('timeTable', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (swaShare.includes(mainIconID)) {
       navigation.navigate('swaShare', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (mainIconID == 14) {
       navigation.navigate('studentList', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (mainIconID == 15) {
       navigation.navigate('attendance', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (mainIconID == 25) {
-      navigation.navigate('liveClass')
+      navigation.navigate('liveClass', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (mainIconID == 11 || mainIconID == 34) {
-      navigation.navigate('liveClassList')
+      navigation.navigate('liveClassList', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     } else if (mainIconID == 10 || mainIconID == 26) {
-      navigation.navigate('safalPP')
+      navigation.navigate('safalPP', item)
+      trackActivity({
+        mainIconID: mainIconID, // for user Activity tracker - Swa-Learning ID
+      });
     }
     else {
       alert('coming soon!')

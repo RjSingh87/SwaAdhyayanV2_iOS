@@ -7,7 +7,15 @@ import { GlobleData } from '../../Store';
 import { assetsPath } from '../../constant/ConstentValue';
 import SwaHeader from './SwaHeader';
 import Loader from './Loader';
+import { ActivityTracker } from '../../ActivityTracker';
+
+
+
 const PdfViewer = ({ navigation, route }) => {
+  const { classID, subjectID, bookID, activityID, chapterID, subjSubTypeID, subPartID, } = route?.params?.data || {}; // for user activity tracking
+
+  // console.log(route, "Route Time to?")
+
   const insets = useSafeAreaInsets();
   const { userData } = useContext(GlobleData);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,33 +33,28 @@ const PdfViewer = ({ navigation, route }) => {
     pdfPath = route?.params?.url;
   }
 
+  const params = route?.params?.data || {};
+
+
   let testPath = '';
   let titleName = '';
 
   // -------- PDF PATH --------
 
-  if (route?.params?.url != undefined) {
-    if (route?.params?.urlLink == 'bookPDF') {
-      titleName = route?.params?.title;
-
-      testPath = assetsPath + route?.params?.url;
+  if (params.url != undefined) {
+    if (params.urlLink == 'bookPDF') {
+      titleName = params.title;
+      testPath = assetsPath + params.url;
     } else {
-      testPath = route?.params?.url;
-
-      titleName = route?.params?.title;
+      testPath = params.url;
+      titleName = params.title;
     }
   } else if (pdfPath != undefined) {
     testPath = assetsPath + pdfPath;
-
     titleName = moduleActivityList?.data?.mainData[0]?.chapterName;
-  } else if (route?.params?.url == undefined && pdfPath == undefined) {
-    testPath =
-      assetsPath +
-      route?.params?.filePath +
-      '/' +
-      route?.params?.uploadFileName;
-
-    titleName = route?.params?.chapterName;
+  } else if (params.url == undefined && pdfPath == undefined) {
+    testPath = assetsPath + params.filePath + '/' + params.uploadFileName;
+    titleName = params.chapterName;
   }
 
   function onClickLeftIcon() {
@@ -109,6 +112,24 @@ const PdfViewer = ({ navigation, route }) => {
           }}
         >
           <Loader />
+
+          <ActivityTracker
+            payload={{
+              mainIconID: route?.params?.mainIconID,           //mainIconID, // Swa-Learning
+              subIconID: route?.params.subIconID,
+              activityID: activityID,
+              childIconID: null,
+              classID: classID,                                // Class 3
+              subjectID: subjectID,                            // English
+              bookID: bookID,                                  // Swa-Adhyayan English Book
+              chapterID: chapterID,                            // Chapter 1: Everything...
+              subTypeID: subjSubTypeID,                        // PDF (e.g. 9)
+              subPartID: subPartID,                            // Subjct Part ID
+            }}
+          />
+
+
+
         </View>
       )}
 

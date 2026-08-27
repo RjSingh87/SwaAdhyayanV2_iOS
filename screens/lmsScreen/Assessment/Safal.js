@@ -9,7 +9,10 @@ import BottomDrawerList from '../../common/BottomDrawerList'
 import Loader from '../../common/Loader'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const Safal = ({ navigation }) => {
+
+const Safal = ({ navigation, route }) => {
+
+
     const insets = useSafeAreaInsets();
     const { userData } = useContext(GlobleData)
     const [selectedField, setSelectedField] = useState({ class: null, section: null, subject: null, set: null, type: null })
@@ -207,7 +210,12 @@ const Safal = ({ navigation }) => {
                     if (res.status == "success") {
                         setLoading(false)
                         const pdfPath = res.safalData[0].fullPath
-                        navigation.navigate('pdfView', { url: pdfPath, title: item.type })
+                        navigation.navigate('pdfView', {
+                            data: {
+                                url: pdfPath,
+                                title: item.type
+                            }
+                        })
                     } else {
                         alert(res.message)
                     }

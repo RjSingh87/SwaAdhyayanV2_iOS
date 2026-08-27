@@ -192,11 +192,11 @@ export default function AssiList({ navigation }) {
 										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>End Date :</Text>
 										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate} </Text>
 									</View>
-									{attemptIds !== 0 ?
+									{attemptIds !== 0 && item.resultDeclareStatus ?
 										<>
 											<Text style={styles.resultBold}>Result </Text>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Scored Marks : {item.obtainedMarks} </Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Scored Marks : </Text>
 												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.obtainedMarks}</Text>
 											</View>
 											<View style={styles.rowList}>

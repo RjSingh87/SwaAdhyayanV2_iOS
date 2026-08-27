@@ -221,7 +221,11 @@ export const apiRoot = Object.freeze({
     notificationList: "notificationList",
     notificationView: "notificationView",
     // Notifications
-    searchSwaadhyayan: "searchSwaadhyayan"
+    searchSwaadhyayan: "searchSwaadhyayan",
+
+    //Activity history track
+    logInteraction: "logInteraction",
+
 });
 export const SWATheam = {
     SwaBlue: '#1455CD',

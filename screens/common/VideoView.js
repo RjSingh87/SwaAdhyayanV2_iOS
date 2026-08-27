@@ -14,8 +14,14 @@ import WebView from 'react-native-webview';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useIsFocused } from '@react-navigation/native';
 import SwaHeader from './SwaHeader';
+import { ActivityTracker } from '../../ActivityTracker';
 
 const VideoView = ({ navigation, route }) => {
+    // console.log(route, "OfViewo>>>")
+
+    const { classID, subjectID, bookID, chapterID, activityID, subjSubTypeID, subPartID, } = route?.params?.data || {}; // for user activity tracking
+
+
     const { width, height } = Dimensions.get('window');
 
     const [paused, setPaused] = useState(false);
@@ -27,10 +33,10 @@ const VideoView = ({ navigation, route }) => {
 
     const ref = useRef();
 
-    // ✅ SAFE PARAM EXTRACTION
-    const params = route?.params || {};
+    // SAFE PARAM EXTRACTION
+    const params = route?.params?.data || {};
 
-    // ✅ FINAL VIDEO URL LOGIC (ROBUST)
+    //FINAL VIDEO URL LOGIC (ROBUST)
     let videoUrl = '';
 
     if (params?.youtubeReferenceLink) {
@@ -61,7 +67,7 @@ const VideoView = ({ navigation, route }) => {
         };
     }, []);
 
-    // ✅ YOUTUBE DETECTION
+    // YOUTUBE DETECTION
     const isYoutube =
         videoUrl?.includes('youtube.com') ||
         videoUrl?.includes('youtu.be');
@@ -75,10 +81,10 @@ const VideoView = ({ navigation, route }) => {
 
     const videoId = getYouTubeId(videoUrl);
 
-    // ✅ MP4 CHECK
+    //  MP4 CHECK
     const isMp4 = videoUrl?.includes('.mp4');
 
-    // ✅ ORIENTATION CONTROL
+    //  ORIENTATION CONTROL
     useEffect(() => {
         StatusBar.setHidden(true);
 
@@ -92,7 +98,7 @@ const VideoView = ({ navigation, route }) => {
         };
     }, []);
 
-    // ✅ EMPTY / INVALID URL HANDLING
+    //  EMPTY / INVALID URL HANDLING
     if (!videoUrl) {
         return (
             <View style={styles.centerView}>
@@ -111,6 +117,20 @@ const VideoView = ({ navigation, route }) => {
 
     return (
         <View style={{ flex: 1 }}>
+            <ActivityTracker
+                payload={{
+                    mainIconID: route?.params?.mainIconID,           //mainIconID, // Swa-Learning
+                    subIconID: route?.params?.subIconID,
+                    activityID: activityID,
+                    childIconID: null,
+                    classID: classID,                                // Class 3
+                    subjectID: subjectID,                            // English
+                    bookID: bookID,                                  // Swa-Adhyayan English Book
+                    chapterID: chapterID,                            // Chapter 1: Everything...
+                    subTypeID: subjSubTypeID,                        // PDF (e.g. 9)
+                    subPartID: subPartID,                            // Subjct Part ID
+                }}
+            />
             <View style={{
                 position: 'absolute', top: 50,
                 left: 0,

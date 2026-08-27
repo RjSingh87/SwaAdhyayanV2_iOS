@@ -10,7 +10,16 @@ import { apiRoot, SWATheam } from '../../../constant/ConstentValue';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
-const LiveClassList = ({ navigation }) => {
+
+
+const LiveClassList = ({ navigation, route }) => {
+
+
+
+
+
+
+
     const insets = useSafeAreaInsets();
     const { userData } = useContext(GlobleData)
     const date1 = new Date();

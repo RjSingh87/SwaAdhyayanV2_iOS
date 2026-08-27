@@ -8,6 +8,7 @@ import Orientation from 'react-native-orientation-locker';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChapterItemList = ({ navigation, route }) => {
+
   const isTrm = route?.params?.sendData?.type == 'trm' ? true : false
 
   const insets = useSafeAreaInsets();
@@ -29,18 +30,47 @@ const ChapterItemList = ({ navigation, route }) => {
   }
   async function getModuleActivityData(item) {
     if (item.subPartID == 10003) {
-      navigation.navigate('videoView', { url: item.siteUrl + item.filePath + '/' + item.uploadFileName, data: item.chapterName, youtubeReferenceLink: item?.referenceLink })
+      navigation.navigate('videoView', {
+        data: {
+          ...item,
+          url: item.siteUrl + item.filePath + '/' + item.uploadFileName,
+          data: item.chapterName,
+          youtubeReferenceLink: item?.referenceLink
+        },
+        mainIconID: route.params?.sendData?.mainIconID,
+        subIconID: route.params?.sendData?.subIconID,
+
+      })
     } else if (item.subPartID == 10001 || isTrm) {
       if (isTrm) {
         navigation.navigate('pdfView', {
-          url: route.params.data.siteUrl + item.pdfPath,
-          title: item.pdfName,
+          data: {
+            url: route.params.data.siteUrl + item.pdfPath,
+            title: item.pdfName,
+          },
+          mainIconID: route.params?.sendData?.mainIconID,
+          subIconID: route.params?.sendData?.subIconID,
         });
       } else {
         navigation.navigate('pdfView', item)
       }
     } else {
-      navigation.navigate('activityView', { url: item.activityUrl, title: item.activityName })
+      navigation.navigate('activityView', {
+        url: item.activityUrl,
+        title: item.activityName,
+        data: {     //for user actvity tracking
+          classID: item?.classID,
+          subjectID: item?.subjectID,
+          activityID: item?.activityID,
+          bookID: item?.bookID,
+          chapterID: item?.chapterID,
+          subjectSubID: item?.subjectSubID,
+          subPartID: item?.subPartID,
+          mainIconID: route.params?.sendData?.mainIconID,
+          subIconID: route.params?.sendData?.subIconID,
+          subTypeID: route.params?.sendData?.subTypeID
+        },
+      })
     }
   }
 

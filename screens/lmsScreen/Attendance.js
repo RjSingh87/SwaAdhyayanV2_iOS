@@ -28,7 +28,9 @@ const dayNameArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
 const monthNameArr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 
-const Attendance = ({ navigation }) => {
+const Attendance = ({ navigation, route }) => {
+
+
   const insets = useSafeAreaInsets();
   const { userData } = useContext(GlobleData)
   const [selectPeriodText, setSelectPeriodText] = useState('Select Period')

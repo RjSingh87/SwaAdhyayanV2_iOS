@@ -72,8 +72,14 @@ const marksEntrySubIconID = [
 // const homeWorkSubIconID = [87,88,89,90,91,92,93, 109,110,111,112]
 
 import { flowRef } from './flowRef';
+import ActivityTracker, { useActivityTracker } from '../../ActivityTracker';
+
 
 const SubIconsScreen = ({ navigation, route }) => {
+
+  const trackActivity = useActivityTracker();
+
+
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const { userData } = useContext(GlobleData);
@@ -294,6 +300,30 @@ const SubIconsScreen = ({ navigation, route }) => {
     }
   }, [selectedIcon]);
 
+
+  // ----------- First active subIcon track/tracking (CBSE, Ass. Generator, Ass. Mark Entry, SEPT details Report, Create New (Homework) ) logic -----------
+  const trackedRef = useRef(null);
+  useEffect(() => {
+    const subIconID = selectedIcon?.subIconID;
+    const firstSubIcon = [45, 49, 53, 60, 87, 94, 97, 109];
+    if (
+      firstSubIcon.includes(subIconID) &&
+      trackedRef.current !== subIconID
+    ) {
+      // console.log("First active subIcon tracking:", subIconID);
+      trackedRef.current = subIconID;
+      trackActivity({
+        mainIconID,
+        subIconID,
+      });
+    }
+  }, [selectedIcon?.subIconID]);
+
+  // ----------- First active subIcon tracking -----------
+
+
+
+
   function getSubIcons() {
     if (mainIconID == 27) {
       setLoading(true);
@@ -450,6 +480,15 @@ const SubIconsScreen = ({ navigation, route }) => {
     });
   }
   async function getIconDetail(val) {
+
+    if (activeSubIconIDs.includes(val.subIconID)) { // user activity track 
+      trackActivity({
+        mainIconID: val?.mainIconID,
+        subIconID: val?.subIconID,
+      });
+    }
+
+
     if (val?.subIcon?.childIcon != undefined) {
       getModuleActivityData(val, '', '', '', navigation);
     }
@@ -1555,8 +1594,13 @@ const SubIconsScreen = ({ navigation, route }) => {
                 setLoading(false);
               } else {
                 navigation.navigate('pdfView', {
-                  url: res.data.siteUrl + res.data.mainData[0].pdfPath,
-                  title: selectedField?.trmType?.pdfTypeDesc,
+                  data: {
+                    ...res.data,
+                    url: res.data.siteUrl + res.data.mainData[0].pdfPath,
+                    title: selectedField?.trmType?.pdfTypeDesc,
+                  },
+                  mainIconID: route.params?.mainIconID,
+                  subIconID: selectedIcon?.subIconID,
                 });
                 setListItem(prev => {
                   return { ...prev, status: false };
@@ -1741,8 +1785,14 @@ const SubIconsScreen = ({ navigation, route }) => {
           .then(res => {
             if (res.status == 'success') {
               navigation.navigate('pdfView', {
-                url: res.data.siteUrl + res.data.mainData[0].pdfPath,
-                title: 'TRM',
+                data: {
+                  ...res.data,
+                  url: res.data.siteUrl + res.data.mainData[0].pdfPath,
+                  title: 'TRM',
+                },
+                mainIconID: route.params?.mainIconID,
+                subIconID: selectedIcon?.subIconID,
+
               });
               setListItem(prev => {
                 return { ...prev, status: false };
@@ -1783,8 +1833,12 @@ const SubIconsScreen = ({ navigation, route }) => {
       } else {
         setTrkSubject(false);
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/Kindergarten.pdf',
-          title: 'TRK',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/Kindergarten.pdf',
+            title: 'TRK',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       }
       setSelectedField(prev => {
@@ -1797,33 +1851,58 @@ const SubIconsScreen = ({ navigation, route }) => {
       let pdfPath = '';
       if (item.subjectID == 1) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/Hindi.pdf',
-          title: 'TRK_Hindi',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/Hindi.pdf',
+            title: 'TRK_Hindi',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       } else if (item.subjectID == 2) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/English.pdf',
-          title: 'TRK_English',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/English.pdf',
+            title: 'TRK_English',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
+
         });
       } else if (item.subjectID == 3) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/Math.pdf',
-          title: 'TRK_Math',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/Math.pdf',
+            title: 'TRK_Math',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       } else if (item.subjectID == 4) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/Science.pdf',
-          title: 'TRK_Science',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/Science.pdf',
+            title: 'TRK_Science',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       } else if (item.subjectID == 5) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/Social_Science.pdf',
-          title: 'TRK_Social Science',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/Social_Science.pdf',
+            title: 'TRK_Social Science',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       } else if (item.subjectID == 6) {
         navigation.navigate('pdfView', {
-          url: 'https://swaadhyayan.com/data/TRM_PDF/EVS.pdf',
-          title: 'TRK_EVS',
+          data: {
+            url: 'https://swaadhyayan.com/data/TRM_PDF/EVS.pdf',
+            title: 'TRK_EVS',
+          },
+          mainIconID: route.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       }
       setSelectedField(prev => {
@@ -2276,11 +2355,14 @@ const SubIconsScreen = ({ navigation, route }) => {
             if (res.status == 'success') {
               setLoading(false);
               navigation.navigate('pdfView', {
-                url:
-                  res.data.mainData[0].filePath +
-                  res.data.mainData[0].uploadFileName,
-                title: res.data.mainData[0].chapterName,
-                urlLink: 'bookPDF',
+                data: {
+                  ...res.data,
+                  url: res.data.mainData[0].filePath + res.data.mainData[0].uploadFileName,
+                  title: res.data.mainData[0].chapterName,
+                  urlLink: 'bookPDF',
+                },
+                mainIconID: route.params?.mainIconID,
+                subIconID: selectedIcon?.subIconID,
               });
             }
           })
@@ -2306,6 +2388,8 @@ const SubIconsScreen = ({ navigation, route }) => {
           item: item,
           sendData: sendData,
           urlLink: 'swaWithTextbook',
+          mainIconID: route?.params?.mainIconID,
+          subIconID: selectedIcon?.subIconID,
         });
       }
     }
@@ -2645,6 +2729,9 @@ const SubIconsScreen = ({ navigation, route }) => {
                   alignItems: 'center',
                 }}
               >
+                {/* user activity track --- */}
+                <ActivityTracker payload={{ mainIconID }} />
+
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: SWATheam.SwaBlack }}>
                     {viewSeptReport.data.testType}

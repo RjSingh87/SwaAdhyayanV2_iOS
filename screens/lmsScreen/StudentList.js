@@ -144,7 +144,7 @@ const StudentList = ({ navigation, route }) => {
       return { ...prev, status: false }
     });
   }
-  function getStudentDataList(item) {
+  async function getStudentDataList(item) {
     setLoading(true)
     const payload = {
       "schoolID": userData.data.schoolID,
@@ -153,7 +153,7 @@ const StudentList = ({ navigation, route }) => {
       // "academicYear": userData.data.academicYear,
       "transYear": userData.data.transYear
     }
-    Services.post(apiRoot.getStudentsData, payload)
+    await Services.post(apiRoot.getStudentsData, payload)
       .then((res) => {
         if (res.status == "success") {
           setLoading(false)
@@ -174,12 +174,8 @@ const StudentList = ({ navigation, route }) => {
           }, 2000)
         }
       })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      .catch((err) => { console.log(err) })
+      .finally(() => { setLoading(false) })
   }
 
   // async function requestStoragePermission() {

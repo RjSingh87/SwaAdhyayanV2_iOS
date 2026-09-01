@@ -174,15 +174,15 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
           <TouchableOpacity style={styles.btn}
             onPress={() => {
               setAction("search")
-              // if(searchString!=""){
-              //   onClickRightIcon('search')
-              // }else{
-              // setShowInput(!showInput)
-              // }
+              if (searchString != "") {
+                onClickRightIcon('search')
+              } else {
+                setShowInput(!showInput)
+              }
             }
             }
           >
-            {/* <AntDesign name={rightIcon} size={25} color={SWATheam.SwaWhite}/> */}
+            <AntDesign name={rightIcon} size={25} color={SWATheam.SwaWhite} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.btn}
             onPress={() => {

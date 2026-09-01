@@ -27,7 +27,7 @@ const DetailAnalyticalReportView = ({ navigation, route }) => {
     setIsInstruction(true)
   }
 
-  function ViewReport(item) {
+  async function ViewReport(item) {
     setLoading(true)
     if (testType == 1) {
       const payload = {
@@ -38,7 +38,7 @@ const DetailAnalyticalReportView = ({ navigation, route }) => {
         "subjectID": item.getSubjectName.subjectID,
         "assessmentID": item.assessmentID
       }
-      Services.post(apiRoot.analyticalReportSubjectWise, payload)
+      await Services.post(apiRoot.analyticalReportSubjectWise, payload)
         .then((res) => {
           if (res.status == "success") {
             setLoading(false)
@@ -85,7 +85,7 @@ const DetailAnalyticalReportView = ({ navigation, route }) => {
         "subjectID": item.getSubjectName.subjectID,
         "assessmentID": item.assessmentID
       }
-      Services.post(apiRoot.analyticalReportStudentWise, payload)
+      await Services.post(apiRoot.analyticalReportStudentWise, payload)
         .then((res) => {
           if (res.status == "success") {
             setLoading(false)
@@ -143,8 +143,12 @@ const DetailAnalyticalReportView = ({ navigation, route }) => {
                 }
                 return (
                   <View style={{ borderRadius: 6, backgroundColor: SWATheam.SwaWhite, padding: 10, elevation: 7, marginBottom: 15 }}>
-                    <Text style={{ fontWeight: '500', color: SWATheam.SwaGray }}>Assessment Name:</Text>
-                    <Text style={{ fontWeight: '500', color: SWATheam.SwaBlack, textTransform: 'uppercase', marginVertical: 4 }}>{assessmentName}</Text>
+
+                    <View style={{ flexDirection: 'row', marginVertical: 4 }}>
+                      <Text style={{ width: '40%', fontWeight: '500', color: SWATheam.SwaGray }}>Assessment Name</Text>
+                      <Text style={{ width: 15 }}>:</Text>
+                      <Text style={{ width: '50%', fontWeight: '500', color: SWATheam.SwaBlack }}>{assessmentName}</Text>
+                    </View>
                     <View style={{ flexDirection: 'row', marginVertical: 4 }}>
                       <Text style={{ width: '40%', fontWeight: '500', color: SWATheam.SwaGray }}>Date of Creation</Text>
                       <Text style={{ width: 15 }}>:</Text>

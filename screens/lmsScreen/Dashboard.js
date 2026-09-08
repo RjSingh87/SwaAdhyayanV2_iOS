@@ -16,6 +16,7 @@ import MsgModal from '../common/MsgModal'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { flowRef } from './flowRef';
 import { useActivityTracker } from '../../ActivityTracker';
+import SwaAI from '../SwaAI';
 
 
 const Dashboard = ({ navigation, route }) => {
@@ -459,6 +460,11 @@ const Dashboard = ({ navigation, route }) => {
                 <SearchList searchItem={searchItem} closeModule={closeModule} searchFunction={searchFunction} dictionaryData={dictionaryData} />
               }
               <MsgModal msgModalVisible={msgModalVisible} />
+
+              <SwaAI />
+
+
+
             </>
           }
         </> : null

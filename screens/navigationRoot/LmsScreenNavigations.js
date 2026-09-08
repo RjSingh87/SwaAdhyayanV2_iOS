@@ -41,6 +41,7 @@ import AssessmentQuesView from '../lmsScreen/Assessment/assessmentQuesView'
 import AssessGenerateQuesView from '../lmsScreen/Assessment/AssessGenerateQuesView'
 import Safal from '../lmsScreen/Assessment/Safal'
 import DetailAnalyticalReportView from '../lmsScreen/REPORTs/DetailAnalyticalReportView'
+import TeacherAiScannerDemo from '../TeacherAiScannerDemo'
 
 const Stack = createStackNavigator()
 const Drawer = createDrawerNavigator()
@@ -111,6 +112,7 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       <Stack.Screen name="liveClassList" component={LiveClassList} options={{ headerShown: false }} />
       {/* LiveClass */}
       <Stack.Screen name="safalPP" component={Safal} options={{ headerShown: false }} />
+      <Stack.Screen name="TeacherAiScannerDemo" component={TeacherAiScannerDemo} options={{ headerShown: false }} />
     </Stack.Navigator>
   )
 }

@@ -298,6 +298,11 @@ const StudentList = ({ navigation, route }) => {
           <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
 
 
+          {/* <TouchableOpacity onPress={(() => { navigation.navigate("TeacherAiScannerDemo") })} style={{ padding: 6, backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, marginRight: 5, marginTop: 10 }}>
+            <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Teacher Ai Demo</Text>
+          </TouchableOpacity> */}
+
+
           {stuList &&
             <View style={{ borderTopWidth: 1, marginTop: 8, borderRadius: 5, borderColor: SWATheam.SwaGray, padding: 5, flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>

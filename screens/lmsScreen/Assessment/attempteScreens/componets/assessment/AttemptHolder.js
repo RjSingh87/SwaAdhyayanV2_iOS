@@ -320,6 +320,15 @@ export default function AttemptHolder({ navigation, route }) {
 							console.log("Assessment submitted");
 							navigation.goBack();
 						}
+
+
+						if (message === "ROTATE_LANDSCAPE") {
+							Orientation.lockToLandscape();
+						}
+						if (message === "ROTATE_PORTRAIT") {
+							Orientation.lockToPortrait();
+						}
+
 					}}
 				/>
 			</View>

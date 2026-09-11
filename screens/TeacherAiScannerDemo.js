@@ -19,6 +19,7 @@ import {
   Clipboard,
   Pressable,
   PlatformColor,
+  RootTagContext,
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';

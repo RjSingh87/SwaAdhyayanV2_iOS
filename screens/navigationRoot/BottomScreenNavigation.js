@@ -75,7 +75,7 @@ const BottomScreenNavigation = ({ navigation, route }) => {
         })}
 
       />
-      {userData?.data?.userTypeID == 5 || userData?.data?.userTypeID == 6 ?
+      {userData?.data?.userTypeID == 5 || userData?.data?.userTypeID == 6 || userData?.data?.userTypeID == 4 ?
         <Tab.Screen
           name="notification"
           component={Notification}

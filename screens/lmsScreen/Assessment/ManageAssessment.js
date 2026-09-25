@@ -339,7 +339,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     setLoading(true)
     const payload = {
       "schoolID": item?.schoolID,
-      "academicYear": item.getUserName?.academicYear,
+      "academicYear": userData?.data?.academicYear,
       "userTypeID": item?.getUserName?.userTypeID,
       "assessmentID": item?.assessmentID
     }

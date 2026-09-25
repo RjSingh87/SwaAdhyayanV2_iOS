@@ -7,13 +7,17 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { SWATheam } from '../constant/ConstentValue';
 import { useNavigation } from '@react-navigation/native';
+import { GlobleData } from '../Store';
 
 const SwaAI = ({ }) => {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
+
+  const { userData } = useContext(GlobleData)
+
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -63,21 +67,24 @@ const SwaAI = ({ }) => {
         },
       ]}>
 
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('TeacherAiScannerDemo')}
-        style={styles.container}>
+      {userData?.data?.userTypeID == 4 &&
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('TeacherAiScannerDemo')}
+          style={styles.container}>
 
-        <View style={styles.logoContainer}>
-          <Image
-            style={styles.logo}
-            source={require('../assets/AiLogo_1.png')}
-          />
-        </View>
+          <View style={styles.logoContainer}>
+            <Image
+              style={styles.logo}
+              source={require('../assets/AiLogo_1.png')}
+            />
+          </View>
 
-        <Text style={styles.text}>Swa-AI</Text>
+          <Text style={styles.text}>Swa-AI</Text>
 
-      </TouchableOpacity>
+        </TouchableOpacity>
+      }
+
     </Animated.View>
   );
 };

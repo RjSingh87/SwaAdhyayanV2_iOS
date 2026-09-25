@@ -39,6 +39,10 @@
 	<string>Swaadhyayan access to save images to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Swaadhyayan access to your photo library to select images.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Swaadhyayan requires access to your microphone for voice-to-text search and voice questions.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Swaadhyayan uses speech recognition to convert your spoken questions into text.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

@@ -549,22 +549,25 @@ export default function AssessmentView({ navigation, editAss }) {
       alert("Please select Atleast one book")
       setIsLoader(false)
     }
-    let subjectID = "";
-    let bookIDs = bookIdsArry.toString();
-    if (selectedIds.classID > 5 && bookIDs.indexOf(27) != -1) {
-      subjectID = 7;
-    } else if (selectedIds.classID > 5 && bookIDs.indexOf(30) != -1) {
-      subjectID = 8;
-    } else if (selectedIds.classID > 5 && bookIDs.indexOf(33) != -1) {
-      subjectID = 9;
-    } else {
-      subjectID = selectedIds.subjectID
-    }
+    //ye code subject id backend se remove kar di gayi hai history, civics, geography etc. isliye comment hai
+
+    // let subjectID = "";
+    // let bookIDs = bookIdsArry.toString();
+    // if (selectedIds.classID > 5 && bookIDs.indexOf(27) != -1) {
+    //   subjectID = 7;
+    // } else if (selectedIds.classID > 5 && bookIDs.indexOf(30) != -1) {
+    //   subjectID = 8;
+    // } else if (selectedIds.classID > 5 && bookIDs.indexOf(33) != -1) {
+    //   subjectID = 9;
+    // } else {
+    //   subjectID = selectedIds.subjectID
+    // }
+
     const payload = {
       "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
       "bookID": bookIdsArry.toString(),
-      "subjectID": subjectID,
+      "subjectID": selectedIds?.subjectID,
       "academicYear": userData.data.academicYear
     }
     Services.post(apiRoot.getBookChapterList, payload)

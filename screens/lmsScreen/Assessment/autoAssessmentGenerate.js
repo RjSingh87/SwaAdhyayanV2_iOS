@@ -2277,7 +2277,7 @@ export default function AutoAssessmentGenerate() {
               </View>
             </ScrollView>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 4, }}>
               <TouchableOpacity
                 onPress={() => {
                   setIsTypeWise(false);

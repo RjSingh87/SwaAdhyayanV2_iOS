@@ -2207,7 +2207,7 @@ const SwaSharing = ({ navigation, route }) => {
                 <View style={{ marginTop: 10, borderRadius: 5, flex: 1, backgroundColor: userData.data.colors.liteTheme, paddingTop: 5 }}>
                   <ScrollView>
                     {
-                      shareGroup.list.length > 0 ?
+                      shareGroup?.list?.length > 0 ?
                         shareGroup?.list?.map((item, index) => {
                           // console.log(item, "Sharing?")
                           return (

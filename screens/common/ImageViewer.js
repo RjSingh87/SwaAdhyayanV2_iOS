@@ -35,7 +35,7 @@ const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
                         <AntDesign name={"close"} size={25} color={'#fff'} />
                     </TouchableOpacity> */}
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image onLoadStart={() => { setLoading(true) }} onLoadEnd={() => { setLoading(false) }} style={{ width: '80%', height: '80%', resizeMode: 'center' }} source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }} />
+                    <Image onLoadStart={() => { setLoading(true) }} onLoadEnd={() => { setLoading(false) }} style={{ width: '95%', height: '95%', resizeMode: 'contain' }} source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }} />
                     {loading &&
                         <Loader />
                     }

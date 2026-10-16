@@ -64,13 +64,45 @@ const SubmittedHomeWork = () => {
 
   }
 
+
   const viewFile = (item) => {
-    const splitItem = item.submittedHomework.studentUploaded.split('.')
-    const fileType = splitItem[splitItem.length - 1]
-    setFileType((prev) => {
-      return { ...prev, data: item, type: fileType, fileSrc: item.submittedHomework.studentUploaded, status: true }
-    })
-  }
+    const rawPath = item?.submittedHomework?.studentUploaded || item.youTubeUrl || "";
+    const cleanPath = rawPath.split('?')[0].trim();
+    const extension = cleanPath.split('.').pop().toLowerCase();
+
+    const imageTypes = ['jpg', 'jpeg', 'JPG', 'png', 'gif', 'webp'];
+    const isImage = imageTypes.includes(extension);
+    const isPdf = extension === 'pdf';
+
+    if ((item.youTubeUrl || /^https?:\/\//i.test(cleanPath)) && !isImage && !isPdf) {
+      setFileType((prev) => ({
+        ...prev,
+        data: item,
+        type: 'url',
+        fileSrc: item.youTubeUrl || rawPath,
+        status: true,
+        from: 'url',
+      }));
+    }
+    else if (rawPath && (isImage || isPdf)) {
+      setFileType((prev) => ({
+        ...prev,
+        data: item,
+        type: isPdf ? 'pdf' : extension,
+        fileSrc: rawPath,
+        status: true,
+        from: isImage ? 'image' : 'document',
+      }));
+    }
+    else {
+      Alert.alert(
+        "Error!",
+        "File is not available to view or its format is invalid.",
+      );
+    }
+  };
+
+
 
   function downloadDoc(item, type, baseUrl,) {
     // setLoading(true)
@@ -179,23 +211,27 @@ const SubmittedHomeWork = () => {
   }
 
   const checkHomeWorkBtn = (item) => {
-    const splitItem = item.submittedHomework.studentUploaded.split('.')
-    const fileType = splitItem[splitItem.length - 1]
-    if (fileType == 'png' || fileType == 'jpeg' || fileType == 'jpg') {
-      convertImgToDataUrl(item?.submittedHomework?.studentUploaded, (myBase64) => {
-        imgDataUri = myBase64
-        const splitSrc = item?.submittedHomework?.studentUploaded.split('/')
-        const imgName = splitSrc[splitSrc.length - 1]
-        setImgpath(imgName)
-        checkHomeWorkData.classID = item.submittedHomework.submittedBy.classID
-        checkHomeWorkData.sectionID = item.submittedHomework.submittedBy.sectionID
-        checkHomeWorkData.homeWorkID = item.submittedHomework.homeWorkID
-        checkHomeWorkData.submitHomeworkID = item.assignedHomeWork.hwSubmitID
-        checkHomeWorkData.studentRefID = item.submittedHomework.submittedBy.submittedBy
-        setShowCanvas(true)
-      });
+    const path = item?.submittedHomework?.studentUploaded || "";
+    const fileType = path.split('?')[0].split('.').pop().toLowerCase();
+
+    if (!path || !['png', 'jpeg', 'jpg'].includes(fileType)) {
+      Alert.alert("Error!", "Invalid or unavailable image.");
+      return;
     }
-  }
+
+    convertImgToDataUrl(path, (myBase64) => {
+      imgDataUri = myBase64;
+      const splitSrc = path.split('/');
+      const imgName = splitSrc[splitSrc.length - 1];
+      setImgpath(imgName);
+      checkHomeWorkData.classID = item?.submittedHomework?.submittedBy?.classID;
+      checkHomeWorkData.sectionID = item?.submittedHomework?.submittedBy?.sectionID;
+      checkHomeWorkData.homeWorkID = item?.submittedHomework?.homeWorkID;
+      checkHomeWorkData.submitHomeworkID = item?.assignedHomeWork?.hwSubmitID;
+      checkHomeWorkData.studentRefID = item?.submittedHomework?.submittedBy?.submittedBy;
+      setShowCanvas(true);
+    });
+  };
 
   const convertImgToDataUrl = (url, callback) => {
     const xhr = new XMLHttpRequest();
@@ -431,7 +467,7 @@ const SubmittedHomeWork = () => {
         }
 
         {showCanvas &&
-          <View style={[styles.canavsPopUp, { alignItems: 'center' }]}>
+          <View style={[styles.canavsPopUp, { alignItems: 'center', }]}>
             <TouchableOpacity style={{ position: 'absolute', top: 5, right: 5, zIndex: 9 }} onPress={() => { setShowCanvas(false), setSign(''), setComment(''), setPenColor(SWATheam.SwaBlack) }}>
               <AntDesign name={"close"} size={25} color={SWATheam.SwaGray} />
             </TouchableOpacity>
@@ -562,11 +598,11 @@ const styles = StyleSheet.create({
   canavsPopUp: {
     position: 'absolute',
     top: 0,
-    left: 0,
+    left: 10,
     backgroundColor: SWATheam.SwaWhite,
     width: '100%',
     height: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 
   preview: {

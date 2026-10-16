@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'reac
 import React, { useContext, useEffect, useState } from 'react'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { SWATheam } from '../../constant/ConstentValue'
+import { useIsFocused } from '@react-navigation/native'
 import { GlobleData } from '../../Store'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSearchDataList } from '../redux/slices/SearchDataList'
@@ -13,6 +14,7 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
   const [searchString, setSearchString] = useState("")
   const [showInput, setShowInput] = useState(false)
   const [action, setAction] = useState('')
+  const isFocused = useIsFocused();
   const searchDataList = useSelector(state => state.Search);
 
   useEffect(() => {
@@ -23,9 +25,11 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
   }, [searchDataList])
 
   useEffect(() => {
-    setSearchString("")
-
-  }, [])
+    if (!isFocused) {
+      setSearchString("")
+      setShowInput(false)
+    }
+  }, [isFocused])
 
   function onClickRightIcon(type) {
     if (type == "search") {
@@ -47,10 +51,12 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
     }
   }
   const fetchDefinition = async () => {
-    if (!searchString) return;
+    const query = searchString ? searchString.trim() : "";
+    if (!query) return;
+    console.log(`https://api.dictionaryapi.dev/api/v2/entries/en/${query}`, "Query?")
     try {
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchString}`);
-      const resp = await response
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${query}`);
+      const resp = await response;
       const data = await response.json();
       if (resp.status == 404) {
         setSearchString("")
@@ -99,36 +105,26 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
     const synonyms = [];
     const antonyms = [];
     let dif = []
-    if (data.meanings.length) {
-      data.meanings.map((item, key) => {
-        dif.push(item)
-        setDictionaryData((prev) => {
-          return { ...prev, data: dif }
-        })
-        if (item.synonyms.length) {
-          synonyms.push(item.synonyms);
+    if (data.meanings?.length) {
+      data.meanings.forEach((item) => {
+        dif.push(item);
+        if (item.synonyms?.length) {
+          synonyms.push(...item.synonyms);
         }
-        if (item.antonyms.length) {
-          antonyms.push(item.antonyms);
-        }
-        if (item.definitions.length) {
-          item.definitions.map((defs, defsIndex) => {
-            if (defs.example != undefined && defs.example != '') {
-              console.log(defs.example)
-            }
-          });
+        if (item.antonyms?.length) {
+          antonyms.push(...item.antonyms);
         }
       });
 
-      if (synonyms.length) {
-        synonyms.join('')
-      }
-      if (antonyms.length) {
-        antonyms.join('')
-      }
-      setDictionaryData((prev) => {
-        return { ...prev, word: data.word, synonyms: synonyms.toString(), antonyms: antonyms.toString(), audio: audio, pronounciation: pronounciation, status: true }
-      })
+      setDictionaryData({
+        word: data.word,
+        data: dif,
+        synonyms: synonyms.join(', '),
+        antonyms: antonyms.join(', '),
+        audio: audio,
+        pronounciation: pronounciation,
+        status: true,
+      });
     }
 
   }

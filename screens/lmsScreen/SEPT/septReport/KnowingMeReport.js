@@ -169,7 +169,7 @@ const KnowingMeReport = ({ navigation, route }) => {
                     {showKeyNotes &&
                         <View style={{
                             position: 'absolute',
-                            top: 0,
+                            top: "6%",
                             left: 0,
                             width: '100%',
                             height: '100%',

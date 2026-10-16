@@ -29,11 +29,13 @@ export default function Store({ navigation, children }) {
 	// --------------- login function start --------------- //
 	async function login(data, userType, navigation) {
 		const payload = {
-			"userName": data.userId
+			userName: data.userId?.trim(),
+		};
+
+		if (userType === 1) {
+			payload.password = data.password;
 		}
-		if (userType == 1) {
-			payload["password"] = data.password
-		}
+		console.log('Login payload:', payload);
 		Services.post(apiRoot.appLogin, payload)
 			.then((res) => {
 				if (res.status == "success") {
@@ -160,7 +162,7 @@ export default function Store({ navigation, children }) {
 			"classID": userData?.data?.classID,
 			"assessmentID": attemptStore.assMentIds
 		}
-		console.log(payload)
+		// console.log(payload)
 		Services.post(apiRoot.getAssessmentQuestion, payload)
 			.then((res) => {
 

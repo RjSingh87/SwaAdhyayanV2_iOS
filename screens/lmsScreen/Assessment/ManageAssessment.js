@@ -1,5 +1,5 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, PermissionsAndroid, Linking, Alert } from "react-native"
-import { useEffect, useState, useRef, useContext } from "react"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, PermissionsAndroid, Linking, Alert, TextInput, ActivityIndicator, KeyboardAvoidingView } from "react-native"
+import { useEffect, useState, useRef, useContext, useMemo } from "react"
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -12,7 +12,7 @@ import { GlobleData } from "../../../Store"
 import Services from "../../../Services"
 import RNPrint from 'react-native-print';
 // import FileViewer from 'react-native-file-viewer';
-// import Share from 'react-native-share';
+import Share from 'react-native-share';
 
 
 let counter = 0
@@ -25,6 +25,8 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const { userData } = useContext(GlobleData)
   const [loading, setLoading] = useState(false)
   const [assessmentData, setAssessmentData] = useState({ data: null, status: false })
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchLoading, setSearchLoading] = useState(false)
   const [showPopUp, setShowPopUp] = useState({ data: null, radioID: null, status: false })
   const [showSelectedStu, setShowSelectedStu] = useState({ data: null, assID: null, status: false })
   const [showReAssign, setShowReAssign] = useState({ data: null, status: false })
@@ -42,6 +44,34 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   const [count, setCount] = useState(counter)
   const [marksSelectPopUp, setMarksSelectPopUp] = useState({ data: null, status: false })
   const [showCanvas, setShowCanvas] = useState({ canvas1: false, canvas2: false, canvas3: false, canvas4: false, canvas5: false, screenNo: null })
+
+  const filteredAssessments = useMemo(() => {
+    if (!searchQuery || !searchQuery.trim()) return assessmentData?.data || []
+    const q = searchQuery.trim().toLowerCase()
+    return (assessmentData?.data || []).filter((item) =>
+      item?.assessmentName?.toLowerCase().includes(q)
+    )
+  }, [searchQuery, assessmentData?.data])
+
+  const handleClearSearch = () => {
+    setSearchLoading(true)
+    setSearchQuery('')
+    setTimeout(() => {
+      setSearchLoading(false)
+    }, 100)
+  }
+
+  const handleSearchChange = (text) => {
+    if ((text === '' || text.trim() === '') && searchQuery !== '') {
+      setSearchLoading(true)
+      setSearchQuery('')
+      setTimeout(() => {
+        setSearchLoading(false)
+      }, 100)
+    } else {
+      setSearchQuery(text)
+    }
+  }
 
   useEffect(() => {
     getAllAssessments()
@@ -373,19 +403,25 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
 
   const downloadAssessmentPdf = async (item) => {
     setLoading(true)
-    Services.post(apiRoot.downloadAssPdf, { "assessmentID": item?.assessmentID })
-      .then((res) => {
-        if (res.status == "success") {
-          storePDF(res.html)
-        }
+    try {
+      const res = await Services.post(apiRoot.downloadAssPdf, { assessmentID: item?.assessmentID })
+      if (typeof res === 'string' && res.startsWith('JVBERi')) {
+        // API may return Base64 PDF in res.base64 or res.pdfBase64
+        const base64Data = res.base64 || res.pdfBase64 || ''
+        await sharePdfBase64(res)
 
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+        if (res.html) {
+          // Fallback to previous HTML handling
+          await storePDF(res.html)
+        }
+      } else {
+        console.log('Download failed:', res.message)
+      }
+    } catch (err) {
+      console.log('Download error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
   const storePDF = async (htmlData) => {
     try {
@@ -466,6 +502,21 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       });
     } catch (err) {
       console.log("Print/Share error:", err);
+    }
+  };
+
+  // Helper to share PDF from Base64 string
+  const sharePdfBase64 = async (base64Data) => {
+    try {
+      const shareOptions = {
+        title: 'Share PDF',
+        url: `data:application/pdf;base64,${base64Data}`,
+        type: 'application/pdf',
+        failOnCancel: false,
+      };
+      await Share.open(shareOptions);
+    } catch (err) {
+      console.log('Share error:', err);
     }
   };
 
@@ -699,171 +750,203 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
         <Loader />
       }
       <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-        <>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 220 : 0}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: SWATheam.SwaBlack }}>
             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>
               Manage Assessment
             </Text>
           </View>
+          {assessmentData.status &&
+            <View style={{ paddingHorizontal: 10, paddingTop: 10, paddingBottom: 5 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, borderWidth: 1, borderColor: userData?.data?.colors?.hoverTheme || SWATheam.SwaGray, borderRadius: 6, paddingHorizontal: 10, height: 42 }}>
+                <Ionicons name="search" size={20} color={SWATheam.SwaGray} style={{ marginRight: 6 }} />
+                <TextInput
+                  placeholder="Search Assessment Name..."
+                  placeholderTextColor={SWATheam.SwaGray}
+                  value={searchQuery}
+                  onChangeText={handleSearchChange}
+                  style={{ flex: 1, color: SWATheam.SwaBlack, paddingVertical: 0, fontSize: 14 }}
+                />
+                {searchLoading ? (
+                  <ActivityIndicator size="small" color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+                ) : searchQuery.length > 0 ? (
+                  <TouchableOpacity onPress={handleClearSearch} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <AntDesign name="closecircle" size={18} color={SWATheam.SwaGray} />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+          }
           <View style={{ flex: 1, padding: 10 }}>
-            <ScrollView>
+            <ScrollView keyboardShouldPersistTaps="handled">
               {
                 assessmentData.status &&
                 <View>
                   {
-                    assessmentData.data.map((item, index) => {
-                      const fileName = item.uploadFileName
-                      let fName = item.getUserName?.firstName
-                      let mName = item.getUserName?.middleName != null ? ' ' + item.getUserName?.middleName : ''
-                      let lName = item.getUserName?.lastName != null ? ' ' + item.getUserName?.lastName : ''
-                      ""
-                      let fullName = fName + mName + lName
+                    searchLoading ? (
+                      <View style={{ padding: 30, alignItems: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size="medium" color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+                        <Text style={{ marginTop: 8, color: SWATheam.SwaGray, fontSize: 13 }}>Resetting assessments...</Text>
+                      </View>
+                    ) : filteredAssessments.length > 0 ? (
+                      filteredAssessments.map((item, index) => {
+                        const fileName = item.uploadFileName
+                        let fName = item.getUserName?.firstName
+                        let mName = item.getUserName?.middleName != null ? ' ' + item.getUserName?.middleName : ''
+                        let lName = item.getUserName?.lastName != null ? ' ' + item.getUserName?.lastName : ''
+                        ""
+                        let fullName = fName + mName + lName
 
-                      let personStatus = ""
-                      if (item?.getUserName?.userTypeID == 2) {
-                        personStatus = "School"
-                      } else if (item?.getUserName?.userTypeID == 4) {
-                        personStatus = "Teacher"
-                      }
+                        let personStatus = ""
+                        if (item?.getUserName?.userTypeID == 2) {
+                          personStatus = "School"
+                        } else if (item?.getUserName?.userTypeID == 4) {
+                          personStatus = "Teacher"
+                        }
 
-                      return (
-                        <View style={{ borderWidth: .7, borderColor: 'grey', backgroundColor: SWATheam.SwaWhite, marginBottom: 10, borderRadius: 5, padding: 5 }} key={index}>
-                          {
-                            item.attemptStatus == 0 ?
-                              <View style={{ flexDirection: 'row', backgroundColor: SWATheam.SwaRed, justifyContent: 'center', padding: 2 }}>
-                                <Text style={{ color: '#fff', paddingHorizontal: 5, textAlign: 'right', paddingVertical: 2 }}>Not Attempted</Text>
-                              </View> :
-                              item.attemptStatus == 1 ?
-                                <View style={{ flexDirection: 'row', backgroundColor: SWATheam.SwaGreen, padding: 2, justifyContent: 'center' }}>
-                                  <Text style={{ color: '#fff', paddingHorizontal: 5, textAlign: 'right', paddingVertical: 2 }}>Attempted</Text>
-                                </View>
-                                : null
-                          }
-                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Assess. Name</Text>
+                        return (
+                          <View style={{ borderWidth: .7, borderColor: 'grey', backgroundColor: SWATheam.SwaWhite, marginBottom: 10, borderRadius: 5, padding: 5 }} key={index}>
+                            {
+                              item.attemptStatus == 0 ?
+                                <View style={{ flexDirection: 'row', backgroundColor: SWATheam.SwaRed, justifyContent: 'center', padding: 2 }}>
+                                  <Text style={{ color: '#fff', paddingHorizontal: 5, textAlign: 'right', paddingVertical: 2 }}>Not Attempted</Text>
+                                </View> :
+                                item.attemptStatus == 1 ?
+                                  <View style={{ flexDirection: 'row', backgroundColor: SWATheam.SwaGreen, padding: 2, justifyContent: 'center' }}>
+                                    <Text style={{ color: '#fff', paddingHorizontal: 5, textAlign: 'right', paddingVertical: 2 }}>Attempted</Text>
+                                  </View>
+                                  : null
+                            }
+                            <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Assess. Name</Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, }}>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.assessmentName}</Text>
+                              </View>
                             </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                            <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Total Question </Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, }}>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.noOfQuestion}</Text>
+                              </View>
                             </View>
-                            <View style={{ flex: 1, }}>
-                              <Text style={{ color: '#000', fontSize: 14 }}>{item.assessmentName}</Text>
+                            <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Start Date </Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, }}>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate}</Text>
+                              </View>
                             </View>
-                          </View>
-                          <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Total Question </Text>
+                            <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>End Date </Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, }}>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.endDate}</Text>
+                              </View>
                             </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                            <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Generated By </Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, }}>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{fullName} ({personStatus})</Text>
+                              </View>
                             </View>
-                            <View style={{ flex: 1, }}>
-                              <Text style={{ color: '#000', fontSize: 14 }}>{item.noOfQuestion}</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Start Date </Text>
-                            </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
-                            </View>
-                            <View style={{ flex: 1, }}>
-                              <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate}</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>End Date </Text>
-                            </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
-                            </View>
-                            <View style={{ flex: 1, }}>
-                              <Text style={{ color: '#000', fontSize: 14 }}>{item.endDate}</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Generated By </Text>
-                            </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
-                            </View>
-                            <View style={{ flex: 1, }}>
-                              <Text style={{ color: '#000', fontSize: 14 }}>{fullName} ({personStatus})</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                            <View style={{ width: 100, }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Status</Text>
-                            </View>
-                            <View style={{ paddingRight: 10 }}>
-                              <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
-                            </View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                              {
-                                item.isAssign == 0 ?
-                                  <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3 }} onPress={() => assignBtn(item)}>
-                                    <Text style={{ color: '#fff', textAlign: 'center' }}>
-                                      Not Assigned
-                                    </Text>
-                                  </TouchableOpacity> :
-                                  item.isAssign == 1 ?
-                                    <TouchableOpacity style={{ backgroundColor: '#0d6efd', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3 }} onPress={() => getReAssignSections(item)}>
+                            <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+                              <View style={{ width: 100, }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Status</Text>
+                              </View>
+                              <View style={{ paddingRight: 10 }}>
+                                <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
+                              </View>
+                              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                                {
+                                  item.isAssign == 0 ?
+                                    <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3 }} onPress={() => assignBtn(item)}>
                                       <Text style={{ color: '#fff', textAlign: 'center' }}>
-                                        Re-Assign
+                                        Not Assigned
                                       </Text>
+                                    </TouchableOpacity> :
+                                    item.isAssign == 1 ?
+                                      <TouchableOpacity style={{ backgroundColor: '#0d6efd', borderRadius: 4, paddingHorizontal: 7, paddingVertical: 3 }} onPress={() => getReAssignSections(item)}>
+                                        <Text style={{ color: '#fff', textAlign: 'center' }}>
+                                          Re-Assign
+                                        </Text>
+                                      </TouchableOpacity>
+                                      :
+                                      null
+                                }
+                              </View>
+                            </View>
+                            <View style={{ borderTopWidth: .7, justifyContent: 'space-between', flexDirection: 'row', paddingTop: 6, borderColor: 'grey' }}>
+                              <View style={{ flexDirection: 'row' }}>
+                                {
+                                  item.resultDeclareStatus == 0 ?
+                                    <TouchableOpacity style={{ borderRadius: 5, backgroundColor: '#198754', paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 30 }} onPress={() => declareResult(item)}>
+                                      <Text style={{ color: '#fff' }}>Declare Result</Text>
                                     </TouchableOpacity>
                                     :
-                                    null
-                              }
-                            </View>
-                          </View>
-                          <View style={{ borderTopWidth: .7, justifyContent: 'space-between', flexDirection: 'row', paddingTop: 6, borderColor: 'grey' }}>
-                            <View style={{ flexDirection: 'row' }}>
-                              {
-                                item.resultDeclareStatus == 0 ?
-                                  <TouchableOpacity style={{ borderRadius: 5, backgroundColor: '#198754', paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 30 }} onPress={() => declareResult(item)}>
-                                    <Text style={{ color: '#fff' }}>Declare Result</Text>
-                                  </TouchableOpacity>
-                                  :
-                                  item.resultDeclareStatus == 1 ?
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                      <Text style={{ color: '#198754', textAlign: 'center', fontWeight: 700 }}>
-                                        Result Declared
-                                      </Text>
-                                    </View>
-                                    :
-                                    null
-                              }
-                              {
-                                item.isDescriptive == 1 &&
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
-                                  <TouchableOpacity style={{ borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 30 }} onPress={() => checkOfflineBtn(item)}>
-                                    <Text style={{ color: '#fff' }}>Check Offline</Text>
-                                  </TouchableOpacity>
-                                </View>
-                              }
-                            </View>
-                            <View style={{ flexDirection: 'row' }}>
-                              {/* { item.attemptStatus != 1 &&
+                                    item.resultDeclareStatus == 1 ?
+                                      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={{ color: '#198754', textAlign: 'center', fontWeight: 700 }}>
+                                          Result Declared
+                                        </Text>
+                                      </View>
+                                      :
+                                      null
+                                }
+                                {
+                                  item.isDescriptive == 1 &&
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
+                                    <TouchableOpacity style={{ borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 30 }} onPress={() => checkOfflineBtn(item)}>
+                                      <Text style={{ color: '#fff' }}>Check Offline</Text>
+                                    </TouchableOpacity>
+                                  </View>
+                                }
+                              </View>
+                              <View style={{ flexDirection: 'row' }}>
+                                {/* { item.attemptStatus != 1 &&
                                                         <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3 }} onPress={()=>editAssessment(item)}>
                                                             <Entypo name={"edit"} size={20} color={'#0d6efd'} />
                                                         </TouchableOpacity>
-
+ 
                                                     } */}
-                              <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3, marginLeft: 5 }} onPress={() => deleteAssessment(item)}>
-                                <MaterialIcons name={"delete"} size={20} color={'#dc3545'} />
-                              </TouchableOpacity>
-                              <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3, marginLeft: 5 }} onPress={() => downloadAssessmentPdf(item)}>
-                                <Octicons name="download" size={20} color={'#198754'} />
-                              </TouchableOpacity>
+                                <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3, marginLeft: 5 }} onPress={() => deleteAssessment(item)}>
+                                  <MaterialIcons name={"delete"} size={20} color={'#dc3545'} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3, marginLeft: 5 }} onPress={() => downloadAssessmentPdf(item)}>
+                                  <Octicons name="download" size={20} color={'#198754'} />
+                                </TouchableOpacity>
+                              </View>
                             </View>
                           </View>
-                        </View>
-                      )
-                    })
+                        )
+                      })
+                    ) : (
+                      <View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5, backgroundColor: SWATheam.SwaWhite, padding: 15, marginTop: 5 }}>
+                        <Text style={{ color: 'red', fontSize: 14, textAlign: 'center' }}>No assessment found matching search.</Text>
+                      </View>
+                    )
                   }
                 </View>
               }
@@ -874,7 +957,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
               }
             </ScrollView>
           </View>
-        </>
+        </KeyboardAvoidingView>
       </View>
       {showPopUp.status &&
         <View style={styles.selectFieldPopUp}>

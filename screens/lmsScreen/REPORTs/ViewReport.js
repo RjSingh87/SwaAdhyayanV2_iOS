@@ -442,6 +442,7 @@ const ViewReport = ({ navigation, route }) => {
                 }
                 Services.post(apiRoot.overAllClassAnalysisReport, payload)
                     .then((res) => {
+                        console.log({ payload, res }, "Overall?")
                         if (res.status == "success") {
                             setIsLoading(false)
                             setReportData((prev) => {
@@ -753,6 +754,7 @@ const ViewReport = ({ navigation, route }) => {
             "subjectID": selectedField.subject.subjectID,
             "assessmentID": item.assessmentID
         }
+        console.log(payload, "chapterWiseStudentAssessmentReport")
         Services.post(apiRoot.chapterWiseStudentAssessmentReport, payload)
             .then((res) => {
                 if (res.status == "success") {
@@ -790,7 +792,7 @@ const ViewReport = ({ navigation, route }) => {
             "assessmentID": item.examID,
             "assessmentName": item.examName
         }
-        console.log(payload)
+        console.log(payload, "classAssessmentWiseSubjectReport")
         Services.post(apiRoot.classAssessmentWiseSubjectReport, payload)
             .then((res) => {
                 console.log(JSON.stringify(res))

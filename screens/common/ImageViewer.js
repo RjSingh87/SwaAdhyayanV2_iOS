@@ -1,6 +1,15 @@
+import { useState } from "react";
 import React, { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from "react-native"
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Loader from "../lmsScreen/CBSE_Safal/Loader";
+
+
 const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
+
+    const [loading, setLoading] = useState(false)
+
+
+
     return (
         <View style={[styles.selectFieldPopUp, { alignItems: 'center' }]}>
             <View style={{ flex: 1, width: "100%", }}>
@@ -26,7 +35,10 @@ const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
                         <AntDesign name={"close"} size={25} color={'#fff'} />
                     </TouchableOpacity> */}
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image style={{ width: '80%', height: '80%', resizeMode: 'center' }} source={{ uri: fileType.fileSrc }} />
+                    <Image onLoadStart={() => { setLoading(true) }} onLoadEnd={() => { setLoading(false) }} style={{ width: '80%', height: '80%', resizeMode: 'center' }} source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }} />
+                    {loading &&
+                        <Loader />
+                    }
                 </View>
 
             </View>

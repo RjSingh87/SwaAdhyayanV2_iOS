@@ -325,6 +325,7 @@ const CreateCertificate = () => {
     await Services.post(apiRoot.issueCertificate, payload)
       .then((res) => {
         if (res.status == "success") {
+          // console.log({payload, res}, "Issue certificate")
           Alert.alert("Info", res.message)
           setSelectOption({ class: null, section: null, subject: null, student: null, awardType: null, type: null })
           setYear(null)

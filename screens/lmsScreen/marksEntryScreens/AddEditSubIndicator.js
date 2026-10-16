@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { SWATheam } from '../../../constant/ConstentValue'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -9,32 +9,66 @@ import { GlobleData } from '../../../Store'
 const AddEditSubIndicator = ({ editIndicator, closeModule, addSubIndicator, subIndicatorName, addSubIndicatorText, removesubIndicator, updateIndicator }) => {
   const { userData } = useContext(GlobleData)
   const [subIndicatorInput, setSubIndicatorInput] = useState(false)
-  const [editItem, setEditItem] = useState({ indicatorName: null, subIndicator: [] })
-  const indicatorId = editIndicator.editItem.indicatorID
-  const indName = editIndicator.editItem.indicatorName
-  const indClass = editIndicator.editItem.classID
-  console.log(editIndicator)
+  const [indicatorNameState, setIndicatorNameState] = useState(editIndicator?.editItem?.indicatorName || '')
+  const [subIndicatorsState, setSubIndicatorsState] = useState([])
 
-  function onChangeText(val, type, item) {
-    if (type == "indName") {
-      setEditItem((prev) => {
-        return { ...prev, indicatorName: val }
-      })
+  const indicatorId = editIndicator?.editItem?.indicatorID
+  const indName = editIndicator?.editItem?.indicatorName
+  const indClass = editIndicator?.editItem?.classID
+
+  useEffect(() => {
+    setIndicatorNameState(editIndicator?.editItem?.indicatorName || '')
+    const list = (editIndicator?.editItem?.getSubIndicator || []).map(item => ({
+      id: item.subIndicatorID,
+      val: item.subIndicatorName
+    }))
+    setSubIndicatorsState(list)
+  }, [editIndicator])
+
+  function handleIndicatorNameChange(val) {
+    setIndicatorNameState(val)
+  }
+
+  function handleSubIndicatorChange(val, subIndicatorID) {
+    setSubIndicatorsState(prev =>
+      prev.map(item =>
+        item.id === subIndicatorID ? { ...item, val: val } : item
+      )
+    )
+  }
+
+  function handleUpdate() {
+    const originalIndName = (editIndicator?.editItem?.indicatorName || '').trim()
+    const currentIndName = (indicatorNameState || '').trim()
+    const isIndNameChanged = currentIndName !== originalIndName
+
+    const originalSubIndicators = editIndicator?.editItem?.getSubIndicator || []
+    let isSubIndChanged = false
+
+    if (subIndicatorsState.length !== originalSubIndicators.length) {
+      isSubIndChanged = true
+    } else {
+      for (let i = 0; i < subIndicatorsState.length; i++) {
+        const currentVal = (subIndicatorsState[i]?.val || '').trim()
+        const origVal = (originalSubIndicators[i]?.subIndicatorName || '').trim()
+        if (currentVal !== origVal) {
+          isSubIndChanged = true
+          break
+        }
+      }
     }
-    else if (type == "subInd1") {
-      editItem.subIndicator.push({ val: val, id: item.subIndicatorID })
-    } else if (type == "subInd2") {
-      editItem.subIndicator.push({ val: val, id: item.subIndicatorID })
 
-    } else if (type == "subInd3") {
-      editItem.subIndicator.push({ val: val, id: item.subIndicatorID })
-
-    } else if (type == "subInd4") {
-      editItem.subIndicator.push({ val: val, id: item.subIndicatorID })
-
-    } else if (type == "subInd5") {
-      editItem.subIndicator.push({ val: val, id: item.subIndicatorID })
+    if (!isIndNameChanged && !isSubIndChanged) {
+      alert('No changes to update.')
+      return
     }
+
+    const payloadItem = {
+      indicatorName: currentIndName,
+      subIndicator: subIndicatorsState
+    }
+
+    updateIndicator(payloadItem, indicatorId, indName, indClass)
   }
 
   return (
@@ -64,7 +98,7 @@ const AddEditSubIndicator = ({ editIndicator, closeModule, addSubIndicator, subI
           </View>
           <View style={{ marginVertical: 4 }}>
             <Text style={{ color: SWATheam.SwaBlack, paddingVertical: 4, fontWeight: '500' }}>Indicator Name</Text>
-            <CustomInput defaultValue={editIndicator.editItem.indicatorName} onChangeText={(val) => onChangeText(val, 'indName', editIndicator.editItem.indicatorName)} editable="true" selectTextOnFocus="false" />
+            <CustomInput value={indicatorNameState} onChangeText={(val) => handleIndicatorNameChange(val)} editable="true" selectTextOnFocus="false" />
           </View>
           <View style={{ marginTop: 6, flexDirection: 'row', padding: 4 }}>
             <Text style={{ flex: 1, color: SWATheam.SwaBlack, paddingVertical: 4, fontWeight: '500' }}>{editIndicator?.editItem?.getSubIndicator.length > 0 ? "Sub Indicator List" : ""}</Text>
@@ -99,13 +133,14 @@ const AddEditSubIndicator = ({ editIndicator, closeModule, addSubIndicator, subI
 
 
           <ScrollView>
-            {editIndicator?.editItem?.getSubIndicator.map((item, index) => {
+            {subIndicatorsState.map((item, index) => {
+              const originalItem = editIndicator?.editItem?.getSubIndicator?.[index]
               return (
-                <View style={{ marginVertical: 6, flexDirection: 'row' }} key={index}>
+                <View style={{ marginVertical: 6, flexDirection: 'row' }} key={item.id || index}>
                   <View style={{ flex: 1 }}>
-                    <CustomInput defaultValue={item.subIndicatorName} onChangeText={(val) => onChangeText(val, "subInd" + (index + 1), item)} />
+                    <CustomInput value={item.val} onChangeText={(val) => handleSubIndicatorChange(val, item.id)} />
                   </View>
-                  <TouchableOpacity style={{ width: 40, justifyContent: 'center', alignItems: 'center' }} onPress={() => removesubIndicator(item, editIndicator.editItem.indicatorID)}>
+                  <TouchableOpacity style={{ width: 40, justifyContent: 'center', alignItems: 'center' }} onPress={() => removesubIndicator(originalItem || { subIndicatorID: item.id }, editIndicator.editItem.indicatorID)}>
                     <MaterialIcons name="delete" size={28} color={SWATheam.SwaRed} />
                   </TouchableOpacity>
                 </View>
@@ -115,7 +150,7 @@ const AddEditSubIndicator = ({ editIndicator, closeModule, addSubIndicator, subI
         </View>
         {!subIndicatorInput ?
           <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: SWATheam.SwaLightGray }}>
-            <TouchableOpacity style={{ padding: 10, backgroundColor: SWATheam.SwaBlue, width: '50%', justifyContent: 'center', alignItems: 'center', borderRadius: 6 }} onPress={() => updateIndicator(editItem, indicatorId, indName, indClass)}>
+            <TouchableOpacity style={{ padding: 10, backgroundColor: SWATheam.SwaBlue, width: '50%', justifyContent: 'center', alignItems: 'center', borderRadius: 6 }} onPress={handleUpdate}>
               <Text style={{ textAlign: "center", fontWeight: '500', color: SWATheam.SwaWhite }}>Update</Text>
             </TouchableOpacity>
           </View> : null

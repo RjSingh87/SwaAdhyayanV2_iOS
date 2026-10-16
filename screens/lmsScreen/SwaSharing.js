@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -8,7 +8,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Button, PermissionsAndroid, StatusBar, Platform, Alert } from "react-native"
+import { View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, ScrollView, Image, Button, PermissionsAndroid, StatusBar, Platform, Alert, Linking } from "react-native"
 import DatePicker from 'react-native-date-picker'
 import DocumentPicker from 'react-native-document-picker';
 // import { pick, pickSingle } from '@react-native-documents/picker';
@@ -28,6 +28,10 @@ import SelectionBox from '../common/SelectionBox';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FileViewer from 'react-native-file-viewer';
 import Share from 'react-native-share';
+import { useIsFocused } from '@react-navigation/native';
+import YoutubePlayer from 'react-native-youtube-iframe';
+
+
 
 
 
@@ -43,13 +47,15 @@ const SwaSharing = ({ navigation, route }) => {
 
 
 
-
+  const { width, height } = Dimensions.get('window');
+  const isFocused = useIsFocused();
 
   const insets = useSafeAreaInsets();
   const { userData } = useContext(GlobleData)
 
   const [date, setDate] = useState(new Date())
   const [open, setOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const [postList, setPostList] = useState({ data: null, status: false })
   const [commentList, setCommentList] = useState({ data: null, status: false })
@@ -156,72 +162,106 @@ const SwaSharing = ({ navigation, route }) => {
     setIsInstruction(true)
   }
 
+
+  const getYouTubeId = url => {
+    const regExp =
+      /(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([^&\n?#]+)/;
+    const match = url?.match(regExp);
+    return match ? match[1] : null;
+  };
+
+
+
+
+
+
+
   function getPostList() {
     setLoading(true)
-    if (searchPostTxt == '' && searchPostDate == '') {
-      const payload = {
-        "schoolID": userData.data.schoolID,
-        "userRefID": userData.data.userRefID,
-        "userTypeID": userData.data.userTypeID
-      }
-      Services.post(apiRoot.getSharedPostApp, payload)
-        .then((res) => {
-          if (res.status == "success") {
-            setLoading(false)
-            const data = res.data
-            const domainName = res.data.domain
-            const shareIDArr = []
-            data.postData.map((item) => {
-              shareIDArr.push(item.shareID)
-            })
-            setPostList((prev) => {
-              return { ...prev, data: data, domainName: domainName, status: true }
-            })
-            savePostVisit(shareIDArr)
-          } else if (res.status == "error") {
-            Alert.alert("Alert", res.message)
-            setLoading(false)
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-
-    } else if (searchPostTxt != '' || searchPostDate != '') {
-      const payload = {
-        "schoolID": userData.data.schoolID,
-        "userRefID": userData.data.userRefID,
-        "userTypeID": userData.data.userTypeID,
-        "searchData": searchPostTxt || searchPostDate
-      }
-      Services.post(apiRoot.getSharedPostApp, payload)
-        .then((res) => {
-          if (res.status == "success") {
-            const data = res.data
-            const domainName = res.data.domain
-            const shareIDArr = []
-            data.postData.map((item) => {
-              shareIDArr.push(item.shareID)
-            })
-            setPostList((prev) => {
-              return { ...prev, data: data, domainName: domainName, status: true }
-            })
-            savePostVisit(shareIDArr)
-          } else if (res.status == "error") {
-            Alert.alert("Alert", res.message)
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-
-        })
+    const payload = {
+      "schoolID": userData.data.schoolID,
+      "userRefID": userData.data.userRefID,
+      "userTypeID": userData.data.userTypeID
     }
+    Services.post(apiRoot.getSharedPostApp, payload)
+      .then((res) => {
+        if (res.status == "success") {
+          setLoading(false)
+          const data = res.data
+          const domainName = res.data.domain
+          const shareIDArr = []
+          data.postData?.map((item) => {
+            if (item.shareID) shareIDArr.push(item.shareID)
+          })
+          setPostList((prev) => {
+            return { ...prev, data: data, domainName: domainName, status: true }
+          })
+          if (shareIDArr.length > 0) {
+            savePostVisit(shareIDArr)
+          }
+        } else if (res.status == "error") {
+          Alert.alert("Alert", res.message)
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
+
+  const getFilteredPosts = () => {
+    if (!postList.data?.postData) return [];
+
+    return postList.data.postData.filter((item) => {
+      if (!item || item.shareID == null) return false;
+
+      // Title Search (matches title, content, author or group name)
+      if (searchPostTxt && searchPostTxt.trim() !== '') {
+        const txt = searchPostTxt.trim().toLowerCase();
+        const title = (item.shareDataTitle || '').toLowerCase();
+        const content = (item.sharingContent || '').toLowerCase();
+        const createdBy = (item.createdBy || '').toLowerCase();
+        const groupName = (item.groupName || '').toLowerCase();
+
+        const match = title.includes(txt) || content.includes(txt) || createdBy.includes(txt) || groupName.includes(txt);
+        if (!match) return false;
+      }
+
+      // Date Search
+      if (searchPostDate && searchPostDate.trim() !== '') {
+        const targetDateStr = searchPostDate.trim(); // YYYY-MM-DD
+        const parts = targetDateStr.split('-');
+        if (parts.length === 3) {
+          const yyyy = parts[0];
+          const mm = parts[1];
+          const dd = parts[2];
+
+          const dInt = parseInt(dd, 10);
+          const mInt = parseInt(mm, 10);
+
+          const postDate = (item.startDate || item.postDate || item.createdDate || '').toString();
+
+          const matchDate =
+            postDate.includes(targetDateStr) ||
+            postDate.includes(`${yyyy}/${mm}/${dd}`) ||
+            postDate.includes(`${dd}-${mm}-${yyyy}`) ||
+            postDate.includes(`${dd}/${mm}/${yyyy}`) ||
+            postDate.includes(`${dInt}-${mInt}-${yyyy}`) ||
+            postDate.includes(`${dInt}/${mInt}/${yyyy}`);
+
+          if (!matchDate) return false;
+        } else {
+          const postDate = (item.startDate || item.postDate || item.createdDate || '').toString();
+          if (!postDate.includes(targetDateStr)) return false;
+        }
+      }
+
+      return true;
+    });
+  };
 
   function getPostLikeCount() {
     const payload = {
@@ -351,7 +391,12 @@ const SwaSharing = ({ navigation, route }) => {
     try {
       let type = [];
 
-      switch (name) {
+      let mediaType = name;
+      if (name === 'createGroupImg' || name === 'editGroupImg') {
+        mediaType = 'image';
+      }
+
+      switch (mediaType) {
         case 'image':
           type = [DocumentPicker.types.images];
           break;
@@ -365,9 +410,17 @@ const SwaSharing = ({ navigation, route }) => {
           break;
 
         case 'docx':
+        case 'doc':
           type = [
             DocumentPicker.types.doc,
             DocumentPicker.types.docx,
+            DocumentPicker.types.pdf,
+            DocumentPicker.types.plainText,
+            DocumentPicker.types.xls,
+            DocumentPicker.types.xlsx,
+            DocumentPicker.types.ppt,
+            DocumentPicker.types.pptx,
+            DocumentPicker.types.allFiles
           ];
           break;
 
@@ -389,6 +442,33 @@ const SwaSharing = ({ navigation, route }) => {
       });
 
       console.log('Selected File:', res);
+
+      const fileObj = {
+        uri: res.fileCopyUri || res.uri,
+        name: res.name || 'file',
+        type: res.type || 'application/octet-stream'
+      };
+      const fileName = res.name || 'Selected File';
+
+      if (name === 'createGroupImg' || (name === 'image' && showCreateGroup)) {
+        setCreateGroupImg(fileObj);
+        setGroupFileImg(fileName);
+      } else if (name === 'editGroupImg' || (name === 'image' && editGroupData)) {
+        setCreateNewGroupImg(fileObj);
+        setNewGroupFileImg(fileName);
+      } else if (mediaType === 'image') {
+        setUploadPostImg(fileObj);
+        setPostImgName(fileName);
+      } else if (mediaType === 'video') {
+        setUploadPostVideo(fileObj);
+        setPostVideoName(fileName);
+      } else if (mediaType === 'audio') {
+        setUploadPostAudio(fileObj);
+        setPostAudioName(fileName);
+      } else if (mediaType === 'docx' || mediaType === 'doc' || mediaType === 'excel') {
+        setUploadPostDoc(fileObj);
+        setPostDocName(fileName);
+      }
 
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -1027,6 +1107,25 @@ const SwaSharing = ({ navigation, route }) => {
   }
 
   function sharePost() {
+    let msgBlank = "";
+    if (!groupId) {
+      msgBlank = "Please select group."
+    } else if (!postTitleMsg) {
+      msgBlank = "Please enter post title."
+    } else if (!postMessage) {
+      msgBlank = "Please enter post message."
+    } else if (selectPost.radioID === 1 && !uploadCurrentDateTime) {
+      msgBlank = "Please select when to post."
+    } else if (selectPost.radioID === 2 && !uploadPostLaterDateTime) {
+      msgBlank = "Please select post later date."
+    } else if (!selectPost.radioID) {
+      msgBlank = "Please select when to post."
+    }
+    if (msgBlank) {
+      Alert.alert(msgBlank);
+      return;
+    }
+
     setLoading(true)
     const formData = new FormData();
     formData.append("schoolID", userData.data.schoolID)
@@ -1053,30 +1152,27 @@ const SwaSharing = ({ navigation, route }) => {
     }
 
     if (uploadPostLaterDateTime != '') {
-      const laterDate = new Date(uploadPostLaterDateTime).toLocaleDateString()
-      const laterTime = new Date(uploadPostLaterDateTime).toLocaleTimeString()
-      let spliteDate = laterDate.split("/")
-      let date1 = spliteDate.reverse()
-      let date2 = date1.join("-")
-      const joinData = date2 + " " + laterTime
+      const d = new Date(uploadPostLaterDateTime)
+      const yyyy = d.getFullYear()
+      const mm = String(d.getMonth() + 1).padStart(2, '0')
+      const dd = String(d.getDate()).padStart(2, '0')
+      const hh = String(d.getHours()).padStart(2, '0')
+      const min = String(d.getMinutes()).padStart(2, '0')
+      const ss = String(d.getSeconds()).padStart(2, '0')
+      const joinData = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss
       formData.append("postLaterDate", joinData)
     } else {
       formData.append("postNowDate", uploadCurrentDateTime)
     }
-
-    console.log('jfjfjfformData', formData)
-
     Services.formMethod(apiRoot.sharePostApp, formData)
       .then((res) => {
-        console.log(formData, "FValue.")
-
-        console.log(JSON.stringify(res), '-------- check response----------')
-
         if (res.status == "success") {
+          console.log(JSON.stringify(formData), res, "alll?")
           setLoading(false)
           setPostTitleMsg('')
           setUploadPostCreatedBy('')
           setPostMessage('')
+          setYtLink('')
           setSelectOptText('Select Group To Share')
           setSelectGroup({ radioID: null })
           setUploadCurrentDateTime('')
@@ -1094,12 +1190,13 @@ const SwaSharing = ({ navigation, route }) => {
           getPostList()
           Alert.alert("Info!", res.message)
         } else if (res.status == "error") {
+          console.log({ formData, res }, "Eroor section")
           Alert.alert("Info!", res.message)
           setLoading(false)
         }
       })
       .catch((err) => {
-        console.log(err)
+        // console.log(err)
         setLoading(false)
       })
       .finally(() => {
@@ -1120,17 +1217,22 @@ const SwaSharing = ({ navigation, route }) => {
   }
 
   function editDateAndTime(type, dateTimeStr) {
-    const laterDate = new Date(dateTimeStr).toLocaleDateString()
-    const laterTime = new Date(dateTimeStr).toLocaleTimeString()
-    let spliteDate = laterDate.split("/")
-    let date1 = spliteDate.reverse()
-    let date2 = date1.join("-")
+    const d = new Date(dateTimeStr)
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const min = String(d.getMinutes()).padStart(2, '0')
+    const ss = String(d.getSeconds()).padStart(2, '0')
+
     if (type == 'postLaterDate') {
-      const joinData = date2 + " " + laterTime
+      const joinData = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss
       setCalenderSelected(joinData)
+      setUploadPostLaterDateTime(dateTimeStr)
     } else if (type == "searchPost") {
-      let arrangeDate = spliteDate[0] + '-' + spliteDate[2] + '-' + spliteDate[1]
+      const arrangeDate = yyyy + '-' + mm + '-' + dd
       setSearchPostDate(arrangeDate)
+      setTimeout(() => getPostList(arrangeDate), 100)
     }
   }
 
@@ -1321,7 +1423,7 @@ const SwaSharing = ({ navigation, route }) => {
       setLoading(false);
     }
   };
-  function getList() {
+  function getList(type) {
     const payload = {
       "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
@@ -1332,7 +1434,7 @@ const SwaSharing = ({ navigation, route }) => {
         if (res.status == "success") {
           const data = res.data
           setShareGroup((prev) => {
-            return { ...prev, list: data, type: 'group', status: true }
+            return { ...prev, list: data, type: type, status: true }
           })
         } else {
           setShareGroup((prev) => {
@@ -1435,8 +1537,8 @@ const SwaSharing = ({ navigation, route }) => {
                       <View style={{ flex: 1, padding: 8, paddingLeft: 10 }}>
                         <Text style={{ color: SWATheam.SwaBlack }}>{postImgName}</Text>
                       </View>
-                      <TouchableOpacity style={{ padding: 6, backgroundColor: SWATheam.SwaGray, borderTopRightRadius: 4, borderBottomRightRadius: 4 }} onPress={() => getBrowseImg('image')}>
-                        <Text style={{ color: SWATheam.SwaWhite }}>Browse</Text>
+                      <TouchableOpacity style={{ justifyContent: "center", padding: 6, backgroundColor: SWATheam.SwaGray, borderTopRightRadius: 4, borderBottomRightRadius: 4 }} onPress={() => getBrowseImg('image')}>
+                        <Text style={{ color: SWATheam.SwaWhite, }}>Browse</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -1592,37 +1694,59 @@ const SwaSharing = ({ navigation, route }) => {
               :
               <View style={{ flex: 1, }}>
                 <View >
-                  <TextInput style={[styles.input]} onFocus={() => setSearchPostDate()} onChangeText={setSearchPostTxt} value={searchPostTxt} placeholder='Search By Title' placeholderTextColor={SWATheam.SwaGray} />
+                  <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: SWATheam.SwaGray, borderRadius: 4, backgroundColor: SWATheam.SwaWhite, marginBottom: 10 }}>
+                    <View style={{ flex: 1 }}>
+                      <TextInput style={[styles.input, { marginBottom: 0, borderWidth: 0 }]} onFocus={() => setSearchPostDate('')} onChangeText={setSearchPostTxt} value={searchPostTxt} placeholder='Search By Title' placeholderTextColor={SWATheam.SwaGray} />
+                    </View>
+                    {searchPostTxt != '' ?
+                      <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }} onPress={() => { setSearchPostTxt(''); getPostList() }}>
+                        <AntDesign name={"closecircle"} size={18} color={SWATheam.SwaGray} />
+                      </TouchableOpacity>
+                      : null
+                    }
+                  </View>
                 </View>
                 <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: SWATheam.SwaGray, borderRadius: 4, backgroundColor: SWATheam.SwaWhite }}>
                   <View style={{ flex: 1 }}>
-                    <TextInput style={[styles.input, { marginBottom: 0, borderWidth: 0 }]} onChangeText={setSearchPostDate} value={searchPostDate} onFocus={() => setSearchPostTxt('')}
+                    <TextInput style={[styles.input, { marginBottom: 0, borderWidth: 0 }]} value={searchPostDate} editable={false}
                       placeholder='Search By Date'
                       placeholderTextColor={SWATheam.SwaGray}
                     />
                   </View>
-                  <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }} onPress={() => setOpen(true)}>
+                  {searchPostDate != '' ?
+                    <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }} onPress={() => { setSearchPostDate(''); setSearchPostTxt(''); getPostList() }}>
+                      <AntDesign name={"closecircle"} size={18} color={SWATheam.SwaGray} />
+                    </TouchableOpacity>
+                    : null
+                  }
+                  <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }} onPress={() => { setSearchPostTxt(''); setSearchOpen(true) }}>
                     <FontAwesome6 name={"calendar"} size={20} color={SWATheam.SwaGray} />
                   </TouchableOpacity>
                 </View>
                 {
-                  open &&
+                  searchOpen &&
                   <DatePicker
                     modal
-                    open={open}
+                    open={searchOpen}
                     date={date}
                     mode='date'
                     onConfirm={(date) => {
-                      setOpen(false)
+                      setSearchOpen(false)
                       editDateAndTime("searchPost", date)
                     }}
                     onCancel={() => {
-                      setOpen(false)
+                      setSearchOpen(false)
                     }}
                   />
                 }
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 5 }}>
-                  <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 50 }} onPress={() => getPostList()}>
+                  <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 50 }} onPress={() => {
+                    if (!searchPostTxt.trim() && !searchPostDate.trim()) {
+                      Alert.alert("Alert", "Please enter title or select date to search.");
+                      return;
+                    }
+                    getPostList();
+                  }}>
                     <Text style={{ textTransform: 'uppercase', color: SWATheam.SwaWhite }}>Search</Text>
                   </TouchableOpacity>
                 </View>
@@ -1631,242 +1755,289 @@ const SwaSharing = ({ navigation, route }) => {
                   <ScrollView>
                     {
                       postList.status ?
-                        postList.data?.postData?.map((item, index) => {
-                          if (item.shareID != null) {
-
-                            const docPath = item.docFileNPath
-                            const audioPath = item.audioFileNPath
-                            const imgPath = item.imageFileNPath
-                            const videoPath = item.videoFileNPath
-                            let audioName = ''
-                            let docName = ''
-                            let imgName = ''
-                            let videoName = ''
-
-                            if (docPath != null) {
-                              const splitPath = docPath.split('/')
-                              docName = splitPath[splitPath.length - 1]
-                            }
-
-                            if (audioPath != null) {
-                              const splitPath = audioPath.split('/')
-                              audioName = splitPath[splitPath.length - 1]
-                            }
-
-                            if (imgPath != null) {
-                              const splitPath = imgPath.split('/')
-                              imgName = splitPath[splitPath.length - 1]
-                            }
-
-                            if (videoPath != null) {
-                              const splitPath = videoPath.split('/')
-                              videoName = splitPath[splitPath.length - 1]
-                            }
-
+                        (() => {
+                          const filteredList = getFilteredPosts();
+                          if (filteredList.length === 0) {
                             return (
-                              <View style={{ borderWidth: 0.5, borderRadius: 7, borderColor: SWATheam.SwaGray, marginBottom: 5, paddingHorizontal: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
-                                <View style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderColor: SWATheam.SwaGray, alignItems: 'center', paddingVertical: 5 }}>
-                                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                                    <Image source={require('../assets/profileImg.png')} style={{ height: 30, width: 30 }} />
-                                    <View>
-                                      <View style={{ flexDirection: 'row' }}>
-                                        <View>
-                                          <Text style={[styles.BtextClr, { fontWeight: '500', fontSize: font15 }]}>{item.createdBy}</Text>
+                              <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 15, borderRadius: 5, marginVertical: 10 }}>
+                                <Text style={{ color: 'red', textAlign: 'center', fontSize: font15 }}>No posts found</Text>
+                              </View>
+                            );
+                          }
+                          return filteredList.map((item, index) => {
+                            if (item.shareID != null) {
+
+                              const docPath = item.docFileNPath
+                              const audioPath = item.audioFileNPath
+                              const imgPath = item.imageFileNPath
+                              const videoPath = item.videoFileNPath
+                              let audioName = ''
+                              let docName = ''
+                              let imgName = ''
+                              let videoName = ''
+
+                              if (docPath != null) {
+                                const splitPath = docPath.split('/')
+                                docName = splitPath[splitPath.length - 1]
+                              }
+
+                              if (audioPath != null) {
+                                const splitPath = audioPath.split('/')
+                                audioName = splitPath[splitPath.length - 1]
+                              }
+
+                              if (imgPath != null) {
+                                const splitPath = imgPath.split('/')
+                                imgName = splitPath[splitPath.length - 1]
+                              }
+
+                              if (videoPath != null) {
+                                const splitPath = videoPath.split('/')
+                                videoName = splitPath[splitPath.length - 1]
+                              }
+
+                              return (
+                                <View style={{ borderWidth: 0.5, borderRadius: 7, borderColor: SWATheam.SwaGray, marginBottom: 5, paddingHorizontal: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
+                                  <View style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderColor: SWATheam.SwaGray, alignItems: 'center', paddingVertical: 5 }}>
+                                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                                      <Image source={require('../assets/profileImg.png')} style={{ height: 30, width: 30 }} />
+                                      <View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                          <View>
+                                            <Text style={[styles.BtextClr, { fontWeight: '500', fontSize: font15 }]}>{item.createdBy}</Text>
+                                          </View>
+                                          <View style={{ justifyContent: 'center', paddingLeft: 5 }}>
+                                            <Text style={[styles.BtextClr, { fontSize: 12 }]}>({item.groupName})</Text>
+                                          </View>
                                         </View>
-                                        <View style={{ justifyContent: 'center', paddingLeft: 5 }}>
-                                          <Text style={[styles.BtextClr, { fontSize: 12 }]}>({item.groupName})</Text>
+                                        <View style={{ flexDirection: 'row' }}>
+                                          <Text style={[styles.BtextClr, { fontSize: 12 }]}>{item.startDate}</Text>
                                         </View>
-                                      </View>
-                                      <View style={{ flexDirection: 'row' }}>
-                                        <Text style={[styles.BtextClr, { fontSize: 12 }]}>{item.startDate}</Text>
                                       </View>
                                     </View>
+                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                      {
+                                        userData.data.userRefID == item.createdByID ?
+                                          <TouchableOpacity onPress={() => { deleteSharedPost(item.groupID, item.shareID), getPostList() }}>
+                                            <MaterialIcons name={"delete"} size={22} color={'#dc3545'} />
+                                          </TouchableOpacity> : null
+                                      }
+                                    </View>
                                   </View>
-                                  <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                    {
-                                      userData.data.userRefID == item.createdByID ?
-                                        <TouchableOpacity onPress={() => { deleteSharedPost(item.groupID, item.shareID), getPostList() }}>
-                                          <MaterialIcons name={"delete"} size={22} color={'#dc3545'} />
-                                        </TouchableOpacity> : null
-                                    }
+                                  <View style={{ flexDirection: 'row', paddingLeft: 10, paddingVertical: 5 }}>
+                                    <Text style={{ fontWeight: '500', marginRight: 5, color: SWATheam.SwaGray }}>#</Text>
+                                    <Text style={{ borderBottomWidth: 1, borderColor: SWATheam.SwaBlack, fontWeight: '500', color: SWATheam.SwaBlack }}>
+                                      {item.shareDataTitle}
+                                    </Text>
                                   </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', paddingLeft: 10, paddingVertical: 5 }}>
-                                  <Text style={{ fontWeight: '500', marginRight: 5, color: SWATheam.SwaGray }}>#</Text>
-                                  <Text style={{ borderBottomWidth: 1, borderColor: SWATheam.SwaBlack, fontWeight: '500', color: SWATheam.SwaBlack }}>
-                                    {item.shareDataTitle}
-                                  </Text>
-                                </View>
 
-                                {
-                                  item.imageFileNPath ?
-                                    <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
-                                      <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(postList.data.domain + item.imageFileNPath, 'img',)}>
-                                        <Image source={{ uri: postList.data.domain + item.imageFileNPath }} style={{ height: 100, width: '80%', resizeMode: 'contain' }} />
-                                      </TouchableOpacity>
-                                      <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                        <TouchableOpacity onPress={() => viewDocument(postList.data.domain + item.imageFileNPath, 'img')} style={{ padding: 5 }}>
-                                          <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
+                                  {
+                                    item.imageFileNPath ?
+                                      <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
+                                        <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(postList.data.domain + item.imageFileNPath, 'img',)}>
+                                          <Image source={{ uri: postList.data.domain + item.imageFileNPath }} style={{ height: 100, width: '80%', resizeMode: 'contain' }} />
                                         </TouchableOpacity>
-                                      </View>
-                                    </View> : ''
-                                }
-
-                                {
-                                  item.videoFileNPath ?
-                                    <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
-                                      <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(postList.domainName + item.videoFileNPath, 'video',)}>
-                                        <Video
-                                          source={{ uri: postList.domainName + item.videoFileNPath }}
-                                          style={{
-                                            height: 100,
-                                            width: '80%'
-                                          }}
-                                          paused={true}
-                                          controls={false}
-                                          repeat={false}
-                                          pointerEvents="none"
-                                        />
-                                      </TouchableOpacity>
-                                      <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                        <TouchableOpacity onPress={() => viewDocument(postList.domainName + item.videoFileNPath, 'video')} style={{ padding: 5 }}>
-                                          <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
-                                        </TouchableOpacity>
-                                      </View>
-                                    </View> : ''
-                                }
-
-                                {
-                                  item.audioFileNPath ?
-                                    <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
-                                      <View style={{ flex: 1, alignItems: 'center', padding: 5, flexDirection: 'row' }}>
-                                        {
-                                          (soundPlayID == item.shareID) ?
-                                            <TouchableOpacity onPress={() => { stopAudio(item.shareID), setSoundPlayID('') }}>
-                                              <AntDesign name={"sound"} size={20} color={userData.data.colors.mainTheme} />
-                                            </TouchableOpacity>
-                                            :
-                                            <TouchableOpacity style={{ marginRight: 5 }} onPress={() => { playAudio(postList.data.domain + item.audioFileNPath), setSoundPlayID(item.shareID) }}>
-                                              <AntDesign name={"play"} size={25} color={userData.data.colors.mainTheme} />
-                                            </TouchableOpacity>
-                                        }
-                                        <View style={{ flex: 1 }}>
-                                          <Text style={{ color: SWATheam.SwaBlack }}>{audioName}</Text>
+                                        <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                                          <TouchableOpacity onPress={() => viewDocument(postList.data.domain + item.imageFileNPath, 'img')} style={{ padding: 5 }}>
+                                            <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
+                                          </TouchableOpacity>
                                         </View>
-                                      </View>
-                                      <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                        <TouchableOpacity style={{ padding: 5 }} onPress={() => viewDocument(postList.data.domain + item.audioFileNPath, 'audio')}>
-                                          <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
-                                        </TouchableOpacity>
-                                      </View>
-                                    </View> : ''
-                                }
+                                      </View> : ''
+                                  }
 
-                                {
-                                  item.docFileNPath ?
-                                    <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
-                                      <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(item, 'doc', postList.data.domain)}>
-                                        <Text style={{ color: SWATheam.SwaBlack }}>{docName}</Text>
-                                      </TouchableOpacity>
-                                      <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                        <TouchableOpacity onPress={() => viewDocument(item, 'doc', postList.data.domain)} style={{ padding: 5 }}>
-                                          <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
-                                        </TouchableOpacity>
-                                      </View>
-                                    </View> : ''
-                                }
 
-                                <View style={{ flexDirection: 'row', paddingLeft: 10, paddingVertical: 5, marginBottom: 5 }}>
-                                  <Text style={{ flex: 1, color: SWATheam.SwaBlack, fontWeight: '500', paddingLeft: 8 }}>
-                                    {item.sharingContent}
-                                  </Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', paddingHorizontal: 5, paddingVertical: 8, borderTopWidth: 0.5, borderColor: SWATheam.SwaGray, justifyContent: 'space-between' }}>
-                                  <View>
-                                    {
-                                      postLikeTotal?.data?.map((likeData, index) => {
-                                        if (item.shareID == likeData.shareID) {
-                                          return (
-                                            <Text style={{ flex: 1, color: '#198754', fontWeight: '500' }} key={index}>
-                                              Likes : {likeData.likeCount == null ? 0 : likeData.likeCount}
-                                            </Text>
-                                          )
-                                        }
-                                      })
-
-                                    }
-                                  </View>
-                                  <View>
-                                    <TouchableOpacity onPress={() => { getPostComments(item.shareID), SetShowCommentPopUp(true) }}>
-                                      <FontAwesome name={"commenting-o"} size={20} color={'#198754'} />
-                                    </TouchableOpacity>
-                                  </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', paddingHorizontal: 5, paddingVertical: 8, borderTopWidth: 0.5, borderColor: SWATheam.SwaGray, alignItems: 'center' }}>
-                                  <View style={{ flexDirection: 'row' }}>
-                                    {
-                                      postList.data.likeAction.map((likeID, index) => {
-                                        const postID = item.shareID
-                                        const ID = likeID.shareID
-                                        if (postID == ID) {
-                                          return (
-                                            <TouchableOpacity key={index} style={{ marginRight: 5 }} onPress={() => { slectLikeDislikeBtn(1, item.shareID, likeID.likeOption) }}>
-                                              {
-                                                likeID.likeOption == 1 ?
-                                                  <FontAwesome name={"thumbs-up"} size={20} color={userData.data.colors.mainTheme} /> :
-                                                  <FontAwesome name={"thumbs-o-up"} size={20} color={userData.data.colors.mainTheme} />
-                                              }
-                                            </TouchableOpacity>
-                                          )
-                                        }
-                                      })
-                                    }
-
-                                    {
-                                      postList.data.likeAction.map((likeID, index) => {
-                                        const postID = item.shareID
-                                        const ID = likeID.shareID
-                                        if (postID == ID) {
-                                          return (
-                                            <TouchableOpacity key={index} onPress={() => slectLikeDislikeBtn(0, item.shareID, likeID.likeOption)}>
-                                              {
-                                                likeID.likeOption == 0 ?
-                                                  <FontAwesome name={"thumbs-down"} size={20} color={'#dc3545'} /> :
-                                                  <FontAwesome name={"thumbs-o-down"} size={20} color={'#dc3545'} />
-                                              }
-                                            </TouchableOpacity>
-                                          )
-                                        }
-                                      })
-                                    }
-                                  </View>
-                                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                                    <View style={{ flex: 1, marginHorizontal: 8 }}>
-                                      <TextInput
-                                        value={shareIDSaved == item.shareID ? comment : null}
-                                        style={[styles.input, { color: SWATheam.SwaGray, height: 30, padding: 5, marginBottom: 0, paddingStart: 8 }]} onChangeText={setComment} onFocus={() => checkField(item.shareID)} placeholder='Add a comment...'
-                                        placeholderTextColor={SWATheam.SwaGray}
-
+                                  {item.youtubePath &&
+                                    <View>
+                                      <YoutubePlayer
+                                        height={(width - 20) * 0.56}
+                                        width={width - 20}
+                                        play={isFocused}
+                                        videoId={getYouTubeId(item.youtubePath)}
                                       />
                                     </View>
-                                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                      <TouchableOpacity onPress={() => addCommentOnPost(item.userRefID, item.shareID)}>
-                                        <Ionicons name={"send"} size={20} color={'#198754'} />
+                                  }
+
+                                  {
+                                    item.videoFileNPath ?
+                                      <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
+                                        <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(postList.data.domain + item.videoFileNPath, 'video',)}>
+                                          <Video
+                                            source={{ uri: postList.data.domain + item.videoFileNPath }}
+                                            style={{
+                                              height: 100,
+                                              width: '80%'
+                                            }}
+                                            paused={true}
+                                            controls={false}
+                                            repeat={false}
+                                            pointerEvents="none"
+                                          />
+                                        </TouchableOpacity>
+                                        <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                                          <TouchableOpacity onPress={() => viewDocument(postList.data.domain + item.videoFileNPath, 'video')} style={{ padding: 5 }}>
+                                            <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
+                                          </TouchableOpacity>
+                                        </View>
+                                      </View> : ''
+                                  }
+
+                                  {
+                                    item.audioFileNPath ?
+                                      <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
+                                        <View style={{ flex: 1, alignItems: 'center', padding: 5, flexDirection: 'row' }}>
+                                          {
+                                            (soundPlayID == item.shareID) ?
+                                              <TouchableOpacity onPress={() => { stopAudio(item.shareID), setSoundPlayID('') }}>
+                                                <AntDesign name={"sound"} size={20} color={userData.data.colors.mainTheme} />
+                                              </TouchableOpacity>
+                                              :
+                                              <TouchableOpacity style={{ marginRight: 5 }} onPress={() => { playAudio(postList.data.domain + item.audioFileNPath), setSoundPlayID(item.shareID) }}>
+                                                <AntDesign name={"play"} size={25} color={userData.data.colors.mainTheme} />
+                                              </TouchableOpacity>
+                                          }
+                                          <View style={{ flex: 1 }}>
+                                            <Text style={{ color: SWATheam.SwaBlack }}>{audioName}</Text>
+                                          </View>
+                                        </View>
+                                        <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                                          <TouchableOpacity style={{ padding: 5 }} onPress={() => viewDocument(postList.data.domain + item.audioFileNPath, 'audio')}>
+                                            <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
+                                          </TouchableOpacity>
+                                        </View>
+                                      </View> : ''
+                                  }
+
+                                  {
+                                    item.docFileNPath ?
+                                      <View style={{ flexDirection: 'row', borderWidth: 0.5, borderColor: SWATheam.SwaGray, borderRadius: 5, marginVertical: 5, marginHorizontal: 10 }}>
+                                        <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }} onPress={() => viewDoc(item, 'doc', postList.data.domain)}>
+                                          <Text style={{ color: SWATheam.SwaBlack }}>{docName}</Text>
+                                        </TouchableOpacity>
+                                        <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                                          <TouchableOpacity onPress={() => viewDocument(item, 'doc', postList.data.domain)} style={{ padding: 5 }}>
+                                            <Octicons name={"download"} size={20} color={SWATheam.SwaBlack} />
+                                          </TouchableOpacity>
+                                        </View>
+                                      </View> : ''
+                                  }
+
+                                  {
+                                    item.ytLink ?
+                                      <TouchableOpacity
+                                        style={{
+                                          flexDirection: 'row',
+                                          borderWidth: 0.5,
+                                          borderColor: SWATheam.SwaGray,
+                                          borderRadius: 5,
+                                          marginVertical: 5,
+                                          marginHorizontal: 10,
+                                          padding: 10,
+                                          alignItems: 'center',
+                                          backgroundColor: '#FFF0F0'
+                                        }}
+                                        onPress={() => {
+                                          const url = item.ytLink.startsWith('http') ? item.ytLink : 'https://' + item.ytLink;
+                                          Linking.openURL(url).catch(err => console.log('YouTube link error:', err));
+                                        }}
+                                      >
+                                        <FontAwesome name={"youtube-play"} size={30} color={"#FF0000"} />
+                                        <View style={{ flex: 1, marginLeft: 10 }}>
+                                          <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }} numberOfLines={1}>{item.ytLink}</Text>
+                                          <Text style={{ color: SWATheam.SwaGray, fontSize: 12, marginTop: 2 }}>Tap to watch on YouTube</Text>
+                                        </View>
+                                        <Feather name={"external-link"} size={18} color={SWATheam.SwaGray} />
+                                      </TouchableOpacity>
+                                      : null
+                                  }
+
+                                  <View style={{ flexDirection: 'row', paddingLeft: 10, paddingVertical: 5, marginBottom: 5 }}>
+                                    <Text style={{ flex: 1, color: SWATheam.SwaBlack, fontWeight: '500', paddingLeft: 8 }}>
+                                      {item.sharingContent}
+                                    </Text>
+                                  </View>
+                                  <View style={{ flexDirection: 'row', paddingHorizontal: 5, paddingVertical: 8, borderTopWidth: 0.5, borderColor: SWATheam.SwaGray, justifyContent: 'space-between' }}>
+                                    <View>
+                                      {
+                                        postLikeTotal?.data?.map((likeData, index) => {
+                                          if (item.shareID == likeData.shareID) {
+                                            return (
+                                              <Text style={{ flex: 1, color: '#198754', fontWeight: '500' }} key={index}>
+                                                Likes : {likeData.likeCount == null ? 0 : likeData.likeCount}
+                                              </Text>
+                                            )
+                                          }
+                                        })
+
+                                      }
+                                    </View>
+                                    <View>
+                                      <TouchableOpacity onPress={() => { getPostComments(item.shareID), SetShowCommentPopUp(true) }}>
+                                        <FontAwesome name={"commenting-o"} size={20} color={'#198754'} />
                                       </TouchableOpacity>
                                     </View>
                                   </View>
+                                  <View style={{ flexDirection: 'row', paddingHorizontal: 5, paddingVertical: 8, borderTopWidth: 0.5, borderColor: SWATheam.SwaGray, alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                      {
+                                        postList.data.likeAction.map((likeID, index) => {
+                                          const postID = item.shareID
+                                          const ID = likeID.shareID
+                                          if (postID == ID) {
+                                            return (
+                                              <TouchableOpacity key={index} style={{ marginRight: 5 }} onPress={() => { slectLikeDislikeBtn(1, item.shareID, likeID.likeOption) }}>
+                                                {
+                                                  likeID.likeOption == 1 ?
+                                                    <FontAwesome name={"thumbs-up"} size={20} color={userData.data.colors.mainTheme} /> :
+                                                    <FontAwesome name={"thumbs-o-up"} size={20} color={userData.data.colors.mainTheme} />
+                                                }
+                                              </TouchableOpacity>
+                                            )
+                                          }
+                                        })
+                                      }
+
+                                      {
+                                        postList.data.likeAction.map((likeID, index) => {
+                                          const postID = item.shareID
+                                          const ID = likeID.shareID
+                                          if (postID == ID) {
+                                            return (
+                                              <TouchableOpacity key={index} onPress={() => slectLikeDislikeBtn(0, item.shareID, likeID.likeOption)}>
+                                                {
+                                                  likeID.likeOption == 0 ?
+                                                    <FontAwesome name={"thumbs-down"} size={20} color={'#dc3545'} /> :
+                                                    <FontAwesome name={"thumbs-o-down"} size={20} color={'#dc3545'} />
+                                                }
+                                              </TouchableOpacity>
+                                            )
+                                          }
+                                        })
+                                      }
+                                    </View>
+                                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                                      <View style={{ flex: 1, marginHorizontal: 8 }}>
+                                        <TextInput
+                                          value={shareIDSaved == item.shareID ? comment : null}
+                                          style={[styles.input, { color: SWATheam.SwaGray, height: 30, padding: 5, marginBottom: 0, paddingStart: 8 }]} onChangeText={setComment} onFocus={() => checkField(item.shareID)} placeholder='Add a comment...'
+                                          placeholderTextColor={SWATheam.SwaGray}
+
+                                        />
+                                      </View>
+                                      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                        <TouchableOpacity onPress={() => addCommentOnPost(item.userRefID, item.shareID)}>
+                                          <Ionicons name={"send"} size={20} color={'#198754'} />
+                                        </TouchableOpacity>
+                                      </View>
+                                    </View>
+                                  </View>
                                 </View>
-                              </View>
-                            )
-                          }
-                          else {
-                            return (
-                              <View style={{ backgroundColor: SWATheam.SwaWhite, padding: 5, borderRadius: 5, elevation: 9 }} key={index}>
-                                <Text style={{ color: 'red', textAlign: 'center', padding: 1, fontSize: font15 }}>No posts</Text>
-                              </View>
-                            )
-                          }
-                        }) : null
+                              )
+                            }
+                            else {
+                              return null;
+                            }
+                          });
+                        })() : null
                     }
                   </ScrollView>
 
@@ -1911,7 +2082,7 @@ const SwaSharing = ({ navigation, route }) => {
                 </View>
             } */}
 
-          {shareGroup.status &&
+          {shareGroup.status && shareGroup.type == 'group' &&
             <BottomDrawerList listItem={shareGroup} closeModule={closeModal} getSelectedItem={selectGroupOpt} selectedField={selectGroup} />
           }
 
@@ -2018,7 +2189,7 @@ const SwaSharing = ({ navigation, route }) => {
                     <View style={{ flex: 1, padding: 8, paddingLeft: 10 }}>
                       <Text style={{ color: SWATheam.SwaBlack }}>{groupFileImg}</Text>
                     </View>
-                    <TouchableOpacity style={{ padding: 8, backgroundColor: userData.data.colors.mainTheme, borderTopRightRadius: 4, borderBottomRightRadius: 4 }} onPress={() => getBrowseImg('image')}>
+                    <TouchableOpacity style={{ padding: 8, backgroundColor: userData.data.colors.mainTheme, borderTopRightRadius: 4, borderBottomRightRadius: 4 }} onPress={() => getBrowseImg('createGroupImg')}>
                       <Text style={{ color: SWATheam.SwaWhite }}>Browse</Text>
                     </TouchableOpacity>
                   </View>
@@ -2036,8 +2207,9 @@ const SwaSharing = ({ navigation, route }) => {
                 <View style={{ marginTop: 10, borderRadius: 5, flex: 1, backgroundColor: userData.data.colors.liteTheme, paddingTop: 5 }}>
                   <ScrollView>
                     {
-                      shareGroup.status ?
-                        shareGroup?.data?.map((item, index) => {
+                      shareGroup.list.length > 0 ?
+                        shareGroup?.list?.map((item, index) => {
+                          // console.log(item, "Sharing?")
                           return (
                             <View style={{ paddingHorizontal: 10, paddingTop: 5, marginBottom: 10, marginHorizontal: 5, backgroundColor: SWATheam.SwaWhite, borderRadius: 5, elevation: 7 }} key={index}>
                               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -2334,7 +2506,7 @@ const SwaSharing = ({ navigation, route }) => {
                     <View style={{ flex: 1, padding: 6, paddingLeft: 10 }}>
                       <Text style={{ color: SWATheam.SwaBlack }}>{newGroupFileImg}</Text>
                     </View>
-                    <TouchableOpacity style={{ padding: 6, backgroundColor: SWATheam.SwaGray, borderTopRightRadius: 50, borderBottomRightRadius: 50 }} onPress={() => getBrowseImg('image')}>
+                    <TouchableOpacity style={{ padding: 6, backgroundColor: SWATheam.SwaGray, borderTopRightRadius: 50, borderBottomRightRadius: 50 }} onPress={() => getBrowseImg('editGroupImg')}>
                       <Text style={{ color: SWATheam.SwaWhite }}>Browse</Text>
                     </TouchableOpacity>
                   </View>

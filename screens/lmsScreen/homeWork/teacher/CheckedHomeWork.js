@@ -268,7 +268,7 @@ const CheckedHomeWork = () => {
                                                     </View>
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
                                                         <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item, 1)}>
-                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Atached File</Text>
+                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Attached File</Text>
                                                         </TouchableOpacity>
                                                         <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item, 2)}>
                                                             <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Checked File</Text>

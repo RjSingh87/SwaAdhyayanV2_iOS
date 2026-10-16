@@ -8,6 +8,9 @@ import SwaHeader from '../common/SwaHeader';
 import Services from '../../Services';
 import { apiRoot, SWATheam } from '../../constant/ConstentValue';
 import Loader from '../common/Loader';
+import SelectionBox from '../common/SelectionBox';
+import BottomDrawerList from '../common/BottomDrawerList';
+import MsgModal from '../common/MsgModal';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 const font17 = 17
 const font15 = 15
@@ -55,18 +58,15 @@ const TimeTable = ({ navigation, route }) => {
     const screenName = route?.params?.getMainIconsData != undefined ? route?.params?.iconData?.iconName : route?.params?.mainIconName
     const userID = userData.data.userTypeID
     const [timeTable, setTimeTable] = useState({ data1: null, data2: null, status: true })
-    const [classList, setClassList] = useState({ data: null, status: true })
-    const [sectionList, setSectionList] = useState({ data: null, status: true })
+    const [selectedField, setSelectedField] = useState({ class: null, section: null })
+    const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
+    const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
     const [teacherList, setTeacherList] = useState({ data: null, status: true })
     const [subjectList, setSubjectList] = useState({ data: null, status: true })
     const [showAssignPop, setShowAssignPop] = useState(false)
     const [selectedTeacher, SetSelectedTeacher] = useState()
     const [selectedSubject, SetSelectedSubject] = useState()
-    const [showSelectField1, SetShowSelectField1] = useState(false)
-    const [showSelectField2, SetShowSelectField2] = useState(false)
-    const [selectClass, setSelectClass] = useState({ data: null, radioID: null })
-    const [selectSection, setSelectSection] = useState({ data: null, radioID: null })
-    const [isLoading, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
 
     const [assignTeacherData, setAssignTeacherData] = useState({
         schoolID: "SWA1854060081",
@@ -93,8 +93,10 @@ const TimeTable = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (userID != 2) {
+        if (userID == 5 || userID == 6) {
             getTimeTableData()
+        } else {
+            setIsLoading(false)
         }
     }, []);
 
@@ -105,8 +107,104 @@ const TimeTable = ({ navigation, route }) => {
         setIsInstruction(true)
     }
 
-    function getTimeTableData() {
+    function getListItem(type) {
         setIsLoading(true)
+        if (type == "class") {
+            const payload = {
+                "schoolID": userData.data.schoolID,
+                "userTypeID": userData.data.userTypeID,
+                "userRefID": userData.data.userRefID,
+                "academicYear": userData.data.academicYear
+            }
+            Services.post(apiRoot.getClassList, payload)
+                .then((res) => {
+                    if (res.status == "success") {
+                        setListItem({ list: res.data, status: true, type: type });
+                    } else if (res.status == "error") {
+                        setMsgModalVisible({ msg: res.message, status: true, type: 'error' })
+                        setTimeout(() => {
+                            setMsgModalVisible({ msg: '', status: false, type: '' })
+                        }, 2000)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+                .finally(() => {
+                    setIsLoading(false)
+                })
+        } else if (type == "section") {
+            if (selectedField.class != null) {
+                const payload = {
+                    "schoolID": userData.data.schoolID,
+                    "academicYear": userData.data.academicYear,
+                    "classID": selectedField.class.classID,
+                    "userTypeID": userData.data.userTypeID,
+                    "userRefID": userData.data.userRefID
+                }
+                Services.post(apiRoot.getSectionList, payload)
+                    .then((res) => {
+                        if (res.status == "success") {
+                            setListItem({ list: res.data, status: true, type: type });
+                        } else if (res.status == "error") {
+                            setMsgModalVisible({ msg: res.message, status: true, type: 'error' })
+                            setTimeout(() => {
+                                setMsgModalVisible({ msg: '', status: false, type: '' })
+                            }, 2000)
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+                    .finally(() => {
+                        setIsLoading(false)
+                    })
+            } else {
+                Alert.alert("Info", "Please select class.")
+                setIsLoading(false)
+            }
+        }
+    }
+
+    function getSelectedItem(item, type) {
+        if (type == "class") {
+            setSelectedField((prev) => {
+                return { ...prev, class: item, section: null }
+            })
+            setListItem((prev) => {
+                return { ...prev, status: false }
+            })
+            setTimeTable((prev) => ({ ...prev, status: true }))
+        } else if (type == "section") {
+            setSelectedField((prev) => {
+                return { ...prev, section: item }
+            })
+            setListItem((prev) => {
+                return { ...prev, status: false }
+            })
+            getTimeTableData(dayNo, selectedField?.class?.classID, item.sectionID)
+        }
+    }
+
+    function closeModule() {
+        setListItem((prev) => {
+            return { ...prev, status: false }
+        });
+    }
+
+    function getTimeTableData(day, classID, sectionID) {
+        setIsLoading(true)
+        allTeacherArr.length = 0
+        allsubjectArr.length = 0
+        allTeacherIDArr.length = 0
+        allsubjectIDArr.length = 0
+        allsectionArr.length = 0
+        pDCount = 0
+
+        const selectedDay = day !== undefined ? day : dayNo
+        const targetClassID = classID || selectedField?.class?.classID || (userData.data.userTypeID == 5 || userData.data.userTypeID == 6 ? userData.data.classID : null)
+        const targetSectionID = sectionID || selectedField?.section?.sectionID || (userData.data.userTypeID == 5 || userData.data.userTypeID == 6 ? userData.data.sectionID : null)
+
         const payload = {
             "userRefID": userData.data.userRefID,
             "schoolID": userData.data.schoolID,
@@ -114,13 +212,17 @@ const TimeTable = ({ navigation, route }) => {
             "userTypeID": userData.data.userTypeID,
         }
 
-        if (userData.data.userTypeID == 5 || userData.data.userTypeID == 6) {
-            payload["classID"] = userData.data.classID
-            payload["sectionID"] = userData.data.sectionID
+        if (targetClassID) {
+            payload["classID"] = targetClassID
         }
+        if (targetSectionID) {
+            payload["sectionID"] = targetSectionID
+        }
+
         Services.post(apiRoot.timeTable, payload)
             .then((res) => {
                 if (res.status == "success") {
+                    console.log({ payload, res }, "Pyaloaand res")
                     setIsLoading(false)
                     const data = res.data.structure.structure
                     const structure = data.split(',')
@@ -223,65 +325,6 @@ const TimeTable = ({ navigation, route }) => {
 
     }
 
-    function getClassAndSecList(name) {
-        if (name == 'class') {
-            if (selectSection.data != null) {
-                selectSection.data.sectionName = "Select Class"
-                setSelectSection((prev) => {
-                    return { ...prev, data: null, radioID: null }
-                })
-            }
-            const payload = {
-                "schoolID": userData.data.schoolID,
-                "userTypeID": userData.data.userTypeID,
-            }
-            Services.post(apiRoot.getClassList, payload)
-                .then((res) => {
-                    if (res.status == "success") {
-                        SetShowSelectField1(true)
-                        const data = res.data
-                        setClassList((prev) => {
-                            return { ...prev, data: data, status: false }
-                        })
-                    }
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-
-                })
-        }
-        else {
-            if (classList.data != null) {
-                const payload = {
-                    "userRefID": userData.data.userRefID,
-                    "schoolID": userData.data.schoolID,
-                    "academicYear": userData.data.academicYear,
-                    "userTypeID": userData.data.userTypeID,
-                    "classID": selectClass.data.classID,
-                }
-                Services.post(apiRoot.getSectionList, payload)
-                    .then((res) => {
-                        console.log(res, 'section')
-                        if (res.status == "success") {
-                            SetShowSelectField2(true)
-                            const data = res.data
-                            setSectionList((prev) => {
-                                return { ...prev, data: data, status: false }
-                            })
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                    })
-            } else {
-                alert('Please select class.')
-            }
-            pDCount = 0
-        }
-    }
-
     function getTeachersList() {
         const payload = {
             "schoolID": userData.data.schoolID,
@@ -318,7 +361,7 @@ const TimeTable = ({ navigation, route }) => {
         Services.post(apiRoot.assignTimeTableToTeacherApp, payload)
             .then((res) => {
                 if (res.status == "success") {
-                    getTimeTableData(classID, sectionID)
+                    getTimeTableData(dayNo, selectedField?.class?.classID, selectedField?.section?.sectionID)
                 }
             })
         pDCount = 0
@@ -364,28 +407,16 @@ const TimeTable = ({ navigation, route }) => {
         })
     }
 
-    function classOptionSelect(ID, item) {
-        setSelectClass((prev) => {
-            return { ...prev, data: item, radioID: ID }
-        })
-    }
-
-    function sectionOptionSelect(ID, item) {
-        setSelectSection((prev) => {
-            return { ...prev, data: item, radioID: ID }
-        })
-    }
-
     function assignTeacherBtn(cellData) {
         setAssignTeacherData((prev) => {
-            return { ...prev, cellData: cellData, classID: selectClass.radioID, sectionID: selectSection.radioID, templateID: templateID }
+            return { ...prev, cellData: cellData, classID: selectedField?.class?.classID, sectionID: selectedField?.section?.sectionID, templateID: templateID }
         })
     }
 
     function deleteTeacher(celData, index) {
         const cellData = celData
-        const classID = selectClass.radioID
-        const sectionID = selectSection.radioID
+        const classID = selectedField?.class?.classID
+        const sectionID = selectedField?.section?.sectionID
         const teacherID = allTeacherIDArr[index]
         const subjectID = allsubjectIDArr[index]
 
@@ -402,16 +433,16 @@ const TimeTable = ({ navigation, route }) => {
         Services.post(apiRoot.deAssignTeacherTimeTableApp, payload)
             .then((res) => {
                 if (res.status == "success") {
-                    getTimeTableData(classID, sectionID)
+                    getTimeTableData(dayNo, classID, sectionID)
                 }
             })
         pDCount = 0
     }
 
     function searchClassTable() {
-        getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID)
+        getTimeTableData(dayNo, selectedField?.class?.classID, selectedField?.section?.sectionID)
     }
-    console.log(isLoading)
+    // console.log(isLoading, "Loading status")
     return (
         <>
             <View style={{ flex: 1, paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
@@ -419,43 +450,10 @@ const TimeTable = ({ navigation, route }) => {
                 {isLoading ?
                     <Loader /> :
                     <>
-                        {userID == 2 ?
-                            <View style={{ paddingVertical: 8, paddingHorizontal: 5, backgroundColor: SWATheam.SwaWhite }}>
-                                <View>
-                                    <TouchableHighlight onPress={() => getClassAndSecList('class')} underlayColor="#fff" style={{ borderRadius: 50, borderWidth: 2, borderColor: greyClr, marginBottom: 5 }}>
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <View style={{ flex: 1 }}>
-                                                {
-                                                    selectClass.data == null ?
-                                                        <Text style={{ fontSize: font15, padding: 10 }}>Select Class</Text> :
-                                                        <Text style={{ fontSize: font15, padding: 10 }}>{selectClass.data.className}</Text>
-                                                }
-                                            </View>
-                                            <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }}>
-                                                <Entypo name={"chevron-thin-down"} size={20} color={'#000'} />
-                                            </View>
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
-                                <View>
-                                    <TouchableHighlight onPress={() => getClassAndSecList('section')} underlayColor="#fff" style={{ borderRadius: 50, borderWidth: 2, borderColor: greyClr, marginBottom: 5 }}>
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <View style={{ flex: 1 }}>
-                                                {
-                                                    selectSection.data == null ?
-                                                        <Text style={{ fontSize: font15, padding: 10 }}>Select Section</Text> :
-                                                        <Text style={{ fontSize: font15, padding: 10 }}>{selectSection.data.sectionName}</Text>
-                                                }
-                                            </View>
-                                            <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 10 }}>
-                                                <Entypo name={"chevron-thin-down"} size={20} color={'#000'} />
-                                            </View>
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
-                                <TouchableOpacity style={{ width: 130, alignSelf: 'center', borderRadius: 10, backgroundColor: userData.data.colors.mainTheme, paddingHorizontal: 30, paddingVertical: 8, marginVertical: 10 }} onPress={() => searchClassTable()}>
-                                    <Text style={{ color: '#fff', textAlign: 'center' }}>Search</Text>
-                                </TouchableOpacity>
+                        {userID != 5 && userID != 6 ?
+                            <View style={{ paddingVertical: 8, paddingHorizontal: 10, backgroundColor: SWATheam.SwaWhite }}>
+                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
+                                <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
                             </View> : null
                         }
                         {timeTable.status ?
@@ -471,32 +469,32 @@ const TimeTable = ({ navigation, route }) => {
                                 <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: greyClr, marginVertical: 5, borderRadius: 5, padding: 3 }}>
                                     <View style={{ flex: 1, flexDirection: 'row' }}>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '1' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(1); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(1); getTimeTableData(1, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '1' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Mon</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '2' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(2); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(2); getTimeTableData(2, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '2' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Tue</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '3' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(3); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(3); getTimeTableData(3, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '3' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Wed</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '4' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(4); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(4); getTimeTableData(4, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '4' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Thu</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '5' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(5); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(5); getTimeTableData(5, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '5' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Fri</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flex: 1, borderRadius: 5, margin: 2, backgroundColor: dayNo == '6' ? userData.data.colors.mainTheme : greyClr }}>
-                                            <TouchableOpacity onPress={() => { daySelect(6); getTimeTableData(dayNo, selectClass.radioID, selectSection.radioID) }}>
+                                            <TouchableOpacity onPress={() => { daySelect(6); getTimeTableData(6, selectedField?.class?.classID, selectedField?.section?.sectionID) }}>
                                                 <Text style={[dayNo == '6' ? styles.WtextClr : styles.BtextClr, { fontSize: '500', fontSize: font15, textAlign: 'center', padding: 10 }]}>Sat</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -802,79 +800,11 @@ const TimeTable = ({ navigation, route }) => {
                         }
                         {/* teacher Assign Popup */}
 
-                        {/* select class Field Popup */}
-                        {showSelectField1 &&
-                            <View style={styles.selectFieldPopUp}>
-                                <View style={{ backgroundColor: '#fff', marginHorizontal: 30, padding: 8, height: 300, borderRadius: 5 }}>
-                                    <View style={{ borderWidth: 1, borderColor: greyClr, borderRadius: 5 }}>
-                                        <TouchableOpacity style={{ position: 'absolute', top: -15, right: -15 }} onPress={() => SetShowSelectField1(false)}>
-                                            <Entypo name={"circle-with-cross"} size={30} color={'#343a40'} />
-                                        </TouchableOpacity>
-                                        <ScrollView>
-                                            {
-                                                classList.data?.map((item, index) => {
-                                                    const ID = item.classID
-                                                    return (
-                                                        <TouchableOpacity onPress={() => { classOptionSelect(ID, item), SetShowSelectField1(!showSelectField1) }} key={index}>
-                                                            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: greyClr, flexDirection: 'row', alignItems: 'center' }}>
-                                                                <View style={{ borderWidth: 2, borderColor: 'grey', width: 20, height: 20, justifyContent: 'center', alignItems: 'center', borderRadius: 20 / 2 }}>
-                                                                    <View style={{ width: 10, height: 10, borderRadius: 10 / 2, borderWidth: 2, borderColor: 'grey', justifyContent: 'center', alignItems: 'center' }} value="first">
-                                                                        {
-                                                                            selectClass.radioID === ID ? <View style={{ borderWidth: 2, borderColor: 'grey', backgroundColor: '#0c8781', height: 10, width: 10, borderRadius: 10 / 2 }}></View> : null
-                                                                        }
-                                                                    </View>
-                                                                </View>
-                                                                <Text style={{ paddingLeft: 10, fontSize: font15 }}>
-                                                                    {item.className}
-                                                                </Text>
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    )
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </View>
-                                </View>
-                            </View>
+                        {listItem.status ?
+                            <BottomDrawerList closeModule={closeModule} listItem={listItem} getSelectedItem={getSelectedItem} selectedField={selectedField} /> : null
                         }
-                        {/* select class Field Popup */}
 
-                        {/* select section Field Popup */}
-                        {showSelectField2 &&
-                            <View style={styles.selectFieldPopUp}>
-                                <View style={{ backgroundColor: '#fff', marginHorizontal: 30, padding: 10, height: 300, borderRadius: 5 }}>
-                                    <View style={{ borderWidth: 1, borderColor: greyClr, borderRadius: 5 }}>
-                                        <TouchableOpacity style={{ position: 'absolute', top: -15, right: -15 }} onPress={() => SetShowSelectField2(false)}>
-                                            <Entypo name={"circle-with-cross"} size={30} color={'#343a40'} />
-                                        </TouchableOpacity>
-                                        <ScrollView>
-                                            {
-                                                sectionList.data?.map((item, index) => {
-                                                    const ID = item.sectionID
-                                                    return (
-                                                        <TouchableOpacity onPress={() => { sectionOptionSelect(ID, item), SetShowSelectField2(!showSelectField2) }} key={index}>
-                                                            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: greyClr, flexDirection: 'row', alignItems: 'center' }}>
-                                                                <View style={{ borderWidth: 2, borderColor: 'grey', width: 20, height: 20, justifyContent: 'center', alignItems: 'center', borderRadius: 20 / 2 }}>
-                                                                    <View style={{ width: 10, height: 10, borderRadius: 10 / 2, borderWidth: 2, borderColor: 'grey', justifyContent: 'center', alignItems: 'center' }} value="first">
-                                                                        {
-                                                                            selectClass.radioID === ID ? <View style={{ borderWidth: 2, borderColor: 'grey', backgroundColor: '#0c8781', height: 10, width: 10, borderRadius: 10 / 2 }}></View> : null
-                                                                        }
-                                                                    </View>
-                                                                </View>
-                                                                <Text style={{ paddingLeft: 10, fontSize: font15 }}>
-                                                                    {item.sectionName}
-                                                                </Text>
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    )
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </View>
-                                </View>
-                            </View>
-                        }
-                        {/* select class Field Popup */}
+                        <MsgModal msgModalVisible={msgModalVisible} />
 
                     </>
                 }

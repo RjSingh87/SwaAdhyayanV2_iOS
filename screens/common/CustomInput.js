@@ -29,6 +29,7 @@ const CustomInput = ({ placeHolder, value, defaultValue, onChangeText, maxLength
         secureTextEntry={secure}
         editable={editable == 'false' ? false : true}
         placeholderTextColor={SWATheam.SwaGray}
+        autoCapitalize="none"
         style={{ height: 40, width: '100%', paddingLeft: 5, flex: 1, color: SWATheam.SwaBlack, }} />
       {inputName == "password" &&
         <TouchableOpacity style={{ width: 45, justifyContent: 'center', alignItems: 'center' }}

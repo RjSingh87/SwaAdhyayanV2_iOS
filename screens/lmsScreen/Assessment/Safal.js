@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import SwaHeader from '../../common/SwaHeader'
 import { GlobleData } from '../../../Store'
 import SelectionBox from '../../common/SelectionBox'
@@ -8,6 +8,7 @@ import { apiRoot } from '../../../constant/ConstentValue'
 import BottomDrawerList from '../../common/BottomDrawerList'
 import Loader from '../../common/Loader'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import CbseSafal from '../CBSE_Safal/CbseSafal'
 
 
 const Safal = ({ navigation, route }) => {
@@ -18,6 +19,10 @@ const Safal = ({ navigation, route }) => {
     const [selectedField, setSelectedField] = useState({ class: null, section: null, subject: null, set: null, type: null })
     const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
     const [loading, setLoading] = useState(false)
+
+    // useEffect(() => {
+    //     navigation.navigate('cbseSafal',)
+    // }, [])
 
     function onClickLeftIcon() {
         navigation.goBack()
@@ -57,6 +62,7 @@ const Safal = ({ navigation, route }) => {
                         setListItem((prev) => {
                             return { ...prev, list: classList, status: showstatus, type: val }
                         });
+
                     } else if (res.status == "error") {
                         alert(res.message)
                         setLoading(false)
@@ -165,6 +171,7 @@ const Safal = ({ navigation, route }) => {
             setSelectedField((prev) => {
                 return { ...prev, class: item, section: null, subject: null, set: null, type: null }
             })
+            // navigation.navigate('cbseSafal', { classId: item })
             setListItem((prev) => {
                 return { ...prev, status: false }
             })
@@ -246,15 +253,17 @@ const Safal = ({ navigation, route }) => {
                 <Loader /> :
                 <>
                     <SwaHeader title={"CBSE SAFAL & Other Competitive Exams"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+
                     <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
                         <View style={{ padding: 10 }}>
                             <SelectionBox getListItem={getListItem} selectedField={selectedField?.class?.getClassDetail?.classDesc} type="class" placeholder="Select class" />
-                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
+                            {/* <SelectionBox getListItem={getListItem} selectedField={selectedField?.section?.sectionName} type="section" placeholder="Select section" />
                             <SelectionBox getListItem={getListItem} selectedField={selectedField?.subject?.subjectName} type="subject" placeholder="Select subject" />
                             <SelectionBox getListItem={getListItem} selectedField={selectedField?.set?.setName} type="set" placeholder="Select set" />
-                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.type?.type} type="QAns" placeholder="Select Question/Answer" />
-
+                            <SelectionBox getListItem={getListItem} selectedField={selectedField?.type?.type} type="QAns" placeholder="Select Question/Answer" /> */}
                         </View>
+
+                        <CbseSafal classId={selectedField?.class} headerDisplay={"none"} />
 
                     </View>
                     {listItem.status ?

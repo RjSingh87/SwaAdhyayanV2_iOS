@@ -8,61 +8,54 @@ import {
 	Image,
 	Modal,
 	StatusBar,
+	Alert,
 } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import { TextInput } from 'react-native-paper';
-import DatePicker from 'react-native-date-picker'
-import { Checkbox } from 'react-native-paper';
+import { TextInput, Checkbox } from 'react-native-paper';
+import DatePicker from 'react-native-date-picker';
 import SwaHeader from "../../common/SwaHeader";
 import { GlobleData } from "../../../Store";
 import Services from "../../../Services";
 import { apiRoot, SWATheam } from "../../../constant/ConstentValue";
 import Loader from "../../common/Loader";
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import dataObject from "../../../dataObject";
-
 
 export default function LiveClass({ navigation, route }) {
-
-
-	const objData = Object.entries(dataObject)
-	// console.log(objData, "DATAobje.")
-	const mapping = objData.map((item, index) => {
-		console.log(item, "VARRRR")
-		return (
-			<View>
-				<Text>{item}</Text>
-			</View>
-		)
-	})
-
-
-
 	const insets = useSafeAreaInsets();
-	const { userData } = useContext(GlobleData)
-	const [clickedName, setClickedName] = useState();
-	const [clsList, setClsList] = useState();
-	const [clsIds, setClsIds] = useState();
-	const [sectIds, setSectIds] = useState();
-	const [subjectIds, setSubjectds] = useState();
-	const [sectionList, setsectionList] = useState();
-	const [subjectList, setSubjectList] = useState();
-	const [actAnyNone, setactAnyNone] = useState([]);
-	const [studentList, setStudentList] = useState();
-	const [date, setDate] = useState(new Date())
-	const [open, setOpen] = useState(false)
-	const [open2, setOpen2] = useState(false)
-	const [stuNameStore, setStuNameStore] = useState([]);
+	const { userData } = useContext(GlobleData);
+
+	const [clickedName, setClickedName] = useState('');
+	const [clsList, setClsList] = useState([]);
+	const [clsIds, setClsIds] = useState(null);
+	const [sectIds, setSectIds] = useState(null);
+	const [subjectIds, setSubjectds] = useState(null);
+	const [sectionList, setsectionList] = useState([]);
+	const [subjectList, setSubjectList] = useState([]);
+	const [actAnyNone, setactAnyNone] = useState('');
+	const [studentList, setStudentList] = useState([]);
+
+	const [startDateObj, setStartDateObj] = useState(new Date());
+	const [endDateObj, setEndDateObj] = useState(new Date());
+	const [open, setOpen] = useState(false);
+	const [open2, setOpen2] = useState(false);
 	const [formattedDateTime, setFormattedDateTime] = useState('');
 	const [formattedDateTime2, setFormattedDateTime2] = useState('');
+
+	const [stuNameStore, setStuNameStore] = useState('');
+	const [studentIdStore, setStudentIdStore] = useState([]);
+	const [totalLength, setTotalLength] = useState(0);
+	const [studentHolder, setStudentHolder] = useState(false);
+	const [stuListModel, setstuListModel] = useState(false);
+
 	const [fillData, setFillData] = useState({
 		topic: '',
 		instruction: '',
 		meetUrl: ''
-	})
+	});
 
 	const [isLoad, setIsload] = useState(false);
+
 	const data = [
 		{
 			id: "1",
@@ -80,16 +73,18 @@ export default function LiveClass({ navigation, route }) {
 			imgPath: require("../../assets/3.png")
 		},
 	];
+
 	const data2 = [
 		{
 			id: '1',
-			btnName: 'Whole Classes'
+			btnName: 'Whole Class'
 		},
 		{
 			id: '2',
 			btnName: 'Selected Students'
 		},
 	];
+
 	const [selectItem, setSelectItem] = useState({
 		class: 'Select',
 		section: 'Select',
@@ -107,30 +102,20 @@ export default function LiveClass({ navigation, route }) {
 		assignTO: false
 	});
 
-
-
 	const [meetingIds, setMeetingIds] = useState('1');
-	const [studentIdStore, setStudentIdStore] = useState([]);
-	const [totalLength, setTotalLength] = useState(0);
-	const [studentHolder, setStudentHolder] = useState(false);
-	const [stuListModel, setstuListModel] = useState(false);
-	const [currentDate, setCurrentDate] = useState(null)
-	useEffect(() => {
-		formatCurrentDate()
-
-	}, [])
 
 	useEffect(() => {
 		setTotalLength(studentList?.length || 0);
 	}, [studentList]);
 
-
 	function onClickLeftIcon() {
-		navigation.goBack()
+		navigation.goBack();
 	}
+
 	function onClickRightIcon() {
 		// setIsInstruction(true)
 	}
+
 	const formatDateTime = (date) => {
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -139,41 +124,38 @@ export default function LiveClass({ navigation, route }) {
 		const minutes = String(date.getMinutes()).padStart(2, '0');
 		return `${year}/${month}/${day} ${hours}:${minutes}`;
 	};
-	function selectMeetType(meetIds) {
-		setMeetingIds(meetIds)
-	}
-	function hideBoxModel() {
-		setSelectlist((x) => {
-			return { ...x, modelBox: false }
-		})
-	}
-	function showPopup(num, listName) {
-		setSelectlist((x) => {
-			return { ...x, modelBox: true };
-		});
-		if (num === 1) {
-			setIsload(true)
-			setClickedName(listName);
-			setSelectlist((prev) => {
-				return { ...prev, classList: true };
-			});
-			setSelectlist((prev) => {
-				return { ...prev, sectionList: false };
-			});
 
+	function selectMeetType(meetIds) {
+		setMeetingIds(meetIds);
+	}
+
+	function hideBoxModel() {
+		setSelectlist((x) => ({ ...x, modelBox: false }));
+	}
+
+	function showPopup(num, listName) {
+		if (num === 1) {
+			setClickedName(listName);
+			setSelectlist({
+				modelBox: true,
+				classList: true,
+				sectionList: false,
+				subjectList: false,
+				assignTO: false
+			});
+			setIsload(true);
 			const payload = {
-				"schoolID": userData.data.schoolID,
-				"userTypeID": userData.data.userTypeID,
-				"userRefID": userData.data.userRefID,
-				"academicYear": userData.data.academicYear
-			}
+				schoolID: userData.data.schoolID,
+				userTypeID: userData.data.userTypeID,
+				userRefID: userData.data.userRefID,
+				academicYear: userData.data.academicYear
+			};
 			Services.post(apiRoot.getClassList, payload)
 				.then((result) => {
 					if (result.status === "success") {
-						setClsList(result.data);
-						setIsload(false);
+						setClsList(result.data || []);
 					} else {
-						alert(result.message);
+						alert(result.message || "Failed to get class list");
 					}
 				})
 				.catch((err) => {
@@ -182,30 +164,33 @@ export default function LiveClass({ navigation, route }) {
 				.finally(() => {
 					setIsload(false);
 				});
-		}
-		else if (num === 2) {
-			setIsload(true)
-			setClickedName(listName);
-			setSelectlist((prev) => {
-				return { ...prev, classList: false };
-			});
-			setSelectlist((prev) => {
-				return { ...prev, sectionList: true };
-			});
-			const payload = {
-				"classID": clsIds,
-				"schoolID": userData.data.schoolID,
-				"userTypeID": userData.data.userTypeID,
-				"userRefID": userData.data.userRefID,
-				"academicYear": userData.data.academicYear
+		} else if (num === 2) {
+			if (!clsIds) {
+				alert('Please select Class first');
+				return;
 			}
+			setClickedName(listName);
+			setSelectlist({
+				modelBox: true,
+				classList: false,
+				sectionList: true,
+				subjectList: false,
+				assignTO: false
+			});
+			setIsload(true);
+			const payload = {
+				classID: clsIds,
+				schoolID: userData.data.schoolID,
+				userTypeID: userData.data.userTypeID,
+				userRefID: userData.data.userRefID,
+				academicYear: userData.data.academicYear
+			};
 			Services.post(apiRoot.getSectionList, payload)
 				.then((result) => {
 					if (result.status === "success") {
-						setsectionList(result.data);
-						setIsload(false);
+						setsectionList(result.data || []);
 					} else {
-						alert(result.message);
+						alert(result.message || "Failed to get section list");
 					}
 				})
 				.catch((err) => {
@@ -214,34 +199,38 @@ export default function LiveClass({ navigation, route }) {
 				.finally(() => {
 					setIsload(false);
 				});
-		}
-		else if (num === 3) {
-			setIsload(true)
-			setClickedName(listName);
-			setSelectlist((prev) => {
-				return { ...prev, classList: false };
-			});
-			setSelectlist((prev) => {
-				return { ...prev, sectionList: false };
-			});
-			setSelectlist((prev) => {
-				return { ...prev, subjectList: true };
-			});
-			const payLoad = {
-				"classID": clsIds,
-				"schoolID": userData.data.schoolID,
-				"userTypeID": userData.data.userTypeID,
-				"userRefID": userData.data.userRefID,
-				"sectionID": sectIds,
-				"academicYear": userData.data.academicYear
+		} else if (num === 3) {
+			if (!clsIds) {
+				alert('Please select Class first');
+				return;
 			}
+			if (!sectIds) {
+				alert('Please select Section first');
+				return;
+			}
+			setClickedName(listName);
+			setSelectlist({
+				modelBox: true,
+				classList: false,
+				sectionList: false,
+				subjectList: true,
+				assignTO: false
+			});
+			setIsload(true);
+			const payLoad = {
+				classID: clsIds,
+				schoolID: userData.data.schoolID,
+				userTypeID: userData.data.userTypeID,
+				userRefID: userData.data.userRefID,
+				sectionID: sectIds,
+				academicYear: userData.data.academicYear
+			};
 			Services.post(apiRoot.getSubjectList, payLoad)
 				.then((result) => {
 					if (result.status === "success") {
-						setSubjectList(result.data);
-						setIsload(false);
+						setSubjectList(result.data || []);
 					} else {
-						alert(result.message);
+						alert(result.message || "Failed to get subject list");
 					}
 				})
 				.catch((err) => {
@@ -252,197 +241,266 @@ export default function LiveClass({ navigation, route }) {
 				});
 		}
 	}
+
 	function getClass(clsName, classIDS) {
-		setClsIds(classIDS)
-		setSelectItem((x) => {
-			return { ...x, class: clsName }
-		})
-		setTimeout(() => {
-			setSelectlist((x) => {
-				return { ...x, modelBox: false }
-			})
-		}, 1000);
-
+		setClsIds(classIDS);
+		setSelectItem((prev) => ({
+			...prev,
+			class: clsName,
+			section: 'Select',
+			subject: 'Select',
+		}));
+		// Reset downstream selections
+		setSectIds(null);
+		setsectionList([]);
+		setSubjectds(null);
+		setSubjectList([]);
+		setStudentList([]);
+		setStudentIdStore([]);
+		setStuNameStore('');
+		setactAnyNone('');
+		setStudentHolder(false);
+		setSelectlist((prev) => ({ ...prev, modelBox: false }));
 	}
+
 	function getSection(name, secIds) {
-		setSectIds(secIds)
-		setSelectItem((x) => {
-			return { ...x, section: name }
-		})
-		setTimeout(() => {
-			setSelectlist((x) => {
-				return { ...x, modelBox: false }
-			})
-		}, 1000);
-
+		setSectIds(secIds);
+		setSelectItem((prev) => ({
+			...prev,
+			section: name,
+			subject: 'Select',
+		}));
+		// Reset downstream selections
+		setSubjectds(null);
+		setSubjectList([]);
+		setStudentList([]);
+		setStudentIdStore([]);
+		setStuNameStore('');
+		setactAnyNone('');
+		setStudentHolder(false);
+		setSelectlist((prev) => ({ ...prev, modelBox: false }));
 	}
+
 	function getSubject(name, subIds) {
-		setSubjectds(subIds)
-		setSelectItem((x) => {
-			return { ...x, subject: name }
-		})
-		setTimeout(() => {
-			setSelectlist((x) => {
-				return { ...x, modelBox: false }
-			})
-		}, 1000);
+		setSubjectds(subIds);
+		setSelectItem((prev) => ({
+			...prev,
+			subject: name,
+		}));
+		// Reset downstream selections
+		setStudentList([]);
+		setStudentIdStore([]);
+		setStuNameStore('');
+		setactAnyNone('');
+		setStudentHolder(false);
+		setSelectlist((prev) => ({ ...prev, modelBox: false }));
 	}
 
 	function assignToModel() {
-		if (studentList?.length) {
-			setstuListModel(true)
-		} else {
-			alert('Student not found.')
+		if (!clsIds) {
+			alert('Please select Class first');
+			return;
 		}
+		if (!sectIds) {
+			alert('Please select Section first');
+			return;
+		}
+		if (!subjectIds) {
+			alert('Please select Subject first');
+			return;
+		}
+		setstuListModel(true);
 	}
+
 	function closeAssignModal() {
-		setstuListModel(false)
-	}
-	function selectAnyNone(ids) {
-		setactAnyNone(ids)
-		if (ids == 2) {
-			setIsload(true)
-			const payLoad = {
-				"classID": clsIds,
-				"schoolID": userData.data.schoolID,
-				"sectionID": sectIds,
-				"subjectID": subjectIds,
-				"academicYear": userData.data.academicYear
+		if (actAnyNone === '2') {
+			const currentIds = Array.isArray(studentIdStore) ? studentIdStore : [];
+			if (currentIds.length === 0) {
+				// No specific students selected – show a generic label
+				setStuNameStore('Selected Students');
+			} else if (studentList && currentIds.length === studentList.length) {
+				setStuNameStore(`All (${currentIds.length} Students)`);
+			} else if (currentIds.length === 1) {
+				const stu = studentList?.find(s => s.getStudentName.studentID === currentIds[0]);
+				setStuNameStore(stu ? stu.getStudentName.firstName : '1 Student Selected');
+			} else {
+				setStuNameStore(`${currentIds.length} Students Selected`);
 			}
-			Services.post(apiRoot.getStudentListForLiveClass, payLoad)
-				.then((result) => {
-					if (result.status === "success") {
-						setStudentList(result.data);
-						setIsload(false);
-						setStudentHolder(true)
-					} else {
-						alert(result.message);
+		}
+		setstuListModel(false);
+	}
+
+	function fetchStudentList() {
+		setIsload(true);
+		const payLoad = {
+			classID: clsIds,
+			schoolID: userData.data.schoolID,
+			sectionID: sectIds,
+			subjectID: subjectIds,
+			academicYear: userData.data.academicYear
+		};
+		Services.post(apiRoot.getStudentListForLiveClass, payLoad)
+			.then((result) => {
+				if (result.status === "success") {
+					setStudentList(result.data || []);
+					setStudentHolder(true);
+					if (studentIdStore === 'All') {
+						setStudentIdStore([]);
+						setStuNameStore('');
 					}
-				})
-				.catch((err) => {
-					console.log(err);
-				})
-				.finally(() => {
-					setIsload(false);
-				});
-		}
-		else if (ids == 1) {
-			setStudentHolder(false)
-			setStudentIdStore("All")
-			setStuNameStore('All')
-		}
-
+				} else {
+					alert(result.message || 'No students found');
+					setStudentList([]);
+					setStudentHolder(true);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				alert('Failed to fetch students');
+			})
+			.finally(() => {
+				setIsload(false);
+			});
 	}
+
+	function selectAnyNone(ids) {
+		setactAnyNone(ids);
+		if (ids === '1') {
+			setStudentHolder(false);
+			setStudentIdStore('All');
+			setStuNameStore('Whole Class');
+		} else if (ids === '2') {
+			if (studentList && studentList.length > 0) {
+				setStudentHolder(true);
+				if (studentIdStore === 'All') {
+					setStudentIdStore([]);
+					setStuNameStore('Selected Student');
+				}
+			} else {
+				fetchStudentList();
+			}
+		}
+	}
+
 	function selectStudent(sId, stuNames) {
-		// setStuNameStore(stuNames)
-		setStudentIdStore((prev) => {
-			if (prev.includes(sId)) {
-				// Remove the ID if it's already in the list
-				return prev.filter(id => id !== sId);
-			} else {
-				// Add the ID if it's not in the list
-				return [...prev, sId];
-			}
-		});
-		setStuNameStore((prev) => {
-			const formattedStuNames = `${stuNames} ,` //stuNames + ' ,'; 
-			if (prev.includes(formattedStuNames)) {
-				// Remove the ID if it's already in the list
-				return prev.filter(id => id !== formattedStuNames);
-			} else {
-				// Add the ID if it's not in the list
-				return [...prev, formattedStuNames + ','];
-			}
-		});
+		const currentIds = Array.isArray(studentIdStore) ? [...studentIdStore] : [];
+		const index = currentIds.indexOf(sId);
+		let updatedIds;
+		if (index > -1) {
+			updatedIds = currentIds.filter(id => id !== sId);
+		} else {
+			updatedIds = [...currentIds, sId];
+		}
+		setStudentIdStore(updatedIds);
+
+		if (updatedIds.length === 0) {
+			setStuNameStore('');
+		} else if (studentList && updatedIds.length === studentList.length) {
+			setStuNameStore(`All (${updatedIds.length} Students)`);
+		} else if (updatedIds.length === 1) {
+			const stu = studentList?.find(s => s.getStudentName.studentID === updatedIds[0]);
+			setStuNameStore(stu ? stu.getStudentName.firstName : stuNames);
+		} else {
+			setStuNameStore(`${updatedIds.length} Students Selected`);
+		}
 	}
+
 	const selectAll = () => {
-		if (studentIdStore.length === totalLength) {
-			// Deselect all if all are already selected
+		if (!studentList || studentList.length === 0) return;
+		const allStudentIds = studentList.map((item) => item.getStudentName.studentID);
+		const currentIds = Array.isArray(studentIdStore) ? studentIdStore : [];
+		if (currentIds.length === allStudentIds.length) {
 			setStudentIdStore([]);
+			setStuNameStore('');
 		} else {
-			// Select all students
-			const allStudentIds = studentList.map((item) => item.getStudentName.studentID);
 			setStudentIdStore(allStudentIds);
-		}
-
-		if (studentIdStore.length === totalLength) {
-			// Deselect all if all are already selected
-			setStuNameStore([]);
-		} else {
-			// Select all students
-			const allStudentNms = studentList.map((item) => item.getStudentName.firstName);
-			setStuNameStore(allStudentNms);
+			setStuNameStore(`All (${allStudentIds.length} Students)`);
 		}
 	};
+
 	const handleChange = (name, value) => {
-		setFillData({
-			...fillData,
+		setFillData((prev) => ({
+			...prev,
 			[name]: value
-		});
+		}));
 	};
-
-	function formattedStringToTimestamp(formattedStr) {
-		// console.info( 'formated :: ', formattedStr )
-		if (!formattedStr) return NaN;
-		const [datePart, timePart] = formattedStr.split(' ');
-		if (!datePart || !timePart) return NaN;
-		const [year, month, day] = datePart.split('/');
-		if (!year || !month || !day) return NaN;
-		const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`;
-		return new Date(iso).getTime();
-	}
-
-	function formatCurrentDate() {
-		const now = new Date();
-		const year = now.getFullYear();
-		const month = now.getMonth() + 1;
-		const date = now.getDate();
-		const hour = now.getHours();
-		const minute = now.getMinutes();
-		console.log(year, month, date, hour, minute, 'now')
-		setCurrentDate(`${year}/${month}/${date} ${hour}:${minute}`)
-
-	}
 
 	function assignMeeting() {
-		// const todayCrntDate = formatCurrentDate();
-		console.log('currentDate', currentDate,);
-		console.log('formattedDateTime', formattedDateTime)
-		console.log('formattedDateTime2', formattedDateTime2)
-
-		const currentDateF = formattedStringToTimestamp(currentDate)
-		const startDateNum = formattedStringToTimestamp(formattedDateTime);
-		const endDateNum = formattedStringToTimestamp(formattedDateTime2);
-
-		console.log('currentDate', currentDateF, 'startDateNum', startDateNum, 'endDateNum', endDateNum);
-
-		console.log(startDateNum < currentDateF)
-
-		console.log(startDateNum > endDateNum)
-
-		if (isNaN(startDateNum) || isNaN(endDateNum)) {
-			alert('Please select valid start and end date/time');
+		if (!meetingIds) {
+			alert('Please select a meeting platform');
+			return;
+		}
+		if (!clsIds) {
+			alert('Please select Class');
+			return;
+		}
+		if (!sectIds) {
+			alert('Please select Section');
+			return;
+		}
+		if (!subjectIds) {
+			alert('Please select Subject');
+			return;
+		}
+		// Ensure there are students in the selected class/section
+		if (!studentList || studentList.length === 0) {
+			alert('No students available for the selected class/section');
+			return;
+		}
+		if (actAnyNone === '1') {
+			// Whole Class: no further validation needed
+		} else if (actAnyNone === '2') {
+			if (!Array.isArray(studentIdStore) || studentIdStore.length === 0) {
+				alert('Please select at least one student');
+				return;
+			}
+		}
+		if (!fillData.topic || !fillData.topic.trim()) {
+			alert('Please enter Topic');
+			return;
+		}
+		if (!fillData.meetUrl || !fillData.meetUrl.trim()) {
+			alert('Please enter Meeting URL');
+			return;
+		}
+		if (!formattedDateTime) {
+			alert('Please select Start Date Time');
+			return;
+		}
+		if (!formattedDateTime2) {
+			alert('Please select End Date Time');
 			return;
 		}
 
-		if (startDateNum < currentDateF || startDateNum > endDateNum) {
-			alert('Please select valid date');
+		if (startDateObj.getTime() < Date.now() - 2 * 60 * 1000) {
+			alert('Start Date & Time cannot be in the past');
+			return;
+		}
+		if (endDateObj.getTime() <= startDateObj.getTime()) {
+			alert('End Date & Time must be after Start Date & Time');
 			return;
 		}
 
+		let cleanUrl = fillData.meetUrl.trim();
+		if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+			cleanUrl = 'https://' + cleanUrl;
+		}
+
+		// Convert student IDs to a format expected by the backend.
+		const studentIdsPayload = Array.isArray(studentIdStore) ? studentIdStore.join(',') : studentIdStore;
 		const payLoad = {
-			"schoolID": userData.data.schoolID,
-			"userRefID": userData.data.userRefID,
-			"plateformID": meetingIds,
-			"classID": clsIds,
-			"sectionID": sectIds,
-			"subjectID": subjectIds,
-			"subjectTopic": fillData.topic,
-			"meetingURL": fillData.meetUrl,
-			"meetingInstruction": fillData.instruction,
-			"startDateTime": formattedDateTime,
-			"endDateTime": formattedDateTime2,
-			"studentIDs": studentIdStore
+			schoolID: userData.data.schoolID,
+			userRefID: userData.data.userRefID,
+			plateformID: meetingIds,
+			classID: clsIds,
+			sectionID: sectIds,
+			subjectID: subjectIds,
+			subjectTopic: fillData.topic.trim(),
+			meetingURL: cleanUrl,
+			meetingInstruction: fillData.instruction ? fillData.instruction.trim() : '',
+			startDateTime: formattedDateTime,
+			endDateTime: formattedDateTime2,
+			studentIDs: studentIdsPayload
 		};
 
 		setIsload(true);
@@ -450,17 +508,29 @@ export default function LiveClass({ navigation, route }) {
 			.then((result) => {
 				if (result.status === "success") {
 					alert(result.message);
-					setSelectItem({})
-					setClsIds({})
-					setSectIds({})
-					setSubjectds({})
-					setFillData((prev) => {
-						return { ...prev, topic: '', instruction: '', meetUrl: '' }
-					})
-					setStudentList({})
-					setFormattedDateTime('')
-					setFormattedDateTime2('')
-					setStuNameStore([])
+					setSelectItem({
+						class: 'Select',
+						section: 'Select',
+						subject: 'Select',
+						assignTo: "Select",
+						startDateTime: 'Start DateTime',
+						endDateTime: 'End DateTime',
+					});
+					setClsIds(null);
+					setSectIds(null);
+					setSubjectds(null);
+					setFillData({
+						topic: '',
+						instruction: '',
+						meetUrl: ''
+					});
+					setStudentList([]);
+					setStudentIdStore([]);
+					setStuNameStore('');
+					setactAnyNone('');
+					setStudentHolder(false);
+					setFormattedDateTime('');
+					setFormattedDateTime2('');
 					getLiveClassListFun();
 				} else {
 					alert(result.message);
@@ -468,22 +538,23 @@ export default function LiveClass({ navigation, route }) {
 			})
 			.catch((err) => {
 				console.log(err);
+				alert('Something went wrong. Please try again.');
 			})
 			.finally(() => {
 				setIsload(false);
 			});
 	}
+
 	function getLiveClassListFun() {
 		const payLoad = {
-			"schoolID": userData.data.schoolID,
-			"userRefID": userData.data.userRefID,
-			"userTypeID": userData.data.userTypeID,
-		}
+			schoolID: userData.data.schoolID,
+			userRefID: userData.data.userRefID,
+			userTypeID: userData.data.userTypeID,
+		};
 		Services.post(apiRoot.liveClassesList, payLoad)
 			.then((result) => {
 				if (result.status === "success") {
-					navigation.navigate('liveClassList')
-					setIsload(false);
+					navigation.navigate('liveClassList');
 				} else {
 					console.log(result.message);
 				}
@@ -497,13 +568,11 @@ export default function LiveClass({ navigation, route }) {
 	}
 
 	function showList() {
-		navigation.navigate('liveClassList')
+		navigation.navigate('liveClassList');
 	}
 
-
-
 	return (
-		<SafeAreaProvider style={{ flex: 1, paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }} >
+		<SafeAreaProvider style={{ flex: 1, paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
 			<SwaHeader title={"Live Class"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
 			<View style={styles.headerAss}>
 				<Text style={styles.asslistText}>SCHEDULE LIVE CLASSES</Text>
@@ -518,16 +587,21 @@ export default function LiveClass({ navigation, route }) {
 			</View>
 			<ScrollView style={{ backgroundColor: userData.data.colors.liteTheme }}>
 				<View style={styles.row2}>
-					<ScrollView horizontal>
+					<ScrollView horizontal showsHorizontalScrollIndicator={false}>
 						{data.map((item) => {
+							const isSelected = meetingIds === item.id;
 							return (
-								<TouchableOpacity key={item.id}
-									style={[styles.buttonClick, { borderColor: meetingIds.includes(item.id) ? "green" : '#e5e9e9' }]}
-									onPress={() => { selectMeetType(item.id) }} >
+								<TouchableOpacity
+									key={item.id}
+									style={[styles.buttonClick, { borderColor: isSelected ? "green" : '#e5e9e9', borderWidth: isSelected ? 2 : 1 }]}
+									onPress={() => { selectMeetType(item.id) }}
+								>
 									<Image style={styles.iconsImgss} source={item.imgPath} />
-									<Text style={{ fontSize: 13, textAlign: "center", color: SWATheam.SwaBlack }}>{item.name}</Text>
+									<Text style={{ fontSize: 13, textAlign: "center", color: isSelected ? "green" : SWATheam.SwaBlack, fontWeight: isSelected ? "bold" : "normal" }}>
+										{item.name}
+									</Text>
 								</TouchableOpacity>
-							)
+							);
 						})}
 					</ScrollView>
 				</View>
@@ -552,9 +626,10 @@ export default function LiveClass({ navigation, route }) {
 
 					<Text style={styles.titleText}>Assign To</Text>
 					<TouchableOpacity style={styles.rowInput} onPress={assignToModel}>
-						<Text style={{ color: SWATheam.SwaBlack }}>{stuNameStore}</Text>
+						<Text style={{ color: SWATheam.SwaBlack }}>{stuNameStore || 'Select'}</Text>
 						<AntDesign name="down" size={20} color={SWATheam.SwaBlack} />
 					</TouchableOpacity>
+
 					<TextInput
 						value={fillData.topic}
 						label="Topic"
@@ -562,7 +637,7 @@ export default function LiveClass({ navigation, route }) {
 						onChangeText={(text) => handleChange('topic', text)}
 					/>
 					<TextInput
-						label="Instruction"
+						label="Instruction (Optional)"
 						value={fillData.instruction}
 						style={styles.inputBox}
 						onChangeText={(text) => handleChange('instruction', text)}
@@ -571,23 +646,35 @@ export default function LiveClass({ navigation, route }) {
 						label="Meeting URL"
 						value={fillData.meetUrl}
 						style={styles.inputBox}
+						autoCapitalize="none"
 						onChangeText={(text) => handleChange('meetUrl', text)}
 					/>
 					<View style={styles.row}>
 						<View style={{ width: "48%" }}>
-							<Text style={styles.titleText}>Start DateTime</Text>
+							<Text style={styles.titleText}>Start Date Time</Text>
 							<TouchableOpacity style={styles.rowInput} onPress={() => setOpen(true)}>
-								<Text>{formattedDateTime}</Text>
-								<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
+								<Text style={{ color: formattedDateTime ? SWATheam.SwaBlack : '#888', fontSize: 13 }} numberOfLines={1}>
+									{formattedDateTime || 'Select Start Time'}
+								</Text>
+								<Fontisto name="date" size={18} color={SWATheam.SwaBlack} />
 							</TouchableOpacity>
 						</View>
 						<View style={{ width: "48%" }}>
-							<Text style={styles.titleText}>End DateTime</Text>
-							<TouchableOpacity style={styles.rowInput} onPress={() =>
-								setOpen2(true)}
+							<Text style={styles.titleText}>End Date Time</Text>
+							<TouchableOpacity
+								style={styles.rowInput}
+								onPress={() => {
+									if (!formattedDateTime) {
+										alert('Please select Start Date Time first');
+										return;
+									}
+									setOpen2(true);
+								}}
 							>
-								<Text>{formattedDateTime2}</Text>
-								<Fontisto name="date" size={20} color={SWATheam.SwaBlack} />
+								<Text style={{ color: formattedDateTime2 ? SWATheam.SwaBlack : '#888', fontSize: 13 }} numberOfLines={1}>
+									{formattedDateTime2 || 'Select End Time'}
+								</Text>
+								<Fontisto name="date" size={18} color={SWATheam.SwaBlack} />
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -595,158 +682,211 @@ export default function LiveClass({ navigation, route }) {
 				</View>
 			</ScrollView>
 			<TouchableOpacity style={styles.assignMeeting} onPress={assignMeeting}>
-				<Text style={{ textAlign: 'center', color: '#fff', fontSize: 15 }}>Assign Meeting</Text>
+				<Text style={{ textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 'bold' }}>Assign Meeting</Text>
 			</TouchableOpacity>
 
 			{selectList.modelBox &&
-				<Modal animationType="slide" transparent={true}>
+				<Modal animationType="slide" transparent={true} onRequestClose={hideBoxModel}>
 					<View style={styles.bgModal}>
 						<View style={styles.holderModel}>
 							<View style={styles.headingBox}>
 								<Text style={styles.selectedReq}>{clickedName}</Text>
 							</View>
 							<TouchableOpacity style={styles.closeIcons} onPress={hideBoxModel}>
-								<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
+								<AntDesign name="close" size={26} color={SWATheam.SwaBlack} />
 							</TouchableOpacity>
-							{
-								selectList.classList && clsList?.length > 0 ? (
-									clsList.map((item, index) => {
-										let className = item.getClassDetail.classDesc;
-										let classIDS = item.getClassDetail.classID;
-										return (
-											<TouchableOpacity
-												style={styles.nameOfItem}
-												key={index}
-												onPress={() => getClass(className, classIDS)}
-											>
-												<Text style={styles.textname}>{className}</Text>
-											</TouchableOpacity>
-										);
-									})
-								) : selectList.sectionList && sectionList?.length > 0 ? (
-									sectionList.map((item, index) => {
-										let secName = item.sectionName;
-										let sectionID = item.sectionID;
-										return (
-											<TouchableOpacity
-												style={styles.nameOfItem}
-												key={index}
-												onPress={() => getSection(secName, sectionID)}
-											>
-												<Text style={styles.textname}>{secName}</Text>
-											</TouchableOpacity>
-										);
-									})
-								) : selectList.subjectList && subjectList?.length > 0 ? (
-									subjectList.map((item, index) => {
-										let subName = item.subjectName;
-										let subIds = item.subjectID;
-										return (
-											<TouchableOpacity
-												style={styles.nameOfItem}
-												key={index}
-												onPress={() => getSubject(subName, subIds)}
-											>
-												<Text style={styles.textname}>{subName}</Text>
-											</TouchableOpacity>
-										);
-									})
-								)
-									: (
-										<Text style={styles.errorText}>Please Select Required Field!</Text>
+							<ScrollView style={{ maxHeight: 350, marginTop: 10 }}>
+								{
+									selectList.classList && clsList?.length > 0 ? (
+										clsList.map((item, index) => {
+											let className = item.getClassDetail.classDesc;
+											let classIDS = item.getClassDetail.classID;
+											return (
+												<TouchableOpacity
+													style={styles.nameOfItem}
+													key={index}
+													onPress={() => getClass(className, classIDS)}
+												>
+													<Text style={styles.textname}>{className}</Text>
+												</TouchableOpacity>
+											);
+										})
+									) : selectList.sectionList && sectionList?.length > 0 ? (
+										sectionList.map((item, index) => {
+											let secName = item.sectionName;
+											let sectionID = item.sectionID;
+											return (
+												<TouchableOpacity
+													style={styles.nameOfItem}
+													key={index}
+													onPress={() => getSection(secName, sectionID)}
+												>
+													<Text style={styles.textname}>{secName}</Text>
+												</TouchableOpacity>
+											);
+										})
+									) : selectList.subjectList && subjectList?.length > 0 ? (
+										subjectList.map((item, index) => {
+											let subName = item.subjectName;
+											let subIds = item.subjectID;
+											return (
+												<TouchableOpacity
+													style={styles.nameOfItem}
+													key={index}
+													onPress={() => getSubject(subName, subIds)}
+												>
+													<Text style={styles.textname}>{subName}</Text>
+												</TouchableOpacity>
+											);
+										})
+									) : (
+										<Text style={styles.errorText}>No records found!</Text>
 									)
-							}
+								}
+							</ScrollView>
 						</View>
 					</View>
 				</Modal>
 			}
+
 			{stuListModel &&
-				<Modal animationType="slide" transparent={true}>
+				<Modal animationType="slide" transparent={true} onRequestClose={closeAssignModal}>
 					<View style={styles.ViewBox}>
 						<View style={styles.boxContainer}>
-							<View style={[styles.headingBox2]}>
-								<Text style={{ fontWeight: "bold" }}>Assign To</Text>
+							<View style={styles.headingBox2}>
+								<Text style={{ fontWeight: "bold", fontSize: 16, color: SWATheam.SwaBlack }}>Assign To</Text>
 								<TouchableOpacity onPress={closeAssignModal}>
-									<AntDesign style name="close" size={30} color={SWATheam.SwaBlack} />
+									<AntDesign name="close" size={26} color={SWATheam.SwaBlack} />
 								</TouchableOpacity>
 							</View>
 
 							<View style={{ flex: 1, padding: 15 }}>
-
 								<View style={styles.optionsCheck}>
-
-									{data2?.map((item, index) => {
+									{data2.map((item) => {
+										const isSelected = actAnyNone === item.id;
 										return (
-											<TouchableOpacity key={item.id} style={[styles.button, { borderColor: actAnyNone.includes(item.id) ? "green" : "#333" }]}
-												onPress={() => { selectAnyNone(item.id) }}>
-												<Text style={styles.textStu}>{item.btnName}</Text>
+											<TouchableOpacity
+												key={item.id}
+												style={[
+													styles.button,
+													{
+														borderColor: isSelected ? "green" : "#e4e4e4",
+														backgroundColor: isSelected ? "#e8f5e9" : "#fff",
+														borderWidth: isSelected ? 2 : 1
+													}
+												]}
+												onPress={() => { selectAnyNone(item.id) }}
+											>
+												<Text style={[styles.textStu, { color: isSelected ? "green" : SWATheam.SwaBlack, fontWeight: isSelected ? "bold" : "normal" }]}>
+													{item.btnName}
+												</Text>
 											</TouchableOpacity>
-										)
+										);
 									})}
 								</View>
 
+								{actAnyNone === '1' && (
+									<View style={{ alignItems: 'center', justifyContent: 'center', padding: 20, marginTop: 20 }}>
+										<AntDesign name="checkcircle" size={44} color="green" />
+										<Text style={{ fontSize: 16, fontWeight: 'bold', color: SWATheam.SwaBlack, marginTop: 15 }}>
+											Whole Class Selected
+										</Text>
+										<Text style={{ fontSize: 13, color: '#666', textAlign: 'center', marginTop: 8 }}>
+											Meeting will be assigned to all students in {selectItem.class} - {selectItem.section}.
+										</Text>
+										<TouchableOpacity
+											style={[styles.doneBtn, { marginTop: 25, paddingHorizontal: 30, paddingVertical: 10, backgroundColor: '#07a26f' }]}
+											onPress={closeAssignModal}
+										>
+											<Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>Done</Text>
+										</TouchableOpacity>
+									</View>
+								)}
 
-								{studentHolder &&
+								{actAnyNone === '2' && studentHolder && (
 									<>
-										<View style={styles.rowFlex}>
-											<TouchableOpacity style={styles.rowCheckWith} onPress={selectAll}>
-												<Text>Select All</Text>
-												<Checkbox status={studentIdStore.length === totalLength ? 'checked' : 'unchecked'} />
-											</TouchableOpacity>
-											<TouchableOpacity style={styles.doneBtn} onPress={closeAssignModal}>
-												<Text>Done</Text>
-											</TouchableOpacity>
-										</View>
-										<ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
-
-											{studentList?.map((item, index) => {
-												let name = item.getStudentName.firstName;
-												let className = item.getStudentName.classID;
-												let contactNum = item.getStudentName.fatherContact;
-												let sectionName = item.getStudentSection.sectionName;
-												let stuIds = item.getStudentName.studentID;
-												return (
-													<View style={[styles.boxHolder, { backgroundColor: studentIdStore.includes(stuIds) ? '#f0fffa' : '#fff' }]} key={stuIds}>
-														<TouchableOpacity style={[styles.rowView, { height: 40 }]}
-															onPress={() => { selectStudent(stuIds, name) }}>
-															<Text style={styles.number}>{index + 1}</Text>
-															<Checkbox status={studentIdStore.includes(stuIds) ? 'checked' : 'unchecked'} />
-														</TouchableOpacity>
-														<View style={styles.rowView}>
-															<Text style={styles.number}>Name</Text>
-															<Text style={styles.numberRight}>{name}</Text>
-														</View>
-														<View style={styles.rowView}>
-															<Text style={styles.number}>Class : {className}</Text>
-															<Text style={styles.number}>Section : {sectionName}</Text>
-														</View>
-														<View style={styles.rowView}>
-															<Text style={styles.number}>Contact No</Text>
-															<Text style={styles.numberRight}>{contactNum}</Text>
-														</View>
-													</View>
-												)
-											})}
-										</ScrollView>
+										{studentList?.length > 0 ? (
+											<>
+												<View style={styles.rowFlex}>
+													<TouchableOpacity style={styles.rowCheckWith} onPress={selectAll}>
+														<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold' }}>Select All</Text>
+														<Checkbox status={Array.isArray(studentIdStore) && studentIdStore.length === totalLength && totalLength > 0 ? 'checked' : 'unchecked'} />
+													</TouchableOpacity>
+													<TouchableOpacity style={styles.doneBtn} onPress={closeAssignModal}>
+														<Text style={{ color: '#07a26f', fontWeight: 'bold' }}>Done</Text>
+													</TouchableOpacity>
+												</View>
+												<ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
+													{studentList.map((item, index) => {
+														let name = item.getStudentName.firstName + (item.getStudentName.lastName ? ` ${item.getStudentName.lastName}` : '');
+														let className = item.getStudentName.classID;
+														let contactNum = item.getStudentName.fatherContact;
+														let sectionName = item.getStudentSection?.sectionName || selectItem.section;
+														let stuIds = item.getStudentName.studentID;
+														let isSelected = Array.isArray(studentIdStore) && studentIdStore.includes(stuIds);
+														return (
+															<View style={[styles.boxHolder, { backgroundColor: isSelected ? '#f0fffa' : '#fff' }]} key={stuIds || index}>
+																<TouchableOpacity
+																	style={[styles.rowView, { height: 40 }]}
+																	onPress={() => { selectStudent(stuIds, name) }}
+																>
+																	<Text style={styles.number}>{index + 1}</Text>
+																	<Checkbox status={isSelected ? 'checked' : 'unchecked'} />
+																</TouchableOpacity>
+																<View style={styles.rowView}>
+																	<Text style={styles.number}>Name</Text>
+																	<Text style={styles.numberRight}>{name}</Text>
+																</View>
+																<View style={styles.rowView}>
+																	<Text style={styles.number}>Class : {className}</Text>
+																	<Text style={styles.number}>Section : {sectionName}</Text>
+																</View>
+																{contactNum ? (
+																	<View style={styles.rowView}>
+																		<Text style={styles.number}>Contact No</Text>
+																		<Text style={styles.numberRight}>{contactNum}</Text>
+																	</View>
+																) : null}
+															</View>
+														);
+													})}
+												</ScrollView>
+											</>
+										) : (
+											<View style={{ alignItems: 'center', marginTop: 40 }}>
+												<Text style={{ color: '#666', fontSize: 14 }}>No students found in this class & section.</Text>
+											</View>
+										)}
 									</>
-								}
+								)}
+
+								{!actAnyNone && (
+									<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
+										<Text style={{ color: '#888', fontSize: 14 }}>Please select Whole Class or Selected Students</Text>
+									</View>
+								)}
 							</View>
-
 						</View>
-
 					</View>
 				</Modal>
 			}
+
 			<DatePicker
 				modal
 				mode="datetime"
 				open={open}
-				date={date}
+				date={startDateObj}
+				minimumDate={new Date()}
 				onConfirm={(date) => {
 					setOpen(false);
-					setDate(date);
-					const formatted = formatDateTime(date); // Save the formatted date and time
+					setStartDateObj(date);
+					const formatted = formatDateTime(date);
 					setFormattedDateTime(formatted);
+					if (endDateObj <= date) {
+						const newEnd = new Date(date.getTime() + 60 * 60 * 1000);
+						setEndDateObj(newEnd);
+						setFormattedDateTime2(formatDateTime(newEnd));
+					}
 				}}
 				onCancel={() => {
 					setOpen(false);
@@ -755,12 +895,17 @@ export default function LiveClass({ navigation, route }) {
 			<DatePicker
 				modal
 				mode="datetime"
-				open={open2 && formattedDateTime != ''}
-				date={date}
+				open={open2}
+				date={endDateObj > startDateObj ? endDateObj : new Date(startDateObj.getTime() + 60 * 60 * 1000)}
+				minimumDate={startDateObj}
 				onConfirm={(date) => {
 					setOpen2(false);
-					setDate(date);
-					const formatted2 = formatDateTime(date); // Save the formatted date and time
+					if (date <= startDateObj) {
+						alert('End Date Time must be after Start Date Time');
+						return;
+					}
+					setEndDateObj(date);
+					const formatted2 = formatDateTime(date);
 					setFormattedDateTime2(formatted2);
 				}}
 				onCancel={() => {
@@ -838,7 +983,7 @@ const styles = StyleSheet.create({
 	},
 	rowView: {
 		flexDirection: "row",
-		justifyContent: 'space-between',
+		justifyContent: "space-between",
 		alignItems: "center",
 		borderBottomWidth: 1,
 		borderColor: "#dddddd",
@@ -940,14 +1085,16 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		backgroundColor: '#f4f4f4',
 		padding: 10,
-		elevation: 3
+		elevation: 3,
+		marginTop: 50,
 	},
 	holderModel: {
 		backgroundColor: "#fff",
 		padding: 15,
 		borderTopLeftRadius: 20,
 		borderTopRightRadius: 20,
-		position: 'relative'
+		position: 'relative',
+		maxHeight: '75%'
 	},
 	holderModel2: {
 		backgroundColor: "#fff",

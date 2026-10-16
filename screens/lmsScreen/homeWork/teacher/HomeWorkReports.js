@@ -5,12 +5,14 @@ import { GlobleData } from '../../../../Store'
 import { SWATheam } from '../../../../constant/ConstentValue'
 import ImageViewer from '../../../common/ImageViewer'
 import RNBlobUtil from 'react-native-blob-util';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const HomeWorkReports = ({ navigation, route }) => {
     const statusBarHeight = StatusBar.currentHeight
     const { userData } = useContext(GlobleData)
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
+    const insets = useSafeAreaInsets();
 
     function onClickLeftIcon() {
         navigation.goBack()
@@ -20,6 +22,7 @@ const HomeWorkReports = ({ navigation, route }) => {
     }
 
     const viewFile = (item) => {
+        console.log({ item })
         const fType = item.checkedFile.split('.')
         const itemLowerCase = fType[fType.length - 1].toLowerCase()
         setFileType((prev) => {
@@ -136,90 +139,92 @@ const HomeWorkReports = ({ navigation, route }) => {
     }
 
     return (
-        <View style={{ flex: 1, marginTop: statusBarHeight, backgroundColor: userData.data.colors.liteTheme }}>
-            <SwaHeader title={"Reports"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
-            <View style={{ flex: 1, padding: 10 }}>
-                <ScrollView>
-                    {route.params.map((item, index) => {
-                        const studentName = item.studentDetails.firstName + ' ' + (item.studentDetails.middleName == null ? "" : item.studentDetails.middleName) + ' ' + item.studentDetails.lastName
-                        const fatherName = item.studentDetails.fatherName
+        <SafeAreaProvider style={{ paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
+            <View style={{ flex: 1, marginTop: statusBarHeight, backgroundColor: userData.data.colors.liteTheme }}>
+                <SwaHeader title={"Reports"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                <View style={{ flex: 1, padding: 10 }}>
+                    <ScrollView>
+                        {route.params.map((item, index) => {
+                            const studentName = item?.studentDetails?.firstName + ' ' + (item?.studentDetails?.middleName == null ? "" : item.studentDetails?.middleName) + ' ' + item.studentDetails?.lastName
+                            const fatherName = item?.studentDetails?.fatherName
 
-                        const checkedDate = item.checkedDate
-                        const subMissionDate = item.submissionDate
-                        const checkedBy = item.teacherData.firstName + ' ' + (item.teacherData.middleName == null ? "" : item.teacherData.middleName) + " " + (item.teacherData.lastName == null ? "" : item.teacherData.lastName)
+                            const checkedDate = item?.checkedDate
+                            const subMissionDate = item?.submissionDate
+                            const checkedBy = item?.teacherData?.firstName + ' ' + (item?.teacherData?.middleName == null ? "" : item?.teacherData?.middleName) + " " + (item?.teacherData?.lastName == null ? "" : item?.teacherData?.lastName)
 
 
-                        return (
-                            <View style={{ borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10, borderRadius: 5, padding: 8, backgroundColor: SWATheam.SwaWhite }} key={item.hwSubmitID}>
-                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                    <View style={{ width: 100, }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Name </Text>
+                            return (
+                                <View style={{ borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10, borderRadius: 5, padding: 8, backgroundColor: SWATheam.SwaWhite }} key={item.hwSubmitID}>
+                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                        <View style={{ width: 100, }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Name </Text>
+                                        </View>
+                                        <View style={{ paddingRight: 10 }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                        </View>
+                                        <View style={{ flex: 1, }}>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{studentName}</Text>
+                                        </View>
                                     </View>
-                                    <View style={{ paddingRight: 10 }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                        <View style={{ width: 100, }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Father's Name </Text>
+                                        </View>
+                                        <View style={{ paddingRight: 10 }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                        </View>
+                                        <View style={{ flex: 1, }}>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{fatherName}</Text>
+                                        </View>
                                     </View>
-                                    <View style={{ flex: 1, }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{studentName}</Text>
+                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                        <View style={{ width: 100, }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Checked Date</Text>
+                                        </View>
+                                        <View style={{ paddingRight: 10 }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                        </View>
+                                        <View style={{ flex: 1, }}>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{checkedDate}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                        <View style={{ width: 100, }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Submission Date</Text>
+                                        </View>
+                                        <View style={{ paddingRight: 10 }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{subMissionDate}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                        <View style={{ width: 100, }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Checked by</Text>
+                                        </View>
+                                        <View style={{ paddingRight: 10 }}>
+                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{checkedBy}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
+                                        <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item)}>
+                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Checked File</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
-                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                    <View style={{ width: 100, }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Father's Name </Text>
-                                    </View>
-                                    <View style={{ paddingRight: 10 }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                    </View>
-                                    <View style={{ flex: 1, }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{fatherName}</Text>
-                                    </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                    <View style={{ width: 100, }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Checked Date</Text>
-                                    </View>
-                                    <View style={{ paddingRight: 10 }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                    </View>
-                                    <View style={{ flex: 1, }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{checkedDate}</Text>
-                                    </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                    <View style={{ width: 100, }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Submission Date</Text>
-                                    </View>
-                                    <View style={{ paddingRight: 10 }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{subMissionDate}</Text>
-                                    </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                    <View style={{ width: 100, }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Checked by</Text>
-                                    </View>
-                                    <View style={{ paddingRight: 10 }}>
-                                        <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{checkedBy}</Text>
-                                    </View>
-                                </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
-                                    <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item)}>
-                                        <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Checked File</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )
-                    })}
-                </ScrollView>
+                            )
+                        })}
+                    </ScrollView>
+                </View>
+                {fileType.status &&
+                    <ImageViewer fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
+                }
             </View>
-            {fileType.status &&
-                <ImageViewer fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
-            }
-        </View>
+        </SafeAreaProvider>
     )
 }
 

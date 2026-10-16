@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView } from "react-native"
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView, Alert } from "react-native"
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import DatePicker from "react-native-date-picker";
@@ -26,7 +26,7 @@ var finalQData = "";
 var selectQuesMarksEdit = [];
 var assessID = "";
 var studentIDs = [];
-assignArguments = [];
+var assignArguments = [];
 
 export default function AutoAssessmentGenerate() {
   const { userData } = useContext(GlobleData)
@@ -57,12 +57,13 @@ export default function AutoAssessmentGenerate() {
   const [isTypeWise, setIsTypeWise] = useState(false)
   const [inputData, setInputData] = useState({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null })
   const [qWiseID, setQWiseID] = useState({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null })
-  const [actTypeData, setActTypeData] = useState({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, q8: null })
-  const [actTypeID, setActTypeID] = useState({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, q8: null })
+  const [actTypeData, setActTypeData] = useState({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null })
+  const [actTypeID, setActTypeID] = useState({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null })
   const [isAssign, setIsAssign] = useState(false);
   const [autoStuList, setAutoStuList] = useState(assignArguments);
   const [isAutoChapChecked, setIsAutoChapChecked] = useState(false);
   const [examTypeName, setExamTypeName] = useState("")
+  const [existingAssessments, setExistingAssessments] = useState([]);
 
 
   const [date2, setDate2] = useState()
@@ -144,29 +145,132 @@ export default function AutoAssessmentGenerate() {
 
   useEffect(() => {
     getAssessClassList();
+    getExistingAssessments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const otherAssessmentShow = () => {
-    setOtherAsessment((prev) => {
-      return { ...prev, status: true }
-    });
+
+  const getExistingAssessments = () => {
+    if (!userData?.data?.schoolID) return;
+    const payload = {
+      "schoolID": userData.data.schoolID,
+      "userTypeID": userData.data.userTypeID,
+      "userRefID": userData.data.userRefID,
+    };
+    Services.post(apiRoot.getAssessmentList, payload)
+      .then((res) => {
+        if (res.status == "success" && Array.isArray(res.data)) {
+          setExistingAssessments(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log("Error fetching assessment list", err);
+      });
+  };
+
+  const resetAllFields = () => {
+    selectedQuesIDsArray = [];
+    bookArguments = [];
+    chapArguments = [];
+    quesTypeArguments = [];
+    quesLavelArguments = [];
+    bookIdsArry = [];
+    chapterIDsArray = [];
+    quesTypeIdsArray = [];
+    quesLavelIdsArray = [];
+    subjName = "";
     examName = "";
-    setAssessInputName("")
+
+    questionNo = "";
+    qID = "";
+    finalQData = "";
+    selectQuesMarksEdit = [];
+    assessID = "";
+    studentIDs = [];
+    assignArguments = [];
+
+    setSelectedIds({
+      classID: "",
+      sectionID: "",
+      subjectID: "",
+      examID: "",
+      examTypeID: "",
+      totalQuesNo: "",
+      questionSet: "",
+    });
+    setSectionListData([]);
+    setSubjectList([]);
+    setBookList([]);
+    setBookChapterList([]);
+    setAssessQuesTypeList([]);
+    setAssessQuesLavelList([]);
+    setData([]);
+    setChapData([]);
+    setQuesTypeData([]);
+    setQuesLavelData([]);
+    setOtherAsessment({ assessName: '', status: false });
+    setAssessInputName('');
+    setAssessmentQuestion([]);
+    setIsEditMarks(false);
+    setStudentList([]);
+    setAutoStuList([]);
+    setAssignAsessment(false);
+    setIsAssessQuesModel(false);
+    setDate(undefined);
+    setDate2(undefined);
+    setDate3(new Date());
+    setHourData(0);
+    setMinutData(0);
+    setExamTypeName("");
+    setIsQuestType(false);
+    setIsMarksWise(false);
+    setIsTypeWise(false);
+    setIsAssign(false);
+    setQuesMarksWise([]);
+    setQuesTypeWise([]);
+    setInputData({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+    setQWiseID({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+    setActTypeData({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+    setActTypeID({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+    setViewStatus({
+      section: false,
+      subject: false,
+      book: false,
+      chapter: false,
+      examName: false,
+      quesTypeList: false,
+      quesLavel: false,
+      examType: false,
+      dateToDate: false,
+      fixTime: false,
+      totalTime: false,
+      totalQuestion: false,
+      questSet: false,
+    });
+  };
+
+  const otherAssessmentShow = () => {
+    setAssessInputName(examName || "");
+    setOtherAsessment((prev) => {
+      return { ...prev, status: true, assessName: examName || "" }
+    });
   }
 
-  var quesWiseID = [];
-  let totalQues = 0;
-  let apiUrl = "";
   const generateAutoAssSubmit = (type) => {
+    let quesWiseID = [];
+    let totalQues = 0;
+    let apiUrl = "";
+
     if (type == "marksWise") {
       apiUrl = apiRoot.submitAutoAssessMarksWise;
       for (var key in inputData) {
         if (inputData.hasOwnProperty(key)) {
-          let dd = inputData[key] == null ? 0 : inputData[key];
-          totalQues = totalQues + parseInt(dd);
-          let mark = qWiseID[key];
-          if (dd != null && dd != "") {
-            let ddMake = mark + "_" + dd;
-            quesWiseID.push(ddMake);
+          let count = parseInt(inputData[key], 10);
+          if (!isNaN(count) && count > 0) {
+            totalQues += count;
+            let mark = qWiseID[key];
+            if (mark !== null && mark !== undefined) {
+              quesWiseID.push(mark + "_" + count);
+            }
           }
         }
       }
@@ -174,249 +278,146 @@ export default function AutoAssessmentGenerate() {
       apiUrl = apiRoot.submitAutoAssessTypeWise;
       for (var key in actTypeData) {
         if (actTypeData.hasOwnProperty(key)) {
-          let dd = actTypeData[key];
-          totalQues = totalQues + dd;
-          let typeID = actTypeID[key];
-          if (dd != null && dd != "") {
-            let ddMake = typeID + "_" + dd;
-            quesWiseID.push(ddMake);
+          let count = parseInt(actTypeData[key], 10);
+          if (!isNaN(count) && count > 0) {
+            totalQues += count;
+            let typeID = actTypeID[key];
+            if (typeID !== null && typeID !== undefined) {
+              quesWiseID.push(typeID + "_" + count);
+            }
           }
         }
       }
     }
 
+    if (totalQues <= 0 || quesWiseID.length === 0) {
+      Alert.alert("Alert", "Please enter number of questions to generate assessment.");
+      return;
+    }
+
     let classID = selectedIds.classID;
-    let sectionID = selectedIds.sectionID.sectionID;
+    let sectionID = selectedIds.sectionID?.sectionID;
     let subjectID = selectedIds.subjectID;
-    let examID = selectedIds.examID;
     let questSetID = selectedIds.questionSet;
     let examTypeID = selectedIds.examTypeID;
     let chapterIDs = chapterIDsArray.toString();
     let bookIDs = bookIdsArry.toString();
-    let quesTypeIDs = selectedIds.questionSet == 2 ? quesTypeIdsArray.toString() : "";
     let quesLavelIDs = quesLavelIdsArray.toString();
     let startDate = date;
     let endDate = date2;
-    let fixTime = date3;
 
-
-    if (classID == "" || sectionID == "" || subjectID == "" || examTypeID == "" || questSetID == "" ||
-      chapterIDs == "" || bookIDs == "" || quesLavelIDs == "" || startDate == "" || endDate == ""
+    if (!classID || !sectionID || !subjectID || !examTypeID || !questSetID ||
+      !chapterIDs || !bookIDs || !quesLavelIDs || !startDate ||
+      (examTypeID == 1 && !endDate) ||
+      !examName || examName.trim() === ""
     ) {
-      alert("Please Fill All Required Field")
-    } else {
-      let sDate = "";
-      let eDate = "";
-
-      if (startDate != "") {
-        var year = startDate.getFullYear();
-        var mes = startDate.getMonth() + 1;
-        var dia = startDate.getDate();
-        sDate = year + "-" + mes + "-" + dia;
-      }
-      if (endDate != "" && endDate != undefined) {
-        var year = endDate.getFullYear();
-        var mes = endDate.getMonth() + 1;
-        var dia = endDate.getDate();
-        eDate = year + "-" + mes + "-" + dia;
-      }
-
-      setIsLoader(true)
-      const payload = {
-        "schoolID": userData.data.schoolID,
-        "classID": classID,
-        "bookIDs": bookIDs,
-        "subjectID": subjectID,
-        "quesSet": questSetID,
-        "assessmentName": examName,
-        "sectionID": sectionID,
-        "timeModule": hourData + "h" + ":" + minutData + "m",
-        "noOfQuestion": totalQues,
-        "examDate": "",
-        "asmtTime": hourData + ":" + minutData + ":" + 0,
-        "questionData": quesWiseID.toString(),
-        "chapterIDs": chapterIDs,
-        "startDate": sDate,
-        "endDate": examTypeID == 2 ? sDate : eDate,
-        "startTime": "",
-        "levelIDs": quesLavelIDs,
-        "academicYear": userData.data.academicYear,
-        "userRefID": userData.data.userRefID
-      }
-      console.log(payload, 'check payload')
-      console.log(apiUrl, 'check apiUrl')
-      Services.post(apiUrl, payload)
-        .then((res) => {
-          if (res.status == "success") {
-            setIsLoader(false)
-            const data = res.data;
-            data.studentData.map((item, index) => {
-              let dd = {
-                'checked': false
-              }
-              assignArguments.push(dd)
-
-            })
-            // AssesssmentName = data.assName;
-            setStudentList(data.studentData);
-            assessID = data.asmtID;
-            // setIsTypeWise(false)
-            // setIsMarksWise(false)
-            // setIsAssign(true);
-            // alert("Assessment Generated successfully")
-
-            setIsTypeWise(false);
-
-            setIsMarksWise(false);
-
-            alert("Assessment Generated successfully");
-
-            setTimeout(() => {
-
-              setIsAssign(true);
-
-            }, 300);
-
-          } else {
-            setIsLoader(false)
-            alert(res.message)
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          setIsLoader(false)
-        })
+      Alert.alert("Alert", "Please Fill All Required Field");
+      return;
     }
+
+    const isDuplicate = existingAssessments.some(
+      (item) => item?.assessmentName?.trim().toLowerCase() === examName.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      Alert.alert("Alert", "An assessment with this name has already been generated. Please enter a different Assessment Name.");
+      return;
+    }
+
+    let sDate = "";
+    let eDate = "";
+
+    if (startDate) {
+      var year = startDate.getFullYear();
+      var mes = startDate.getMonth() + 1;
+      var dia = startDate.getDate();
+      sDate = year + "-" + mes + "-" + dia;
+    }
+    if (endDate) {
+      var year = endDate.getFullYear();
+      var mes = endDate.getMonth() + 1;
+      var dia = endDate.getDate();
+      eDate = year + "-" + mes + "-" + dia;
+    }
+
+    setIsLoader(true)
+    const payload = {
+      "schoolID": userData.data.schoolID,
+      "classID": classID,
+      "bookIDs": bookIDs,
+      "subjectID": subjectID,
+      "quesSet": questSetID,
+      "assessmentName": examName.trim(),
+      "sectionID": sectionID,
+      "timeModule": hourData + "h" + ":" + minutData + "m",
+      "noOfQuestion": totalQues,
+      "examDate": "",
+      "asmtTime": hourData + ":" + minutData + ":" + 0,
+      "questionData": quesWiseID.toString(),
+      "chapterIDs": chapterIDs,
+      "startDate": sDate,
+      "endDate": examTypeID == 2 ? sDate : eDate,
+      "startTime": "",
+      "levelIDs": quesLavelIDs,
+      "academicYear": userData.data.academicYear,
+      "userRefID": userData.data.userRefID
+    }
+    Services.post(apiUrl, payload)
+      .then((res) => {
+        setIsLoader(false)
+        if (res.status == "success") {
+          console.log({ apiUrl, payload, res }, "Jab successfully")
+          const data = res.data;
+          assessID = data?.asmtID;
+          setIsTypeWise(false);
+          setIsMarksWise(false);
+          getExistingAssessments();
+          Alert.alert("Success", res.message);
+          if (data?.studentData && data.studentData.length > 0) {
+            assignArguments = [];
+            data.studentData.forEach(() => {
+              assignArguments.push({ checked: false });
+            });
+            setAutoStuList(assignArguments);
+            setStudentList(data.studentData);
+            setTimeout(() => {
+              setIsAssign(true);
+            }, 300);
+          } else {
+            resetAllFields();
+          }
+        } else {
+          Alert.alert("Error", res.message || "Failed to generate assessment");
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        setIsLoader(false)
+        Alert.alert("Error", "Something went wrong while generating assessment.");
+      })
+      .finally(() => {
+        setIsLoader(false)
+      })
   }
   const setInputValue = (index, value, totalQues, marks) => {
-    if (value > totalQues) {
-      alert("Entered Question's Not Greater than:  " + totalQues)
-      return
+    let cleanVal = value ? value.replace(/[^0-9]/g, '') : '';
+    if (cleanVal !== '' && parseInt(cleanVal, 10) > parseInt(totalQues, 10)) {
+      Alert.alert("Alert", "Entered questions cannot be greater than: " + totalQues);
+      return;
     }
-    if (index == 1) {
-      setInputData((prev) => {
-        return { ...prev, q1: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q1: marks }
-      })
-    } else if (index == 2) {
-      setInputData((prev) => {
-        return { ...prev, q2: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q2: marks }
-      })
-    } else if (index == 3) {
-      setInputData((prev) => {
-        return { ...prev, q3: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q3: marks }
-      })
-    } else if (index == 4) {
-      setInputData((prev) => {
-        return { ...prev, q4: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q4: marks }
-      })
-    } else if (index == 5) {
-      setInputData((prev) => {
-        return { ...prev, q5: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q5: marks }
-      })
-    } else if (index == 6) {
-      setInputData((prev) => {
-        return { ...prev, q6: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q6: marks }
-      })
-    } else if (index == 7) {
-      setInputData((prev) => {
-        return { ...prev, q7: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q7: marks }
-      })
-    } else if (index == 8) {
-      setInputData((prev) => {
-        return { ...prev, q8: value }
-      })
-      setQWiseID((prev) => {
-        return { ...prev, q8: marks }
-      })
-    }
+    const valToSet = cleanVal === '' ? null : cleanVal;
+    setInputData((prev) => ({ ...prev, [`q${index}`]: valToSet }));
+    setQWiseID((prev) => ({ ...prev, [`q${index}`]: marks }));
   }
 
   const setQuesTypeValue = (index, value, totalQues, activityID) => {
-
-    if (value > totalQues) {
-      alert("Entered Question's Not Greater than:  " + totalQues)
-      return
+    let cleanVal = value ? value.replace(/[^0-9]/g, '') : '';
+    if (cleanVal !== '' && parseInt(cleanVal, 10) > parseInt(totalQues, 10)) {
+      Alert.alert("Alert", "Entered questions cannot be greater than: " + totalQues);
+      return;
     }
-    if (index == 1) {
-      setActTypeData((prev) => {
-        return { ...prev, t1: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t1: activityID }
-      })
-    } else if (index == 2) {
-      setActTypeData((prev) => {
-        return { ...prev, t2: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t2: activityID }
-      })
-    } else if (index == 3) {
-      setActTypeData((prev) => {
-        return { ...prev, t3: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t3: activityID }
-      })
-    } else if (index == 4) {
-      setActTypeData((prev) => {
-        return { ...prev, t4: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t4: activityID }
-      })
-    } else if (index == 5) {
-      setActTypeData((prev) => {
-        return { ...prev, t5: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t5: activityID }
-      })
-    } else if (index == 6) {
-      setActTypeData((prev) => {
-        return { ...prev, t6: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t6: activityID }
-      })
-    } else if (index == 7) {
-      setActTypeData((prev) => {
-        return { ...prev, t7: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t7: activityID }
-      })
-    } else if (index == 8) {
-      setActTypeData((prev) => {
-        return { ...prev, t8: value }
-      })
-      setActTypeID((prev) => {
-        return { ...prev, t8: activityID }
-      })
-    }
+    const valToSet = cleanVal === '' ? null : cleanVal;
+    setActTypeData((prev) => ({ ...prev, [`t${index}`]: valToSet }));
+    setActTypeID((prev) => ({ ...prev, [`t${index}`]: activityID }));
   }
 
 
@@ -448,12 +449,21 @@ export default function AutoAssessmentGenerate() {
   }
 
   const saveOtherAssessData = () => {
-    if (assessInputName == "") {
-      alert("Please enter Assessment Name");
+    const trimmedName = assessInputName.trim();
+    if (trimmedName == "") {
+      Alert.alert("Alert", "Please enter Assessment Name");
       return;
     }
+    const isDuplicate = existingAssessments.some(
+      (item) => item?.assessmentName?.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (isDuplicate) {
+      Alert.alert("Alert", "An assessment with this name has already been generated. Please enter a different name.");
+      return;
+    }
+    examName = trimmedName;
     setOtherAsessment((prev) => {
-      return { ...prev, status: false, assessName: assessInputName }
+      return { ...prev, status: false, assessName: trimmedName }
     })
     setSelectedIds((prev) => {
       return { ...prev, examID: 15 }
@@ -466,8 +476,14 @@ export default function AutoAssessmentGenerate() {
   }
 
   const saveTotalTimeData = () => {
-    if (hourData == 0 && minutData == 0) {
-      alert("Please Enter Exam Time");
+    let h = parseInt(hourData) || 0;
+    let m = parseInt(minutData) || 0;
+    if (h == 0 && m == 0) {
+      Alert.alert("Alert", "Please Enter Exam Time");
+      return;
+    }
+    if (m >= 60) {
+      Alert.alert("Alert", "Minutes should be less than 60");
       return;
     }
     setViewStatus((prev) => {
@@ -1023,30 +1039,16 @@ export default function AutoAssessmentGenerate() {
       subjName = selectedName;
     } else if (type == "examName") {
       examName = selectedName;
-      setSelectedIds((prev) => {
-        return { ...prev, examID: "", examTypeID: "", totalQuesNo: "", }
-      })
-      setExamTypeName(""),
-        quesLavelIdsArray = [],
-        setDate(); setDate2()
-      setHourData(0), setMinutData(0)
-
     } else if (type == "examType") {
-      setExamTypeName(selectedName)
-      quesLavelIdsArray = [],
-        setDate(); setDate2(),
-          setHourData(0), setMinutData(0)
+      setExamTypeName(selectedName);
     } else if (type == "questionNo") {
       questionNo = selectedName;
     }
   }
   const getGeneratedAssessQuestion = () => {
-    // setIsAssessQuesModel(true);
-    // return
     let classID = selectedIds.classID;
-    let sectionID = selectedIds.sectionID.sectionID;
+    let sectionID = selectedIds.sectionID?.sectionID;
     let subjectID = selectedIds.subjectID;
-    let examID = selectedIds.examID;
     let questSetID = selectedIds.questionSet;
     let examTypeID = selectedIds.examTypeID;
     let chapterIDs = chapterIDsArray.toString();
@@ -1056,63 +1058,135 @@ export default function AutoAssessmentGenerate() {
     let startDate = date;
     let endDate = date2;
     let fixTime = date3;
-    let currentDate = new Date()
-    // let totalTime = hourData ? hourData : '00' + ":" + minutData ? minutData : '00';
 
-    if (classID == "" || sectionID == "" || subjectID == "" || examTypeID == "" || questSetID == "" ||
-      chapterIDs == "" || bookIDs == "" || quesLavelIDs == "" || startDate == "" || endDate == ""
-    ) {
-      alert("Please Fill All Required Field")
-    } else if (questSetID == 2 && quesTypeIDs == "") {
-      alert("Please Fill All Required Field")
-      setIsLoader(false)
-    } else {
-      setIsLoader(true)
-      const payload = {
-        "schoolID": userData.data.schoolID,
-        "classID": classID,
-        "bookIDs": bookIDs,
-        "subjectID": subjectID,
-        "quesSet": questSetID,
-        "asmtName": examName,
-        "sectionID": sectionID,
-        "quesType": quesTypeIDs,
-        "questionLevelIds": quesLavelIDs,
-        "chapterIDs": chapterIDs,
-        "examType": examTypeID,
-        "endDate": endDate,
-        "startTime": examTypeID == 2 ? fixTime : "",
-        "examHrs": hourData == 0 ? "" : hourData,
-        "examMin": minutData == 0 ? "" : minutData,
-        "levelIDs": quesLavelIDs,
-        "academicYear": userData.data.academicYear
-      }
-      if (examTypeID == 1) {
-        payload["startDate"] = startDate
-      } else if (examTypeID == 2) {
-        payload["examDate"] = startDate
-      }
-      Services.post(apiRoot.autoAssessmentGenerateQuest, payload)
-        .then((res) => {
-          if (res.status == "success") {
-            setQuesMarksWise([]);
-            setQuesTypeWise([]);
-            setIsLoader(false)
-            setIsAssessQuesModel(true);
-            const data = res.data;
-            if (questSetID == 1) {
-              setQuesMarksWise(data);
-              setIsMarksWise(true)
-            } else {
-              setQuesTypeWise(data);
-              setIsTypeWise(true)
-            }
-          } else {
-            alert(res.message)
-            setIsLoader(false)
-          }
-        })
+    if (!classID) {
+      Alert.alert("Alert", "Please select Class.");
+      return;
     }
+    if (!sectionID) {
+      Alert.alert("Alert", "Please select Section.");
+      return;
+    }
+    if (!subjectID) {
+      Alert.alert("Alert", "Please select Subject.");
+      return;
+    }
+    if (!bookIDs || bookIdsArry.length === 0) {
+      Alert.alert("Alert", "Please select at least one Book.");
+      return;
+    }
+    if (!chapterIDs || chapterIDsArray.length === 0) {
+      Alert.alert("Alert", "Please select at least one Chapter.");
+      return;
+    }
+    if (!questSetID) {
+      Alert.alert("Alert", "Please select Question Set.");
+      return;
+    }
+    if (!examName || examName.trim() === "") {
+      Alert.alert("Alert", "Please enter Assessment Name.");
+      return;
+    }
+    // Duplicate Assessment Name check
+    const isDuplicate = existingAssessments.some(
+      (item) => item?.assessmentName?.trim().toLowerCase() === examName.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      Alert.alert("Alert", "An assessment with this name has already been generated. Please enter a different Assessment Name.");
+      return;
+    }
+    if (questSetID == 2 && (!quesTypeIDs || quesTypeIdsArray.length === 0)) {
+      Alert.alert("Alert", "Please select Question Type.");
+      return;
+    }
+    if (!examTypeID) {
+      Alert.alert("Alert", "Please select Exam Type.");
+      return;
+    }
+    if (!quesLavelIDs || quesLavelIdsArray.length === 0) {
+      Alert.alert("Alert", "Please select at least one Level.");
+      return;
+    }
+    if (!startDate) {
+      Alert.alert("Alert", examTypeID == 2 ? "Please select Exam Date." : "Please select Start Date.");
+      return;
+    }
+    if (examTypeID == 1 && !endDate) {
+      Alert.alert("Alert", "Please select End Date.");
+      return;
+    }
+    if (examTypeID == 1 && endDate && startDate && endDate < startDate) {
+      Alert.alert("Alert", "End date should be greater than or equal to start date.");
+      return;
+    }
+    if (examTypeID == 2 && !fixTime) {
+      Alert.alert("Alert", "Please select Start Time.");
+      return;
+    }
+    let h = parseInt(hourData) || 0;
+    let m = parseInt(minutData) || 0;
+    if (h === 0 && m === 0) {
+      Alert.alert("Alert", "Please enter Exam Time.");
+      return;
+    }
+
+    setIsLoader(true);
+    const payload = {
+      "schoolID": userData.data.schoolID,
+      "classID": classID,
+      "bookIDs": bookIDs,
+      "subjectID": subjectID,
+      "quesSet": questSetID,
+      "asmtName": examName.trim(),
+      "sectionID": sectionID,
+      "quesType": quesTypeIDs,
+      "questionLevelIds": quesLavelIDs,
+      "chapterIDs": chapterIDs,
+      "examType": examTypeID,
+      "endDate": endDate,
+      "startTime": examTypeID == 2 ? fixTime : "",
+      "examHrs": hourData == 0 ? "" : hourData,
+      "examMin": minutData == 0 ? "" : minutData,
+      "levelIDs": quesLavelIDs,
+      "academicYear": userData.data.academicYear
+    };
+    if (examTypeID == 1) {
+      payload["startDate"] = startDate;
+    } else if (examTypeID == 2) {
+      payload["examDate"] = startDate;
+    }
+    Services.post(apiRoot.autoAssessmentGenerateQuest, payload)
+      .then((res) => {
+        setIsLoader(false);
+        if (res.status == "success") {
+          const data = res.data;
+          if (!data || data.length === 0) {
+            Alert.alert("Alert", "No questions available for the selected criteria.");
+            return;
+          }
+          setQuesMarksWise([]);
+          setQuesTypeWise([]);
+          setInputData({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+          setQWiseID({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+          setActTypeData({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+          setActTypeID({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+
+          if (questSetID == 1) {
+            setQuesMarksWise(data);
+            setIsMarksWise(true);
+          } else {
+            setQuesTypeWise(data);
+            setIsTypeWise(true);
+          }
+        } else {
+          Alert.alert("Error", res.message || "Failed to load questions");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoader(false);
+        Alert.alert("Error", "Failed to fetch question configuration.");
+      });
   }
 
   // total Question loop start
@@ -1146,40 +1220,43 @@ export default function AutoAssessmentGenerate() {
     if (studentIDs.length == studentList.length) {
       selectStuIDs = "all";
     } else if (studentIDs.length == 0) {
-      alert("Please Select Atleast One Student");
-      return
+      Alert.alert("Alert", "Please Select Atleast One Student");
+      return;
     } else {
       selectStuIDs = studentIDs.toString();
     }
     const payload = {
       "schoolID": userData.data.schoolID,
       "classID": selectedIds.classID,
-      "sectionID": selectedIds.sectionID.sectionID,
+      "sectionID": selectedIds.sectionID?.sectionID,
       "userRefID": userData.data.userRefID,
       "assessmentID": assessID,
       "studentRefIDs": selectStuIDs,
       "academicYear": userData.data.academicYear
-    }
-    console.log(payload)
-    console.log(selectedIds)
+    };
+    setIsLoader(true);
     Services.post(apiRoot.assignAssessmentToStudents, payload)
       .then((res) => {
-        console.log(JSON.stringify(res), 'check')
+        setIsLoader(false);
         if (res.status == "success") {
-          alert(res.message);
-          setIsAssign(false)
-          setAssignAsessment(false)
-          setAssessmentQuestion([])
+          Alert.alert("Success", res.message || "Assessment Assigned Successfully");
+          setIsAssign(false);
+          setAssignAsessment(false);
+          setAssessmentQuestion([]);
+          resetAllFields();
+          getExistingAssessments();
         } else {
-          alert(res.message)
+          Alert.alert("Error", res.message || "Failed to assign assessment");
         }
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
+        setIsLoader(false);
+        Alert.alert("Error", "Something went wrong while assigning assessment.");
       })
       .finally(() => {
-
-      })
+        setIsLoader(false);
+      });
   }
 
 
@@ -1477,31 +1554,23 @@ export default function AutoAssessmentGenerate() {
         <DatePicker
           modal
           open={open}
-          date={new Date()}
+          date={date || new Date()}
           mode="date"
-          onConfirm={(date) => {
-            setOpen(false)
-
+          onConfirm={(selectedDate) => {
+            setOpen(false);
             const today = new Date();
-
             today.setHours(0, 0, 0, 0);
+            const chosen = new Date(selectedDate);
+            chosen.setHours(0, 0, 0, 0);
 
-            const selectedDate = new Date(date);
-
-            selectedDate.setHours(0, 0, 0, 0);
-
-            if (selectedDate >= today) {
-
-              setDate(date);
-
+            if (chosen >= today) {
+              setDate(selectedDate);
             } else {
-
-              alert("Please select valid date.");
+              Alert.alert("Alert", "Please select valid date.");
             }
-
-
-            setDate2()
-            setHourData(0), setMinutData(0)
+            setDate2(undefined);
+            setHourData(0);
+            setMinutData(0);
           }}
           onCancel={() => {
             setOpen(false)
@@ -1512,25 +1581,25 @@ export default function AutoAssessmentGenerate() {
         <DatePicker
           modal
           open={open2}
-          date={new Date()}
+          date={date2 || new Date()}
           mode="date"
-          onConfirm={(date) => {
-            setOpen2(false)
+          onConfirm={(selectedEndDate) => {
+            setOpen2(false);
+            if (!date) {
+              Alert.alert("Alert", "Please select Start Date first.");
+              return;
+            }
             const startDate = new Date(date);
-
             startDate.setHours(0, 0, 0, 0);
 
-            const endDate = new Date(date);
-
+            const endDate = new Date(selectedEndDate);
             endDate.setHours(0, 0, 0, 0);
 
             if (endDate >= startDate) {
-
-              setDate2(date);
-
+              setDate2(selectedEndDate);
             } else {
-
-              alert(
+              Alert.alert(
+                "Alert",
                 "End date should be greater than or equal to start date."
               );
             }
@@ -1775,7 +1844,7 @@ export default function AutoAssessmentGenerate() {
                           :
                           <Feather name={"square"} color={SWATheam.SwaGray} size={20} style={{ width: 25, padding: 1 }} />
                         }
-                        <Text style={{ color: SWATheam.SwaBlack }}>{bookChapterList[index].chapterName}</Text>
+                        <Text style={{ color: SWATheam.SwaBlack }}>{bookChapterList[index]?.chapterName}</Text>
                       </TouchableOpacity>
                     </View>
                   )
@@ -1795,21 +1864,31 @@ export default function AutoAssessmentGenerate() {
       {otherAsessment.status &&
         <View style={{
           position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           width: '100%',
           height: '100%',
           paddingHorizontal: 10,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
         }}>
-          <TouchableOpacity style={{ flex: 1, }}
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            activeOpacity={1}
             onPress={() => {
-              setOtherAsessment((prev) => { return { ...prev, status: false } })
+              setOtherAsessment((prev) => ({ ...prev, status: false }));
             }}
           />
-          <View style={{ height: 170, backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 10, borderRadius: 8 }}>
-            <TouchableOpacity onPress={() => { setOtherAsessment((prev) => { return { ...prev, status: false } }) }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
-              <AntDesign name={"close"} color={SWATheam.SwaBlack} size={25} style={{ width: 45 }} />
-            </TouchableOpacity>
-            <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Assessment Name</Text>
+          <View style={{ backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, paddingBottom: 6, marginBottom: 8 }}>
+              <Text style={{ textAlign: 'center', flex: 1, color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Assessment Name</Text>
+              <TouchableOpacity onPress={() => { setOtherAsessment((prev) => ({ ...prev, status: false })); }}>
+                <AntDesign name={"close"} color={SWATheam.SwaBlack} size={22} />
+              </TouchableOpacity>
+            </View>
             <ScrollView>
               <View>
                 <TextInput
@@ -1819,17 +1898,12 @@ export default function AutoAssessmentGenerate() {
                   placeholder="Enter Assessment Name"
                   placeholderTextColor={SWATheam.SwaGray}
                 />
-                <TouchableOpacity onPress={() => { saveOtherAssessData(); getSelectedName(type = "examName", assessInputName) }} style={{ alignSelf: "center", backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, padding: 8, margin: 4, width: 120 }}>
+                <TouchableOpacity onPress={() => { saveOtherAssessData(); }} style={{ alignSelf: "center", backgroundColor: userData.data.colors.mainTheme, borderRadius: 4, padding: 8, margin: 4, width: 120 }}>
                   <Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Submit</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
           </View>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => {
-              setOtherAsessment((prev) => { return { ...prev, status: false } })
-            }}
-          />
         </View>
       }
 
@@ -2146,13 +2220,28 @@ export default function AutoAssessmentGenerate() {
       {isTypeWise &&
         <View style={{
           position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           width: '100%',
           height: '100%',
           paddingHorizontal: 10,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
         }}>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsTypeWise(false) }}
+
+
+          <TouchableOpacity
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            activeOpacity={1}
+            onPress={() => {
+              setIsTypeWise(false);
+              setActTypeData({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+              setActTypeID({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+            }}
           />
           <View style={{ height: "auto", maxHeight: 400, backgroundColor: '#efefef', width: '100%', borderRadius: 8 }}>
             <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Configure Question</Text>
@@ -2160,7 +2249,6 @@ export default function AutoAssessmentGenerate() {
             <ScrollView>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', margin: 4 }}>
                 {quesTypeWise?.map((item, index) => {
-                  console.log(item)
                   let ind = index + 1;
                   let totalQues = item.totalQues;
                   let activityID = item.activityID;
@@ -2176,90 +2264,126 @@ export default function AutoAssessmentGenerate() {
                       </View>
 
                       <TextInput
-                        style={{ "height": 30, "margin": 5, "borderWidth": 1, "padding": 6, borderRadius: 6, color: SWATheam.SwaBlack }}
-                        onChangeText={(val) => { setQuesTypeValue(ind, val, totalQues, activityID) }}
-                        value={ind == 1 ? actTypeData.t1 : ind == 2 ? actTypeData.t2 : ind == 3 ?
-                          actTypeData.t3 : ind == 4 ? actTypeData.t4 : ind == 5 ?
-                            actTypeData.t5 : ind == 6 ? actTypeData.t6 : ind == 7 ?
-                              actTypeData.t7 : ind == 8 ? actTypeData.t8 : null}
-                        placeholder="No fo Question"
+                        style={{ height: 32, margin: 5, borderWidth: 1, padding: 6, borderRadius: 6, color: SWATheam.SwaBlack, backgroundColor: SWATheam.SwaWhite }}
+                        onChangeText={(val) => { setQuesTypeValue(ind, val, totalQues, activityID); }}
+                        value={actTypeData[`t${ind}`] !== null && actTypeData[`t${ind}`] !== undefined ? String(actTypeData[`t${ind}`]) : ''}
+                        placeholder="No of Questions"
                         placeholderTextColor={SWATheam.SwaGray}
                         keyboardType="number-pad"
                       />
                     </View>
-                  )
+                  );
                 })}
               </View>
             </ScrollView>
 
-            <TouchableOpacity onPress={() => { generateAutoAssSubmit('typeWise') }} style={{ flexDirection: 'row', justifyContent: "center", alignContent: "center", alignItems: "center", padding: 5, backgroundColor: '#dcdcdc' }}>
-              <View style={{ width: "50%", padding: 6, margin: 3, borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, justifyContent: "center", alignContent: "center", alignItems: "center" }}><Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Submit</Text></View>
-            </TouchableOpacity>
-
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsTypeWise(false);
+                  setActTypeData({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+                  setActTypeID({ t1: null, t2: null, t3: null, t4: null, t5: null, t6: null, t7: null, t8: null });
+                }}
+                style={{ flex: 1, marginHorizontal: 4, padding: 8, borderRadius: 5, backgroundColor: '#6c757d', justifyContent: "center", alignItems: "center" }}
+              >
+                <Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: 'bold' }}>Close</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { generateAutoAssSubmit('typeWise'); }}
+                style={{ flex: 1, marginHorizontal: 4, padding: 8, borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, justifyContent: "center", alignItems: "center" }}
+              >
+                <Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: 'bold' }}>Submit</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsTypeWise(false) }}
-          />
         </View>
       }
       {isMarksWise &&
         <View style={{
           position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           width: '100%',
           height: '100%',
           paddingHorizontal: 10,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
         }}>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsMarksWise(false) }}
+          <TouchableOpacity
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            activeOpacity={1}
+            onPress={() => {
+              setIsMarksWise(false);
+              setInputData({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+              setQWiseID({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+            }}
           />
-          <View style={{ height: "auto", maxHeight: 400, backgroundColor: '#efefef', width: '100%', borderRadius: 8 }}>
-            <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Configure Question:</Text>
+          <View style={{ height: "auto", maxHeight: 420, backgroundColor: '#efefef', width: '100%', borderRadius: 8, padding: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, paddingBottom: 6, margin: 4 }}>
+              <Text style={{ textAlign: 'center', flex: 1, color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Configure Question</Text>
+              <TouchableOpacity onPress={() => {
+                setIsMarksWise(false);
+                setInputData({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+                setQWiseID({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+              }} style={{ padding: 4 }}>
+                <AntDesign name={"close"} color={SWATheam.SwaBlack} size={22} />
+              </TouchableOpacity>
+            </View>
 
             <ScrollView>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', margin: 4 }}>
                 {quesMarksWise?.map((item, index) => {
-
                   let ind = index + 1;
                   let totalQues = item.totalQues;
                   let marks = item.marksPerQuestion;
                   return (
                     <View style={{ width: "50%", borderRadius: 6 }} key={index}>
-                      <View style={{ flexDirection: 'row' }}>
-                        <View style={{ width: '3%' }}></View>
-                        <View style={{ width: "65%" }}>
-                          <Text style={{ color: 'green' }}>Question:{item.totalQues}</Text>
+                      <View style={{ flexDirection: 'row', paddingHorizontal: 6 }}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: 'green' }}>Questions: {item.totalQues}</Text>
                         </View>
-                        <View style={{ width: "30%" }}>
-                          <Text style={{ color: 'green' }}>marks:{item.marksPerQuestion}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: 'green', textAlign: 'right' }}>Marks: {item.marksPerQuestion}</Text>
                         </View>
                       </View>
                       <TextInput
-                        style={{ "height": 30, "margin": 5, "borderWidth": 1, "padding": 6, borderRadius: 6, color: SWATheam.SwaBlack }}
-                        onChangeText={(val) => { setInputValue(ind, val, totalQues, marks) }}
-                        value={ind == 1 ? inputData.q1 : ind == 2 ? inputData.q2 : ind == 3 ?
-                          inputData.q3 : ind == 4 ? inputData.q4 : ind == 5 ?
-                            inputData.q5 : ind == 6 ? inputData.q6 : ind == 7 ?
-                              inputData.q7 : ind == 8 ?
-                                inputData.q8 : null}
-                        placeholder="No fo Question"
+                        style={{ height: 32, margin: 5, borderWidth: 1, padding: 6, borderRadius: 6, color: SWATheam.SwaBlack, backgroundColor: SWATheam.SwaWhite }}
+                        onChangeText={(val) => { setInputValue(ind, val, totalQues, marks); }}
+                        value={inputData[`q${ind}`] !== null && inputData[`q${ind}`] !== undefined ? String(inputData[`q${ind}`]) : ''}
+                        placeholder="No of Questions"
                         placeholderTextColor={SWATheam.SwaGray}
                         keyboardType="number-pad"
                       />
                     </View>
-                  )
+                  );
                 })}
               </View>
             </ScrollView>
 
-            <TouchableOpacity onPress={() => { generateAutoAssSubmit('marksWise') }} style={{ flexDirection: 'row', justifyContent: "center", alignContent: "center", alignItems: "center", padding: 5, backgroundColor: '#dcdcdc' }}>
-              <View style={{ width: "50%", padding: 6, margin: 3, borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, justifyContent: "center", alignContent: "center", alignItems: "center" }}><Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase' }}>Submit</Text></View>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsMarksWise(false);
+                  setInputData({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+                  setQWiseID({ q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null });
+                }}
+                style={{ flex: 1, marginHorizontal: 4, padding: 8, borderRadius: 5, backgroundColor: '#6c757d', justifyContent: "center", alignItems: "center" }}
+              >
+                <Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: 'bold' }}>Close</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { generateAutoAssSubmit('marksWise'); }}
+                style={{ flex: 1, marginHorizontal: 4, padding: 8, borderRadius: 5, backgroundColor: userData.data.colors.mainTheme, justifyContent: "center", alignItems: "center" }}
+              >
+                <Text style={{ color: SWATheam.SwaWhite, textTransform: 'uppercase', fontWeight: 'bold' }}>Submit</Text>
+              </TouchableOpacity>
+            </View>
 
           </View>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsMarksWise(false) }}
-          />
         </View>
       }
 
@@ -2267,17 +2391,30 @@ export default function AutoAssessmentGenerate() {
 
         <View style={{
           position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           width: '100%',
           height: '100%',
           paddingHorizontal: 10,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          padding: 5
+          padding: 5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
         }}>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsAssign(false) }}
+          <TouchableOpacity
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            activeOpacity={1}
+            onPress={() => {
+              setIsAssign(false);
+              resetAllFields();
+              getExistingAssessments();
+            }}
           />
-          <View style={{ maxHeight: '60%', backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
-            <TouchableOpacity onPress={() => { setIsAssign(false) }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
+          <View style={{ maxHeight: '75%', backgroundColor: SWATheam.SwaWhite, width: '100%', padding: 14, borderRadius: 8 }}>
+            <TouchableOpacity onPress={() => { setIsAssign(false); resetAllFields(); getExistingAssessments(); }} style={{ alignSelf: "flex-end", position: "absolute", top: 6, right: 0 }}>
               <AntDesign name={"close"} color={SWATheam.SwaBlack} size={25} style={{ width: 45 }} />
             </TouchableOpacity>
             <Text style={{ textAlign: 'center', padding: 5, color: SWATheam.SwaBlack, borderBottomWidth: 1, borderBottomColor: SWATheam.SwaBlack, margin: 4, fontWeight: 'bold' }}>Select Student</Text>
@@ -2318,9 +2455,6 @@ export default function AutoAssessmentGenerate() {
             </View>
 
           </View>
-          <TouchableOpacity style={{ flex: 1, }}
-            onPress={() => { setIsAssign(false) }}
-          />
         </View>
       }
     </>

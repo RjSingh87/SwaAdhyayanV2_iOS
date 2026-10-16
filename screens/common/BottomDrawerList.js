@@ -114,8 +114,8 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                 </View>
               ) :
               (<>
-                {listItem.list.map((item, index) => {
-
+                {listItem?.list?.map((item, index) => {
+                  console.log({ item })
                   let printValue = "";
                   let listKeys = ''
                   let listItemId = ''
@@ -170,11 +170,11 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                   } else if (listItem.type == "reportAss") {
                     printValue = item.assessmentName
                     listKeys = item.assessmentID
-                    listItemId = selectedField?.asssessment?.assessmentID
+                    listItemId = selectedField?.assessment?.assessmentID
                   } else if (listItem.type == "clsWiseReportAss") {
                     printValue = item.examName
                     listKeys = item.examID
-                    listItemId = selectedField?.asssessment?.examID
+                    listItemId = selectedField?.assessment?.examID
 
                   } else if (listItem.type == "assessment") {
                     printValue = item.assessmentName

@@ -198,10 +198,59 @@ export default function AssessmentQuesView({ navigation, route }) {
     }
   };
 
+  const prepareCleanHtmlForPdf = (rawHtml) => {
+    if (!rawHtml) return '';
+    let html = rawHtml;
+    if (typeof html === 'string') {
+      if (html.includes('&lt;') || html.includes('&gt;')) {
+        html = html
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&amp;/g, '&')
+          .replace(/&nbsp;/g, ' ');
+      }
+    }
+    const mathJaxHeadConfig = `
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          padding: 16px;
+          color: #0f172a;
+          font-size: 14px;
+          line-height: 1.6;
+          background-color: #ffffff;
+        }
+        p { margin-top: 4px; margin-bottom: 8px; }
+        strong, b { font-weight: 700; color: #000000; }
+        img { max-width: 100% !important; height: auto !important; margin: 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+        th { background-color: #f1f5f9; font-weight: bold; }
+        .MathJax, .MathJax_Display { margin: 8px 0 !important; }
+      </style>
+      <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+      </script>
+    `;
+    if (/<head[^>]*>/i.test(html)) {
+      html = html.replace(/<head[^>]*>/i, `$&${mathJaxHeadConfig}`);
+    } else if (/<body[^>]*>/i.test(html)) {
+      html = `<!DOCTYPE html><html><head>${mathJaxHeadConfig}</head>${html}</html>`;
+    } else {
+      html = `<!DOCTYPE html><html><head>${mathJaxHeadConfig}</head><body>${html}</body></html>`;
+    }
+    return html;
+  };
+
   const printAndSharePDF = async (htmlContent) => {
     try {
+      const formattedHtml = prepareCleanHtmlForPdf(htmlContent);
       await RNPrint.print({
-        html: htmlContent
+        html: formattedHtml
       });
     } catch (err) {
       console.log("Print/Share error:", err);

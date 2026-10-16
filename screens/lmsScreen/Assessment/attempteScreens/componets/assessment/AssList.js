@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useContext, } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image, useWindowDimensions } from 'react-native';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, StatusBar, Image, useWindowDimensions, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { GlobleData } from '../../../../../../Store';
 import { apiRoot, SWATheam } from '../../../../../../constant/ConstentValue';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Loader from '../../../../../common/Loader';
 import Services from '../../../../../../Services';
 import Orientation from 'react-native-orientation-locker';
@@ -34,6 +35,30 @@ export default function AssiList({ navigation }) {
 	const [assessList, setAssessList] = useState([]);
 	const [reportData, setReportData] = useState({ data: null, status: false })
 	const [uploadSheets, setUploadSheets] = useState({ data: null, isValidateByExaminer: null, url: '', status: false })
+	const [searchQuery, setSearchQuery] = useState('')
+	const [searchLoading, setSearchLoading] = useState(false)
+
+	const filteredAssessments = useMemo(() => {
+		if (!assessList || assessList.length === 0) return []
+		if (searchQuery.trim() === '') return assessList
+		return assessList.filter(item =>
+			item.assessmentName?.toLowerCase().includes(searchQuery.trim().toLowerCase())
+		)
+	}, [assessList, searchQuery])
+
+	function handleSearchChange(text) {
+		setSearchQuery(text)
+		if (text.length === 0) {
+			setSearchLoading(true)
+			setTimeout(() => { setSearchLoading(false) }, 100)
+		}
+	}
+
+	function handleClearSearch() {
+		setSearchLoading(true)
+		setSearchQuery('')
+		setTimeout(() => { setSearchLoading(false) }, 100)
+	}
 
 	useEffect(() => {
 		getGenerateAsslist()
@@ -149,13 +174,20 @@ export default function AssiList({ navigation }) {
 	}
 
 	function viewsheets(item) {
-		const sheets = item.solutionSheet.split(',')
+		if (!item?.solutionSheet || item.solutionSheet.trim() === '') {
+			Alert.alert('', 'Answer Not Uploaded.');
+			return;
+		}
+		const sheets = item.solutionSheet.split(',').filter(sheet => sheet && sheet.trim() !== '');
+		if (sheets.length === 0) {
+			Alert.alert('', 'Answer Not Uploaded.');
+			return;
+		}
 		const imgUrl = uploadSheets.url + item.assessmentID
 
 		setUploadSheets((prev) => {
 			return { ...prev, data: sheets, imgUrl: imgUrl, isValidateByExaminer: item.isValidateByExaminer, status: true }
 		})
-
 	}
 	function closePopup() {
 		setUploadSheets((prev) => {
@@ -170,112 +202,145 @@ export default function AssiList({ navigation }) {
 	return (
 		<>
 			<View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-				<View style={{ flex: 1 }}>
-					<ScrollView>
-						{assessList?.map((item, asslist) => {
-							let attemptIds = item.attemptID;
-							return (
-								<View style={styles.holder} key={asslist}>
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Assessment Name : </Text>
-										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.assessmentName}</Text>
-									</View>
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Subject : </Text>
-										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.subjectName}</Text>
-									</View>
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Start Date :</Text>
-										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.startDate} </Text>
-									</View>
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>End Date :</Text>
-										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate} </Text>
-									</View>
-									{attemptIds !== 0 && item.resultDeclareStatus ?
-										<>
-											<Text style={styles.resultBold}>Result </Text>
+				<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+					{assessList?.length > 0 &&
+						<View style={{ paddingHorizontal: 10, paddingTop: 10, paddingBottom: 5 }}>
+							<View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: SWATheam.SwaWhite, borderWidth: 1, borderColor: userData?.data?.colors?.hoverTheme || SWATheam.SwaGray, borderRadius: 6, paddingHorizontal: 10, height: 42 }}>
+								<Ionicons name="search" size={20} color={SWATheam.SwaGray} style={{ marginRight: 6 }} />
+								<TextInput
+									placeholder="Search Assessment Name..."
+									placeholderTextColor={SWATheam.SwaGray}
+									value={searchQuery}
+									onChangeText={handleSearchChange}
+									style={{ flex: 1, color: SWATheam.SwaBlack, paddingVertical: 0, fontSize: 14 }}
+								/>
+								{searchLoading ? (
+									<ActivityIndicator size="small" color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+								) : searchQuery.length > 0 ? (
+									<TouchableOpacity onPress={handleClearSearch} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+										<AntDesign name="closecircle" size={18} color={SWATheam.SwaGray} />
+									</TouchableOpacity>
+								) : null}
+							</View>
+						</View>
+					}
+					<View style={{ flex: 1 }}>
+						<ScrollView keyboardShouldPersistTaps="handled">
+							{searchLoading ? (
+								<View style={{ padding: 30, alignItems: 'center', justifyContent: 'center' }}>
+									<ActivityIndicator size="small" color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+									<Text style={{ marginTop: 8, color: SWATheam.SwaGray, fontSize: 13 }}>Resetting assessments...</Text>
+								</View>
+							) : filteredAssessments.length > 0 ? (
+								filteredAssessments.map((item, asslist) => {
+									let attemptIds = item.attemptID;
+									return (
+										<View style={styles.holder} key={asslist}>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Scored Marks : </Text>
-												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.obtainedMarks}</Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Assessment Name : </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.assessmentName}</Text>
 											</View>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Marks : </Text>
-												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.totalMarks}</Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Subject : </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.subjectName}</Text>
 											</View>
 											<View style={styles.rowList}>
-												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Percentage</Text>
-												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.percentage}</Text>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Start Date :</Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.startDate} </Text>
 											</View>
-										</>
-										: ""}
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Questions</Text>
-										<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.noOfQuestion}</Text>
-									</View>
-									<View style={styles.rowList}>
-										<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Status</Text>
-										{attemptIds !== 0 ?
-											<>
-												<TouchableOpacity style={styles.btnsStatus_2}>
-													<Text style={[styles.statusP, { color: "#fff" }]}>Completed</Text>
+											<View style={styles.rowList}>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>End Date :</Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate} </Text>
+											</View>
+											{attemptIds !== 0 && item.resultDeclareStatus ?
+												<>
+													<Text style={styles.resultBold}>Result </Text>
+													<View style={styles.rowList}>
+														<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Scored Marks : </Text>
+														<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.obtainedMarks}</Text>
+													</View>
+													<View style={styles.rowList}>
+														<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Marks : </Text>
+														<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.totalMarks}</Text>
+													</View>
+													<View style={styles.rowList}>
+														<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Percentage</Text>
+														<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.percentage}</Text>
+													</View>
+												</>
+												: ""}
+											<View style={styles.rowList}>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Total Questions</Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.noOfQuestion}</Text>
+											</View>
+											<View style={styles.rowList}>
+												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Status</Text>
+												{attemptIds !== 0 ?
+													<>
+														<TouchableOpacity style={styles.btnsStatus_2}>
+															<Text style={[styles.statusP, { color: "#fff" }]}>Completed</Text>
+														</TouchableOpacity>
+													</>
+													: <TouchableOpacity style={styles.btnsStatus}>
+														<Text style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Pending</Text>
+													</TouchableOpacity>}
+
+											</View>
+											<Text style={styles.statusText}>Action</Text>
+											{item.endDate < todayDate && attemptIds === 0 ?
+												<TouchableOpacity style={[styles.btnsStatus_3, { width: "50%", alignSelf: 'center' }]}>
+													<Text style={[styles.statusP, { color: "#fff" }]}>Assessment Expired</Text>
 												</TouchableOpacity>
-											</>
-											: <TouchableOpacity style={styles.btnsStatus}>
-												<Text style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Pending</Text>
-											</TouchableOpacity>}
+												: ""}
 
-									</View>
-									<Text style={styles.statusText}>Action</Text>
-									{item.endDate < todayDate && attemptIds === 0 ?
-										<TouchableOpacity style={[styles.btnsStatus_3, { width: "50%", alignSelf: 'center' }]}>
-											<Text style={[styles.statusP, { color: "#fff" }]}>Assessment Expired</Text>
-										</TouchableOpacity>
-										: ""}
-
-									{item.endDate >= todayDate && attemptIds === 0 ?
-										<TouchableOpacity
-											style={[styles.btnsStatus_4, { width: "50%", alignSelf: 'center' }]}
-											onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder', { totalTime: item.totalTime }) }}
-										>
-											<Text
-												style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Attempt Waiting</Text>
-										</TouchableOpacity>
-										: ""
-									}
-									{attemptIds === 1 ?
-										<View style={[styles.rowList, { justifyContent: 'space-between' }]}>
-											<TouchableOpacity style={styles.buttonStatus}>
-												<Text style={[styles.textInner, { backgroundColor: "#0ca279" }]}>Attempted</Text>
-											</TouchableOpacity>
-											{item.resultDeclareStatus == 1 ?
-												<TouchableOpacity style={styles.buttonStatus}
-													onPress={() => { viewResult(item) }}>
-													<Text style={styles.textInner}>View Result</Text>
-												</TouchableOpacity> :
-												<View style={styles.buttonStatus}>
-													<Text style={styles.textInner}>Result Awaited</Text>
-												</View>
+											{item.endDate >= todayDate && attemptIds === 0 ?
+												<TouchableOpacity
+													style={[styles.btnsStatus_4, { width: "50%", alignSelf: 'center' }]}
+													onPress={() => { attemptWaiting(item), navigation.navigate('AttemptHolder', { totalTime: item.totalTime }) }}
+												>
+													<Text
+														style={[styles.statusP, { color: SWATheam.SwaBlack }]}>Attempt Waiting</Text>
+												</TouchableOpacity>
+												: ""
 											}
-											{item.resultDeclareStatus == 1 &&
-												<TouchableOpacity style={styles.buttonStatus} onPress={() => { viewReport(item) }}>
-													<Text style={styles.textInner}>View Report</Text>
-												</TouchableOpacity>
+											{attemptIds === 1 ?
+												<View style={[styles.rowList, { justifyContent: 'space-between' }]}>
+													<TouchableOpacity style={styles.buttonStatus}>
+														<Text style={[styles.textInner, { backgroundColor: "#0ca279" }]}>Attempted</Text>
+													</TouchableOpacity>
+													{item.resultDeclareStatus == 1 ?
+														<TouchableOpacity style={styles.buttonStatus}
+															onPress={() => { viewResult(item) }}>
+															<Text style={styles.textInner}>View Result</Text>
+														</TouchableOpacity> :
+														<View style={styles.buttonStatus}>
+															<Text style={styles.textInner}>Result Awaited</Text>
+														</View>
+													}
+													{item.resultDeclareStatus == 1 &&
+														<TouchableOpacity style={styles.buttonStatus} onPress={() => { viewReport(item) }}>
+															<Text style={styles.textInner}>View Report</Text>
+														</TouchableOpacity>
 
+													}
+												</View>
+												: ""}
+											{item.solutionSheet != null ?
+												<TouchableOpacity style={{ width: 200, padding: 6, backgroundColor: userData.data.colors.mainTheme, borderRadius: 10, alignSelf: 'center' }} onPress={() => { viewsheets(item) }}>
+													<Text style={styles.textInner}>Check Your Answer Sheets</Text>
+												</TouchableOpacity> : null
 											}
 										</View>
-										: ""}
-									{item.solutionSheet != null ?
-										<TouchableOpacity style={{ width: 200, padding: 6, backgroundColor: userData.data.colors.mainTheme, borderRadius: 10, alignSelf: 'center' }} onPress={() => { viewsheets(item) }}>
-											<Text style={styles.textInner}>Check Your Answer Sheets</Text>
-										</TouchableOpacity> : null
-									}
+									)
+								})
+							) : (
+								<View style={{ borderWidth: 1, borderColor: 'grey', borderRadius: 5, backgroundColor: SWATheam.SwaWhite, padding: 15, margin: 10 }}>
+									<Text style={{ color: 'red', fontSize: 14, textAlign: 'center' }}>No assessment found matching search.</Text>
 								</View>
-							)
-						})}
-
-					</ScrollView>
-				</View>
+							)}
+						</ScrollView>
+					</View>
+				</KeyboardAvoidingView>
 
 				{loader && <Loader />}
 

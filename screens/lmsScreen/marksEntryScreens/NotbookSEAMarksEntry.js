@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, StatusBar, Alert } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { apiRoot, SWATheam } from '../../../constant/ConstentValue'
 import { GlobleData } from '../../../Store'
@@ -45,7 +45,7 @@ const NotbookSEAMarksEntry = ({ navigation, route }) => {
             .then((res) => {
                 if (res.status == "success") {
                     setStudentData((prev) => {
-                        return { ...prev, list: res.data, status: false }
+                        return { ...prev, list: res.data, isNew: [], isChanged: false, status: false }
                     })
                 } else if (res.status == "error") {
                     alert(res.message)
@@ -74,32 +74,46 @@ const NotbookSEAMarksEntry = ({ navigation, route }) => {
         })
     }
     function getSelectedItem(item, type, index, itemIndex) {
+        let updatedList = [...studentData.list]
+        let isNewList = [...(studentData.isNew || [])]
+
         if (type == 'notbook') {
-            if (studentData.list[itemIndex].bookMarks.noteSEAID == undefined) {
-                studentData.isNew.push('new')
+            if (updatedList[itemIndex]?.bookMarks?.noteSEAID == undefined) {
+                isNewList.push('new')
             } else {
-                studentData.isNew.push(markList.selectedStudent.bookMarks.noteSEAID)
+                isNewList.push(markList.selectedStudent?.bookMarks?.noteSEAID)
             }
-            studentData.list[itemIndex].bookMarks.notebookMarks = item.number
+            if (updatedList[itemIndex]?.bookMarks) {
+                updatedList[itemIndex].bookMarks.notebookMarks = item.number
+            }
             setSelectMarksID((prev) => {
-                return { ...prev, notbookID: item.id, }
+                return { ...prev, notbookID: item.id }
             })
         } else if (type == 'sea') {
-            if (studentData.list[itemIndex].bookMarks.noteSEAID == undefined) {
-                studentData.isNew.push('new')
+            if (updatedList[itemIndex]?.bookMarks?.noteSEAID == undefined) {
+                isNewList.push('new')
             } else {
-                studentData.isNew.push(markList.selectedStudent.bookMarks.noteSEAID)
+                isNewList.push(markList.selectedStudent?.bookMarks?.noteSEAID)
             }
-            studentData.list[itemIndex].bookMarks.seaMarks = item.number
+            if (updatedList[itemIndex]?.bookMarks) {
+                updatedList[itemIndex].bookMarks.seaMarks = item.number
+            }
             setSelectMarksID((prev) => {
                 return { ...prev, seaID: item.id }
             })
         }
+        setStudentData((prev) => {
+            return { ...prev, list: updatedList, isNew: isNewList, isChanged: true }
+        })
         setMarksList((prev) => {
             return { ...prev, status: false }
         })
     }
     function saveAllNotebookSeaMarks() {
+        if (!studentData.isChanged && (!studentData.isNew || studentData.isNew.length === 0)) {
+            Alert.alert("Info", 'Please select anyone!')
+            return
+        }
         let studentIDs = []
         let notebookMarks = []
         let seaMarks = []

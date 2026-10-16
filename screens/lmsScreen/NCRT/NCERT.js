@@ -10,6 +10,7 @@ import SwaHeader from '../../common/SwaHeader';
 import Services from '../../../Services';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MsgModal from '../../common/MsgModal';
 
 export default function NCERT({ navigation, route }) {
 	const insets = useSafeAreaInsets();
@@ -112,7 +113,13 @@ export default function NCERT({ navigation, route }) {
 					setstartingTestData((p) => {
 						return { ...p, qSetIds: setIds, testTypesIds: testTyp }
 					})
-					let dd = getQuest.ncertQuestion[0]?.questionData;
+					let dd = getQuest.ncertQuestion[0]?.questionData || [];
+					if (dd.length === 0) {
+						setLoaders(false);
+						Alert.alert('No questions found for the selected chapters.');
+						return;
+					}
+
 					let ans = Array(dd.length);
 					for (let i = 0; i < ans.length; i++) {
 						ans[i] = {};
@@ -120,7 +127,7 @@ export default function NCERT({ navigation, route }) {
 
 					setStoreData(ans)
 					setTotalQuest(dd.length);
-					const getType = dd[currentQuestionIndex].activityID;
+					const getType = dd?.[currentQuestionIndex]?.activityID;
 					setAct(getType);
 					setAttemptScreen(true);
 				} else {
@@ -272,6 +279,11 @@ export default function NCERT({ navigation, route }) {
 		setholderRepo((rep) => {
 			return { ...rep, holderSuccess: false }
 		})
+		setReportData((pre) => ({
+			...pre,
+			attemptSuccess: true,
+			afterClickView: false,
+		}))
 	}
 	const [holderRepo, setholderRepo] = useState({
 		holderSuccess: false,
@@ -287,11 +299,16 @@ export default function NCERT({ navigation, route }) {
 				.then((finalAssess) => {
 					if (finalAssess.status == "success") {
 						setAreYouSure(false)
+						setReportData((pre) => ({
+							...pre,
+							attemptSuccess: true,
+							afterClickView: false,
+						}))
 						setholderRepo((pre) => {
 							return {
 								...pre,
 								holderSuccess: true,
-								successMsg: finalAssess.msg,
+								successMsg: finalAssess.msg || "Exam Submitted Successfully!",
 								runTimeQsetIds: finalAssess.qSetID
 							}
 						})
@@ -413,6 +430,7 @@ export default function NCERT({ navigation, route }) {
 							reportList: false,
 						}
 					})
+					setholderRepo((pre) => ({ ...pre, holderSuccess: true }))
 					// alert("ok");
 				} else {
 					alert(finalAssess.message);
@@ -484,7 +502,6 @@ export default function NCERT({ navigation, route }) {
 	}
 	function allAttemReport() {
 		setLoaders(true)
-
 		Services.post(apiRoot.studentAllNcertAttemptReport, { "userRefID": userData.data.userRefID })
 			.then((atmtData) => {
 				if (atmtData.status == "success") {
@@ -1197,8 +1214,8 @@ export default function NCERT({ navigation, route }) {
 
 														<View style={styles.optionsView}>
 															{question[currentQuestionIndex]?.optionText1 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", paddingHorizontal: 5, paddingVertical: 10, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(a)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", paddingHorizontal: 5, paddingVertical: 10, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(a)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText1.endsWith('.png') || question[currentQuestionIndex]?.optionText1.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={{ width: 50, height: 50 }} />
@@ -1211,8 +1228,8 @@ export default function NCERT({ navigation, route }) {
 																</View>
 																: ''}
 															{question[currentQuestionIndex]?.optionText2 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(b)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(b)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={{ width: 50, height: 50 }} />
@@ -1225,8 +1242,8 @@ export default function NCERT({ navigation, route }) {
 																</View>
 																: null}
 															{question[currentQuestionIndex]?.optionText3 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(c)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(c)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={{ width: 50, height: 50 }} />
@@ -1240,8 +1257,8 @@ export default function NCERT({ navigation, route }) {
 																: null}
 															{question[currentQuestionIndex]?.optionText4 ?
 
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(d)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(d)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={{ width: 50, height: 50 }} />
@@ -1257,8 +1274,8 @@ export default function NCERT({ navigation, route }) {
 																: null}
 															{question[currentQuestionIndex]?.optionText5 ?
 
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(e)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(e)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={{ width: 50, height: 50 }} />
@@ -1273,8 +1290,8 @@ export default function NCERT({ navigation, route }) {
 
 																: null}
 															{question[currentQuestionIndex]?.optionText6 ?
-																<View style={{ flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
-																	<Text style={{ width: 20, fontWeight: "bold" }}>(f)</Text>
+																<View style={{ flexDirection: "row", flexWrap: 'wrap', backgroundColor: "#e5e7eb", padding: 5, margin: 5 }}>
+																	<Text style={{ width: 30, fontWeight: "bold" }}>(f)</Text>
 																	<View>
 																		{question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
 																			<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={{ width: 50, height: 50 }} />
@@ -1590,24 +1607,27 @@ export default function NCERT({ navigation, route }) {
 						</>
 					}
 
-					{areYouSure &&
+					{/* Modal 1: Are you sure submit modal */}
+					{areYouSure && (
 						<Modal
-							animationType="slide"
+							animationType="fade"
 							transparent={true}
+							visible={areYouSure}
+							onRequestClose={() => setAreYouSure(false)}
 						>
-							<View style={styles.modelsAre}>
+							<View style={styles.modalOverlay}>
 								<View style={styles.innerBox}>
-									<Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
-									<Text style={styles.textAlinCenetr}>Are you sure ??</Text>
-									<Text style={styles.runningTest}>Do you want to submit your exam</Text>
+									<Image style={{ resizeMode: 'contain', width: 70, height: 70, alignSelf: "center", marginBottom: 15 }} source={require('../../assets/mark.png')} />
+									<Text style={styles.textAlinCenetr}>Are you sure?</Text>
+									<Text style={styles.runningTest}>Do you want to submit your exam?</Text>
 									<View style={styles.rowAreYousure}>
-										<View style={{ width: 80 }}>
+										<View style={{ width: 90 }}>
 											<Button onPress={() => { submitAssessment(0) }}
-												title="Cacel"
+												title="Cancel"
 												color="#dc143c"
 											/>
 										</View>
-										<View style={{ width: 80 }}>
+										<View style={{ width: 90 }}>
 											<Button onPress={() => { submitAssessment(1) }}
 												title="OK"
 												color="#228b22"
@@ -1615,441 +1635,383 @@ export default function NCERT({ navigation, route }) {
 										</View>
 									</View>
 								</View>
-
 							</View>
 						</Modal>
-					}
+					)}
 
-					{/* attempt report Model */}
-					{holderRepo.holderSuccess &&
-						<View style={styles.ReportHolder}>
-							<View style={styles.mainHolder}>
-								<Modal
-									animationType="slide"
-									transparent={true}
-								>
+					{/* Modal 2: Exam Report Modal */}
+					{holderRepo.holderSuccess && (
+						<Modal
+							animationType="fade"
+							transparent={true}
+							visible={holderRepo.holderSuccess}
+							onRequestClose={closeReportHolder}
+						>
+							<View style={styles.modalOverlay}>
+								<View style={styles.modalContainer}>
 									<View style={styles.headerHolder}>
-										<Text style={{ color: SWATheam.SwaBlack }}>Student Exam Report</Text>
-										<View><AntDesign onPress={closeReportHolder} name="close" size={20} color="#9ba8ae" /></View>
+										<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>
+											Student Exam Report
+										</Text>
+										<AntDesign
+											onPress={closeReportHolder}
+											name="close"
+											size={22}
+											color="#9ba8ae"
+										/>
 									</View>
 
-									{reportDat.attemptSuccess &&
+									{!reportDat.afterClickView && (
 										<View style={styles.showSms}>
-											<Text style={styles.youHaveSucc}>{holderRepo.successMsg}</Text>
+											<Text style={styles.youHaveSucc}>
+												{holderRepo.successMsg || "Exam Submitted Successfully!"}
+											</Text>
 											<View style={styles.viewReortBtns}>
-												<Button title="View Report" color="#37bd79" onPress={viewReport} />
+												<Button
+													title="View Report"
+													color="#37bd79"
+													onPress={viewReport}
+												/>
 											</View>
 										</View>
-									}
-									{reportDat.afterClickView &&
-										<>
+									)}
+
+									{reportDat.afterClickView && (
+										<View style={{ flex: 1 }}>
 											<View style={styles.table}>
-												<View style={[styles.headesHead, { backgroundColor: userData.data.colors.liteTheme }]}>
-													<Text style={{ color: SWATheam.SwaBlack }}>Exam Report</Text>
-													<View style={styles.attptRepBtn}>
-														<Button onPress={allAttemReport} style={{ fontSize: 11, padding: 5, width: 80 }} title="Attempt Report" color={userData.data.colors.mainTheme} />
-													</View>
+												<View style={styles.headesHead}>
+													<Text style={{ fontWeight: 'bold', fontSize: 15, color: SWATheam.SwaBlack }}>Exam Report</Text>
+													<TouchableOpacity onPress={allAttemReport} style={{ backgroundColor: '#0c8781', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 5 }}>
+														<Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>Attempt Report</Text>
+													</TouchableOpacity>
 												</View>
+
 												<View style={styles.rowHed}>
-													<Text style={[styles.cell]}>Total Marks: {reportDat.totalMarks}</Text>
-													<Text style={styles.cell}>Optained Marks :{reportDat.optainedMarks}</Text>
-													<Text style={styles.cell}>Percentage: {reportDat.preSent}</Text>
+													<Text style={styles.cell}>Total Marks: {reportDat.totalMarks}</Text>
+													<Text style={styles.cell}>Obtained Marks: {reportDat.optainedMarks}</Text>
+													<Text style={styles.cell}>Percentage: {reportDat.preSent}%</Text>
 												</View>
 											</View>
-											<ScrollView>
+
+											<ScrollView style={{ flex: 1 }}>
 												<View style={styles.InnerBoxTbls}>
 													<DataTable style={styles.container}>
 														<DataTable.Header style={styles.tableHeader}>
-															<DataTable.Title>No.</DataTable.Title>
-															<DataTable.Title>Correct Ans</DataTable.Title>
-															<DataTable.Title>Your Ans</DataTable.Title>
-															<DataTable.Title>Status</DataTable.Title>
-															<DataTable.Title>Action</DataTable.Title>
+															<DataTable.Title style={{ flex: 0.6 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>No.</Text></DataTable.Title>
+															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Correct Ans</Text></DataTable.Title>
+															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Your Ans</Text></DataTable.Title>
+															<DataTable.Title style={{ flex: 1 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Status</Text></DataTable.Title>
+															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Action</Text></DataTable.Title>
 														</DataTable.Header>
+
 														{getReport.map((item, index) => {
+															console.log(item, "whrer ?")
 															return (
 																<DataTable.Row key={index}>
-																	<DataTable.Cell style={{ width: 50 }}>{index + 1}.</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item?.correctAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
-																		{item?.correctAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
-																		{item?.correctAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
-																		{item?.correctAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
+																	<DataTable.Cell style={{ flex: 0.6 }}><Text style={{ color: SWATheam.SwaBlack }}>{index + 1}.</Text></DataTable.Cell>
+																	<DataTable.Cell style={{ flex: 1.2 }}>
+																		{item?.correctAnswerID == 1 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(a)</Text> : ""}
+																		{item?.correctAnswerID == 2 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(b)</Text> : ""}
+																		{item?.correctAnswerID == 3 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(c)</Text> : ""}
+																		{item?.correctAnswerID == 4 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(d)</Text> : ""}
 																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item?.selectedAnswerID == 1 && item.activityID == 1 ? <Text>(a)</Text> : null}
-																		{item?.selectedAnswerID == 2 && item.activityID == 1 ? <Text>(b)</Text> : null}
-																		{item?.selectedAnswerID == 3 && item.activityID == 1 ? <Text>(c)</Text> : null}
-																		{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text>(d)</Text> : null}
+																	<DataTable.Cell style={{ flex: 1.2 }}>
+																		{item?.selectedAnswerID == 1 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(a)</Text> : ""}
+																		{item?.selectedAnswerID == 2 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(b)</Text> : ""}
+																		{item?.selectedAnswerID == 3 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(c)</Text> : ""}
+																		{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(d)</Text> : ""}
 																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		{item.selectedAnswerID == item.correctAnswerID && item.activityID == 1
-																			|| item.answerID == item.selectedAnswerID && item.activityID == 2
-																			|| item.selectedAnswerID == item.answerText && item.activityID == 3 ?
-																			<Text><AntDesign name="check" size={20} color="#0d9048" /></Text> :
-																			<Text><AntDesign name="close" size={20} color="red" /></Text>
-																		}
+																	<DataTable.Cell style={{ flex: 1 }}>
+																		{(item.selectedAnswerID == item.correctAnswerID && item.activityID == 1) || (item.answerID == item.selectedAnswerID && item.activityID == 2) ? (
+																			<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/r.png')} />
+																		) : (
+																			<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/w.png')} />
+																		)}
 																	</DataTable.Cell>
-																	<DataTable.Cell>
-																		<TouchableOpacity>
-																			<Text style={styles.viewQuestionBtns} onPress={() => { viewAction(item) }}>View Q.</Text>
+																	<DataTable.Cell style={{ flex: 1.2 }}>
+																		<TouchableOpacity onPress={() => viewAction(item)}>
+																			<Text style={styles.viewQuestionBtns}>View Q.</Text>
 																		</TouchableOpacity>
 																	</DataTable.Cell>
 																</DataTable.Row>
-															)
+															);
 														})}
 													</DataTable>
 												</View>
 											</ScrollView>
-										</>
-									}
-								</Modal>
-							</View>
-						</View>
-					}
-					{/* attempt report Model */}
-					{/* are you sure pop  */}
-					{actData.modelHolder &&
-						<View style={styles.actionQuestion}>
-							<Modal animationType="slide">
-								<View style={styles.headerCloseIcons}>
-									<Text style={{ color: SWATheam.SwaBlack }}>Exam Question</Text>
-									<View><AntDesign onPress={hideExamQuest} name="close" size={20} color="#9ba8ae" /></View>
+										</View>
+									)}
 								</View>
+							</View>
+						</Modal>
+					)}
+
+					{/* Modal 3: Student All Exam Report */}
+					{reportDat.reportList && (
+						<Modal
+							animationType="slide"
+							visible={reportDat.reportList}
+							onRequestClose={hideReportList}
+						>
+							<View style={[styles.allExamHeader, { paddingTop: insets.top + 10 }]}>
+								<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Student All Exam Report</Text>
+								<AntDesign name="close" size={22} color="#231e1a" onPress={hideReportList} />
+							</View>
+							<ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+								{allReportData.map((item, index) => {
+									return (
+										<View style={styles.holderAllReport} key={index}>
+											<View style={styles.rowCol}>
+												<Text style={styles.columsStart}>Set Code :</Text>
+												<Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
+											</View>
+											<View style={styles.rowCol}>
+												<Text style={styles.columsStart}>Attempted Date :</Text>
+												<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
+											</View>
+											<View style={styles.rowCol}>
+												<Text style={styles.columsStart}>Status :</Text>
+												<Text style={{ color: SWATheam.SwaBlack }}>Attempted</Text>
+											</View>
+											<View style={styles.rowCol}>
+												<Text style={styles.columsStart}>Action :</Text>
+												<TouchableOpacity onPress={() => { viewReportSecond(item) }}>
+													<Text style={[styles.viewReportBtn, { backgroundColor: userData.data.colors.mainTheme }]}>View Report</Text>
+												</TouchableOpacity>
+											</View>
+										</View>
+									);
+								})}
+							</ScrollView>
+						</Modal>
+					)}
+
+					{/* Modal 4: Action Question View Modal */}
+					{actData.modelHolder && (
+						<Modal
+							animationType="slide"
+							visible={actData.modelHolder}
+							onRequestClose={hideExamQuest}
+						>
+							<View style={[styles.allExamHeader, { paddingTop: insets.top + 10 }]}>
+								<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Exam Question</Text>
+								<AntDesign name="close" size={22} color="#9ba8ae" onPress={hideExamQuest} />
+							</View>
+							<ScrollView style={{ flex: 1, padding: 15 }}>
 								<View style={styles.holderActQuest}>
-									{actData.showQuestActId == 1 ?
-										<>
-											<View>
+									{actData.showQuestActId == 1 && getquest && (
+										<View>
+											{getquest.questionPart1 ? (
 												<RenderHtml
 													contentWidth={width}
 													source={{ html: getquest.questionPart1 }}
 													tagsStyles={tagsStyles}
 												/>
-												<View style={styles.optionsView}>
-													{getquest?.optionText1 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(a)</Text>
-																{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText1 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
+											) : null}
+
+											<View style={styles.optionsView}>
+												{getquest?.optionText1 ? (
+													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(a)</Text>
+															{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText1 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
 														</View>
-														: null}
-													{getquest?.optionText2 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(b)</Text>
-																{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText2 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
+													</View>
+												) : null}
+
+												{getquest?.optionText2 ? (
+													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(b)</Text>
+															{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText2 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
 														</View>
-														: null}
+													</View>
+												) : null}
 
-													{getquest?.optionText3 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(c)</Text>
-																{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText3 }}
-																		tagsStyles={optionStyle}
-																	/>
-
-																}
-															</View>
+												{getquest?.optionText3 ? (
+													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(c)</Text>
+															{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText3 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
 														</View>
-														: null}
+													</View>
+												) : null}
 
-													{getquest?.optionText4 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText4 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
+												{getquest?.optionText4 ? (
+													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(d)</Text>
+															{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText4 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
 														</View>
-														: null}
-
-													{getquest?.optionText5 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID5 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText5.endsWith('.png') || getquest?.optionText5.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText5 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText5 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</View>
-														: null}
-
-													{getquest?.optionText6 ?
-														<View style={[styles.textWithInput, ({ backgroundColor: getquest.optionID6 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" })]}>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText6.endsWith('.png') || getquest?.optionText6.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText6 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText6 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-														</View>
-														: null}
-
-
-												</View>
+													</View>
+												) : null}
 											</View>
-										</>
-										: null
-									}
+										</View>
+									)}
 
-									{actData.showQuestActId == 2 ?
+									{actData.showQuestActId == 2 && getquest && (
+										<View>
+											<Text style={{ fontWeight: 'bold', fontSize: 16, color: SWATheam.SwaBlack, marginBottom: 10 }}>{getquest?.questionPart1}</Text>
+											<View style={styles.optionsView}>
+												{getquest?.optionText1 ? (
+													<View style={styles.textWithInput}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(a)</Text>
+															{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText1 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
+														</View>
+														<View style={styles.buttonRows}>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("1-1") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>True</Text>
+															</View>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("1-2") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>False</Text>
+															</View>
+														</View>
+													</View>
+												) : null}
 
+												{getquest?.optionText2 ? (
+													<View style={styles.textWithInput}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(b)</Text>
+															{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText2 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
+														</View>
+														<View style={styles.buttonRows}>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("2-1") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>True</Text>
+															</View>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("2-2") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>False</Text>
+															</View>
+														</View>
+													</View>
+												) : null}
+
+												{getquest?.optionText3 ? (
+													<View style={styles.textWithInput}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(c)</Text>
+															{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText3 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
+														</View>
+														<View style={styles.buttonRows}>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("3-1") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>True</Text>
+															</View>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("3-2") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>False</Text>
+															</View>
+														</View>
+													</View>
+												) : null}
+
+												{getquest?.optionText4 ? (
+													<View style={styles.textWithInput}>
+														<View style={styles.AWithContent}>
+															<Text style={styles.indty}>(d)</Text>
+															{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ? (
+																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
+															) : (
+																<RenderHtml
+																	contentWidth={width}
+																	source={{ html: getquest?.optionText4 }}
+																	tagsStyles={optionStyle}
+																/>
+															)}
+														</View>
+														<View style={styles.buttonRows}>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("4-1") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>True</Text>
+															</View>
+															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("4-2") ? '#adff2f' : '#b0c4de' }]}>
+																<Text style={{ textAlign: 'center' }}>False</Text>
+															</View>
+														</View>
+													</View>
+												) : null}
+											</View>
+										</View>
+									)}
+
+									{actData.showQuestActId == 3 && getquest && (
 										<View>
 											<RenderHtml
 												contentWidth={width}
 												source={{ html: getquest?.questionPart1 }}
-												tagsStyles={tagsStyles}
+												tagsStyles={optionStyle}
 											/>
-											<View style={styles.optionsView}>
-												{getquest?.optionText1 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(a)</Text>
-																{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText1 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("1-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
-													</View>
-													: ''}
-												{getquest?.optionText2 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(b)</Text>
-																{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText2 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("2-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
-													</View>
-													: ''}
-												{getquest?.optionText3 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(c)</Text>
-																{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText3 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-
-																		<TouchableOpacity
-
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("3-2") ? '#adff2f' : "" })]} >
-																			<Text>False</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
-													</View>
-													: ''}
-												{getquest?.optionText4 ?
-													<View style={styles.textWithInput}>
-														<>
-															<View style={styles.AWithContent}>
-																<Text style={styles.indty}>(d)</Text>
-																{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ?
-																	<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-																	:
-																	<RenderHtml
-																		contentWidth={width}
-																		source={{ html: getquest?.optionText4 }}
-																		tagsStyles={optionStyle}
-																	/>
-																}
-															</View>
-															<View style={styles.buttonRows}>
-																{
-																	<>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-1") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																		<TouchableOpacity
-																			style={[styles.btnTNF, ({ backgroundColor: getquest.selectedAnswerID.includes("4-2") ? '#adff2f' : "" })]} >
-																			<Text>True</Text>
-																		</TouchableOpacity>
-																	</>
-																}
-															</View>
-														</>
-													</View>
-													: ''}
+											<View style={styles.rowLines}>
+												<Text style={styles.someBolds}>Your Answer:</Text>
+												<Text style={{ color: SWATheam.SwaBlack }}>{getquest?.selectedAnswerID || 'Not answered'}</Text>
+											</View>
+											<View style={styles.rowLines}>
+												<Text style={styles.someBolds}>Correct Answer:</Text>
+												<Text style={{ color: SWATheam.SwaBlack }}>{getquest?.answerText}</Text>
 											</View>
 										</View>
-
-										: null}
-									{actData.showQuestActId == 3 ?
-										<>
-											<View style={styles.holderView}>
-												<RenderHtml
-													contentWidth={width}
-													source={{ html: getquest?.questionPart1 }}
-													tagsStyles={optionStyle}
-												/>
-												<View style={styles.rowLines}>
-													<Text style={styles.someBolds}>Your Answer:</Text>
-													<Text>{getquest.selectedAnswerID}</Text>
-												</View>
-												<View style={styles.rowLines}>
-													<Text style={styles.someBolds}>Correct Answer:</Text>
-													<Text>{getquest?.answerText}</Text>
-												</View>
-											</View>
-										</>
-										:
-										""}
-
+									)}
 								</View>
-							</Modal>
-						</View>
-					}
-
+							</ScrollView>
+						</Modal>
+					)}
 					{/* student all report data */}
 
-					{reportDat.reportList &&
-						<View>
-							<Modal animationType="slide">
-								<View style={styles.allExamHeader}>
-									<Text style={{ color: SWATheam.SwaBlack }} >Student All Exam Report</Text>
-									<View><AntDesign name="close" size={20} color="#231e1a" onPress={hideReportList} /></View>
-								</View>
-								<ScrollView >
-									{allReportData.map((item, index) => {
-										return (
-											<View style={styles.holderAllReport} key={index}>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Set Code :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Attempted Date :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Status :</Text>
-													<Text style={{ color: SWATheam.SwaBlack }}>Attempted :</Text>
-												</View>
-												<View style={styles.rowCol}>
-													<Text style={styles.columsStart}>Action :</Text>
-													<Text>
-														<TouchableOpacity onPress={() => { viewReportSecond(item) }}>
-															<Text style={[styles.viewReportBtn, { backgroundColor: userData.data.colors.mainTheme }]} >View Report</Text>
-														</TouchableOpacity>
-													</Text>
-												</View>
-											</View>
-										)
-									})}
 
-								</ScrollView>
-							</Modal>
-
-
-						</View>
-					}
-					{/* student all report data */}
 				</View>
 			}
 		</>
@@ -2109,7 +2071,7 @@ const styles = StyleSheet.create({
 	inputs_inner: {
 		borderBottomWidth: 1,
 		marginTop: 20,
-		borderStyle: 'dotted',
+		borderStyle: 'solid',
 		borderColor: SWATheam.SwaBlack,
 		minWidth: '100%',
 		maxWidth: '100%',
@@ -2133,17 +2095,19 @@ const styles = StyleSheet.create({
 	},
 	headerHolder: {
 		flexDirection: 'row',
-		justifyContent: "space-between",
-		alignItems: "center",
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		padding: 10,
-		backgroundColor: "#e3e8ea"
+		backgroundColor: '#e3e8ea',
+		marginTop: 0,
 	},
 	headerCloseIcons: {
 		flexDirection: 'row',
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 10,
-		backgroundColor: "#e3e8ea"
+		backgroundColor: "#e3e8ea",
+		marginTop: 60,
 	},
 	holderActQuest: {
 		borderWidth: 1,
@@ -2190,7 +2154,8 @@ const styles = StyleSheet.create({
 		backgroundColor: "#fff",
 	},
 	mainHolder: {
-		backgroundColor: "#fff"
+		flex: 1,
+		backgroundColor: '#fff',
 	},
 	headesHead: {
 		flexDirection: "row",
@@ -2218,20 +2183,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		padding: 10,
 		borderWidth: 1,
-		borderBlockColor: "#a7e237",
+		borderColor: '#a7e237',
 		borderRadius: 10,
-		margin: 20
+		margin: 20,
 	},
 	ReportHolder: {
+		flex: 1,
 		backgroundColor: '#fff',
-		padding: 5,
-		position: "absolute",
-		width: "100%",
-		flex: 1,
-		height: "100%",
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center'
+		padding: 0,
 
 	},
 	buttonSame: {
@@ -2511,5 +2470,22 @@ const styles = StyleSheet.create({
 		maxHeight: 120,
 		marginVertical: 10,
 		resizeMode: 'contain'
-	}
+	},
+	modalOverlay: {
+		flex: 1,
+		backgroundColor: 'rgba(0, 0, 0, 0.35)',
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 16,
+		paddingVertical: 30,
+	},
+
+	modalContainer: {
+		width: '100%',
+		minHeight: 400,
+		maxHeight: '85%',
+		backgroundColor: '#fff',
+		borderRadius: 12,
+		overflow: 'hidden',
+	},
 });

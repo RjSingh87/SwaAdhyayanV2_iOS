@@ -1,5 +1,5 @@
 import { SafeAreaView, StyleSheet, Text, View, Image, TextInput, KeyboardAvoidingView, ScrollView, Keyboard, TouchableOpacity } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { SWATheam, studentId, teacherId, schoolID } from '../../constant/ConstentValue';
 import CustomInput from '../common/CustomInput';
 import { GlobleData } from '../../Store';
@@ -16,6 +16,9 @@ const LoginScreen = ({ navigation }) => {
   const [teacherUser, setTeacherUser] = useState({ userId: '', password: '' });
   const [errorMsg, setErrorMsg] = useState(userData?.message ? userData?.message : null)
   const [isConnected, setIsConnected] = useState(false)
+
+  const teacherUserRef = useRef({ userId: '', password: '' });
+  const studentUserRef = useRef({ userId: '' });
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -36,42 +39,91 @@ const LoginScreen = ({ navigation }) => {
     };
   }, []);
   function selectUserType(val) {
-    setUserType(val)
-    setStudentUser({})
-    setTeacherUser({})
-    setErrorMsg('')
+    setUserType(val);
+
+    // Reset Student input
+    studentUserRef.current = { userId: '' };
+    setStudentUser({ userId: '' });
+
+    // Reset Teacher inputs
+    teacherUserRef.current = {
+      userId: '',
+      password: '',
+      checkMail: false,
+    };
+
+    setTeacherUser({
+      userId: '',
+      password: '',
+      checkMail: false,
+    });
+
+    setErrorMsg('');
   }
   function handleInputChange(val, type) {
-    if (type == 'code') {
-      setStudentUser((prev) => {
-        return { ...prev, userId: val }
-      })
-    } else if (type == "email") {
-      if (val.trim().length >= 4 && val.includes('@')) {
-        setTeacherUser((prev) => {
-          return { ...prev, userId: val, checkMail: true }
-        })
-      } else {
-        setTeacherUser((prev) => {
-          return { ...prev, checkMail: false }
-        })
-      }
+    if (type === 'code') {
+      studentUserRef.current = {
+        ...studentUserRef.current,
+        userId: val,
+      };
 
-    } else if (type == "password") {
-      setTeacherUser((prev) => {
-        return { ...prev, password: val }
-      })
+      setStudentUser(studentUserRef.current);
+    } else if (type === 'email') {
+      const isValidEmail =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+      teacherUserRef.current = {
+        ...teacherUserRef.current,
+        userId: val,
+        checkMail: isValidEmail,
+      };
+
+      setTeacherUser(teacherUserRef.current);
+    } else if (type === 'password') {
+      teacherUserRef.current = {
+        ...teacherUserRef.current,
+        password: val,
+      };
+
+      setTeacherUser(teacherUserRef.current);
     }
   }
   return (
     <>
       {isConnected ?
         <View style={{ flex: 1, backgroundColor: SWATheam.SwaBlue, paddingTop: insets.top }}>
-          <View style={{ height: '18%', }}>
-          </View>
-          <View style={{ height: 50, backgroundColor: SWATheam.SwaWhite, borderTopEndRadius: 35, borderTopStartRadius: 35 }}>
-            <View style={{ height: 90, width: 90, borderRadius: 50, borderColor: SWATheam.SwaBlue, borderWidth: 2, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', transform: [{ translateY: -50 }] }}>
-              <Image source={require('../../assets/SW_Logo.png')} style={{ width: '100%', height: '100%' }} />
+          <View style={{ height: '18%', }}></View>
+          <View
+            style={{
+              height: 50,
+              backgroundColor: SWATheam.SwaWhite,
+              borderTopEndRadius: 35,
+              borderTopStartRadius: 35,
+            }}
+          >
+            <View
+              style={{
+                height: 90,
+                width: 90,
+                borderRadius: 45,
+                borderColor: SWATheam.SwaBlue,
+                borderWidth: 2,
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+                transform: [{ translateY: -50 }],
+                overflow: 'hidden',
+              }}
+            >
+              <Image
+                source={require('../../assets/SW_Logo.png')}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 45,
+                  resizeMode: 'cover',
+                }}
+              />
             </View>
           </View>
           <View style={{ backgroundColor: SWATheam.SwaWhite, flex: 1, paddingHorizontal: 30 }}>
@@ -90,15 +142,39 @@ const LoginScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
                   <View style={{ height: 135, paddingVertical: 10, justifyContent: 'space-around' }}>
-                    <CustomInput placeHolder={userType == 1 ? "Enter your e-mail address" : "Enter your Access code"} maxLength={userType == 1 ? null : 32} onChangeText={(val) => handleInputChange(val, userType == 1 ? 'email' : 'code')} inputName={userType == 1 ? "email" : 'code'} checkMail={teacherUser.checkMail} />
+                    <CustomInput
+                      key={`user-${userType}`}
+                      placeHolder={
+                        userType === teacherId
+                          ? 'Enter your e-mail address'
+                          : 'Enter your Access code'
+                      }
+                      maxLength={userType === teacherId ? null : 32}
+                      onChangeText={(val) =>
+                        handleInputChange(
+                          val,
+                          userType === teacherId ? 'email' : 'code'
+                        )
+                      }
+                      inputName={userType === teacherId ? 'email' : 'code'}
+                      checkMail={teacherUser.checkMail}
+                    />
                     {userType == 1 &&
-                      <CustomInput placeHolder={"Enter your password"} secureTextEntry={true} icon={"eye-off-outline"} onChangeText={(val) => handleInputChange(val, 'password')} inputName={"password"} />
+                      <CustomInput key={`password-${userType}`} placeHolder="Enter your password" secureTextEntry={true}
+                        icon="eye-off-outline"
+                        onChangeText={(val) => handleInputChange(val, 'password')}
+                        inputName="password"
+                      />
                     }
                   </View>
                   <TouchableOpacity style={{ backgroundColor: SWATheam.SwaBlue, borderRadius: 6, padding: 12, marginVertical: 10 }}
                     onPress={() => {
-                      // setErrorMsg('');
-                      login(userType == 1 ? teacherUser : studentUser, userType, navigation)
+                      const data =
+                        userType === teacherId
+                          ? { ...teacherUserRef.current }
+                          : { ...studentUserRef.current };
+                      console.log('Login userId:', data.userId);
+                      login(data, userType, navigation);
                     }}
                   >
                     <Text style={{ color: SWATheam.SwaWhite, fontWeight: '500', textAlign: 'center' }}>Sign in</Text>

@@ -5,6 +5,8 @@ import { SWATheam } from '../../../../constant/ConstentValue'
 import { ScrollView } from 'react-native-gesture-handler'
 import Loader from '../../../common/Loader'
 const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testType, userType, selectedIcon }) => {
+
+
   const { userData } = useContext(GlobleData)
   const indicatorsList = []
   const disciplineIndicatorList = []
@@ -488,7 +490,7 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
                   {indicatorsList.map((value, keys) => {
                     let subIndicator = []
                     if (value?.subIndicators != undefined) {
-                      Object.keys(value.subIndicators).forEach(function (key, index) {
+                      Object.keys(value.subIndicators || {}).forEach(function (key, index) {
                         subIndicator.push(value.subIndicators[key])
                       })
                     }
@@ -543,10 +545,17 @@ const HalfYearlyAndAnnualProgressReport = ({ reportData, reportSubIconID, testTy
                     <Loader /> :
                     <>
                       {disciplineIndicatorList.map((value, keys) => {
+
                         let subIndicator = []
-                        Object.keys(value.subIndicators).forEach(function (key, index) {
-                          subIndicator.push(value.subIndicators[key])
-                        })
+
+                        if (value?.subIndicators != undefined) {
+                          Object.keys(value.subIndicators).forEach(function (key, index) {
+                            subIndicator.push(value.subIndicators[key])
+                          })
+                        }
+
+
+
                         return (
                           <View style={{ flexDirection: 'row', }} key={value.mainIndicatorID}>
                             <View style={{ width: 200, padding: 10, borderWidth: 1, borderColor: SWATheam.SwaGray }}>

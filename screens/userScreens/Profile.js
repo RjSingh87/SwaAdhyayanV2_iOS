@@ -174,6 +174,7 @@ const Profile = ({ navigation }) => {
               setProfileData((prev) => {
                 return { ...prev, path: str }
               });
+              getProfileData()
               setIsModalVisible(false)
             }
           })

@@ -23,7 +23,7 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
       { grade: "E", gradeID: 5 },
     ], selectedGrade: null, status: false, type: "gradeEntry"
   })
-  const [gradeData, setGradeData] = useState({ data: null, status: false })
+  const [gradeData, setGradeData] = useState({ data: null, status: false, message: '' })
   useEffect(() => {
     getIndicatorDataForMarks()
   }, [])
@@ -48,11 +48,11 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
             return { ...prev, data: res.data, status: true }
           })
         } else if (res.status == "error") {
-          alert(res.message)
+          // alert(res.message)
           setGradeData((prev) => {
-            return { ...prev, status: false }
+            return { ...prev, status: false, message: res.message }
           })
-          navigation.goBack()
+          // navigation.goBack()
         }
       })
       .catch((err) => {
@@ -130,7 +130,6 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
         setGradeData((prev) => {
           return { ...prev, status: true }
         })
-
       })
   }
 
@@ -146,62 +145,71 @@ const IndicatorGradeEntry = ({ navigation, route }) => {
           <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
           <View style={{ padding: 10, flex: 1, backgroundColor: userData.data.colors.liteTheme, }}>
             <ScrollView>
-              {gradeData?.data?.studentData.map((item, index) => {
-                return (
-                  <View style={{ backgroundColor: userData.data.colors.mainTheme, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 8, marginBottom: 20, paddingBottom: 6 }} key={item.userRefID}>
-                    <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
-                      <View style={{ width: 80, }}>
-                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Enroll. No.</Text>
-                      </View>
-                      <View style={{ width: 20 }}>
-                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ color: SWATheam.SwaWhite, }}>{item.getStudentName.registrationNo}</Text>
-                      </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
-                      <View style={{ width: 80 }}>
-                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Name</Text>
-                      </View>
-                      <View style={{ width: 20 }}>
-                        <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ color: SWATheam.SwaWhite }}>{item.getStudentName.firstName + " " + item.getStudentName.lastName}</Text>
-                      </View>
-                    </View>
-                    {item.indicatorData.map((val, ind) => {
-                      return (
-                        <View style={{ padding: 8, borderRadius: 10, backgroundColor: SWATheam.SwaWhite }} key={ind}>
-                          <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 6 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', textAlign: 'center', padding: 4, borderBottomWidth: .7, borderColor: userData.data.colors.mainTheme }}>{val.indicatorName}</Text>
-                            {val.subIndicatorData.map((subItem, subIndex) => {
-                              return (
-                                <View style={{ flexDirection: 'row', marginTop: 6, paddingHorizontal: 8, alignItems: 'center' }} key={subIndex}>
-                                  <View style={{ padding: 6, flex: 1 }}>
-                                    <Text style={{ color: SWATheam.SwaBlack }}>{subItem.subIndicatorName}</Text>
-                                  </View>
-                                  <View style={{ width: 60 }}>
-                                    <CustomInput defaultValue={subItem.subIndMarks} placeHolder={'--'} styleFrom={"GradeEntry"} keyboardType={gradeType == "numerical" ? "numeric" : null} onChangeText={(val) => onChangeText(val, subItem, index, ind, subIndex)} />
-                                  </View>
-                                </View>
-                              )
-                            })
-                            }
-                            <View style={{ paddingHorizontal: 8, marginVertical: 8, flexDirection: 'row', justifyContent: 'flex-end' }}>
-                              <TouchableOpacity style={{ padding: 6, width: 60, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }} onPress={() => { saveSingleIndicatorMarks(item, val) }}>
-                                <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Save</Text>
-                              </TouchableOpacity>
-                            </View>
+              {gradeData?.data?.studentData?.length > 0 ?
+                <>
+                  {gradeData?.data?.studentData.map((item, index) => {
+                    return (
+                      <View style={{ backgroundColor: userData.data.colors.mainTheme, borderWidth: .5, borderColor: userData.data.colors.hoverTheme, borderRadius: 8, marginBottom: 20, paddingBottom: 6 }} key={item.userRefID}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
+                          <View style={{ width: 80, }}>
+                            <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Enroll. No.</Text>
+                          </View>
+                          <View style={{ width: 20 }}>
+                            <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={{ color: SWATheam.SwaWhite, }}>{item.getStudentName.registrationNo}</Text>
                           </View>
                         </View>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8, paddingVertical: 6 }}>
+                          <View style={{ width: 80 }}>
+                            <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>Name</Text>
+                          </View>
+                          <View style={{ width: 20 }}>
+                            <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700' }}>:</Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={{ color: SWATheam.SwaWhite }}>{item.getStudentName.firstName + " " + item.getStudentName.lastName}</Text>
+                          </View>
+                        </View>
+                        {item.indicatorData.map((val, ind) => {
+                          return (
+                            <View style={{ padding: 8, borderRadius: 10, backgroundColor: SWATheam.SwaWhite }} key={ind}>
+                              <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 6 }}>
+                                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500', textAlign: 'center', padding: 4, borderBottomWidth: .7, borderColor: userData.data.colors.mainTheme }}>{val.indicatorName}</Text>
+                                {val.subIndicatorData.map((subItem, subIndex) => {
+                                  return (
+                                    <View style={{ flexDirection: 'row', marginTop: 6, paddingHorizontal: 8, alignItems: 'center' }} key={subIndex}>
+                                      <View style={{ padding: 6, flex: 1 }}>
+                                        <Text style={{ color: SWATheam.SwaBlack }}>{subItem.subIndicatorName}</Text>
+                                      </View>
+                                      <View style={{ width: 60 }}>
+                                        <CustomInput defaultValue={subItem.subIndMarks} placeHolder={'--'} styleFrom={"GradeEntry"} keyboardType={gradeType == "numerical" ? "numeric" : null} onChangeText={(val) => onChangeText(val, subItem, index, ind, subIndex)} />
+                                      </View>
+                                    </View>
+                                  )
+                                })
+                                }
+                                <View style={{ paddingHorizontal: 8, marginVertical: 8, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                  <TouchableOpacity style={{ padding: 6, width: 60, borderRadius: 6, backgroundColor: userData.data.colors.mainTheme }} onPress={() => { saveSingleIndicatorMarks(item, val) }}>
+                                    <Text style={{ color: SWATheam.SwaWhite, textAlign: 'center' }}>Save</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            </View>
 
-                      )
-                    })}
-                  </View>
-                )
-              })}
+                          )
+                        })}
+                      </View>
+                    )
+                  })}
+                </>
+                :
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                  <Text>{`${gradeData.message}`}</Text>
+                </View>
+              }
+
             </ScrollView>
           </View>
           {/* {gradeEntry.status &&

@@ -79,6 +79,7 @@ const IssuedCertificate = () => {
             "subjectID": item.subjectID,
             "certificateID": item.certificateID
         }
+        // console.log({ payload }, "Issuecertifff")
         Services.post(apiRoot.getCertificatePdf, payload)
             .then((res) => {
                 if (res.status == "success") {

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   StatusBar,
+  Alert
 } from 'react-native';
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import SwaHeader from '../common/SwaHeader';
@@ -2527,40 +2528,58 @@ const SubIconsScreen = ({ navigation, route }) => {
     } else if (type == 'editIndicator') {
       actionName = 'Edit Indicator and Sub Indicator';
     } else if (type == 'removeIndicator') {
-      const payload = {
-        schoolID: userData.data.schoolID,
-        indicatorID: item.indicatorID,
-      };
-      Services.post(apiRoot.deleteAppIndicator, payload).then(res => {
-        if (res.status == 'success') {
-          setMsgModalVisible((prev) => {
-            return { ...prev, msg: res.message, status: true, type: 'success' }
-          })
-          setTimeout(() => {
-            setMsgModalVisible((prev) => {
-              return { ...prev, status: false }
+      //add by Raju form 4 October 2026
+      Alert.alert(
+        'Delete Indicator',
+        'Are you sure you want to delete this indicator?',
+        [
+          {
+            text: 'cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: (() => {
+              const payload = {
+                schoolID: userData.data.schoolID,
+                indicatorID: item.indicatorID,
+              };
+              Services.post(apiRoot.deleteAppIndicator, payload).then(res => {
+                if (res.status == 'success') {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, msg: res.message, status: true, type: 'success' }
+                  })
+                  setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                      return { ...prev, status: false }
+                    })
+                  }, 2000)
+                  getIndicatorList('', selectedIcon.subIconID);
+                } else {
+                  setMsgModalVisible((prev) => {
+                    return { ...prev, msg: res.message, status: true, type: 'error' }
+                  })
+                  setTimeout(() => {
+                    setMsgModalVisible((prev) => {
+                      return { ...prev, status: false }
+                    })
+                  }, 2000)
+                }
+
+              })
+                .catch((err) => {
+                  console.log(err)
+                })
+                .finally(() => {
+
+                })
+
             })
-          }, 2000)
-          getIndicatorList('', selectedIcon.subIconID);
-        } else {
-          setMsgModalVisible((prev) => {
-            return { ...prev, msg: res.message, status: true, type: 'error' }
-          })
-          setTimeout(() => {
-            setMsgModalVisible((prev) => {
-              return { ...prev, status: false }
-            })
-          }, 2000)
-        }
 
-      })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
+          }
 
-        })
-
+        ]
+      )
     }
   }
 

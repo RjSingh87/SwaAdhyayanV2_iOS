@@ -147,6 +147,7 @@ export default function McqActy({ navigation, route }) {
                 reportHolder: false,
             }
         })
+        navigation.goBack()
     }
     function submitAss() {
         setAreYouSure(true)
@@ -182,6 +183,7 @@ export default function McqActy({ navigation, route }) {
                                 <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} /> :
 
                                 <RenderHtml
+                                    ignoredDomTags={['math']}
                                     contentWidth={width}
                                     source={{ html: question[currentQuestionIndex]?.questionPart1 }}
                                     tagsStyles={tagsStyles}
@@ -195,6 +197,7 @@ export default function McqActy({ navigation, route }) {
                                 <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart2 }} style={styles.questImgs} />
                                 :
                                 <RenderHtml
+                                    ignoredDomTags={['math']}
                                     contentWidth={width}
                                     source={{ html: question[currentQuestionIndex].questionPart2 }}
                                     tagsStyles={tagsStyles}
@@ -208,6 +211,7 @@ export default function McqActy({ navigation, route }) {
                                 <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart3 }} style={styles.questImgs} />
                                 :
                                 <RenderHtml
+                                    ignoredDomTags={['math']}
                                     contentWidth={width}
                                     source={{ html: question[currentQuestionIndex]?.questionPart3 }}
                                     tagsStyles={tagsStyles}
@@ -221,6 +225,7 @@ export default function McqActy({ navigation, route }) {
                                 <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart4 }} style={styles.questImgs} />
                                 :
                                 <RenderHtml
+                                    ignoredDomTags={['math']}
                                     contentWidth={width}
                                     source={{ html: question[currentQuestionIndex]?.questionPart4 }}
                                     tagsStyles={tagsStyles}
@@ -234,6 +239,7 @@ export default function McqActy({ navigation, route }) {
                                 <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart5 }} style={styles.questImgs} />
                                 :
                                 <RenderHtml
+                                    ignoredDomTags={['math']}
                                     contentWidth={width}
                                     source={{ html: question[currentQuestionIndex]?.questionPart5 }}
                                     tagsStyles={tagsStyles}
@@ -268,6 +274,7 @@ export default function McqActy({ navigation, route }) {
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText1 }} style={styles.optImgs} />
                                         :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText1 }}
                                             tagsStyles={optionStyle}
@@ -302,6 +309,7 @@ export default function McqActy({ navigation, route }) {
                                     {question[currentQuestionIndex]?.optionText2.endsWith('.png') || question[currentQuestionIndex]?.optionText2.endsWith('.jpg') ?
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText2 }} style={styles.optImgs} /> :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText2 }}
                                             tagsStyles={optionStyle}
@@ -336,6 +344,7 @@ export default function McqActy({ navigation, route }) {
                                     {question[currentQuestionIndex]?.optionText3.endsWith('.png') || question[currentQuestionIndex]?.optionText3.endsWith('.jpg') ?
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText3 }} style={styles.optImgs} /> :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText3 }}
                                             tagsStyles={optionStyle}
@@ -370,6 +379,7 @@ export default function McqActy({ navigation, route }) {
                                     {question[currentQuestionIndex]?.optionText4.endsWith('.png') || question[currentQuestionIndex]?.optionText4.endsWith('.jpg') ?
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText4 }} style={styles.optImgs} /> :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText4 }}
                                             tagsStyles={optionStyle}
@@ -404,6 +414,7 @@ export default function McqActy({ navigation, route }) {
                                     {question[currentQuestionIndex]?.optionText5.endsWith('.png') || question[currentQuestionIndex]?.optionText5.endsWith('.jpg') ?
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText5 }} style={styles.optImgs} /> :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText5 }}
                                             tagsStyles={optionStyle}
@@ -438,6 +449,7 @@ export default function McqActy({ navigation, route }) {
                                     {question[currentQuestionIndex]?.optionText6.endsWith('.png') || question[currentQuestionIndex]?.optionText6.endsWith('.jpg') ?
                                         <Image source={{ uri: imgUrl + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionText6 }} style={styles.optImgs} /> :
                                         <RenderHtml
+                                            ignoredDomTags={['math']}
                                             contentWidth={width}
                                             source={{ html: question[currentQuestionIndex]?.optionText6 }}
                                             tagsStyles={optionStyle}
@@ -486,7 +498,7 @@ export default function McqActy({ navigation, route }) {
                         />
                         <View style={styles.listBox}>
                             <Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
-                            <Text style={styles.textAlinCenetr}>Are you sure ??</Text>
+                            <Text style={styles.textAlinCenetr}>Are you sure?</Text>
                             <Text style={styles.runningTest}>Do you want to submit your exam</Text>
                             <View style={styles.rowAreYousure}>
                                 <View style={{ width: 80 }}>
@@ -519,8 +531,8 @@ export default function McqActy({ navigation, route }) {
             {manage.reportHolder &&
                 <View style={styles.ReportHolder}>
                     <View style={styles.mainHolder}>
-                        <Modal animationType="slide" transparent={true}>
-                            <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                        <Modal animationType="slide" transparent={true} style={{ flex: 1, borderWidth: 10, width: "100%" }}>
+                            <View style={{ backgroundColor: userData.data.colors.hoverTheme, flexDirection: 'row', justifyContent: 'space-between', padding: 8, marginTop: 70 }}>
                                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '500' }}>Student Exam Report</Text>
                                 <View><AntDesign onPress={hideReportHolder} name="close" size={20} color="#231e1a" /></View>
                             </View>
@@ -639,7 +651,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     mainHolder: {
-        backgroundColor: "#fff"
+        backgroundColor: "#551212",
     },
     headesHead: {
         flexDirection: "row",
@@ -670,13 +682,12 @@ const styles = StyleSheet.create({
         margin: 20
     },
     ReportHolder: {
-        backgroundColor: '#fff',
+        backgroundColor: '#ffffff',
         padding: 5,
         position: "absolute",
         width: "100%",
-        flex: 1,
-        height: "100%",
-        flex: 1,
+        top: 0,
+        bottom: 0,
         alignItems: 'center',
         justifyContent: 'center'
 

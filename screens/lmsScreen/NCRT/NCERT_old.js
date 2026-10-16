@@ -1059,7 +1059,7 @@ export default function NCERT({ navigation, route }) {
 					<View style={styles.modelsAre}>
 						<View style={styles.innerBox}>
 							<Image style={{ resizeMode: 'contain', width: 80, height: 80, alignSelf: "center", margin: 20 }} source={require('../../assets/mark.png')} />
-							<Text style={styles.textAlinCenetr}>Are you sure ??</Text>
+							<Text style={styles.textAlinCenetr}>Are you sure?</Text>
 							<Text style={styles.runningTest}>Do you want to submit your exam</Text>
 							<View style={styles.rowAreYousure}>
 								<View style={{ width: 80 }}>

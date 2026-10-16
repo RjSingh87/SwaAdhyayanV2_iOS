@@ -1,5 +1,6 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Button } from "react-native"
-import { useEffect, useState, useContext } from "react"
+import React, { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Image, Alert, Dimensions, Button } from "react-native"
+import { useEffect, useState, useContext, } from "react"
+import { useIsFocused } from '@react-navigation/native';
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -8,500 +9,638 @@ import { GlobleData } from "../../../../Store"
 import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
-
+import ImageViewer from "../../../common/ImageViewer";
+import HWPdfViewer from "../../../common/HWPdfViewer";
+import YoutubeUrlView from "../../../common/YoutubeUrlView";
+import Share from 'react-native-share';
 
 
 var homeWorkIDNew = "";
 const finalDateArr = []
 
 const SaveHomeWork = () => {
-    const { userData } = useContext(GlobleData)
-    const [sectionData, setSectionData] = useState({ data: null, status: false })
-    const [loading, setLoading] = useState(false)
-    const [showPopUp, setShowPopUp] = useState(false)
-    const [savedHomework, setSavedHomework] = useState({ data: null, status: false })
-    const [showStartDatePicker, setShowStartDatePicker] = useState(false)
-    const [showEndDatePicker, setShowEndDatePicker] = useState(false)
-    const [datePickerControl, setDatePickerControl] = useState({ date: null, status: false, index: null, type: "" })
-    const [startDate, setStartDate] = useState("")
-    const [endDate, setEndDate] = useState("")
-    const [date, setDate] = useState(new Date())
-    let [selectSectionArr, setSelectSectionArr] = useState([])
+	const { userData } = useContext(GlobleData)
+	const [sectionData, setSectionData] = useState({ data: null, status: false })
+	const [loading, setLoading] = useState(false)
+	const [showPopUp, setShowPopUp] = useState(false)
+	const [savedHomework, setSavedHomework] = useState({ data: null, status: false })
+	const [showStartDatePicker, setShowStartDatePicker] = useState(false)
+	const [showEndDatePicker, setShowEndDatePicker] = useState(false)
+	const [datePickerControl, setDatePickerControl] = useState({ date: null, status: false, index: null, type: "" })
+	const [startDate, setStartDate] = useState("")
+	const [endDate, setEndDate] = useState("")
+	const [date, setDate] = useState(new Date())
+	let [selectSectionArr, setSelectSectionArr] = useState([])
+	const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 
-    useEffect(() => {
-        getSavedHomeWork()
-    }, [])
 
-    function homeworkID(homeWorkID) {
-        homeWorkIDNew = homeWorkID;
-        // setHomeWorkIDNew(homeWorkID)
-    }
 
-    function getSavedHomeWork() {
-        setLoading(true)
-        const payload = {
-            "schoolID": userData.data.schoolID,
-            "userRefID": userData.data.userRefID,
-            "isAssigned": 0
-        }
-        Services.post(apiRoot.getCreatedHomework, payload)
-            .then((res) => {
-                if (res.status == "success") {
-                    setLoading(false)
-                    const data = res.data
-                    setSavedHomework((prev) => {
-                        return { ...prev, data: data, status: true }
-                    })
-                } else {
-                    // alert(res.message)
-                    setSavedHomework({ data: null, status: false })
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-    }
+	useEffect(() => {
+		getSavedHomeWork()
+	}, [])
 
-    function editDate(dateStr, type) {
-        console.log(dateStr, 'check dateStr')
+	function homeworkID(homeWorkID) {
+		homeWorkIDNew = homeWorkID;
+		// setHomeWorkIDNew(homeWorkID)
+	}
 
-        if (type == 'startDate') {
-            let day = dateStr.getDate()
-            let month = dateStr.getMonth() + 1
-            let year = dateStr.getFullYear()
+	function getSavedHomeWork() {
+		setLoading(true)
+		const payload = {
+			"schoolID": userData.data.schoolID,
+			"userRefID": userData.data.userRefID,
+			"isAssigned": 0
+		}
+		Services.post(apiRoot.getCreatedHomework, payload)
+			.then((res) => {
+				if (res.status == "success") {
+					setLoading(false)
+					const data = res.data
+					setSavedHomework((prev) => {
+						return { ...prev, data: data, status: true }
+					})
+				} else {
+					// alert(res.message)
+					setSavedHomework({ data: null, status: false })
+				}
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+			.finally(() => {
+				setLoading(false)
+			})
+	}
 
-            let hours = dateStr.getHours()
-            let minutes = dateStr.getMinutes()
+	function editDate(dateStr, type) {
+		console.log(dateStr, 'check dateStr')
 
-            const fTime = hours + ':' + minutes
+		if (type == 'startDate') {
+			let day = dateStr.getDate()
+			let month = dateStr.getMonth() + 1
+			let year = dateStr.getFullYear()
 
-            if (day < 10) {
-                day = "0" + day
-            } else if (month < 10) {
-                month = "0" + month
-            }
-            const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
-            console.log(selectedDate, 'selectDateh')
-            setStartDate(selectedDate)
-            setSavedHomework((prev) => {
-                return { ...prev, }
-            })
+			let hours = dateStr.getHours()
+			let minutes = dateStr.getMinutes()
 
-        }
-        else if (type == 'endDate') {
-            let day = dateStr.getDate()
-            let month = dateStr.getMonth() + 1
-            let year = dateStr.getFullYear()
+			const fTime = hours + ':' + minutes
 
-            let hours = dateStr.getHours()
-            let minutes = dateStr.getMinutes()
+			if (day < 10) {
+				day = "0" + day
+			} else if (month < 10) {
+				month = "0" + month
+			}
+			const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
+			console.log(selectedDate, 'selectDateh')
+			setStartDate(selectedDate)
+			setSavedHomework((prev) => {
+				return { ...prev, }
+			})
 
-            const fTime = hours + ':' + minutes
+		}
+		else if (type == 'endDate') {
+			let day = dateStr.getDate()
+			let month = dateStr.getMonth() + 1
+			let year = dateStr.getFullYear()
 
-            if (day < 10) {
-                day = "0" + day
-            } else if (month < 10) {
-                month = "0" + month
-            }
-            const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
+			let hours = dateStr.getHours()
+			let minutes = dateStr.getMinutes()
 
-            setEndDate(selectedDate)
-            setSavedHomework((prev) => {
-                return { ...prev, }
-            })
+			const fTime = hours + ':' + minutes
 
-        }
-        // getSavedHomeWork(type)
-    }
+			if (day < 10) {
+				day = "0" + day
+			} else if (month < 10) {
+				month = "0" + month
+			}
+			const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
 
-    function deleteHomeWork(homeWorkID) {
-        const payload = {
-            "schoolID": userData.data.schoolID,
-            "userRefID": userData.data.userRefID,
-            "homeWorkID": homeWorkID
-        }
-        Services.post(apiRoot.deleteSavedHomework, payload)
-            .then((res) => {
-                if (res.status == "success") {
-                    alert(res.message)
-                    if (savedHomework.data.length > 0) {
-                        getSavedHomeWork()
-                    }
-                } else {
-                    alert(res.message)
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-            .finally(() => {
-            })
-    }
+			setEndDate(selectedDate)
+			setSavedHomework((prev) => {
+				return { ...prev, }
+			})
 
-    function getSections(item) {
-        if (startDate != endDate) {
-            homeWorkIDNew = item.homeWorkID
-            setLoading(true)
-            const payload = {
-                "schoolID": userData.data.schoolID,
-                "academicYear": userData.data.academicYear,
-                "classID": item.classID,
-                "userTypeID": userData.data.userTypeID,
-                "userRefID": userData.data.userRefID
-            }
-            Services.post(apiRoot.getSectionList, payload)
-                .then((res) => {
-                    if (res.status == "success") {
-                        setLoading(false)
-                        const data = res.data
-                        setSectionData((prev) => {
-                            return { ...prev, data: data, status: true }
-                        })
-                        setShowPopUp(true)
-                    } else {
-                        alert(res.message)
-                    }
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-                    setLoading(false)
-                })
-        } else {
-            alert("Please select valid Date.")
+		}
+		// getSavedHomeWork(type)
+	}
 
-        }
+	function deleteHomeWork(homeWorkID) {
+		Alert.alert(
+			'Are you sure!',
+			'Delete homework?',
+			[
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
+				{
+					text: 'OK',
+					onPress: () => {
+						const payload = {
+							schoolID: userData.data.schoolID,
+							userRefID: userData.data.userRefID,
+							homeWorkID: homeWorkID,
+						};
 
-    }
+						Services.post(apiRoot.deleteSavedHomework, payload)
+							.then((res) => {
+								if (res.status === 'success') {
+									Alert.alert(res.message);
 
-    function closePopUp() {
-        setShowPopUp(false)
-    }
+									if (savedHomework?.data?.length > 0) {
+										getSavedHomeWork();
+									}
+								} else {
+									Alert.alert(res.message);
+								}
+							})
+							.catch((err) => {
+								console.log('Delete Homework Error:', err);
+							});
+					},
+				},
+			]
+		);
+	}
 
-    function selectSection(item) {
-        const ID = item.sectionID
-        if (selectSectionArr.includes(ID)) {
-            setSelectSectionArr(selectSectionArr.filter(item => item !== ID))
-        } else {
-            setSelectSectionArr([...selectSectionArr, ID])
-        }
-    }
+	function getSections(item) {
+		if (startDate != endDate) {
+			homeWorkIDNew = item.homeWorkID
+			setLoading(true)
+			const payload = {
+				"schoolID": userData.data.schoolID,
+				"academicYear": userData.data.academicYear,
+				"classID": item.classID,
+				"userTypeID": userData.data.userTypeID,
+				"userRefID": userData.data.userRefID
+			}
+			Services.post(apiRoot.getSectionList, payload)
+				.then((res) => {
+					if (res.status == "success") {
+						setLoading(false)
+						const data = res.data
+						setSectionData((prev) => {
+							return { ...prev, data: data, status: true }
+						})
+						setShowPopUp(true)
+					} else {
+						alert(res.message)
+					}
+				})
+				.catch((err) => {
+					console.log(err)
+				})
+				.finally(() => {
+					setLoading(false)
+				})
+		} else {
+			alert("Please select valid Date.")
 
-    function assingHomeWork() {
-        setLoading(true)
-        const payload = {
-            "schoolID": userData.data.schoolID,
-            "userRefID": userData.data.userRefID,
-            "homeWorkID": datePickerControl?.data?.homeWorkID,
-            "startDate": startDate,
-            "endDate": endDate,
-            "sectionIDs": selectSectionArr,
-        }
+		}
 
-        Services.post(apiRoot.assignHomework, payload)
-            .then((res) => {
-                if (res.status == "success") {
-                    setLoading(false)
-                    alert(res.message)
-                    getSavedHomeWork()
-                    setShowPopUp(false)
-                    finalDateArr.length = 0
-                } else {
-                    setLoading(false)
-                    // alert(res.message)
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-    }
-    function setAssignDate(item, index, type) {
-        if (type == "startDate") {
-            setStartDate("")
-            setEndDate("")
-        } else if (type == "endDate") {
-            setEndDate("")
-        }
-        setShowEndDatePicker(true)
-        setDatePickerControl((prev) => {
-            return { ...prev, data: item, status: true, index: index, type: type }
-        })
-        homeWorkIDNew = item.homeWorkID;
-    }
+	}
 
-    return (
-        <View style={{ flex: 1 }}>
-            <View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 5, flex: 1, padding: 10 }}>
-                {loading ?
-                    <Loader /> :
-                    <ScrollView>
-                        {
-                            savedHomework.status ?
-                                <View>
-                                    {
-                                        savedHomework.data.map((item, index) => {
-                                            let newStartDate = ""
-                                            let newEndDate = ""
-                                            if (datePickerControl.index == index) {
-                                                newStartDate = startDate
-                                                newEndDate = endDate
-                                            }
-                                            {/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
-                                            {/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
-                                            return (
-                                                <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                        <View style={{ width: 100 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class</Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                        <View style={{ width: 100 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                        <View style={{ width: 100 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
-                                                        </View>
-                                                    </View>
-                                                    {item.filePath != null ?
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.filePath}</Text>
-                                                            </View>
-                                                        </View> : null
-                                                    }
-                                                    {item.youTubeUrl != null ?
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
-                                                            </View>
-                                                        </View> : null
-                                                    }
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                        <View style={{ width: 100, }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.createdDate}</Text>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                                                        <View style={{ width: 100, }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
-                                                                <View style={{ flex: 1 }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
-                                                                </View>
-                                                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                                                    <FontAwesome6 name={"calendar"} size={16} color={'grey'} />
-                                                                </View>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-                                                        <View style={{ width: 100, }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
-                                                        </View>
-                                                        <View style={{ paddingRight: 10 }}>
-                                                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                        </View>
-                                                        <View style={{ flex: 1 }}>
-                                                            <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
-                                                                <View style={{ flex: 1 }}>
-                                                                    <Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
-                                                                </View>
-                                                                <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-                                                                    <FontAwesome6 name={"calendar"} size={16} color={'grey'} />
-                                                                </View>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
-                                                        <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => getSections(item)}>
-                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Assign</Text>
-                                                        </TouchableOpacity>
-                                                        <TouchableOpacity style={{ backgroundColor: SWATheam.SwaRed, borderRadius: 5, paddingHorizontal: 10 }} onPress={() => deleteHomeWork(item.homeWorkID)}>
-                                                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Delete</Text>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                </View>
-                                            )
-                                        })
-                                    }
-                                </View>
-                                :
-                                <View style={{ borderWidth: 1, backgroundColor: SWATheam.SwaWhite, borderColor: 'grey', borderRadius: 5 }}>
-                                    <Text style={{ color: SWATheam.SwaRed, fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
-                                </View>
-                        }
-                    </ScrollView>
-                }
-                <DatePicker
-                    modal
-                    open={datePickerControl.status}
-                    date={date}
-                    mode='datetime'
-                    onConfirm={(date) => {
-                        setDatePickerControl((prev) => {
-                            return { ...prev, status: false }
-                        })
-                        editDate(date, datePickerControl.type)
-                    }}
-                    onCancel={(date) => {
-                        setDatePickerControl((prev) => {
-                            return { ...prev, status: false }
-                        })
-                    }}
-                />
+	function closePopUp() {
+		setShowPopUp(false)
+	}
 
-            </View>
-            {showPopUp &&
-                <View style={styles.selectFieldPopUp}>
-                    <View style={{ backgroundColor: SWATheam.SwaWhite, marginHorizontal: 30, padding: 8, maxHeight: 300, borderRadius: 5 }}>
-                        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', borderBottomWidth: .7, paddingBottom: 5, borderColor: 'grey' }} onPress={() => closePopUp()}>
-                            <AntDesign name={"close"} size={20} color={SWATheam.SwaBlack} />
-                        </TouchableOpacity>
-                        <ScrollView>
-                            <View>
-                                {
-                                    sectionData.data.map((item, index) => {
-                                        return (
-                                            <TouchableOpacity onPress={() => { selectSection(item) }} key={index}>
-                                                <View style={{ padding: 10, borderBottomWidth: item.length > 1 ? .7 : null, borderColor: 'grey', flexDirection: 'row', alignItems: 'center' }}>
-                                                    {selectSectionArr.includes(item.sectionID) ?
-                                                        <MaterialIcons name={"check-box"} size={20} color={userData.data.colors.mainTheme} /> :
-                                                        <MaterialIcons name={"check-box-outline-blank"} size={20} color={userData.data.colors.mainTheme} />
-                                                    }
-                                                    <Text style={{ paddingLeft: 10, fontSize: 15, color: SWATheam.SwaBlack }}>
-                                                        {item.sectionName}
-                                                    </Text>
-                                                </View>
-                                            </TouchableOpacity>
-                                        )
-                                    })
-                                }
-                            </View>
-                        </ScrollView>
-                        <View style={{ flexDirection: 'row', borderTopWidth: .7, borderColor: 'grey', paddingTop: 7, justifyContent: 'flex-end' }}>
-                            <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 3, paddingHorizontal: 10, paddingVertical: 3 }} onPress={() => assingHomeWork()}>
-                                <Text style={{ color: SWATheam.SwaWhite }}>Save</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            }
-        </View>
+	function selectSection(item) {
+		const ID = item.sectionID
+		if (selectSectionArr.includes(ID)) {
+			setSelectSectionArr(selectSectionArr.filter(item => item !== ID))
+		} else {
+			setSelectSectionArr([...selectSectionArr, ID])
+		}
+	}
 
-    )
+	function assingHomeWork() {
+		setLoading(true)
+		const payload = {
+			"schoolID": userData.data.schoolID,
+			"userRefID": userData.data.userRefID,
+			"homeWorkID": datePickerControl?.data?.homeWorkID,
+			"startDate": startDate,
+			"endDate": endDate,
+			"sectionIDs": selectSectionArr,
+		}
+
+		Services.post(apiRoot.assignHomework, payload)
+			.then((res) => {
+				if (res.status == "success") {
+					setLoading(false)
+					alert(res.message)
+					getSavedHomeWork()
+					setShowPopUp(false)
+					finalDateArr.length = 0
+				} else {
+					setLoading(false)
+					// alert(res.message)
+				}
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+			.finally(() => {
+				setLoading(false)
+			})
+	}
+	function setAssignDate(item, index, type) {
+		if (type == "startDate") {
+			setStartDate("")
+			setEndDate("")
+		} else if (type == "endDate") {
+			setEndDate("")
+		}
+		setShowEndDatePicker(true)
+		setDatePickerControl((prev) => {
+			return { ...prev, data: item, status: true, index: index, type: type }
+		})
+		homeWorkIDNew = item.homeWorkID;
+	}
+
+
+	const viewFile = (item) => {
+		const rawPath = item.filePath || item.youTubeUrl || "";
+		const cleanPath = rawPath.split('?')[0].trim();
+		const extension = cleanPath.split('.').pop().toLowerCase();
+
+		const imageTypes = ['jpg', 'jpeg', 'JPG', 'png', 'gif', 'webp'];
+		const isImage = imageTypes.includes(extension);
+		const isPdf = extension === 'pdf';
+
+		if ((item.youTubeUrl || /^https?:\/\//i.test(cleanPath)) && !isImage && !isPdf) {
+			setFileType((prev) => ({
+				...prev,
+				data: item,
+				type: 'url',
+				fileSrc: item.youTubeUrl || rawPath,
+				status: true,
+				from: 'url',
+			}));
+		}
+		else if (rawPath && (isImage || isPdf)) {
+			setFileType((prev) => ({
+				...prev,
+				data: item,
+				type: isPdf ? 'pdf' : extension,
+				fileSrc: rawPath,
+				status: true,
+				from: isImage ? 'image' : 'document',
+			}));
+		}
+		else {
+			Alert.alert(
+				"Error!",
+				"File is not available to view or its format is invalid.",
+			);
+		}
+	};
+
+	function downloadDoc(item, type, baseUrl,) {
+		setLoading(true)
+		if (type == "video") {
+			requestDownloadPermission(item, type)
+		} else if (type == "img") {
+			requestDownloadPermission(item, type)
+		} else if (type == 'audio') {
+			requestDownloadPermission(item, type)
+		}
+		else if (type == "doc") {
+			const docPath = baseUrl + item.docFileNPath
+			requestDownloadPermission(docPath, type, item)
+		}
+	}
+
+
+	const requestDownloadPermission = async (docPath, type) => {
+		try {
+			const shareOptions = {
+				title: 'Share PDF',
+				url: `${docPath}`,
+				type: 'application/pdf',
+				failOnCancel: false,
+			};
+			setLoading(false)
+			await Share.open(shareOptions);
+		} catch (err) {
+			console.log('Share error:', err);
+			setLoading(false)
+		}
+	};
+
+
+
+
+	return (
+		<>
+			<View style={{ flex: 1 }}>
+				<View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 5, flex: 1, padding: 10 }}>
+					{loading ?
+						<Loader /> :
+						<ScrollView>
+							{
+								savedHomework.status ?
+									<View>
+										{
+											savedHomework.data.map((item, index) => {
+												let newStartDate = ""
+												let newEndDate = ""
+												if (datePickerControl.index == index) {
+													newStartDate = startDate
+													newEndDate = endDate
+												}
+
+												const rawFileName = item?.filePath || item?.youTubeUrl || "";
+												const fileName = rawFileName.split('?')[0];
+
+												let buttonName = 'View'
+
+												if (fileName) {
+													if (/\.pdf$/i.test(fileName)) {
+														buttonName = 'View PDF 📄';
+													}
+													else if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
+														buttonName = 'View Image 🏞️';
+													}
+													else if (/^https?:\/\//i.test(fileName)) {
+														buttonName = 'Watch ▶️';
+													}
+												}
+
+
+
+
+												{/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
+												{/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
+												return (
+													<View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
+														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+															<View style={{ width: 100 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class</Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
+															</View>
+														</View>
+														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+															<View style={{ width: 100 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
+															</View>
+														</View>
+														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+															<View style={{ width: 100 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
+															</View>
+														</View>
+
+														{/* {item.filePath != null ?
+															<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+																<View style={{ width: 100 }}>
+																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
+																</View>
+																<View style={{ paddingRight: 10 }}>
+																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+																</View>
+																<View style={{ flex: 1, }}>
+																	<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.filePath}</Text>
+																</View>
+															</View> : null
+														}
+
+														{item.youTubeUrl != null ?
+															<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+																<View style={{ width: 100, }}>
+																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
+																</View>
+																<View style={{ paddingRight: 10 }}>
+																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+																</View>
+																<View style={{ flex: 1, }}>
+																	<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
+																</View>
+															</View> : null
+														} */}
+
+														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+															<View style={{ width: 100, }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.createdDate}</Text>
+															</View>
+														</View>
+														<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+															<View style={{ width: 100, }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
+																	<View style={{ flex: 1 }}>
+																		<Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
+																	</View>
+																	<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
+																		<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
+																	</View>
+																</TouchableOpacity>
+															</View>
+														</View>
+														<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+															<View style={{ width: 100, }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
+															</View>
+															<View style={{ paddingRight: 10 }}>
+																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+															</View>
+															<View style={{ flex: 1 }}>
+																<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
+																	<View style={{ flex: 1 }}>
+																		<Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
+																	</View>
+																	<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
+																		<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
+																	</View>
+																</TouchableOpacity>
+															</View>
+														</View>
+														<View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
+															<TouchableOpacity style={{ width: 130, backgroundColor: SWATheam.SwaGreen, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
+																<Text style={{ color: SWATheam.SwaWhite, padding: 5, textAlign: "center" }}>{buttonName}</Text>
+															</TouchableOpacity>
+															<TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => getSections(item)}>
+																<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Assign</Text>
+															</TouchableOpacity>
+															<TouchableOpacity style={{ backgroundColor: SWATheam.SwaRed, borderRadius: 5, paddingHorizontal: 10 }} onPress={() => deleteHomeWork(item.homeWorkID)}>
+																<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Delete</Text>
+															</TouchableOpacity>
+														</View>
+													</View>
+												)
+											})
+										}
+									</View>
+									:
+									<View style={{ borderWidth: 1, backgroundColor: SWATheam.SwaWhite, borderColor: 'grey', borderRadius: 5 }}>
+										<Text style={{ color: SWATheam.SwaRed, fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
+									</View>
+							}
+						</ScrollView>
+					}
+
+					<DatePicker
+						modal
+						open={datePickerControl.status}
+						date={date}
+						mode='datetime'
+						onConfirm={(date) => {
+							setDatePickerControl((prev) => {
+								return { ...prev, status: false }
+							})
+							editDate(date, datePickerControl.type)
+						}}
+						onCancel={(date) => {
+							setDatePickerControl((prev) => {
+								return { ...prev, status: false }
+							})
+						}}
+					/>
+
+				</View>
+
+
+
+				{showPopUp &&
+					<View style={styles.selectFieldPopUp}>
+						<View style={{ backgroundColor: SWATheam.SwaWhite, marginHorizontal: 30, padding: 8, maxHeight: 300, borderRadius: 5 }}>
+							<TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', borderBottomWidth: .7, paddingBottom: 5, borderColor: 'grey' }} onPress={() => closePopUp()}>
+								<AntDesign name={"close"} size={20} color={SWATheam.SwaBlack} />
+							</TouchableOpacity>
+							<ScrollView>
+								<View>
+									{
+										sectionData.data.map((item, index) => {
+											return (
+												<TouchableOpacity onPress={() => { selectSection(item) }} key={index}>
+													<View style={{ padding: 10, borderBottomWidth: item.length > 1 ? .7 : null, borderColor: 'grey', flexDirection: 'row', alignItems: 'center' }}>
+														{selectSectionArr.includes(item.sectionID) ?
+															<MaterialIcons name={"check-box"} size={20} color={userData.data.colors.mainTheme} /> :
+															<MaterialIcons name={"check-box-outline-blank"} size={20} color={userData.data.colors.mainTheme} />
+														}
+														<Text style={{ paddingLeft: 10, fontSize: 15, color: SWATheam.SwaBlack }}>
+															{item.sectionName}
+														</Text>
+													</View>
+												</TouchableOpacity>
+											)
+										})
+									}
+								</View>
+							</ScrollView>
+							<View style={{ flexDirection: 'row', borderTopWidth: .7, borderColor: 'grey', paddingTop: 7, justifyContent: 'flex-end' }}>
+								<TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 3, paddingHorizontal: 10, paddingVertical: 3 }} onPress={() => assingHomeWork()}>
+									<Text style={{ color: SWATheam.SwaWhite }}>Save</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				}
+
+			</View>
+
+			{(fileType.status && fileType.type == 'image' || fileType.type == 'png' || fileType.type == 'jpg' || fileType.type == 'jpeg') &&
+				<ImageViewer fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
+			}
+			{(fileType.status && fileType.type == 'pdf') &&
+				<HWPdfViewer colorSwa={userData.data.colors.mainTheme} fileType={fileType} setFileType={setFileType} downloadDoc={downloadDoc} />
+			}
+			{(fileType.status && fileType.type == 'url') &&
+				<YoutubeUrlView fileType={fileType} colorSwa={userData.data.colors.mainTheme} setFileType={setFileType} />
+			}
+		</>
+
+	)
 }
 
 const styles = StyleSheet.create({
-    headerText: {
-        fontSize: 20,
-        marginBottom: 5,
-        fontWeight: 'bold',
-        color: SWATheam.SwaBlack,
-        paddingVertical: 5,
-        flexDirection: 'row',
-        justifyContent: 'center'
-    },
+	headerText: {
+		fontSize: 20,
+		marginBottom: 5,
+		fontWeight: 'bold',
+		color: SWATheam.SwaBlack,
+		paddingVertical: 5,
+		flexDirection: 'row',
+		justifyContent: 'center'
+	},
 
-    flexContainer: {
-        flexDirection: 'row',
-        marginBottom: 5,
-    },
+	flexContainer: {
+		flexDirection: 'row',
+		marginBottom: 5,
+	},
 
-    BtextClr: {
-        color: SWATheam.SwaBlack
-    },
+	BtextClr: {
+		color: SWATheam.SwaBlack
+	},
 
-    thClr: {
-        color: '#654b25'
-    },
+	thClr: {
+		color: '#654b25'
+	},
 
 
-    WtextClr: {
-        color: SWATheam.SwaWhite
-    },
+	WtextClr: {
+		color: SWATheam.SwaWhite
+	},
 
-    selectFieldPopUp: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center'
-    },
+	selectFieldPopUp: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		backgroundColor: 'rgba(0, 0, 0, 0.6)',
+		width: '100%',
+		height: '100%',
+		justifyContent: 'center'
+	},
 
-    description: {
-        height: 100,
-        borderWidth: 1,
-        borderWidth: 1,
-        borderColor: 'grey',
-        borderRadius: 5,
-        padding: 8,
-        marginBottom: 7,
-        textAlignVertical: 'top'
-    },
+	description: {
+		height: 100,
+		borderWidth: 1,
+		borderWidth: 1,
+		borderColor: 'grey',
+		borderRadius: 5,
+		padding: 8,
+		marginBottom: 7,
+		textAlignVertical: 'top'
+	},
 
-    urlInput: {
-        height: 100,
-        borderWidth: 1,
-        borderWidth: 1,
-        borderColor: 'grey',
-        borderRadius: 50,
-        padding: 8,
-        marginBottom: 7,
-        textAlignVertical: 'top'
-    },
+	urlInput: {
+		height: 100,
+		borderWidth: 1,
+		borderWidth: 1,
+		borderColor: 'grey',
+		borderRadius: 50,
+		padding: 8,
+		marginBottom: 7,
+		textAlignVertical: 'top'
+	},
 
 });
 

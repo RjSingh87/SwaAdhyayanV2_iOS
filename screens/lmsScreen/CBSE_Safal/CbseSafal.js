@@ -6,14 +6,26 @@ import SwaHeader from '../../common/SwaHeader';
 import { GlobleData } from '../../../Store';
 import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import Services from '../../../Services';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
-export default function CbseSafal({ navigation, route }) {
+
+
+export default function CbseSafal({ route, classId, headerDisplay }) {
   const insets = useSafeAreaInsets();
   const statusBarHeight = StatusBar.currentHeight
   const { userData } = useContext(GlobleData)
-  const toolName = route?.params?.getSubIconsData != undefined ? route?.params?.getSubIconsData?.subIconName : route.params.subIcon.subIconName
+  const toolName = route?.params?.getSubIconsData != undefined ? route?.params?.getSubIconsData?.subIconName : route?.params?.subIcon?.subIconName
+
+  const teacherClsId = route?.params?.classId?.getClassDetail?.classID || classId?.getClassDetail?.classID
+  const hDisplay = headerDisplay
+  const navigation = useNavigation()
+
+
+
+  // console.log({ teacherClsId, headerDisplay }, "asdfjkl")
 
   useEffect(() => {
     getList();
@@ -82,17 +94,27 @@ export default function CbseSafal({ navigation, route }) {
       })
   }
   function mainIcon(item) {
+    if (userData.data.classID == undefined && teacherClsId == undefined) {
+      Alert.alert("⚠️", "Please select safal class.")
+      return
+    }
+
     setCombo((x) => {
       return { ...x, showLoader: true }
     })
     let iconids = item.quesHeadID;
     const postData = {
-      "classID": userData.data.classID,
+      "classID": userData.data.classID == undefined ? teacherClsId : userData.data.classID,
       "safalIconID": iconids
     }
     setQHeadIds((ids) => {
       return { ...ids, headIds: iconids }
     })
+
+
+
+
+
     Services.post(apiRoot.getConpitativeExamList, postData)
       .then((examListData) => {
         if (examListData.status == "success") {
@@ -144,8 +166,10 @@ export default function CbseSafal({ navigation, route }) {
       "safalExamID": safalIds,
       "quesHeadID": qheadIds.headIds,
       "userRefID": userData.data.userRefID,
-      "classID": userData.data.classID
+      "classID": userData?.data?.classID == undefined ? teacherClsId : userData?.data?.classID
     }
+
+
     Services.post(apiRoot.getSafalExamQuestion, payload)
       .then((res) => {
         if (res.status == "success") {
@@ -175,7 +199,7 @@ export default function CbseSafal({ navigation, route }) {
               examList: false,
             }
           })
-          Alert.alert("Info!", qData.message)
+          Alert.alert("Info!", res.message)
 
         }
       })
@@ -192,8 +216,10 @@ export default function CbseSafal({ navigation, route }) {
     <>
       {combo.showLoader ?
         <Loader /> :
-        <View style={{ flex: 1, backgroundColor: userData.data.colors.mainTheme, paddingTop: insets.top, marginBottom: insets.bottom }}>
-          <SwaHeader title={toolName} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+        <View style={{ flex: 1, backgroundColor: hDisplay != "none" ? userData.data.colors.mainTheme : null, paddingTop: hDisplay != "none" ? insets.top : null, marginBottom: insets.bottom }}>
+          {hDisplay != "none" ?
+            <SwaHeader title={toolName || "CBSE SAFAL & Other Competitive Exams"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} /> : null
+          }
           <ScrollView style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', }}>
               {getListData.map((item, index) => {
@@ -233,12 +259,13 @@ export default function CbseSafal({ navigation, route }) {
                     <View style={styles.listHolder}>
                       {listExdata.map((item, index) => {
                         return (
-                          <TouchableOpacity key={index} style={[styles.rowList, ({ backgroundColor: checkBox.includes(item.quesGroupID) ? userData.data.colors.liteTheme : '#fff', borderWidth: 1, borderColor: SWATheam.SwaWhite })]} onPress={() => { practList(item) }}>
-                            <View>
+                          <TouchableOpacity key={index} style={[styles.rowList, ({ borderWidth: 1, borderColor: SWATheam.SwaWhite })]} onPress={() => { practList(item) }}>
+                            {/* <View>
                               <Checkbox.Item color={userData.data.colors.mainTheme} status={checkBox.includes(item.quesGroupID) ? "checked" : 'unchecked'} />
-                            </View>
-                            <View>
-                              <Text>{item.quesGroupNameLang1}</Text>
+                            </View> */}
+                            <View style={{ flex: 1, paddingVertical: 3, flexDirection: 'row', alignItems: "center", }}>
+                              <Fontisto name={checkBox.includes(item.quesGroupID) ? "checkbox-active" : "checkbox-passive"} size={16} color={checkBox.includes(item.quesGroupID) ? SWATheam.SwaBlack : SWATheam.SwaBlack} />
+                              <Text style={{ marginLeft: 15, }} >{item.quesGroupNameLang1}</Text>
                             </View>
                           </TouchableOpacity>
                         )

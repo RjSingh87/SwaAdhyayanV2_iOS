@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, } from 'react';
 import {
   StyleSheet,
   Text,
@@ -37,7 +37,6 @@ import MsgModal from './common/MsgModal';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// 🔑 Gemini API Key (Verified & Live)
 
 
 // Educational Diagram Database
@@ -452,6 +451,7 @@ const SwaAiAssistant = ({ navigation }) => {
   const audioChunksRef = useRef([]);
   const currentChunkIndexRef = useRef(0);
   const isTtsPlayingRef = useRef(false);
+  const abortControllerRef = useRef(null)
 
   //Read Aloud Timer Effect
   useEffect(() => {
@@ -861,7 +861,7 @@ const SwaAiAssistant = ({ navigation }) => {
 
 
   // Call Gemini AI with Full Multi-Turn Conversation History
-  const callGeminiAI = async (userText, imageObj, historyMessages = []) => {
+  const callGeminiAI = async (userText, imageObj, historyMessages = [], signal) => {
     const cleanKey = GEMINI_API_KEY.trim();
 
     if (!cleanKey || cleanKey === 'YOUR_GEMINI_API_KEY_HERE') {
@@ -962,6 +962,7 @@ const SwaAiAssistant = ({ navigation }) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: signal
         });
 
         const data = await response.json();
@@ -982,6 +983,9 @@ const SwaAiAssistant = ({ navigation }) => {
           lastErr = data?.error?.message || `${modelName} call failed`;
         }
       } catch (err) {
+        if (err.name === 'AbortError') {
+          throw err;
+        }
         lastErr = err.message;
       }
     }
@@ -995,6 +999,18 @@ const SwaAiAssistant = ({ navigation }) => {
 
   // Send Message Action
   const handleSend = async (customPrompt = null) => {
+
+    if (loading) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      setLoading(false);
+      return
+    }
+
+
+    Keyboard.dismiss()
     const textToSend = customPrompt || inputText.trim();
     const currentImage = selectedImage;
 
@@ -1018,6 +1034,11 @@ const SwaAiAssistant = ({ navigation }) => {
     setMessages((prev) => [...prev, newMsg]);
     setLoading(true);
 
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const { signal } = controller;
+
     try {
       // Fetch Gemini AI response with conversation history and Smart Authentic Image in parallel
       const hasUploadedImage = !!currentImage?.base64 || !!currentImage?.uri;
@@ -1025,9 +1046,10 @@ const SwaAiAssistant = ({ navigation }) => {
         callGeminiAI(
           textToSend || 'Explain this image in detail.',
           currentImage,
-          currentHistory
+          currentHistory,
+          signal
         ),
-        fetchSmartEducationalImage(textToSend, hasUploadedImage),
+        fetchSmartEducationalImage(textToSend, hasUploadedImage, signal),
       ]);
 
       const aiMsg = {
@@ -1045,10 +1067,15 @@ const SwaAiAssistant = ({ navigation }) => {
       });
     } catch (error) {
       // If Gemini text servers experienced high demand, still deliver the authentic image gracefully
+      if (error.name === 'AbortError' || error.message === 'canceled') {
+        console.log('Request was cancelled by the user.');
+        return;
+      }
+
       let fallbackDiagram = null;
       try {
         const hasUploadedImage = !!currentImage?.base64 || !!currentImage?.uri;
-        fallbackDiagram = await fetchSmartEducationalImage(textToSend, hasUploadedImage);
+        fallbackDiagram = await fetchSmartEducationalImage(textToSend, hasUploadedImage,);
       } catch (e) { }
 
       if (fallbackDiagram) {
@@ -1068,6 +1095,7 @@ const SwaAiAssistant = ({ navigation }) => {
         Alert.alert('AI Notice', error.message || 'Please try again in a few seconds due to heavy server load.');
       }
     } finally {
+      abortControllerRef.current = null;
       setLoading(false);
     }
   };
@@ -1835,11 +1863,13 @@ const SwaAiAssistant = ({ navigation }) => {
                 value={inputText}
                 onChangeText={setInputText}
                 multiline
+              // blurOnSubmit={true}
+              // onSubmitEditing={() => { Keyboard.dismiss() }}
               />
 
-              {inputText.trim() || selectedImage ? (
+              {inputText.trim() || selectedImage || loading ? (
                 <TouchableOpacity style={styles.sendBtnActive} onPress={() => handleSend()}>
-                  <Ionicons name="arrow-up" size={18} color="#fff" />
+                  <Ionicons name={loading ? "stop-circle" : "arrow-up"} size={18} color="#fff" />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.micBtn} onPress={startVoiceRecording}>

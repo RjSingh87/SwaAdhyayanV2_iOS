@@ -63,15 +63,25 @@ const Dashboard = ({ navigation, route }) => {
 
 
   useEffect(() => {
-    const goBack = navigation.addListener('focus', () => {
-      setSearchItem((prev) => {
-        return { ...prev, list: null, status: false }
-      })
+    const focusListener = navigation.addListener('focus', () => {
+      setSearchItem({ list: null, status: false });
+      setDictionaryData({ word: "", data: null, synonyms: null, antonyms: null, status: false });
+      dispatch(resetSearchDataList());
       Orientation.lockToPortrait();
       StatusBar.setHidden(false);
     });
-    return goBack
-  }, [navigation])
+
+    const blurListener = navigation.addListener('blur', () => {
+      setSearchItem({ list: null, status: false });
+      setDictionaryData({ word: "", data: null, synonyms: null, antonyms: null, status: false });
+      dispatch(resetSearchDataList());
+    });
+
+    return () => {
+      focusListener();
+      blurListener();
+    };
+  }, [navigation, dispatch])
 
   useFocusEffect(
     useCallback(() => {
@@ -107,12 +117,9 @@ const Dashboard = ({ navigation, route }) => {
   );
 
   function closeModule() {
-    setSearchItem((prev) => {
-      return { ...prev, list: null, status: false }
-    });
-    setDictionaryData((prev) => {
-      return { ...prev, status: false }
-    })
+    setSearchItem({ list: null, status: false });
+    setDictionaryData({ word: "", data: null, synonyms: null, antonyms: null, status: false });
+    dispatch(resetSearchDataList());
   }
 
   function appDashboard() {
@@ -130,6 +137,7 @@ const Dashboard = ({ navigation, route }) => {
     Services.post(apiRoot.appDashboard, dashboardPayload)
       .then((res) => {
         if (res.status == "success") {
+          console.log({ res, dashboardPayload }, "for student")
           renderTimeTable(res.data.timeTable)
           setDeshboardData((prev) => {
             return { ...prev, icons: res.data.dashIcons, timeTable: res.data.timeTable, iconUrl: res.data.dashIcons.domain, attendance: res.data.attendanceData, status: false }
@@ -300,10 +308,8 @@ const Dashboard = ({ navigation, route }) => {
 
   function searchFunction(item, type) {
     // flowRef.fromChild2 = true;
-    getIconDetail(item, type)
-    setSearchItem((prev) => {
-      return { ...prev, list: null, status: false }
-    })
+    getIconDetail(item, type);
+    closeModule();
   }
 
   const AttendanceCell = ({ title, value }) => (
@@ -456,6 +462,8 @@ const Dashboard = ({ navigation, route }) => {
                   </ScrollView>
                 </View>
               </View>
+
+              {/* for LMS content search and dictionary */}
               {((searchItem.status && searchDataList.data.length > 0) || dictionaryData.status) &&
                 <SearchList searchItem={searchItem} closeModule={closeModule} searchFunction={searchFunction} dictionaryData={dictionaryData} />
               }

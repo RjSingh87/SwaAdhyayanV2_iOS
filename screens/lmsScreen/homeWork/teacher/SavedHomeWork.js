@@ -12,7 +12,10 @@ import Loader from "../../../common/Loader"
 import ImageViewer from "../../../common/ImageViewer";
 import HWPdfViewer from "../../../common/HWPdfViewer";
 import YoutubeUrlView from "../../../common/YoutubeUrlView";
+import SearchFilter from "../../../common/SearchFilter";
 import Share from 'react-native-share';
+// duplicate import removed
+// duplicate Share import removed
 
 
 var homeWorkIDNew = "";
@@ -24,6 +27,17 @@ const SaveHomeWork = () => {
 	const [loading, setLoading] = useState(false)
 	const [showPopUp, setShowPopUp] = useState(false)
 	const [savedHomework, setSavedHomework] = useState({ data: null, status: false })
+	const [filteredData, setFilteredData] = useState([]);
+	// Sync filtered data with fetched homework
+	useEffect(() => {
+		if (savedHomework.status && savedHomework.data) {
+			setFilteredData(savedHomework.data);
+		}
+	}, [savedHomework]);
+	// Handler for search results
+	const handleSearchResult = (results) => {
+		setFilteredData(results);
+	};
 	const [showStartDatePicker, setShowStartDatePicker] = useState(false)
 	const [showEndDatePicker, setShowEndDatePicker] = useState(false)
 	const [datePickerControl, setDatePickerControl] = useState({ date: null, status: false, index: null, type: "" })
@@ -335,168 +349,149 @@ const SaveHomeWork = () => {
 		<>
 			<View style={{ flex: 1 }}>
 				<View style={{ backgroundColor: userData.data.colors.liteTheme, borderRadius: 5, flex: 1, padding: 10 }}>
+					{savedHomework.status && (
+						<SearchFilter
+							data={savedHomework.data}
+							searchKeys={['subjectName', 'homeWorkDesc', 'assignedBy']}
+							fallbackKeys={['subjectName', 'homeWorkDesc']}
+							onResult={handleSearchResult}
+							placeholder="Search homework..."
+							resetTrigger={savedHomework.status}
+						/>
+					)}
 					{loading ?
 						<Loader /> :
 						<ScrollView>
 							{
 								savedHomework.status ?
 									<View>
-										{
-											savedHomework.data.map((item, index) => {
-												let newStartDate = ""
-												let newEndDate = ""
-												if (datePickerControl.index == index) {
-													newStartDate = startDate
-													newEndDate = endDate
+										{filteredData.map((item, index) => {
+											let newStartDate = ""
+											let newEndDate = ""
+											if (datePickerControl.index == index) {
+												newStartDate = startDate
+												newEndDate = endDate
+											}
+
+											const rawFileName = item?.filePath || item?.youTubeUrl || "";
+											const fileName = rawFileName.split('?')[0];
+
+											let buttonName = 'View'
+
+											if (fileName) {
+												if (/\.pdf$/i.test(fileName)) {
+													buttonName = 'View PDF 📄';
 												}
-
-												const rawFileName = item?.filePath || item?.youTubeUrl || "";
-												const fileName = rawFileName.split('?')[0];
-
-												let buttonName = 'View'
-
-												if (fileName) {
-													if (/\.pdf$/i.test(fileName)) {
-														buttonName = 'View PDF 📄';
-													}
-													else if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
-														buttonName = 'View Image 🏞️';
-													}
-													else if (/^https?:\/\//i.test(fileName)) {
-														buttonName = 'Watch ▶️';
-													}
+												else if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
+													buttonName = 'View Image 🏞️';
 												}
+												else if (/^https?:\/\//i.test(fileName)) {
+													buttonName = 'Watch ▶️';
+												}
+											}
 
 
 
 
-												{/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
-												{/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
-												return (
-													<View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
-														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-															<View style={{ width: 100 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class</Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
-															</View>
+											{/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
+											{/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
+											return (
+												<View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
+													<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+														<View style={{ width: 100 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class</Text>
 														</View>
-														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-															<View style={{ width: 100 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
-															</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
 														</View>
-														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-															<View style={{ width: 100 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
-															</View>
+														<View style={{ flex: 1 }}>
+															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.className}</Text>
 														</View>
+													</View>
+													<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+														<View style={{ width: 100 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
+														</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.subjectName}</Text>
+														</View>
+													</View>
+													<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+														<View style={{ width: 100 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description</Text>
+														</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
+														</View>
+													</View>
 
-														{/* {item.filePath != null ?
-															<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-																<View style={{ width: 100 }}>
-																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
-																</View>
-																<View style={{ paddingRight: 10 }}>
-																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-																</View>
-																<View style={{ flex: 1, }}>
-																	<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.filePath}</Text>
-																</View>
-															</View> : null
-														}
-
-														{item.youTubeUrl != null ?
-															<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-																<View style={{ width: 100, }}>
-																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
-																</View>
-																<View style={{ paddingRight: 10 }}>
-																	<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-																</View>
-																<View style={{ flex: 1, }}>
-																	<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
-																</View>
-															</View> : null
-														} */}
-
-														<View style={{ flexDirection: 'row', marginBottom: 5 }}>
-															<View style={{ width: 100, }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.createdDate}</Text>
-															</View>
+													<View style={{ flexDirection: 'row', marginBottom: 5 }}>
+														<View style={{ width: 100, }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
 														</View>
-														<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-															<View style={{ width: 100, }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
-																	<View style={{ flex: 1 }}>
-																		<Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
-																	</View>
-																	<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-																		<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
-																	</View>
-																</TouchableOpacity>
-															</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
 														</View>
-														<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
-															<View style={{ width: 100, }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
-															</View>
-															<View style={{ paddingRight: 10 }}>
-																<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-															</View>
-															<View style={{ flex: 1 }}>
-																<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
-																	<View style={{ flex: 1 }}>
-																		<Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
-																	</View>
-																	<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
-																		<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
-																	</View>
-																</TouchableOpacity>
-															</View>
+														<View style={{ flex: 1 }}>
+															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.createdDate}</Text>
 														</View>
-														<View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
-															<TouchableOpacity style={{ width: 130, backgroundColor: SWATheam.SwaGreen, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
-																<Text style={{ color: SWATheam.SwaWhite, padding: 5, textAlign: "center" }}>{buttonName}</Text>
-															</TouchableOpacity>
-															<TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => getSections(item)}>
-																<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Assign</Text>
-															</TouchableOpacity>
-															<TouchableOpacity style={{ backgroundColor: SWATheam.SwaRed, borderRadius: 5, paddingHorizontal: 10 }} onPress={() => deleteHomeWork(item.homeWorkID)}>
-																<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Delete</Text>
+													</View>
+													<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+														<View style={{ width: 100, }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Start Date</Text>
+														</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
+																<View style={{ flex: 1 }}>
+																	<Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
+																</View>
+																<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
+																	<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
+																</View>
 															</TouchableOpacity>
 														</View>
 													</View>
-												)
-											})
+													<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+														<View style={{ width: 100, }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>End Date</Text>
+														</View>
+														<View style={{ paddingRight: 10 }}>
+															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
+																<View style={{ flex: 1 }}>
+																	<Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
+																</View>
+																<View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 7 }}>
+																	<FontAwesome6 name={"calendar"} size={16} color={'grey'} />
+																</View>
+															</TouchableOpacity>
+														</View>
+													</View>
+													<View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
+														<TouchableOpacity style={{ width: 130, backgroundColor: SWATheam.SwaGreen, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
+															<Text style={{ color: SWATheam.SwaWhite, padding: 5, textAlign: "center" }}>{buttonName}</Text>
+														</TouchableOpacity>
+														<TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => getSections(item)}>
+															<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Assign</Text>
+														</TouchableOpacity>
+														<TouchableOpacity style={{ backgroundColor: SWATheam.SwaRed, borderRadius: 5, paddingHorizontal: 10 }} onPress={() => deleteHomeWork(item.homeWorkID)}>
+															<Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Delete</Text>
+														</TouchableOpacity>
+													</View>
+												</View>
+											)
+										})
 										}
 									</View>
 									:

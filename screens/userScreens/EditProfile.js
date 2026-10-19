@@ -5,10 +5,36 @@ import SwaHeader from '../common/SwaHeader'
 import CustomInput from '../common/CustomInput'
 import { SWATheam, apiRoot } from '../../constant/ConstentValue'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import DatePicker from 'react-native-date-picker'
 import Services from '../../Services'
 import MsgModal from '../common/MsgModal'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+
+// Helper to format Date into "10 Nov. 1987"
+const formatDateToDisplay = (dateObj) => {
+  if (!dateObj || isNaN(dateObj.getTime())) return '';
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
+  const month = monthNames[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
+  return `${day} ${month} ${year}`;
+};
+
+// Helper to parse input date string (e.g., "1990-01-01", "10 Nov. 1987", "10 Nov 1987") to Date object
+const parseDateString = (str) => {
+  if (!str || str === '0000-00-00') return new Date(1987, 10, 10);
+  const s = String(str).trim();
+  if (/^\d{4}[-/]\d{2}[-/]\d{2}/.test(s)) {
+    const parts = s.split(/[-/]/).map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  const cleaned = s.replace(/\./g, '');
+  const parsed = new Date(cleaned);
+  if (!isNaN(parsed.getTime())) return parsed;
+  return new Date(1987, 10, 10);
+};
 
 const EditProfile = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
@@ -16,11 +42,23 @@ const EditProfile = ({ navigation, route }) => {
   const { userData } = useContext(GlobleData)
   const [genderBtn, setGenderBtn] = useState({ male: 'radio-button-off', female: 'radio-button-off' })
   const [msgModalVisible, setMsgModalVisible] = useState({ msg: '', status: false, type: '' })
+  const [openDatePicker, setOpenDatePicker] = useState(false);
   const loginUserData = route.params.data
+
+  const getInitialDobDate = () => {
+    if (loginUserData?.dateOfBirth && loginUserData.dateOfBirth !== "1990-01-01" && loginUserData.dateOfBirth !== "0000-00-00") {
+      return parseDateString(loginUserData.dateOfBirth);
+    }
+    return new Date(1987, 10, 10); // default "10 Nov. 1987"
+  };
+
+  const [dobDate, setDobDate] = useState(getInitialDobDate());
+  const initialDobStr = formatDateToDisplay(dobDate);
+
   const [userDetail, setUserDetail] = useState({
     fullName: loginUserData.fullName,
     emailID: loginUserData.emailID,
-    dateOfBirth: loginUserData.dateOfBirth,
+    dateOfBirth: initialDobStr,
     contactNo: loginUserData.userTypeID == 5 || loginUserData.userTypeID == 6 ? loginUserData.fatherContact : loginUserData.contactNo,
     parentName: loginUserData.fatherName,
     address: loginUserData.address,
@@ -179,7 +217,26 @@ const EditProfile = ({ navigation, route }) => {
               </View>
               <View style={{ marginBottom: 25 }}>
                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', paddingBottom: 6, paddingHorizontal: 4 }}>Date of Birth:</Text>
-                <CustomInput defaultValue={userDetail.dateOfBirth} keyboardType={'number-pad'} onChangeText={(val) => handleInputChange(val, 'dob')} />
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => setOpenDatePicker(true)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: userData?.data?.colors?.hoverTheme || SWATheam.SwaGray,
+                    backgroundColor: SWATheam.SwaWhite,
+                    borderRadius: 4,
+                    height: 40,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>
+                    {userDetail.dateOfBirth || "10 Nov. 1987"}
+                  </Text>
+                  <FontAwesome6 name="calendar" size={16} color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+                </TouchableOpacity>
               </View>
               <View style={{ marginBottom: 25 }}>
                 <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700', paddingBottom: 6, paddingHorizontal: 4 }}>Contact:</Text>
@@ -200,6 +257,23 @@ const EditProfile = ({ navigation, route }) => {
             <Text style={{ color: SWATheam.SwaWhite, fontWeight: '700', textAlign: 'center' }}>Submit</Text>
           </TouchableOpacity>
         </View>
+
+        <DatePicker
+          modal
+          open={openDatePicker}
+          date={dobDate}
+          mode="date"
+          maximumDate={new Date()}
+          onConfirm={(selectedDate) => {
+            setOpenDatePicker(false);
+            setDobDate(selectedDate);
+            const formatted = formatDateToDisplay(selectedDate);
+            setUserDetail((prev) => ({ ...prev, dateOfBirth: formatted }));
+          }}
+          onCancel={() => {
+            setOpenDatePicker(false);
+          }}
+        />
 
         <MsgModal msgModalVisible={msgModalVisible} />
 

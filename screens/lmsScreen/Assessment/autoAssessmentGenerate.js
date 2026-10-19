@@ -420,6 +420,49 @@ export default function AutoAssessmentGenerate() {
     setActTypeID((prev) => ({ ...prev, [`t${index}`]: activityID }));
   }
 
+  // Calculate live total questions for Type Wise modal
+  const getTotalTypeWiseQues = () => {
+    let total = 0;
+    for (let key in actTypeData) {
+      if (actTypeData[key]) {
+        let val = parseInt(actTypeData[key], 10);
+        if (!isNaN(val) && val > 0) {
+          total += val;
+        }
+      }
+    }
+    return total;
+  };
+
+  // Calculate live total questions for Marks Wise modal
+  const getTotalMarksWiseQues = () => {
+    let total = 0;
+    for (let key in inputData) {
+      if (inputData[key]) {
+        let val = parseInt(inputData[key], 10);
+        if (!isNaN(val) && val > 0) {
+          total += val;
+        }
+      }
+    }
+    return total;
+  };
+
+  // Calculate live total marks for Marks Wise modal (questions * marks per question)
+  const getTotalMarksWiseMarks = () => {
+    let totalMarks = 0;
+    for (let key in inputData) {
+      if (inputData[key] && qWiseID[key] !== null && qWiseID[key] !== undefined) {
+        let count = parseInt(inputData[key], 10);
+        let marks = parseFloat(qWiseID[key]);
+        if (!isNaN(count) && count > 0 && !isNaN(marks)) {
+          totalMarks += count * marks;
+        }
+      }
+    }
+    return totalMarks;
+  };
+
 
   function selectMarks(marks) {
     finalQData = qID + "|" + marks;
@@ -2277,6 +2320,27 @@ export default function AutoAssessmentGenerate() {
               </View>
             </ScrollView>
 
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: '#fff',
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              marginHorizontal: 4,
+              marginVertical: 4,
+              borderRadius: 6,
+              borderWidth: 1,
+              borderColor: '#ddd'
+            }}>
+              <Text style={{ color: SWATheam.SwaBlack, fontWeight: '600', fontSize: 14 }}>
+                Total Questions:
+              </Text>
+              <Text style={{ color: userData?.data?.colors?.mainTheme || '#0d6efd', fontWeight: 'bold', fontSize: 16 }}>
+                {getTotalTypeWiseQues()}
+              </Text>
+            </View>
+
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 4 }}>
               <TouchableOpacity
                 onPress={() => {
@@ -2364,7 +2428,35 @@ export default function AutoAssessmentGenerate() {
               </View>
             </ScrollView>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              backgroundColor: '#fff',
+              paddingVertical: 8,
+              paddingHorizontal: 10,
+              marginHorizontal: 4,
+              marginVertical: 4,
+              borderRadius: 6,
+              borderWidth: 1,
+              borderColor: '#ddd'
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '600', fontSize: 13 }}>Total Questions: </Text>
+                <Text style={{ color: userData?.data?.colors?.mainTheme || '#0d6efd', fontWeight: 'bold', fontSize: 15 }}>
+                  {getTotalMarksWiseQues()}
+                </Text>
+              </View>
+              <View style={{ width: 1, height: 18, backgroundColor: '#ccc' }} />
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ color: SWATheam.SwaBlack, fontWeight: '600', fontSize: 13 }}>Total Marks: </Text>
+                <Text style={{ color: '#198754', fontWeight: 'bold', fontSize: 15 }}>
+                  {getTotalMarksWiseMarks()}
+                </Text>
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 4 }}>
               <TouchableOpacity
                 onPress={() => {
                   setIsMarksWise(false);

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert, Image } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { SWATheam } from '../../constant/ConstentValue'
@@ -7,7 +7,7 @@ import { GlobleData } from '../../Store'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSearchDataList } from '../redux/slices/SearchDataList'
 
-const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon, dictionaryIcon, setDictionaryData, setMsgModalVisible, isDashboard, yTubeStatus }) => {
+const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIcon, dictionaryIcon, setDictionaryData, setMsgModalVisible, isDashboard, yTubeStatus, headerImage }) => {
 
   const dispatch = useDispatch()
   const { userData } = useContext(GlobleData)
@@ -155,7 +155,12 @@ const SwaHeader = ({ title, leftIcon, rightIcon, onClickLeftIcon, onClickRightIc
         <AntDesign name={leftIcon} size={30} color={SWATheam.SwaWhite} />
       </TouchableOpacity>
       {!showInput ?
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 10 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', paddingHorizontal: 10 }}>
+          {headerImage ? (
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: SWATheam.SwaWhite, justifyContent: 'center', alignItems: 'center', marginRight: 8, overflow: 'hidden' }}>
+              <Image source={{ uri: headerImage }} style={{ width: 26, height: 26, resizeMode: 'contain' }} />
+            </View>
+          ) : null}
           <Text style={{ fontWeight: '700', color: SWATheam.SwaWhite, textAlign: 'center', fontSize: 16 }}>{title?.length > 35 ? title.substring(0, 31) + '...' : title}</Text>
         </View> :
         <TextInput type={"text"} placeholder='Search here' placeholderTextColor={SWATheam.SwaGray} value={searchString} style={{ flex: 1, color: SWATheam.SwaBlack, paddingHorizontal: 6, borderRadius: 6, backgroundColor: SWATheam.SwaWhite, height: 40, width: '30%' }}

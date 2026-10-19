@@ -8,17 +8,32 @@ import { GlobleData } from "../../../../Store"
 import Loader from "../../../common/Loader"
 // import RNFetchBlob from 'rn-fetch-blob';
 import RNBlobUtil from 'react-native-blob-util';
+import Share from 'react-native-share';
+import SearchFilter from "../../../common/SearchFilter";
 
 
 const CheckedHomeWork = () => {
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [checkedHomeWork, setCheckedHomeWork] = useState({ data: null, status: false })
+    const [filteredData, setFilteredData] = useState([])
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 
     useEffect(() => {
         getCheckedHomeWork()
     }, [])
+
+    // Sync filteredData whenever checkedHomeWork updates
+    useEffect(() => {
+        if (checkedHomeWork.status && checkedHomeWork.data) {
+            setFilteredData(checkedHomeWork.data);
+        }
+    }, [checkedHomeWork]);
+
+    // Handler for search results
+    const handleSearchResult = (results) => {
+        setFilteredData(results);
+    };
 
     const getCheckedHomeWork = () => {
         setLoading(true)
@@ -51,56 +66,75 @@ const CheckedHomeWork = () => {
 
     }
 
+
     const viewFile = (item, type) => {
-        if (item != null) {
-            let filePath = null;
+        if (!item) {
+            Alert.alert("Error", "File data not found!");
+            return;
+        }
 
-            if (type === 1) {
-                filePath = item?.submittedBy?.uploadedFile;
-            } else if (type === 2) {
-                filePath = item?.checkedBy?.checkedFile;
-            }
+        let filePath = null;
 
-            if (!filePath) {
-                Alert.alert("Error", "File source not found!");
-                return;
-            }
+        if (type === 1) {
+            filePath = item?.submittedHomework?.studentUploaded;
+        } else if (type === 2) {
+            filePath = item?.submittedHomework?.checkedFile;
+        }
 
-            const fType = filePath.split(".");
-            const itemLowerCase = fType[fType.length - 1].toLowerCase();
+        if (!filePath || typeof filePath !== 'string' || !filePath.trim()) {
+            Alert.alert("Error", "File source not found!");
+            return;
+        }
 
-            setFileType((prev) => {
-                return {
-                    ...prev,
-                    data: item,
-                    type: itemLowerCase,
-                    fileSrc: filePath,
-                    status: true,
-                };
-            });
+        const rawPath = filePath.trim();
+        const cleanPath = rawPath.split(/[?#]/)[0];
+        const extension = cleanPath.split('.').pop().toLowerCase();
+
+        const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const isImage = imageTypes.includes(extension);
+        const isPdf = extension === 'pdf';
+        const isUrl = /^https?:\/\//i.test(rawPath);
+
+        if (isImage || isPdf) {
+            setFileType((prev) => ({
+                ...prev,
+                data: item,
+                type: extension,
+                fileSrc: rawPath,
+                status: true,
+                from: isImage ? 'image' : 'document',
+            }));
+        } else if (isUrl) {
+            setFileType((prev) => ({
+                ...prev,
+                data: item,
+                type: 'url',
+                fileSrc: rawPath,
+                status: true,
+                from: 'url',
+            }));
+        } else {
+            Alert.alert(
+                "Error",
+                "File format is not supported or the URL is invalid."
+            );
         }
     };
 
-    const downloadDoc = async (docPath, type) => {
-        if (Platform.OS === 'android' && Platform.Version >= 33) {
-            try {
-                const granted = await PermissionsAndroid.requestMultiple([
-                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
-                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_AUDIO,
-                ]);
 
-                if (
-                    granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED
-                ) {
-                    downloadFile(docPath, type)
-                    setLoading(false)
-                } else {
-                    console.log('Permissions denied');
-                }
-            } catch (err) {
-                console.warn(err);
-            }
+    const downloadDoc = async (docPath, type) => {
+        try {
+            const shareOptions = {
+                title: 'Share PDF',
+                url: `${docPath}`,
+                type: 'application/pdf',
+                failOnCancel: false,
+            };
+            setLoading(false)
+            await Share.open(shareOptions);
+        } catch (err) {
+            console.log('Share error:', err);
+            setLoading(false)
         }
     };
 
@@ -167,6 +201,25 @@ const CheckedHomeWork = () => {
     return (
         <>
             <View style={{ flex: 1, padding: 10 }}>
+                {checkedHomeWork.status && (
+                    <SearchFilter
+                        data={checkedHomeWork?.data}
+                        searchKeys={[
+                            'submittedHomework.submittedBy.fullName',
+                            'assignedHomeWork.subjectName',
+                            'assignedHomeWork.checkedComment',
+                            'assignedHomeWork.assignedBy'
+                        ]}
+                        fallbackKeys={[
+                            'submittedHomework.submittedBy.fullName',
+                            'assignedHomeWork.subjectName',
+                            'assignedHomeWork.checkedComment'
+                        ]}
+                        onResult={handleSearchResult}
+                        placeholder="Search by student, subject, description..."
+                        resetTrigger={checkedHomeWork.status}
+                    />
+                )}
                 {loading ?
                     <Loader /> :
                     <ScrollView>
@@ -174,7 +227,7 @@ const CheckedHomeWork = () => {
                             checkedHomeWork.status ?
                                 <View>
                                     {
-                                        checkedHomeWork.data.map((item, index) => {
+                                        filteredData?.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
                                                 <View style={{ borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 5, borderRadius: 5, padding: 8, backgroundColor: SWATheam.SwaWhite }} key={index}>

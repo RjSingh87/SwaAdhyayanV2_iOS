@@ -66,7 +66,7 @@ const KnowingMeReport = ({ navigation, route }) => {
                 <Loader />
                 :
                 <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
-                    <SwaHeader title={route.params.testType} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                    <SwaHeader title={`${route?.params?.testType} Report`} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} headerImage={route.params?.septIconUrl} />
                     <View style={{ backgroundColor: userData.data.colors.hoverTheme, padding: 8 }}>
                         <View>
                             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>Name: {userData.data.fullname} ({userData.data.className}-{userData.data.sectionName})</Text>
@@ -152,7 +152,7 @@ const KnowingMeReport = ({ navigation, route }) => {
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ justifyContent: 'center' }}>
                                 <TouchableOpacity style={[styles.colorSwa, { borderRadius: 4, padding: 5, justifyContent: 'center' }]} onPress={() => setShowKeyNotes(!showKeyNotes)}>
-                                    <Text style={[styles.WtextClr, { textAlign: 'center', fontWeight: 'bold' }]}>View KeyNotes</Text>
+                                    <Text style={[styles.WtextClr, { textAlign: 'center', fontWeight: 'bold' }]}>View Keynotes</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
@@ -169,19 +169,22 @@ const KnowingMeReport = ({ navigation, route }) => {
                     {showKeyNotes &&
                         <View style={{
                             position: 'absolute',
-                            top: "6%",
+                            top: 0,
                             left: 0,
-                            width: '100%',
-                            height: '100%',
+                            right: 0,
+                            bottom: 0,
                             backgroundColor: userData.data.colors.mainTheme,
-                            paddingVertical: 20,
+                            paddingTop: 10,
                             paddingHorizontal: 10,
-                            paddingBottom: 50
+                            paddingBottom: 10,
+                            zIndex: 100,
+                            elevation: 10,
                         }}>
-                            <View style={{ borderBottomWidth: 1, borderColor: 'grey' }}>
+                            <View style={{ borderBottomWidth: 1, borderColor: 'grey', marginTop: 40, }}>
                                 <Text style={{ fontSize: 16, color: SWATheam.SwaWhite, paddingVertical: 10 }}>Knowing Me Key Notes</Text>
                             </View>
-                            <ScrollView style={{ position: 'relative', backgroundColor: '#fff' }}>
+                            <ScrollView style={{ flex: 1, position: 'relative', backgroundColor: '#fff' }} contentContainerStyle={{ paddingBottom: 10 }}
+                                showsVerticalScrollIndicator={true}>
                                 <View style={{ paddingLeft: 8, flexDirection: 'row', marginTop: 10, borderBottomWidth: 1, borderColor: colorSwa, paddingBottom: 5 }}>
                                     <Text style={[styles.BtextClr, { fontSize: font17, fontWeight: '500' }]}>What you can easily do well. </Text>
                                 </View>
@@ -331,8 +334,22 @@ const KnowingMeReport = ({ navigation, route }) => {
                                 </View>
                             </ScrollView>
 
-                            <View style={{ flexDirection: 'row', position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', backgroundColor: userData.data.colors.hoverTheme, height: 50, padding: 4, alignItems: 'center' }}>
-                                <TouchableOpacity style={[styles.colorSwa, { borderRadius: 4, flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 5, justifyContent: 'center' }]} onPress={() => setShowKeyNotes(!showKeyNotes)}>
+                            <View style={{
+                                backgroundColor: userData.data.colors.hoverTheme,
+                                height: 55,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexShrink: 0,
+                                marginTop: 8,
+                            }}>
+                                <TouchableOpacity style={[
+                                    styles.colorSwa,
+                                    {
+                                        borderRadius: 4,
+                                        paddingHorizontal: 25,
+                                        paddingVertical: 10,
+                                    },
+                                ]} onPress={() => setShowKeyNotes(!showKeyNotes)}>
                                     <Text style={{ textAlign: 'center', color: '#fff', fontWeight: 'bold' }}>Close</Text>
                                 </TouchableOpacity>
                             </View>

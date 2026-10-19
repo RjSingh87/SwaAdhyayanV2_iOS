@@ -1,5 +1,5 @@
 import { useState } from "react";
-import React, { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from "react-native"
+import React, { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from "react-native"
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Loader from "../lmsScreen/CBSE_Safal/Loader";
 
@@ -35,7 +35,27 @@ const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
                         <AntDesign name={"close"} size={25} color={'#fff'} />
                     </TouchableOpacity> */}
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image onLoadStart={() => { setLoading(true) }} onLoadEnd={() => { setLoading(false) }} style={{ width: '95%', height: '95%', resizeMode: 'contain' }} source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }} />
+                    <Image
+                        onLoadStart={() => { setLoading(true) }}
+                        onLoadEnd={() => { setLoading(false) }}
+                        style={{ width: '95%', height: '95%', resizeMode: 'contain' }}
+                        source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }}
+                        onLoad={() => console.log("Image loaded successfully")}
+                        onError={(event) => {
+                            console.log('Image loading failed:', {
+                                fileSrc: fileType?.fileSrc,
+                                error: event.nativeEvent.error,
+                            });
+                            setLoading(false);
+                            setFileType(false);
+
+                            Alert.alert(
+                                'Unable to Load Image',
+                                'The image could not be loaded. Please try again later.',
+                                [{ text: 'OK' }]
+                            );
+                        }}
+                    />
                     {loading &&
                         <Loader />
                     }

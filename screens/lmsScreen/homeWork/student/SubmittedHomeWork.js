@@ -7,6 +7,7 @@ import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+import SearchFilter from "../../../common/SearchFilter";
 
 import RNBlobUtil from 'react-native-blob-util';
 import Share from 'react-native-share';
@@ -15,12 +16,25 @@ import Share from 'react-native-share';
 const SubmittedHomeWork = () => {
 	const { userData } = useContext(GlobleData)
 	const [submittedHomeWork, setSubmittedHomeWork] = useState({ data: null, status: false })
+	const [filteredData, setFilteredData] = useState([])
 	const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
 		getSubmittedHomeWork()
 	}, [])
+
+	// Sync filteredData whenever submittedHomeWork updates
+	useEffect(() => {
+		if (submittedHomeWork.status && submittedHomeWork.data) {
+			setFilteredData(submittedHomeWork.data)
+		}
+	}, [submittedHomeWork])
+
+	// Handler for search results
+	const handleSearchResult = (results) => {
+		setFilteredData(results)
+	}
 
 	const getSubmittedHomeWork = () => {
 		setLoading(true)
@@ -203,12 +217,22 @@ const SubmittedHomeWork = () => {
 			{loading ?
 				<Loader /> :
 				<View style={{ flex: 1, padding: 10 }}>
+					{submittedHomeWork.status && (
+						<SearchFilter
+							data={submittedHomeWork?.data}
+							searchKeys={['subjectName', 'homeWorkDesc', 'teacherData.fullName', 'className']}
+							fallbackKeys={['subjectName', 'homeWorkDesc']}
+							onResult={handleSearchResult}
+							placeholder="Search by subject, description, assigned by..."
+							resetTrigger={submittedHomeWork.status}
+						/>
+					)}
 					<ScrollView>
 						{
 							submittedHomeWork.status ?
 								<View>
 									{
-										submittedHomeWork.data.map((item, index) => {
+										filteredData?.map((item, index) => {
 											const rawFileName = item?.uploadFileName || item?.youTubeUrl || "";
 											const fileName = rawFileName.split('?')[0];
 

@@ -6,6 +6,7 @@ import { SWATheam } from '../../../../constant/ConstentValue'
 import ImageViewer from '../../../common/ImageViewer'
 import RNBlobUtil from 'react-native-blob-util';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Share from 'react-native-share';
 
 
 const HomeWorkReports = ({ navigation, route }) => {
@@ -13,6 +14,7 @@ const HomeWorkReports = ({ navigation, route }) => {
     const { userData } = useContext(GlobleData)
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
     const insets = useSafeAreaInsets();
+    const [loading, setLoading] = useState(false)
 
     function onClickLeftIcon() {
         navigation.goBack()
@@ -21,36 +23,78 @@ const HomeWorkReports = ({ navigation, route }) => {
         setIsInstruction(true)
     }
 
-    const viewFile = (item) => {
-        console.log({ item })
-        const fType = item.checkedFile.split('.')
-        const itemLowerCase = fType[fType.length - 1].toLowerCase()
-        setFileType((prev) => {
-            return { ...prev, data: item, type: itemLowerCase, fileSrc: item.checkedFile, status: true }
-        })
-    }
 
-    function downloadDoc(item, type, baseUrl) {
-        // setLoading(true)
-        if (type == "video") {
-            // navigation.navigate('videoView', { url: item })
-            requestDownloadPermission(item, type)
-        } else if (type == "img") {
-            requestDownloadPermission(item, type)
-            // setFileType((prev) =>{
-            //     return {...prev, fileSrc: item, status: true}
-            // })
-        } else if (type == 'audio') {
-            requestDownloadPermission(item, type)
+    const viewFile = (item) => {
+        if (!item || typeof item !== 'object') {
+            Alert.alert("Error", "File data not found!");
+            return;
         }
-        else if (type == "doc") {
-            const docPath = baseUrl + item.docFileNPath
-            requestDownloadPermission(docPath, type)
-            // if(docPath.endsWith('pdf')){
-            //     navigation.navigate('pdfView', { url: docPath, title: "Swa-Sharing"})
-            // }else if(docPath.endsWith('doc') || docPath.endsWith('docx')){
-            //     requestDownloadPermission(docPath)
-            // }
+
+        const rawPath = item?.checkedFile;
+
+
+        if (typeof rawPath !== 'string' || !rawPath.trim()) {
+            Alert.alert("Error", "Checked file is not available!");
+            return;
+        }
+
+        const filePath = rawPath.trim();
+        const cleanPath = filePath.split(/[?#]/)[0];
+        const isUrl = /^https?:\/\//i.test(filePath);
+
+        const fileName = cleanPath.split('/').pop();
+        const extension = fileName?.includes('.')
+            ? fileName.split('.').pop().toLowerCase()
+            : '';
+
+        const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const isImage = imageTypes.includes(extension);
+        const isPdf = extension === 'pdf';
+
+        if (isImage || isPdf) {
+            setFileType((prev) => ({
+                ...prev,
+                data: item,
+                type: extension,
+                fileSrc: filePath,
+                status: true,
+                from: isImage ? 'image' : 'document',
+            }));
+        } else if (isUrl) {
+            setFileType((prev) => ({
+                ...prev,
+                data: item,
+                type: 'url',
+                fileSrc: filePath,
+                status: true,
+                from: 'url',
+            }));
+        } else {
+            Alert.alert(
+                "Error",
+                "Unsupported file format. Please select an image, PDF, or valid HTTP/HTTPS URL."
+            );
+        }
+    };
+
+
+
+
+
+
+    async function downloadDoc(docPath, type) {
+        try {
+            const shareOptions = {
+                title: 'Share PDF',
+                url: `${docPath}`,
+                type: 'application/pdf',
+                failOnCancel: false,
+            };
+            setLoading(false)
+            await Share.open(shareOptions);
+        } catch (err) {
+            console.log('Share error:', err);
+            setLoading(false)
         }
     }
 
@@ -144,7 +188,7 @@ const HomeWorkReports = ({ navigation, route }) => {
                 <SwaHeader title={"Reports"} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
                 <View style={{ flex: 1, padding: 10 }}>
                     <ScrollView>
-                        {route.params.map((item, index) => {
+                        {route?.params?.map((item, index) => {
                             const studentName = item?.studentDetails?.firstName + ' ' + (item?.studentDetails?.middleName == null ? "" : item.studentDetails?.middleName) + ' ' + item.studentDetails?.lastName
                             const fatherName = item?.studentDetails?.fatherName
 

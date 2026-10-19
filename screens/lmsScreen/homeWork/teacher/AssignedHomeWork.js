@@ -9,17 +9,32 @@ import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import RNBlobUtil from 'react-native-blob-util';
 import Share from 'react-native-share';
+import SearchFilter from "../../../common/SearchFilter";
+
 
 
 const AssignedHomeWork = () => {
   const { userData } = useContext(GlobleData)
   const [assignedHomework, setAssignedHomework] = useState({ data: null, status: false })
   const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
+  const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     getAssignedHomeWork()
   }, [])
+
+  // Sync filteredData whenever assignedHomework updates
+  useEffect(() => {
+    if (assignedHomework.status && assignedHomework.data) {
+      setFilteredData(assignedHomework.data);
+    }
+  }, [assignedHomework]);
+
+  // Handler for search results
+  const handleSearchResult = (results) => {
+    setFilteredData(results);
+  };
 
   const getAssignedHomeWork = () => {
     setLoading(true)
@@ -36,10 +51,12 @@ const AssignedHomeWork = () => {
           setAssignedHomework((prev) => {
             return { ...prev, data: data, status: true }
           })
+          setFilteredData(data)
         } else {
           setLoading(false)
           // alert(res.message)
           setAssignedHomework({ data: null, status: false })
+          setFilteredData([])
         }
       })
       .catch((err) => {
@@ -220,6 +237,18 @@ const AssignedHomeWork = () => {
   return (
     <>
       <View style={{ flex: 1, padding: 10 }}>
+
+        {assignedHomework.status && (
+          <SearchFilter
+            data={assignedHomework?.data}
+            searchKeys={['subjectName', 'homeWorkDesc', 'assignedBy']}
+            fallbackKeys={['subjectName', 'homeWorkDesc']}
+            onResult={handleSearchResult}
+            placeholder="Search Assigned homework..."
+            resetTrigger={assignedHomework.status}
+          />
+        )}
+
         {loading ?
           <Loader /> :
           <ScrollView>
@@ -227,8 +256,7 @@ const AssignedHomeWork = () => {
               assignedHomework.status ?
                 <View>
                   {
-                    assignedHomework.data.map((item, index) => {
-
+                    filteredData?.map((item, index) => {
                       const rawFileName = item?.uploadFileName || item?.youTubeUrl || "";
                       const fileName = rawFileName.split('?')[0];
 
@@ -295,32 +323,7 @@ const AssignedHomeWork = () => {
                               <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.homeWorkDesc}</Text>
                             </View>
                           </View>
-                          {/* {item.filePath != null ?
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Attached File</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{fileName}</Text>
-                                                            </View>
-                                                        </View> : null
-                                                    } */}
-                          {/* {item.youTubeUrl != null ?
-                                                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                                                            <View style={{ width: 100, }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Youtube Url</Text>
-                                                            </View>
-                                                            <View style={{ paddingRight: 10 }}>
-                                                                <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                                                            </View>
-                                                            <View style={{ flex: 1, }}>
-                                                                <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.youTubeUrl}</Text>
-                                                            </View>
-                                                        </View> : null
-                                                    } */}
+
                           <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                             <View style={{ width: 100, }}>
                               <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
@@ -374,6 +377,7 @@ const AssignedHomeWork = () => {
             }
           </ScrollView>
         }
+
       </View>
 
       {(fileType.status && fileType.type == 'image' || fileType.type == 'png' || fileType.type == 'jpg' || fileType.type == 'jpeg') &&

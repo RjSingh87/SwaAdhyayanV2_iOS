@@ -10,6 +10,7 @@ import DocumentPicker from 'react-native-document-picker';
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+import SearchFilter from "../../../common/SearchFilter";
 
 import RNBlobUtil from 'react-native-blob-util';
 import { apiRoot, SWATheam } from "../../../../constant/ConstentValue";
@@ -21,6 +22,7 @@ const ViewAndSubmitHomework = () => {
   const { userData } = useContext(GlobleData)
   const [showSubmitPopUp, setShowSubmitPopUp] = useState(false)
   const [assignedHomework, setAssignedHomework] = useState({ data: null, status: false })
+  const [filteredData, setFilteredData] = useState([])
   const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
   const [selectFile, setSelectFile] = useState(null)
   const [singleHomeworkData, setSingleHomeworkData] = useState(null)
@@ -29,6 +31,18 @@ const ViewAndSubmitHomework = () => {
   useEffect(() => {
     getAssignedHomeWork()
   }, [])
+
+  // Sync filteredData whenever assignedHomework updates
+  useEffect(() => {
+    if (assignedHomework.status && assignedHomework.data) {
+      setFilteredData(assignedHomework.data)
+    }
+  }, [assignedHomework])
+
+  // Handler for search results
+  const handleSearchResult = (results) => {
+    setFilteredData(results)
+  }
 
   const getAssignedHomeWork = () => {
     setLoading(true)
@@ -265,12 +279,22 @@ const ViewAndSubmitHomework = () => {
       {loading ?
         <Loader /> :
         <View style={{ flex: 1, padding: 10 }}>
+          {assignedHomework.status && (
+            <SearchFilter
+              data={assignedHomework?.data}
+              searchKeys={['subjectName', 'homeWorkDesc', 'teacherData.fullName', 'className']}
+              fallbackKeys={['subjectName', 'homeWorkDesc']}
+              onResult={handleSearchResult}
+              placeholder="Search by subject, description, assigned by..."
+              resetTrigger={assignedHomework.status}
+            />
+          )}
           <ScrollView>
             {
               assignedHomework.status ?
                 <View>
                   {
-                    assignedHomework.data.map((item, index) => {
+                    filteredData?.map((item, index) => {
                       const rawFileName = item?.uploadFileName || item?.youTubeUrl || "";
                       const fileName = rawFileName.split('?')[0];
 

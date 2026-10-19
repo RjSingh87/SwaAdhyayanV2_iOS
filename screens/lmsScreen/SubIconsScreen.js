@@ -218,6 +218,10 @@ const SubIconsScreen = ({ navigation, route }) => {
     setStuReportName('CBSE');
     const goBack = navigation.addListener('focus', () => {
       setStuReportName('CBSE');
+      setIntor(prev => ({
+        ...prev,
+        instruction: false,
+      }));
       setSelectedIcon(prev => {
         return {
           ...prev,
@@ -867,16 +871,21 @@ const SubIconsScreen = ({ navigation, route }) => {
   }
 
   function getSeptReport(item) {
+    // console.log(subIconsData.iconUrl, "of all icons")
+    const septIconUrl = subIconsData?.icons?.path
+      ? subIconsData.icons.path + item.data.septIcon
+      : '';
+    const navParams = { ...item.data, septIconUrl };
     if (item.data.testID == 1) {
-      navigation.navigate('septAcademicReport', item.data);
+      navigation.navigate('septAcademicReport', navParams);
     } else if (item.data.testID == 2) {
-      navigation.navigate('septLearningReport', item.data);
+      navigation.navigate('septLearningReport', navParams);
     } else if (item.data.testID == 3) {
-      navigation.navigate('septMultipleIntellReport', item.data);
+      navigation.navigate('septMultipleIntellReport', navParams);
     } else if (item.data.testID == 4) {
-      navigation.navigate('septKnowingMeReport', item.data);
+      navigation.navigate('septKnowingMeReport', navParams);
     } else if (item.data.testID == 5) {
-      navigation.navigate('septBrainDominReport', item.data);
+      navigation.navigate('septBrainDominReport', navParams);
     }
   }
 
@@ -2404,11 +2413,15 @@ const SubIconsScreen = ({ navigation, route }) => {
         userData?.data?.userTypeID == 4 || userData?.data?.userTypeID == 2
           ? selectedField.class.classID
           : userData.data.classID;
+      const septIconUrl = subIconsData?.icons?.path && intro?.selectedSubIcon?.septIcon
+        ? subIconsData.icons.path + intro.selectedSubIcon.septIcon
+        : '';
       navigation.navigate('septAttempt', {
         classID: classID,
         testID: testID,
         testData: intro,
         schoolID: userData?.data?.schoolID,
+        septIconUrl: septIconUrl,
       });
     }
   }

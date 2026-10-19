@@ -66,7 +66,7 @@ const BrainDominReport = ({ navigation, route }) => {
                 <Loader />
                 :
                 <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
-                    <SwaHeader title={route.params.testType} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                    <SwaHeader title={`${route?.params?.testType} Report`} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} headerImage={route.params?.septIconUrl} />
                     <View style={{ backgroundColor: userData.data.colors.hoverTheme, padding: 8 }}>
                         <View>
                             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>Name: {userData.data.fullname} ({userData.data.className}-{userData.data.sectionName})</Text>

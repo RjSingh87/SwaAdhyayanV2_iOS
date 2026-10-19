@@ -1,5 +1,5 @@
 import { useContext, useState } from "react"
-import React, { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, } from "react-native"
+import React, { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, Image, } from "react-native"
 import { SWATheam } from "../../../constant/ConstentValue";
 import { GlobleData } from "../../../Store";
 
@@ -270,6 +270,12 @@ const AcademicProfIntro = ({ intro, getAttemptedScreen }) => {
                                         <Text style={styles.textClr}>
                                             The data and results represented by the report generated for this test are purely conditional. It may change according to the skills and/or intelligence acquired by the student in his/her lifetime.
                                         </Text>
+
+                                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginVertical: 6, }}>
+                                            <Image source={require("../../../assets/MI_Skill.png")} style={{ width: 150, height: 150, resizeMode: "contain" }} />
+                                            <Text>Dr. Howard Gardner</Text>
+                                        </View>
+
                                     </View>
                                 </View>
                             </View> : intro.selectedSubIcon.testID == 4 ?

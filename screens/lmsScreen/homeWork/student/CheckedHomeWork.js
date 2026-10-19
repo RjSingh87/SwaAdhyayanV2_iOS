@@ -5,6 +5,7 @@ import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+import SearchFilter from "../../../common/SearchFilter";
 import RNBlobUtil from 'react-native-blob-util';
 
 
@@ -12,11 +13,24 @@ const CheckedHomeWork = () => {
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [checkedHomeWork, setCheckedHomeWork] = useState({ data: null, status: false })
+    const [filteredData, setFilteredData] = useState([])
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 
     useEffect(() => {
         getCheckedHomeWork()
     }, [])
+
+    // Sync filteredData whenever checkedHomeWork updates
+    useEffect(() => {
+        if (checkedHomeWork.status && checkedHomeWork.data) {
+            setFilteredData(checkedHomeWork.data)
+        }
+    }, [checkedHomeWork])
+
+    // Handler for search results
+    const handleSearchResult = (results) => {
+        setFilteredData(results)
+    }
 
 
     const getCheckedHomeWork = () => {
@@ -167,12 +181,22 @@ const CheckedHomeWork = () => {
             {loading ?
                 <Loader /> :
                 <View style={{ padding: 10, flex: 1 }}>
+                    {checkedHomeWork.status && (
+                        <SearchFilter
+                            data={checkedHomeWork?.data}
+                            searchKeys={['subjectName', 'homeworkDesc', 'checkedBy.fullName', 'submittedBy.className']}
+                            fallbackKeys={['subjectName', 'homeworkDesc']}
+                            onResult={handleSearchResult}
+                            placeholder="Search by subject, description, checked by..."
+                            resetTrigger={checkedHomeWork.status}
+                        />
+                    )}
                     <ScrollView>
                         {
                             checkedHomeWork.status ?
                                 <View>
                                     {
-                                        checkedHomeWork.data.map((item, index) => {
+                                        filteredData?.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
                                                 <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
@@ -228,7 +252,7 @@ const CheckedHomeWork = () => {
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
                                                         </View>
                                                         <View style={{ flex: 1 }}>
-                                                            <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate}</Text>
+                                                            <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate ?? "N/A"}</Text>
                                                         </View>
                                                     </View>
                                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
@@ -242,7 +266,7 @@ const CheckedHomeWork = () => {
                                                             <Text style={{ color: '#000', fontSize: 14 }}>{item.submittedBy.submissionDate}</Text>
                                                         </View>
                                                     </View>
-                                                    <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                                    {/* <View style={{ flexDirection: 'row', marginBottom: 5 }}>
                                                         <View style={{ width: 120, }}>
                                                             <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>Status</Text>
                                                         </View>
@@ -252,10 +276,10 @@ const CheckedHomeWork = () => {
                                                         <View style={{ flex: 1 }}>
                                                             <Text style={{ color: '#000', fontSize: 14 }}>Checked</Text>
                                                         </View>
-                                                    </View>
+                                                    </View> */}
                                                     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
                                                         <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item, 1)}>
-                                                            <Text style={{ color: '#fff', padding: 5 }}>Atached File</Text>
+                                                            <Text style={{ color: '#fff', padding: 5 }}>Attached File</Text>
                                                         </TouchableOpacity>
                                                         <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 5, marginRight: 5 }} onPress={() => viewFile(item, 2)}>
                                                             <Text style={{ color: '#fff', padding: 5 }}>Checked File</Text>

@@ -15,11 +15,30 @@ const font20 = 20;
 const font15 = 15;
 const font17 = 17;
 
+
+const removeHtmlTags = (text) => {
+    if (typeof text !== 'string') return '';
+
+    return text
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
+
+
 const AcademicReport = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { userData } = useContext(GlobleData)
     const [queData, setQueData] = useState({ data: null, status: true })
     const [showAnswer, setShowAnswer] = useState(false)
+
 
     useEffect(() => {
         getReport()
@@ -64,13 +83,14 @@ const AcademicReport = ({ navigation, route }) => {
 
     }
 
+
     return (
         <>
             {queData.status ?
                 <Loader />
                 :
                 <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: userData.data.colors.mainTheme, marginBottom: insets.bottom }}>
-                    <SwaHeader title={route.params.testType} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+                    <SwaHeader title={`${route?.params?.testType} Report`} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} headerImage={route.params?.septIconUrl} />
                     <View style={{ backgroundColor: userData.data.colors.hoverTheme, padding: 8 }}>
                         <View>
                             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>Name: {userData.data.fullname} ({userData.data.className}-{userData.data.sectionName})</Text>
@@ -196,24 +216,30 @@ const AcademicReport = ({ navigation, route }) => {
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '100%',
-                            height: '100%',
+                            right: 0,
+                            bottom: 0,
                             backgroundColor: userData.data.colors.mainTheme,
-                            paddingVertical: 20,
+                            paddingTop: 10,
                             paddingHorizontal: 10,
-                            paddingBottom: 50
+                            paddingBottom: 10,
+                            zIndex: 100,
+                            elevation: 10,
                         }}>
-                            <ScrollView>
+                            <ScrollView
+                                style={{ flex: 1 }}
+                                contentContainerStyle={{ paddingBottom: 10, paddingTop: 50 }}
+                                showsVerticalScrollIndicator={true}
+                            >
                                 {
-                                    queData.data.map((item, index) => {
+                                    queData?.data?.map((item, index) => {
                                         return (
-                                            <View style={{ backgroundColor: SWATheam.SwaWhite, marginBottom: 10, padding: 10, borderRadius: 5 }} key={index}>
-                                                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                                            <View style={{ backgroundColor: SWATheam.SwaWhite, marginBottom: 10, padding: 10, borderRadius: 5, }} key={index}>
+                                                <View style={{ flexDirection: 'row', marginBottom: 5, }}>
                                                     <View style={{ width: 55 }}>
                                                         <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>Q.{index + 1}.</Text>
                                                     </View>
                                                     <View style={{ flex: 1 }}>
-                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>{item.questionText}</Text>
+                                                        <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>{removeHtmlTags(item?.questionText)}</Text>
                                                         <View style={{ marginTop: 6 }}>
 
                                                             <View style={{ flexDirection: 'row', marginBottom: 5, borderBottomWidth: .5, paddingVertical: 4 }}>
@@ -268,9 +294,30 @@ const AcademicReport = ({ navigation, route }) => {
                                 }
                             </ScrollView>
 
-                            <View style={{ flexDirection: 'row', position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', backgroundColor: userData.data.colors.hoverTheme, height: 50, padding: 4, alignItems: 'center' }}>
-                                <TouchableOpacity style={[styles.colorSwa, { borderRadius: 4, flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center' }]} onPress={() => setShowAnswer(!showAnswer)}>
-                                    <Text style={{ textAlign: 'center', color: '#fff', fontWeight: 'bold' }}>Close</Text>
+                            <View
+                                style={{
+                                    backgroundColor: userData.data.colors.hoverTheme,
+                                    height: 55,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    flexShrink: 0,
+                                    marginTop: 8,
+                                }}
+                            >
+                                <TouchableOpacity
+                                    style={[
+                                        styles.colorSwa,
+                                        {
+                                            borderRadius: 4,
+                                            paddingHorizontal: 25,
+                                            paddingVertical: 10,
+                                        },
+                                    ]}
+                                    onPress={() => setShowAnswer(false)}
+                                >
+                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                                        Close
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

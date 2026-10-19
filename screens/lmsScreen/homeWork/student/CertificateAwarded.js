@@ -5,6 +5,7 @@ import { apiRoot, SWATheam } from "../../../../constant/ConstentValue"
 import { GlobleData } from "../../../../Store"
 import Services from "../../../../Services"
 import Loader from "../../../common/Loader"
+import SearchFilter from "../../../common/SearchFilter";
 
 import RNBlobUtil from 'react-native-blob-util';
 // import RNFetchBlob from 'rn-fetch-blob';
@@ -13,11 +14,24 @@ const CertificateAwarded = () => {
     const { userData } = useContext(GlobleData)
     const [loading, setLoading] = useState(false)
     const [certificate, setCertificate] = useState({ data: null, status: false })
+    const [filteredData, setFilteredData] = useState([])
     const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
 
     useEffect(() => {
         getCertificateData()
     }, [])
+
+    // Sync filteredData whenever certificate updates
+    useEffect(() => {
+        if (certificate.status && certificate.data) {
+            setFilteredData(certificate.data)
+        }
+    }, [certificate])
+
+    // Handler for search results
+    const handleSearchResult = (results) => {
+        setFilteredData(results)
+    }
 
     const getCertificateData = () => {
         setLoading(true)
@@ -195,12 +209,22 @@ const CertificateAwarded = () => {
             {loading ?
                 <Loader /> :
                 <View style={{ flex: 1, padding: 10 }}>
+                    {certificate.status && (
+                        <SearchFilter
+                            data={certificate?.data}
+                            searchKeys={['subjectName', 'className', 'sectionName', 'teacherName', 'durationName', 'durationValue']}
+                            fallbackKeys={['subjectName', 'className', 'teacherName']}
+                            onResult={handleSearchResult}
+                            placeholder="Search by subject, teacher, class, certificate..."
+                            resetTrigger={certificate.status}
+                        />
+                    )}
                     <ScrollView>
                         {
                             certificate.status ?
                                 <View>
                                     {
-                                        certificate.data.map((item, index) => {
+                                        filteredData?.map((item, index) => {
                                             const fileName = item.uploadFileName
                                             return (
                                                 <View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>

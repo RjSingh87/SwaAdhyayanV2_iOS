@@ -8,6 +8,9 @@ import { apiRoot, SWATheam } from "../../../../constant/ConstentValue";
 import { GlobleData } from "../../../../Store";
 
 import RNBlobUtil from 'react-native-blob-util';
+import Share from 'react-native-share';
+import Loader from "../../../common/Loader";
+import SearchFilter from "../../../common/SearchFilter";
 // import RNFetchBlob from 'rn-fetch-blob';
 
 let checkHomeWorkData = {
@@ -25,17 +28,32 @@ const SubmittedHomeWork = () => {
   const [showColorPalate, setShowColorPalate] = useState(false)
   const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
   const [submittedHomework, setsubmittedHomework] = useState({ data: null, status: false })
+  const [filteredData, setFilteredData] = useState([])
   const [penColor, setPenColor] = useState(SWATheam.SwaBlack)
   const [imgpath, setImgpath] = useState(SWATheam.SwaBlack)
   const ref = useRef();
   const [signature, setSign] = useState(null);
   const [comment, setComment] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     getSubmittedHomeWork()
   }, [])
 
+  // Sync filteredData whenever submittedHomework updates
+  useEffect(() => {
+    if (submittedHomework.status && submittedHomework.data) {
+      setFilteredData(submittedHomework.data);
+    }
+  }, [submittedHomework]);
+
+  // Handler for search results
+  const handleSearchResult = (results) => {
+    setFilteredData(results);
+  };
+
   const getSubmittedHomeWork = () => {
+    setLoading(true)
     const payload = {
       "schoolID": userData.data.schoolID,
       "userRefID": userData.data.userRefID,
@@ -55,12 +73,8 @@ const SubmittedHomeWork = () => {
         }
 
       })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-
-      })
+      .catch((err) => { console.log(err) })
+      .finally(() => { setLoading(false) })
 
   }
 
@@ -104,27 +118,19 @@ const SubmittedHomeWork = () => {
 
 
 
-  function downloadDoc(item, type, baseUrl,) {
-    // setLoading(true)
-    if (type == "video") {
-      // navigation.navigate('videoView', { url: item })
-      requestDownloadPermission(item, type)
-    } else if (type == "img") {
-      requestDownloadPermission(item, type)
-      // setFileType((prev) =>{
-      //     return {...prev, fileSrc: item, status: true}
-      // })
-    } else if (type == 'audio') {
-      requestDownloadPermission(item, type)
-    }
-    else if (type == "doc") {
-      const docPath = baseUrl + item.docFileNPath
-      requestDownloadPermission(docPath, type, item)
-      // if(docPath.endsWith('pdf')){
-      //     navigation.navigate('pdfView', { url: docPath, title: "Swa-Sharing"})
-      // }else if(docPath.endsWith('doc') || docPath.endsWith('docx')){
-      //     requestDownloadPermission(docPath)
-      // }
+  async function downloadDoc(docPath, type) {
+    try {
+      const shareOptions = {
+        title: 'Share PDF',
+        url: `${docPath}`,
+        type: 'application/pdf',
+        failOnCancel: false,
+      };
+      setLoading(false)
+      await Share.open(shareOptions);
+    } catch (err) {
+      console.log('Share error:', err);
+      setLoading(false)
     }
   }
 
@@ -327,121 +333,148 @@ const SubmittedHomeWork = () => {
   return (
     <>
       <View style={{ padding: 10, flex: 1 }}>
-        <ScrollView>
-          {
-            submittedHomework.status ?
-              <View>
-                {
-                  submittedHomework.data.map((item, index) => {
-                    return (
-                      <View style={{ borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Name</Text>
+
+        {submittedHomework.status && (
+          <SearchFilter
+            data={submittedHomework?.data}
+            searchKeys={[
+              'submittedHomework.submittedBy.fullName',
+              'assignedHomeWork.subjectName',
+              'assignedHomeWork.homeWorkDesc',
+              'assignedHomeWork.assignedBy'
+            ]}
+            fallbackKeys={[
+              'submittedHomework.submittedBy.fullName',
+              'assignedHomeWork.subjectName',
+              'assignedHomeWork.homeWorkDesc'
+            ]}
+            onResult={handleSearchResult}
+            placeholder="Search by student, subject, description..."
+            resetTrigger={submittedHomework.status}
+          />
+        )}
+
+        {loading ?
+          <Loader /> :
+          <ScrollView>
+            {
+              submittedHomework.status ?
+                <View>
+                  {
+                    filteredData?.map((item, index) => {
+                      return (
+                        <View style={{ borderWidth: .7, borderColor: userData.data.colors.mainTheme, marginBottom: 10, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Name</Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1, }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.fullName}</Text>
+                            </View>
                           </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class </Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1, }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.className}</Text>
+                            </View>
                           </View>
-                          <View style={{ flex: 1, }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.fullName}</Text>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Section </Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1, }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.sectionName}</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1, }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.subjectName}</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description </Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1, }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.homeWorkDesc}</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.createdDate}</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Submission Date</Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submissionDate}</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                            <View style={{ width: 120, }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Status</Text>
+                            </View>
+                            <View style={{ paddingRight: 10 }}>
+                              <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>Not Checked</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
+                            <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
+                              <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>View</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ backgroundColor: '#198754', borderRadius: 5, paddingHorizontal: 10 }} onPress={() => checkHomeWorkBtn(item)}>
+                              <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Check</Text>
+                            </TouchableOpacity>
                           </View>
                         </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Class </Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1, }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.className}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Section </Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1, }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submittedBy.sectionName}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Subject </Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1, }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.subjectName}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Description </Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1, }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.homeWorkDesc}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Created Date</Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.assignedHomeWork.createdDate}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Submission Date</Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.submittedHomework.submissionDate}</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                          <View style={{ width: 120, }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>Status</Text>
-                          </View>
-                          <View style={{ paddingRight: 10 }}>
-                            <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>Not Checked</Text>
-                          </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 5, borderTopWidth: .7, borderColor: 'grey', marginTop: 5 }}>
-                          <TouchableOpacity style={{ backgroundColor: userData.data.colors.mainTheme, borderRadius: 5, paddingHorizontal: 10, marginRight: 5 }} onPress={() => viewFile(item)}>
-                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>View</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity style={{ backgroundColor: '#198754', borderRadius: 5, paddingHorizontal: 10 }} onPress={() => checkHomeWorkBtn(item)}>
-                            <Text style={{ color: SWATheam.SwaWhite, padding: 5 }}>Check</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    )
-                  })
-                }
-              </View>
-              :
-              <View style={{ borderWidth: 1, borderColor: userData.data.colors.mainTheme, borderRadius: 5, backgroundColor: SWATheam.SwaWhite }}>
-                <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
-              </View>
-          }
-        </ScrollView>
+                      )
+                    })
+                  }
+                </View>
+                :
+                <View style={{ borderWidth: 1, borderColor: userData.data.colors.mainTheme, borderRadius: 5, backgroundColor: SWATheam.SwaWhite }}>
+                  <Text style={{ color: 'red', fontSize: 14, textAlign: 'center', padding: 5 }}>Homework not available</Text>
+                </View>
+            }
+          </ScrollView>
+        }
+
+
+
 
 
         {showColorPalate &&

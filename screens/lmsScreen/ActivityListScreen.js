@@ -22,30 +22,73 @@ const ActivityListScreen = ({ navigation, route }) => {
   const [listItem, setListItem] = useState({ list: null, status: false, type: '' })
   const [chapterID, setChapterID] = useState()
   const bookId = useRef(route?.params?.item?.bookID).current
+  const lastOpenedPopupRef = useRef(null);
+  const toolsCacheRef = useRef({});
   if (route.params.isFun) {
     moduleActivityList = {}
   } else {
     funBagActivityList = {}
   }
 
+  // Prefetch chapter tools in background so popup opens instantly on tap
   useEffect(() => {
-    if (searchID != undefined) {
-      const backAction = () => {
+    if (moduleActivityList?.data?.mainData?.length) {
+      const classId =
+        (userData?.data?.userTypeID == 4 || userData?.data?.userTypeID == 2)
+          ? route?.params?.sendData?.classID
+          : userData?.data?.classID;
+      const subjectID = route?.params?.sendData?.subjectID;
+      const subTypeID = route?.params?.sendData?.subTypeID;
+
+      moduleActivityList.data.mainData.slice(0, 6).forEach((chItem) => {
+        const cID = chItem?.chapter?.chapterID || chItem?.chapterID;
+        if (!cID) return;
+        const key = `${classId}_${subjectID}_${subTypeID}_${cID}`;
+        if (!toolsCacheRef.current[key]) {
+          Services.post(apiRoot.getLearningRightToolsList, {
+            classID: classId,
+            subjectID: subjectID,
+            subTypeID: subTypeID,
+            chapterID: cID,
+          })
+            .then(res => {
+              if (res?.status === 'success') {
+                toolsCacheRef.current[key] = res.data;
+              }
+            })
+            .catch(() => {});
+        }
+      });
+    }
+  }, [moduleActivityList?.data?.mainData]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (listItem.status) {
+        closeModule();
+        return true;
+      }
+      if (searchID != undefined) {
         navigation.navigate('home')
         return true;
-      };
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        backAction,
-      );
-      return () => backHandler.remove();
-    }
-  }, []);
+      }
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, [listItem.status, searchID]);
 
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
       Orientation.lockToPortrait();
       StatusBar.setHidden(false);
+      // Restore popup if user navigated back from child screens (Audio, Video, PDF, chapterItem)
+      if (lastOpenedPopupRef.current) {
+        setListItem({ ...lastOpenedPopupRef.current, status: true });
+      }
     });
     return goBack
   }, [navigation])
@@ -57,6 +100,11 @@ const ActivityListScreen = ({ navigation, route }) => {
   }, [])
 
   function onClickLeftIcon() {
+    if (listItem.status) {
+      closeModule();
+      return;
+    }
+    lastOpenedPopupRef.current = null;
     if (searchID != undefined) {
       navigation.navigate('home')
     } else {
@@ -191,38 +239,81 @@ const ActivityListScreen = ({ navigation, route }) => {
         })
       }
     } else {
+      let listName = ''
+      if (subTypeID == 1) {
+        if (item?.chapter != undefined) {
+          listName = item.chapter.chapterName
+        } else {
+          listName = item.chapterNameLang2
+        }
+      } else {
+        if (item?.chapter != undefined) {
+          listName = item.chapter.chapterName
+        } else {
+          listName = item.chapterName
+        }
+      }
+      const fullTitle = (subTypeID == 1 ? "पाठ " : "Chapter ") + chapterNo + ': ' + (listName || '');
+      const cacheKey = `${classId}_${subjectID}_${subTypeID}_${chapterID}`;
+      const cached = toolsCacheRef.current[cacheKey];
 
-      await Services.post(apiRoot.getLearningRightToolsList, payload)
-        .then((res) => {
-          if (res.status == "success") {
-            listName = ''
-            if (subTypeID == 1) {
-              if (item?.chapter != undefined) {
-                listName = item.chapter.chapterName
-              } else (
-                listName = item.chapterNameLang2
-              )
-            } else {
-              if (item?.chapter != undefined) {
-                listName = item.chapter.chapterName
-              } else {
-                listName = item.chapterName
-              }
+      if (cached) {
+        const popupData = {
+          list: cached.mainData,
+          status: true,
+          type: 'act',
+          imgUrl: cached.imgUrl,
+          listName: fullTitle,
+          actUrl: actUrl,
+          isLoading: false,
+        };
+        lastOpenedPopupRef.current = popupData;
+        setListItem(popupData);
+      } else {
+        const initialPopupData = {
+          list: [],
+          status: true,
+          type: 'act',
+          imgUrl: '',
+          listName: fullTitle,
+          actUrl: actUrl,
+          isLoading: true,
+        };
+        lastOpenedPopupRef.current = initialPopupData;
+        setListItem(initialPopupData);
+
+        Services.post(apiRoot.getLearningRightToolsList, payload)
+          .then((res) => {
+            if (res.status == "success") {
+              toolsCacheRef.current[cacheKey] = res.data;
+              const loadedPopupData = {
+                list: res.data.mainData,
+                status: true,
+                type: 'act',
+                imgUrl: res.data.imgUrl,
+                listName: fullTitle,
+                actUrl: actUrl,
+                isLoading: false,
+              };
+              lastOpenedPopupRef.current = loadedPopupData;
+              setListItem(loadedPopupData);
+            } else if (res.status == "error") {
+              alert(res.message);
+              lastOpenedPopupRef.current = null;
+              setListItem((prev) => ({ ...prev, status: false, isLoading: false }));
             }
-            setListItem((prev) => {
-              return { ...prev, list: res.data.mainData, status: true, type: 'act', imgUrl: res.data.imgUrl, listName: (subTypeID == 1 ? "पाठ " : "Chapter ") + chapterNo + ': ' + listName, actUrl: actUrl }
-            })
-          } else if (res.status == "error") {
-            alert(res.message)
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
+          })
+          .catch((err) => {
+            console.log(err);
+            lastOpenedPopupRef.current = null;
+            setListItem((prev) => ({ ...prev, status: false, isLoading: false }));
+          });
+      }
     }
   }
 
   function closeModule() {
+    lastOpenedPopupRef.current = null;
     setListItem((prev) => {
       return { ...prev, status: false }
     })

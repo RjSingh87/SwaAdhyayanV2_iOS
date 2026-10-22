@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView, Image } from 'react-native'
+import { StyleSheet, Text, View, Modal, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native'
 import React, { useContext } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SWATheam } from '../../constant/ConstentValue'
@@ -87,8 +87,13 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
           <ScrollView>
             {listItem.type == 'act' ?
               (
+                listItem.isLoading ? (
+                  <View style={{ height: 180, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color={userData?.data?.colors?.mainTheme || SWATheam.SwaBlue} />
+                  </View>
+                ) : (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginVertical: 10, paddingHorizontal: 10, }}>
-                  {listItem.list.map((item, index) => {
+                  {listItem?.list?.map((item, index) => {
                     let iconName = ''
                     if (languageID == 1) {
                       iconName = item.subPartNameLang2
@@ -112,6 +117,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                   })
                   }
                 </View>
+                )
               ) :
               (<>
                 {listItem?.list?.map((item, index) => {

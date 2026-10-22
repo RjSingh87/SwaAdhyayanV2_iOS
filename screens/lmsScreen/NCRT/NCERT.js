@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Modal, Button, TextInput, Alert, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TextInput, Pressable, Alert, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useState, useContext } from 'react';
 import { DataTable } from 'react-native-paper';
 import RenderHtml from 'react-native-render-html';
@@ -9,6 +9,7 @@ import { SWATheam, apiRoot } from '../../../constant/ConstentValue';
 import SwaHeader from '../../common/SwaHeader';
 import Services from '../../../Services';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MsgModal from '../../common/MsgModal';
 
@@ -284,6 +285,7 @@ export default function NCERT({ navigation, route }) {
 			attemptSuccess: true,
 			afterClickView: false,
 		}))
+		navigation.goBack()
 	}
 	const [holderRepo, setholderRepo] = useState({
 		holderSuccess: false,
@@ -312,6 +314,7 @@ export default function NCERT({ navigation, route }) {
 								runTimeQsetIds: finalAssess.qSetID
 							}
 						})
+
 					} else {
 						Alert.alert("Info", finalAssess.message);
 					}
@@ -499,6 +502,8 @@ export default function NCERT({ navigation, route }) {
 			}
 		})
 
+		// console.log(allItem, "ModelHodlerr")
+
 	}
 	function allAttemReport() {
 		setLoaders(true)
@@ -557,6 +562,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText1', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage1 != "" ?
@@ -600,6 +606,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText2', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage2 != "" ?
@@ -642,6 +649,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText3', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage3 != "" ?
@@ -684,6 +692,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText4', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage4 != "" ?
@@ -726,6 +735,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText5', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage5 != "" ?
@@ -768,6 +778,7 @@ export default function NCERT({ navigation, route }) {
 						/>
 						<TextInput
 							value={value}
+							placeholder='Type your answer here'
 							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText6', index)}
 							style={styles.inputs_inner} />
 						{question[currentQuestionIndex]?.optionImage6 != "" ?
@@ -1586,14 +1597,39 @@ export default function NCERT({ navigation, route }) {
 											}
 											return (
 												<View key={index}>
-													<Checkbox.Item
+
+													<Pressable
+														style={styles.examView}
+														onPress={() => chapterFun(item)}
+													>
+														{selectedIds.includes(item.chapterID) ? (
+															<AntDesign
+																name={"checksquareo"}
+																color={SWATheam.SwaBlack}
+																size={17}
+																style={{ width: 25, padding: 3 }}
+															/>
+														) : (
+															<Feather
+																name={"square"}
+																color={SWATheam.SwaBlack}
+																size={20}
+																style={{ width: 25, padding: 1 }}
+															/>
+														)}
+
+														<Text style={{ marginLeft: 8 }}>{chapterName}</Text>
+													</Pressable>
+
+
+													{/* <Checkbox.Item
 														reverse={false}
 														labelStyle={{ fontSize: 13 }}
 														onPress={() => { chapterFun(item) }}
 														label={chapterName}
 														status={selectedIds.includes(item.chapterID) ? "checked" : 'unchecked'}
 														style={[styles.examView, { backgroundColor: selectedIds.includes(item.chapterID) ? "#e2f7ee" : "#fff" }]}
-													/>
+													/> */}
 												</View>
 											)
 										})}
@@ -1705,7 +1741,7 @@ export default function NCERT({ navigation, route }) {
 														</DataTable.Header>
 
 														{getReport.map((item, index) => {
-															console.log(item, "whrer ?")
+															// console.log(item, "whrer ?")
 															return (
 																<DataTable.Row key={index}>
 																	<DataTable.Cell style={{ flex: 0.6 }}><Text style={{ color: SWATheam.SwaBlack }}>{index + 1}.</Text></DataTable.Cell>
@@ -2034,11 +2070,12 @@ const styles = StyleSheet.create({
 	},
 
 	examView: {
-		fontSize: 11,
-		borderBottomWidth: 1,
-		borderColor: "#e2e2e2",
-		flexDirection: 'row-reverse'
-
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: "center",
+		paddingVertical: 8,
+		backgroundColor: SWATheam.SwaWhite,
+		marginVertical: 3,
 	},
 	columsStart: {
 		width: 150,
@@ -2075,6 +2112,7 @@ const styles = StyleSheet.create({
 		borderColor: SWATheam.SwaBlack,
 		minWidth: '100%',
 		maxWidth: '100%',
+		height: 50,
 		backgroundColor: SWATheam.SwaWhite
 	},
 	viewReportBtn: {
@@ -2091,7 +2129,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 10,
-		backgroundColor: "#c7f0fe"
+		backgroundColor: "#c7f0fe",
 	},
 	headerHolder: {
 		flexDirection: 'row',

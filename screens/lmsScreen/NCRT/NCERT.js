@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Modal, Button, TextInput, Pressable, Alert, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TextInput, Pressable, Alert, TouchableOpacity, Image, ScrollView, useWindowDimensions, KeyboardAvoidingView, Platform, StatusBar, SafeAreaView } from 'react-native';
 import { useState, useContext } from 'react';
 import { DataTable } from 'react-native-paper';
 import RenderHtml from 'react-native-render-html';
@@ -277,15 +277,18 @@ export default function NCERT({ navigation, route }) {
 
 	// submit final attempt start
 	function closeReportHolder() {
-		setholderRepo((rep) => {
-			return { ...rep, holderSuccess: false }
-		})
+		setholderRepo((rep) => ({ ...rep, holderSuccess: false }));
 		setReportData((pre) => ({
 			...pre,
 			attemptSuccess: true,
 			afterClickView: false,
-		}))
-		navigation.goBack()
+			reportList: false,
+		}));
+		setActData((pre) => ({
+			...pre,
+			modelHolder: false,
+		}));
+		navigation.goBack();
 	}
 	const [holderRepo, setholderRepo] = useState({
 		holderSuccess: false,
@@ -409,399 +412,829 @@ export default function NCERT({ navigation, route }) {
 	})
 
 	function viewReportSecond(item) {
+		setLoaders(true);
 		setreport([]);
-		let setIds = item.qSetID
-		const xdata = {
-			"qSetID": setIds
-		}
+		let setIds = item.qSetID;
 		Services.post(apiRoot.studentNcertViewReport, { "qSetID": setIds })
 			.then((finalAssess) => {
+				setLoaders(false);
 				if (finalAssess.status == "success") {
-					setreport(finalAssess.data.reportData);
+					setreport(finalAssess.data.reportData || []);
 					let total = finalAssess.data.totalMarks;
 					let opten = finalAssess.data.optainedMarks;
-					let present = finalAssess.data.percentage;
-					let totlPresent = parseFloat(present.toFixed(2));
-					setReportData((pre) => {
-						return {
-							...pre,
-							totalMarks: total,
-							optainedMarks: opten,
-							preSent: totlPresent,
-							attemptSuccess: false,
-							afterClickView: true,
-							reportList: false,
-						}
-					})
-					setholderRepo((pre) => ({ ...pre, holderSuccess: true }))
-					// alert("ok");
+					let present = finalAssess.data.percentage || 0;
+					let totlPresent = typeof present === 'number' ? parseFloat(present.toFixed(2)) : present;
+					setReportData((pre) => ({
+						...pre,
+						totalMarks: total,
+						optainedMarks: opten,
+						preSent: totlPresent,
+						attemptSuccess: false,
+						afterClickView: true,
+						reportList: false,
+					}));
+					setholderRepo((pre) => ({ ...pre, holderSuccess: true }));
 				} else {
-					alert(finalAssess.message);
+					Alert.alert("Info", finalAssess.message || "Report not found");
 				}
 			})
 			.catch((err) => {
-				console.log(err)
-			})
-			.finally(() => {
-
-			})
+				setLoaders(false);
+				console.log(err);
+			});
 	}
 
 	function viewReport() {
-		setreport([])
-		Services.post(apiRoot.studentNcertViewReport, { "qSetID": startingTestData.qSetIds })
+		setLoaders(true);
+		setreport([]);
+		const qSetId = startingTestData.qSetIds || holderRepo.runTimeQsetIds;
+		Services.post(apiRoot.studentNcertViewReport, { "qSetID": qSetId })
 			.then((finalAssess) => {
+				setLoaders(false);
 				if (finalAssess.status == "success") {
-					setreport(finalAssess.data.reportData);
+					setreport(finalAssess.data.reportData || []);
 					let total = finalAssess.data.totalMarks;
 					let opten = finalAssess.data.optainedMarks;
-					let present = finalAssess.data.percentage;
-					let totlPresent = parseFloat(present.toFixed(2));
-					setReportData((pre) => {
-						return {
-							...pre,
-							totalMarks: total,
-							optainedMarks: opten,
-							preSent: totlPresent,
-							attemptSuccess: false,
-							afterClickView: true,
-						}
-					})
-					// alert("ok");
+					let present = finalAssess.data.percentage || 0;
+					let totlPresent = typeof present === 'number' ? parseFloat(present.toFixed(2)) : present;
+					setReportData((pre) => ({
+						...pre,
+						totalMarks: total,
+						optainedMarks: opten,
+						preSent: totlPresent,
+						attemptSuccess: false,
+						afterClickView: true,
+						reportList: false,
+					}));
+					setholderRepo((pre) => ({ ...pre, holderSuccess: true }));
 				} else {
-					alert(finalAssess.message);
+					Alert.alert("Info", finalAssess.message || "Report not found");
 				}
-
 			})
 			.catch((err) => {
-				console.log(err)
-			})
-			.finally(() => {
-			})
+				setLoaders(false);
+				console.log(err);
+			});
 	}
 
 	// action views 
-	const [getquest, setGetQuest] = useState()
+	const [getquest, setGetQuest] = useState();
 	const [actData, setActData] = useState({
 		modelHolder: false,
 		showQuestActId: ""
-	})
+	});
 	function hideExamQuest() {
-		setActData((old) => {
-			return { ...old, modelHolder: false }
-		})
+		setActData((old) => ({ ...old, modelHolder: false }));
 	}
 	function viewAction(item) {
-		let allItem = item
-		setGetQuest(allItem)
-		setActData((old) => {
-			return {
-				...old,
-				modelHolder: true,
-				showQuestActId: item.activityID
-			}
-		})
-
-		// console.log(allItem, "ModelHodlerr")
-
+		let allItem = item;
+		setGetQuest(allItem);
+		setActData((old) => ({
+			...old,
+			modelHolder: true,
+			showQuestActId: item.activityID,
+		}));
 	}
 	function allAttemReport() {
-		setLoaders(true)
+		setLoaders(true);
 		Services.post(apiRoot.studentAllNcertAttemptReport, { "userRefID": userData.data.userRefID })
 			.then((atmtData) => {
+				setLoaders(false);
 				if (atmtData.status == "success") {
-					setallReportData(atmtData.data);
-					setLoaders(false)
-					setReportData((s) => {
-						return {
-							...s,
-							// afterClickView: false,
-							reportList: true,
-						}
-					})
+					setallReportData(atmtData.data || []);
+					setReportData((s) => ({
+						...s,
+						reportList: true,
+					}));
 				} else {
-					alert(atmtData.message);
+					Alert.alert("Info", atmtData.message || "Failed to load attempt reports.");
 				}
 			})
 			.catch((err) => {
-				console.log(err)
-			})
-			.finally(() => {
-
-			})
+				setLoaders(false);
+				console.log(err);
+			});
 	}
 	function hideReportList() {
-		setReportData((s) => {
-			return {
-				...s,
-				reportList: false,
-			}
-		})
+		setReportData((s) => ({
+			...s,
+			reportList: false,
+		}));
 	}
 
+	// HTML sanitization & entity decoding helpers
+	const cleanHtmlEntities = (str) => {
+		if (!str || typeof str !== 'string') return '';
+		return str
+			.replace(/&sbquo;?/gi, ',')
+			.replace(/&nbsp;?/gi, ' ')
+			.replace(/&amp;/gi, '&')
+			.replace(/&quot;/gi, '"')
+			.replace(/&#39;|&apos;/gi, "'")
+			.replace(/&lt;/gi, '<')
+			.replace(/&gt;/gi, '>')
+			.replace(/&ndash;/gi, '–')
+			.replace(/&mdash;/gi, '—')
+			.replace(/&lsquo;|&rsquo;/gi, "'")
+			.replace(/&ldquo;|&rdquo;/gi, '"')
+			.replace(/&hellip;/gi, '...')
+			.replace(/<MTECHO>/gi, '')
+			.replace(/<\/MTECHO>/gi, '')
+			.replace(/<[^>]+>/g, '')
+			.trim();
+	};
+
+	const sanitizeHtml = (html) => {
+		if (!html || typeof html !== 'string') return '';
+		return html
+			.replace(/&sbquo;?/gi, ',')
+			.replace(/<MTECHO>/gi, '')
+			.replace(/<\/MTECHO>/gi, '');
+	};
+
 	// fillData function
-	const optionText1Fun1 = () => {
-		let items = question[currentQuestionIndex]?.optionText1
-		const replacedContent1 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText1 != undefined) {
-					if (storeData[currentQuestionIndex].optionText1[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText1[index]
-					}
-				}
-
-				// <Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.questionPart1 }} style={styles.questImgs} />
-
+	const renderOptionFill = (optKey, imgKey) => {
+		const items = question?.[currentQuestionIndex]?.[optKey];
+		if (!items) return null;
+		const splitArr = items.split('~__~');
+		return splitArr.map((part, index) => {
+			if (index !== splitArr.length - 1) {
+				let value = storeData?.[currentQuestionIndex]?.[optKey]?.[index] || '';
+				const imgName = question?.[currentQuestionIndex]?.[imgKey];
 				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
+					<View key={`part-${optKey}-${index}`} style={styles.inLineText}>
 						<RenderHtml
 							contentWidth={width}
-							source={{ html: part }}
+							source={{ html: sanitizeHtml(part) }}
 							tagsStyles={tagsStyles}
 						/>
 						<TextInput
 							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText1', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage1 != "" ?
+							placeholder="Type your answer here"
+							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, optKey, index)}
+							style={styles.inputs_inner}
+						/>
+						{imgName ? (
 							<View>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage1 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage1 }} style={styles.optionsImgs} />
-									: null}
-							</View> : null
-						}
+								<Image
+									source={{ uri: ImgBase + question?.[currentQuestionIndex]?.imagePath + imgName }}
+									style={styles.optionsImgs}
+								/>
+							</View>
+						) : null}
+					</View>
+				);
+			}
+			return (
+				<RenderHtml
+					key={`render-${optKey}-${index}`}
+					contentWidth={width}
+					source={{ html: sanitizeHtml(part) }}
+					tagsStyles={optionStyle}
+				/>
+			);
+		});
+	};
 
-					</View>
-				)
-			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		})
-		return replacedContent1
+	const optionText1Fun1 = () => renderOptionFill('optionText1', 'optionImage1');
+	const optionText1Fun2 = () => renderOptionFill('optionText2', 'optionImage2');
+	const optionText1Fun3 = () => renderOptionFill('optionText3', 'optionImage3');
+	const optionText1Fun4 = () => renderOptionFill('optionText4', 'optionImage4');
+	const optionText1Fun5 = () => renderOptionFill('optionText5', 'optionImage5');
+	const optionText1Fun6 = () => renderOptionFill('optionText6', 'optionImage6');
+
+	// Helper functions for Answer display, evaluation, and question view
+	const isOptionChosen = (item, optIndex) => {
+		if (!item) return false;
+		const sId = item.selectedAnswerID ?? item.chouseOptID;
+		if (sId === undefined || sId === null || sId === '' || sId === '0' || sId === 0) return false;
+		const optId = item['optionID' + optIndex];
+		if (optId && String(sId) === String(optId)) return true;
+		if (String(sId) === String(optIndex)) return true;
+		return false;
 	};
-	const optionText1Fun2 = () => {
-		let items = question[currentQuestionIndex]?.optionText2
-		const replacedContent2 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText2 != undefined) {
-					if (storeData[currentQuestionIndex].optionText2[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText2[index];
-					}
+
+	const isOptionCorrect = (item, optIndex) => {
+		if (!item) return false;
+		const cId = item.correctAnswerID ?? item.answerID;
+		if (cId === undefined || cId === null || cId === '') return false;
+		const optId = item['optionID' + optIndex];
+		if (optId && String(cId) === String(optId)) return true;
+		if (String(cId) === String(optIndex)) return true;
+		return false;
+	};
+
+	const isItemCorrect = (item) => {
+		if (!item) return false;
+
+		const sId = item.selectedAnswerID ?? item.chouseOptID;
+		if (sId === undefined || sId === null || sId === '' || sId === '0' || sId === 0 || sId === 'Not answered') {
+			return false;
+		}
+
+		const actId = item.activityID;
+		const cId = item.correctAnswerID ?? item.answerID;
+
+		if (actId == 1 || (!actId && (item.optionText1 || item.optionID1))) { // MCQ
+			if (sId && cId && String(sId).trim() === String(cId).trim()) return true;
+			for (let i = 1; i <= 6; i++) {
+				if (isOptionChosen(item, i) && isOptionCorrect(item, i)) {
+					return true;
 				}
-				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
-						<RenderHtml
-							contentWidth={width}
-							source={{ html: part }}
-							tagsStyles={tagsStyles}
-						/>
-						<TextInput
-							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText2', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage2 != "" ?
-							<>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage2 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage2 }} style={styles.optionsImgs} />
-									: null}
-							</> : null
-						}
-					</View>
-				);
 			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		});
-		return replacedContent2;
+			return false;
+		}
+
+		if (actId == 2) { // True / False
+			if (sId && cId && String(sId).trim() === String(cId).trim()) return true;
+			return false;
+		}
+
+		// Fill in blanks / Subjective / other
+		const userText = cleanHtmlEntities(item.chouseOptText || String(sId || '')).toLowerCase();
+		const corrText = cleanHtmlEntities(item.answerText || item.correctOptText || '').toLowerCase();
+		if (userText && corrText && userText === corrText) return true;
+
+		return false;
 	};
-	const optionText1Fun3 = () => {
-		let items = question[currentQuestionIndex]?.optionText3
-		const replacedContent3 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText3 != undefined) {
-					if (storeData[currentQuestionIndex].optionText3[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText3[index];
-					}
+
+	const getCorrectAnswerDisplay = (item) => {
+		if (!item) return '-';
+		const actId = item.activityID;
+		const cId = item.correctAnswerID ?? item.answerID;
+
+		// Activity 1: MCQ
+		if (actId == 1 || (!actId && (item.optionText1 || item.optionID1))) {
+			for (let i = 1; i <= 6; i++) {
+				if (isOptionCorrect(item, i)) {
+					return `(${String.fromCharCode(96 + i)})`;
 				}
-				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
-						<RenderHtml
-							contentWidth={width}
-							source={{ html: part }}
-							tagsStyles={tagsStyles}
-						/>
-						<TextInput
-							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText3', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage3 != "" ?
-							<>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage3 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage3 }} style={styles.optionsImgs} />
-									: null}
-							</> : null
-						}
-					</View>
-				);
 			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		});
-		return replacedContent3;
-	};
-	const optionText1Fun4 = () => {
-		let items = question[currentQuestionIndex]?.optionText4
-		const replacedContent4 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText4 != undefined) {
-					if (storeData[currentQuestionIndex].optionText4[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText4[index];
+			if (item.correctOptText && item.correctOptText !== '0') {
+				return cleanHtmlEntities(item.correctOptText);
+			}
+			if (item.answerText) {
+				return cleanHtmlEntities(item.answerText);
+			}
+			return cId ? `(${cId})` : '-';
+		}
+
+		// Activity 2: True / False
+		if (actId == 2) {
+			if (item.correctOptText && item.correctOptText !== '0') {
+				return cleanHtmlEntities(item.correctOptText);
+			}
+			if (item.answerText) {
+				return cleanHtmlEntities(item.answerText);
+			}
+			if (item.correctAnswerID) {
+				return String(item.correctAnswerID).split(',').map((pair) => {
+					const parts = pair.split('-');
+					if (parts.length === 2) {
+						const subQ = String.fromCharCode(96 + parseInt(parts[0]));
+						const val = parts[1] === '1' ? 'True' : 'False';
+						return `(${subQ}) ${val}`;
 					}
-				}
-				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
-						<RenderHtml
-							contentWidth={width}
-							source={{ html: part }}
-							tagsStyles={tagsStyles}
-						/>
-						<TextInput
-							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText4', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage4 != "" ?
-							<>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage4 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage4 }} style={styles.optionsImgs} />
-									: null}
-							</> : null
-						}
-					</View>
-				);
+					return pair;
+				}).join(', ');
 			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		});
-		return replacedContent4;
+			return '-';
+		}
+
+		// Activity 3 / Subjective / Fill in blanks
+		const text = item.answerText || item.correctOptText;
+		if (text) {
+			return cleanHtmlEntities(text);
+		}
+		return cId ? String(cId) : '-';
 	};
-	const optionText1Fun5 = () => {
-		let items = question[currentQuestionIndex]?.optionText5
-		const replacedContent5 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText5 != undefined) {
-					if (storeData[currentQuestionIndex].optionText5[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText5[index];
+
+	const getUserAnswerDisplay = (item) => {
+		if (!item) return '-';
+		const actId = item.activityID;
+		const sId = item.selectedAnswerID ?? item.chouseOptID;
+
+		if (sId === undefined || sId === null || sId === '' || sId === '0' || sId === 0) {
+			return 'Not answered';
+		}
+
+		// Activity 1: MCQ
+		if (actId == 1 || (!actId && (item.optionText1 || item.optionID1))) {
+			for (let i = 1; i <= 6; i++) {
+				if (isOptionChosen(item, i)) {
+					return `(${String.fromCharCode(96 + i)})`;
+				}
+			}
+			if (item.chouseOptText) {
+				return cleanHtmlEntities(item.chouseOptText);
+			}
+			return `(${sId})`;
+		}
+
+		// Activity 2: True / False
+		if (actId == 2) {
+			if (typeof sId === 'string' && sId.includes('-')) {
+				return sId.split(',').map((pair) => {
+					const parts = pair.split('-');
+					if (parts.length === 2) {
+						const subQ = String.fromCharCode(96 + parseInt(parts[0]));
+						const val = parts[1] === '1' ? 'True' : 'False';
+						return `(${subQ}) ${val}`;
 					}
-				}
-				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
-						<RenderHtml
-							contentWidth={width}
-							source={{ html: part }}
-							tagsStyles={tagsStyles}
-						/>
-						<TextInput
-							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText5', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage5 != "" ?
-							<>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage5 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage5 }} style={styles.optionsImgs} />
-									: null}
-							</> : null
-						}
-					</View>
-				);
+					return pair;
+				}).join(', ');
 			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		});
-		return replacedContent5;
-	};
-	const optionText1Fun6 = () => {
-		let items = question[currentQuestionIndex]?.optionText6
-		const replacedContent6 = items.split('~__~').map((part, index) => {
-			if (index !== items.split('~__~').length - 1) {
-				let value = "";
-				if (storeData[currentQuestionIndex].optionText6 != undefined) {
-					if (storeData[currentQuestionIndex].optionText6[index] != undefined) {
-						value = storeData[currentQuestionIndex].optionText6[index];
-					}
-				}
-				return (
-					<View key={`part-${index}`} style={styles.inLineText}>
-						<RenderHtml
-							contentWidth={width}
-							source={{ html: part }}
-							tagsStyles={tagsStyles}
-						/>
-						<TextInput
-							value={value}
-							placeholder='Type your answer here'
-							onChangeText={(text) => onchangeGetData(currentQuestionIndex, text, 'optionText6', index)}
-							style={styles.inputs_inner} />
-						{question[currentQuestionIndex]?.optionImage6 != "" ?
-							<>
-								{question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage6 ?
-									<Image source={{ uri: ImgBase + question[currentQuestionIndex]?.imagePath + question[currentQuestionIndex]?.optionImage6 }} style={styles.optionsImgs} />
-									: null}
-							</> : null
-						}
-					</View>
-				);
+			if (item.chouseOptText) {
+				return cleanHtmlEntities(item.chouseOptText);
 			}
-			return (
-				<RenderHtml
-					key={`render-${index}`}
-					contentWidth={width}
-					source={{ html: part }}
-					tagsStyles={optionStyle}
-				/>
-			);
-		});
-		return replacedContent6;
+			return cleanHtmlEntities(String(sId));
+		}
+
+		// Activity 3 / Subjective / Fill in blanks
+		if (item.chouseOptText) {
+			return cleanHtmlEntities(item.chouseOptText);
+		}
+		if (sId) {
+			return cleanHtmlEntities(String(sId));
+		}
+		return 'Not answered';
 	};
+
+	// Renderers for Report screens
+	const renderQuestionDetailView = () => {
+		if (!getquest) return null;
+		const qActId = actData.showQuestActId || getquest.activityID;
+
+		return (
+			<View style={{ flex: 1, backgroundColor: '#fff' }}>
+				<View style={styles.allExamHeader}>
+					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+						<TouchableOpacity onPress={hideExamQuest} style={{ paddingRight: 10, paddingVertical: 4 }}>
+							<AntDesign name="arrowleft" size={22} color={SWATheam.SwaBlack} />
+						</TouchableOpacity>
+						<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Exam Question</Text>
+					</View>
+					<TouchableOpacity onPress={hideExamQuest} style={{ padding: 4 }}>
+						<AntDesign name="close" size={22} color="#555" />
+					</TouchableOpacity>
+				</View>
+				<ScrollView style={{ flex: 1, padding: 15 }}>
+					{[1, 2, 3, 4, 5].map((partNum) => {
+						const partContent = getquest['questionPart' + partNum];
+						if (!partContent) return null;
+						const isImg =
+							partContent.endsWith('.png') ||
+							partContent.endsWith('.PNG') ||
+							partContent.endsWith('.jpg') ||
+							partContent.endsWith('.JPG') ||
+							partContent.endsWith('.jpeg');
+						return (
+							<View key={`qPart-${partNum}`} style={{ marginBottom: 10 }}>
+								{isImg ? (
+									<Image
+										source={{ uri: ImgBase + (getquest.imagePath || '') + partContent }}
+										style={styles.questImgs}
+										resizeMode="contain"
+									/>
+								) : (
+									<RenderHtml
+										contentWidth={width - 30}
+										source={{ html: sanitizeHtml(partContent) }}
+										tagsStyles={tagsStyles}
+									/>
+								)}
+							</View>
+						);
+					})}
+
+					{qActId == 1 && (
+						<View style={{ marginTop: 10 }}>
+							{[1, 2, 3, 4, 5, 6].map((optNum) => {
+								const optText = getquest['optionText' + optNum];
+								if (!optText) return null;
+								const isUser = isOptionChosen(getquest, optNum);
+								const isCorr = isOptionCorrect(getquest, optNum);
+								const isImg =
+									optText.endsWith('.png') ||
+									optText.endsWith('.PNG') ||
+									optText.endsWith('.jpg') ||
+									optText.endsWith('.JPG');
+
+								let borderColor = '#e0e0e0';
+								let bgColor = '#f8f9fa';
+								if (isCorr && isUser) {
+									borderColor = '#28a745';
+									bgColor = '#d4edda';
+								} else if (isCorr) {
+									borderColor = '#28a745';
+									bgColor = '#e8f5e9';
+								} else if (isUser) {
+									borderColor = '#dc3545';
+									bgColor = '#f8d7da';
+								}
+
+								return (
+									<View
+										key={`mcqOpt-${optNum}`}
+										style={[
+											styles.textWithInput,
+											{
+												borderColor: borderColor,
+												borderWidth: 1.5,
+												backgroundColor: bgColor,
+												borderRadius: 8,
+												padding: 10,
+												marginBottom: 8,
+												flexDirection: 'row',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+											},
+										]}
+									>
+										<View style={[styles.AWithContent, { flex: 1 }]}>
+											<Text style={[styles.indty, { fontWeight: 'bold' }]}>
+												({String.fromCharCode(96 + optNum)})
+											</Text>
+											{isImg ? (
+												<Image
+													source={{ uri: ImgBase + (getquest.imagePath || '') + optText }}
+													style={{ width: 50, height: 50, resizeMode: 'contain' }}
+												/>
+											) : (
+												<RenderHtml
+													contentWidth={width - 120}
+													source={{ html: sanitizeHtml(optText) }}
+													tagsStyles={optionStyle}
+												/>
+											)}
+										</View>
+										<View style={{ marginLeft: 8 }}>
+											{isCorr && isUser && (
+												<Text style={{ color: '#28a745', fontWeight: 'bold', fontSize: 11 }}>
+													✓ Correct & Your Ans
+												</Text>
+											)}
+											{isCorr && !isUser && (
+												<Text style={{ color: '#28a745', fontWeight: 'bold', fontSize: 11 }}>
+													✓ Correct Ans
+												</Text>
+											)}
+											{!isCorr && isUser && (
+												<Text style={{ color: '#dc3545', fontWeight: 'bold', fontSize: 11 }}>
+													✗ Your Ans
+												</Text>
+											)}
+										</View>
+									</View>
+								);
+							})}
+						</View>
+					)}
+
+					{qActId == 2 && (
+						<View style={{ marginTop: 10 }}>
+							{[1, 2, 3, 4, 5, 6].map((optNum) => {
+								const optText = getquest['optionText' + optNum];
+								if (!optText) return null;
+								const isImg =
+									optText.endsWith('.png') ||
+									optText.endsWith('.PNG') ||
+									optText.endsWith('.jpg') ||
+									optText.endsWith('.JPG');
+
+								const isUserTrue = getquest.selectedAnswerID?.includes(`${optNum}-1`);
+								const isUserFalse = getquest.selectedAnswerID?.includes(`${optNum}-2`);
+
+								return (
+									<View
+										key={`tnfOpt-${optNum}`}
+										style={{
+											borderWidth: 1,
+											borderColor: '#e0e0e0',
+											borderRadius: 8,
+											padding: 10,
+											marginBottom: 10,
+											backgroundColor: '#fff',
+										}}
+									>
+										<View style={styles.AWithContent}>
+											<Text style={[styles.indty, { fontWeight: 'bold' }]}>
+												({String.fromCharCode(96 + optNum)})
+											</Text>
+											{isImg ? (
+												<Image
+													source={{ uri: ImgBase + (getquest.imagePath || '') + optText }}
+													style={{ width: 50, height: 50, resizeMode: 'contain' }}
+												/>
+											) : (
+												<RenderHtml
+													contentWidth={width - 80}
+													source={{ html: sanitizeHtml(optText) }}
+													tagsStyles={optionStyle}
+												/>
+											)}
+										</View>
+										<View style={[styles.buttonRows, { marginTop: 8 }]}>
+											<View
+												style={[
+													styles.btnTNF,
+													{
+														backgroundColor: isUserTrue ? '#28a745' : '#e9ecef',
+														paddingVertical: 6,
+														paddingHorizontal: 16,
+														borderRadius: 6,
+													},
+												]}
+											>
+												<Text
+													style={{
+														textAlign: 'center',
+														color: isUserTrue ? '#fff' : '#333',
+														fontWeight: '600',
+													}}
+												>
+													True {isUserTrue ? '(Your Choice)' : ''}
+												</Text>
+											</View>
+											<View
+												style={[
+													styles.btnTNF,
+													{
+														backgroundColor: isUserFalse ? '#dc3545' : '#e9ecef',
+														paddingVertical: 6,
+														paddingHorizontal: 16,
+														borderRadius: 6,
+														marginLeft: 10,
+													},
+												]}
+											>
+												<Text
+													style={{
+														textAlign: 'center',
+														color: isUserFalse ? '#fff' : '#333',
+														fontWeight: '600',
+													}}
+												>
+													False {isUserFalse ? '(Your Choice)' : ''}
+												</Text>
+											</View>
+										</View>
+									</View>
+								);
+							})}
+						</View>
+					)}
+
+					<View
+						style={{
+							marginTop: 18,
+							marginBottom: 30,
+							padding: 16,
+							backgroundColor: '#f8f9fa',
+							borderRadius: 10,
+							borderWidth: 1,
+							borderColor: '#dee2e6',
+						}}
+					>
+						<View style={{ marginBottom: 14 }}>
+							<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack, fontSize: 14, marginBottom: 6 }}>
+								Your Answer:
+							</Text>
+							<View style={{ backgroundColor: '#fff', padding: 10, borderRadius: 6, borderWidth: 1, borderColor: isItemCorrect(getquest) ? '#a3d9a5' : '#f5c6cb' }}>
+								<Text style={{ color: isItemCorrect(getquest) ? '#2e7d32' : '#c62828', fontSize: 14, fontWeight: '500' }}>
+									{getUserAnswerDisplay(getquest)}
+								</Text>
+							</View>
+						</View>
+
+						<View style={{ marginBottom: 10 }}>
+							<Text style={{ fontWeight: 'bold', color: '#1b5e20', fontSize: 14, marginBottom: 6 }}>
+								Correct Answer:
+							</Text>
+							<View style={{ backgroundColor: '#e8f5e9', padding: 10, borderRadius: 6, borderWidth: 1, borderColor: '#c3e6cb' }}>
+								<Text style={{ color: '#155724', fontWeight: '600', fontSize: 14 }}>
+									{getCorrectAnswerDisplay(getquest)}
+								</Text>
+							</View>
+						</View>
+
+						{getquest.marks != null && (
+							<View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderColor: '#dee2e6', paddingTop: 10, marginTop: 8 }}>
+								<Text style={{ color: '#666', fontSize: 13 }}>Result / Marks:</Text>
+								<Text style={{ color: isItemCorrect(getquest) ? '#28a745' : '#dc3545', fontWeight: 'bold', fontSize: 13 }}>
+									{isItemCorrect(getquest) ? `Correct (${getquest.marks} marks)` : 'Incorrect (0 marks)'}
+								</Text>
+							</View>
+						)}
+					</View>
+				</ScrollView>
+			</View>
+		);
+	};
+
+	const renderAllReportsView = () => {
+		return (
+			<View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+				<View style={styles.allExamHeader}>
+					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+						<TouchableOpacity onPress={hideReportList} style={{ paddingRight: 10, paddingVertical: 4 }}>
+							<AntDesign name="arrowleft" size={22} color={SWATheam.SwaBlack} />
+						</TouchableOpacity>
+						<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>
+							Student All Exam Report
+						</Text>
+					</View>
+					<TouchableOpacity onPress={hideReportList} style={{ padding: 4 }}>
+						<AntDesign name="close" size={22} color="#555" />
+					</TouchableOpacity>
+				</View>
+				<ScrollView style={{ flex: 1, padding: 10 }}>
+					{allReportData && allReportData.length > 0 ? (
+						allReportData.map((item, index) => (
+							<View style={styles.holderAllReport} key={index}>
+								<View style={styles.rowCol}>
+									<Text style={styles.columsStart}>Set Code :</Text>
+									<Text style={{ color: SWATheam.SwaBlack, fontWeight: '600' }}>
+										{item.qSetCode || item.qSetID || '-'}
+									</Text>
+								</View>
+								<View style={styles.rowCol}>
+									<Text style={styles.columsStart}>Attempted Date :</Text>
+									<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt || '-'}</Text>
+								</View>
+								{item.totalMarks != null && (
+									<View style={styles.rowCol}>
+										<Text style={styles.columsStart}>Score :</Text>
+										<Text style={{ color: SWATheam.SwaBlack }}>
+											{item.optainedMarks ?? 0} / {item.totalMarks} ({item.percentage ?? 0}%)
+										</Text>
+									</View>
+								)}
+								<View style={styles.rowCol}>
+									<Text style={styles.columsStart}>Status :</Text>
+									<Text style={{ color: '#28a745', fontWeight: '600' }}>Attempted</Text>
+								</View>
+								<View
+									style={[
+										styles.rowCol,
+										{ justifyContent: 'flex-end', borderBottomWidth: 0, paddingTop: 10 },
+									]}
+								>
+									<TouchableOpacity
+										onPress={() => viewReportSecond(item)}
+										style={{
+											backgroundColor: userData?.data?.colors?.mainTheme || '#0d6efd',
+											paddingHorizontal: 14,
+											paddingVertical: 7,
+											borderRadius: 6,
+										}}
+									>
+										<Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
+											View Report
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						))
+					) : (
+						<View style={{ padding: 40, alignItems: 'center' }}>
+							<Text style={{ color: '#888', fontSize: 15 }}>No past attempt reports found.</Text>
+						</View>
+					)}
+				</ScrollView>
+			</View>
+		);
+	};
+
+	const renderExamReportTableView = () => {
+		return (
+			<View style={{ flex: 1, backgroundColor: '#fff' }}>
+				<View style={styles.headerHolder}>
+					<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>
+						Student Exam Report
+					</Text>
+					<TouchableOpacity onPress={closeReportHolder} style={{ padding: 4 }}>
+						<AntDesign name="close" size={22} color="#9ba8ae" />
+					</TouchableOpacity>
+				</View>
+
+				<View style={styles.table}>
+					<View style={styles.headesHead}>
+						<Text style={{ fontWeight: 'bold', fontSize: 15, color: SWATheam.SwaBlack }}>Exam Report</Text>
+						<TouchableOpacity
+							onPress={allAttemReport}
+							style={{ backgroundColor: '#0c8781', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5 }}
+						>
+							<Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>Attempt Report</Text>
+						</TouchableOpacity>
+					</View>
+
+					<View style={styles.rowHed}>
+						<Text style={styles.cell}>Total Marks: {reportDat.totalMarks ?? '-'}</Text>
+						<Text style={styles.cell}>Obtained Marks: {reportDat.optainedMarks ?? '-'}</Text>
+						<Text style={styles.cell}>Percentage: {reportDat.preSent ?? '-'}%</Text>
+					</View>
+				</View>
+
+				<ScrollView style={{ flex: 1 }}>
+					<View style={styles.InnerBoxTbls}>
+						<DataTable style={styles.container}>
+							<DataTable.Header style={styles.tableHeader}>
+								<DataTable.Title style={{ flex: 0.5 }}>
+									<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>No.</Text>
+								</DataTable.Title>
+								<DataTable.Title style={{ flex: 1.35, paddingRight: 8 }}>
+									<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Correct Ans</Text>
+								</DataTable.Title>
+								<DataTable.Title style={{ flex: 1.35, paddingLeft: 8 }}>
+									<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Your Ans</Text>
+								</DataTable.Title>
+								<DataTable.Title style={{ flex: 0.8, justifyContent: 'center' }}>
+									<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Status</Text>
+								</DataTable.Title>
+								<DataTable.Title style={{ flex: 1.0, justifyContent: 'center' }}>
+									<Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Action</Text>
+								</DataTable.Title>
+							</DataTable.Header>
+
+							{getReport && getReport.length > 0 ? (
+								getReport.map((item, index) => {
+									const itemCorrect = isItemCorrect(item);
+									return (
+										<DataTable.Row key={index} style={{ borderBottomColor: '#f0f0f0', minHeight: 48, paddingVertical: 4 }}>
+											<DataTable.Cell style={{ flex: 0.5 }}>
+												<Text style={{ color: SWATheam.SwaBlack }}>{index + 1}.</Text>
+											</DataTable.Cell>
+											<DataTable.Cell style={{ flex: 1.35, paddingRight: 8 }}>
+												<Text style={{ color: '#1b5e20', fontWeight: '600' }}>
+													{getCorrectAnswerDisplay(item)}
+												</Text>
+											</DataTable.Cell>
+											<DataTable.Cell style={{ flex: 1.35, paddingLeft: 8 }}>
+												<Text style={{ color: itemCorrect ? '#2e7d32' : '#c62828', fontWeight: '500' }}>
+													{getUserAnswerDisplay(item)}
+												</Text>
+											</DataTable.Cell>
+											<DataTable.Cell style={{ flex: 0.8, justifyContent: 'center', alignItems: 'center' }}>
+												{itemCorrect ? (
+													<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/r.png')} />
+												) : (
+													<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/w.png')} />
+												)}
+											</DataTable.Cell>
+											<DataTable.Cell style={{ flex: 1.0, justifyContent: 'center', alignItems: 'center' }}>
+												<TouchableOpacity onPress={() => viewAction(item)} style={{ padding: 4 }}>
+													<Text style={styles.viewQuestionBtns}>View Q.</Text>
+												</TouchableOpacity>
+											</DataTable.Cell>
+										</DataTable.Row>
+									);
+								})
+							) : (
+								<View style={{ padding: 20, alignItems: 'center' }}>
+									<Text style={{ color: '#888' }}>No report questions found.</Text>
+								</View>
+							)}
+						</DataTable>
+					</View>
+				</ScrollView>
+			</View>
+		);
+	};
+
+	const renderSubmittedSuccessView = () => {
+		return (
+			<View style={styles.modalOverlay}>
+				<View style={[styles.modalContainer, { minHeight: 250, maxHeight: 320, padding: 20, justifyContent: 'center' }]}>
+					<View style={[styles.headerHolder, { backgroundColor: 'transparent', paddingHorizontal: 0, marginBottom: 15 }]}>
+						<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>
+							Student Exam Report
+						</Text>
+						<TouchableOpacity onPress={closeReportHolder} style={{ padding: 4 }}>
+							<AntDesign name="close" size={22} color="#9ba8ae" />
+						</TouchableOpacity>
+					</View>
+					<View style={styles.showSms}>
+						<Image
+							style={{ resizeMode: 'contain', width: 60, height: 60, alignSelf: 'center', marginBottom: 15 }}
+							source={require('../../assets/mark.png')}
+						/>
+						<Text style={styles.youHaveSucc}>
+							{holderRepo.successMsg || 'Exam Submitted Successfully!'}
+						</Text>
+						<View style={styles.viewReortBtns}>
+							<Button
+								title="View Report"
+								color={SWATheam.SwaWhite}
+								onPress={viewReport}
+							/>
+						</View>
+					</View>
+				</View>
+			</View>
+		);
+	};
+	const isReportModalVisible = Boolean(holderRepo.holderSuccess || reportDat.reportList || actData.modelHolder);
 
 	return (
 		<>
@@ -847,7 +1280,7 @@ export default function NCERT({ navigation, route }) {
 																:
 																<RenderHtml
 																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart1 }}
+																	source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart1) }}
 																	tagsStyles={tagsStyles}
 																/>
 														}
@@ -865,7 +1298,7 @@ export default function NCERT({ navigation, route }) {
 																:
 																<RenderHtml
 																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart2 }}
+																	source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart2) }}
 																	tagsStyles={tagsStyles}
 																/>
 														}
@@ -882,7 +1315,7 @@ export default function NCERT({ navigation, route }) {
 																:
 																<RenderHtml
 																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart3 }}
+																	source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart3) }}
 																	tagsStyles={tagsStyles}
 																/>
 														}
@@ -899,7 +1332,7 @@ export default function NCERT({ navigation, route }) {
 																:
 																<RenderHtml
 																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart4 }}
+																	source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart4) }}
 																	tagsStyles={tagsStyles}
 																/>
 														}
@@ -916,7 +1349,7 @@ export default function NCERT({ navigation, route }) {
 																:
 																<RenderHtml
 																	contentWidth={width}
-																	source={{ html: question[currentQuestionIndex].questionPart5 }}
+																	source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart5) }}
 																	tagsStyles={tagsStyles}
 																/>
 														}
@@ -951,7 +1384,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText1 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText1) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -985,7 +1418,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText2 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText2) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -1019,7 +1452,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText3 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText3) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -1053,7 +1486,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText4 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText4) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -1087,7 +1520,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText5 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText5) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -1121,7 +1554,7 @@ export default function NCERT({ navigation, route }) {
 																	:
 																	<RenderHtml
 																		contentWidth={width}
-																		source={{ html: question[currentQuestionIndex]?.optionText6 }}
+																		source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText6) }}
 																		tagsStyles={optionStyle}
 																	/>
 																}
@@ -1146,7 +1579,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart1 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart1) }}
 																			tagsStyles={tagsStyles}
 																		/>
 
@@ -1165,7 +1598,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart2 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart2) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1182,7 +1615,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart3 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart3) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1199,7 +1632,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart4 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart4) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1216,7 +1649,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart5 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart5) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1332,7 +1765,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart1 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart1) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1350,7 +1783,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart2 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart2) }}
 																			tagsStyles={tagsStyles}
 																		/>
 
@@ -1368,7 +1801,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart3 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart3) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1386,7 +1819,7 @@ export default function NCERT({ navigation, route }) {
 
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart4 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart4) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1403,7 +1836,7 @@ export default function NCERT({ navigation, route }) {
 																		:
 																		<RenderHtml
 																			contentWidth={width}
-																			source={{ html: question[currentQuestionIndex].questionPart5 }}
+																			source={{ html: sanitizeHtml(question[currentQuestionIndex].questionPart5) }}
 																			tagsStyles={tagsStyles}
 																		/>
 																}
@@ -1422,7 +1855,7 @@ export default function NCERT({ navigation, route }) {
 																				:
 																				<RenderHtml
 																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText1 }}
+																					source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText1) }}
 																					tagsStyles={optionStyle}
 																				/>
 																			}
@@ -1457,7 +1890,7 @@ export default function NCERT({ navigation, route }) {
 																				:
 																				<RenderHtml
 																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText2 }}
+																					source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText2) }}
 																					tagsStyles={optionStyle}
 																				/>
 																			}
@@ -1492,7 +1925,7 @@ export default function NCERT({ navigation, route }) {
 																				:
 																				<RenderHtml
 																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText3 }}
+																					source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText3) }}
 																					tagsStyles={optionStyle}
 																				/>
 																			}
@@ -1527,7 +1960,7 @@ export default function NCERT({ navigation, route }) {
 																				:
 																				<RenderHtml
 																					contentWidth={width}
-																					source={{ html: question[currentQuestionIndex]?.optionText4 }}
+																					source={{ html: sanitizeHtml(question[currentQuestionIndex]?.optionText4) }}
 																					tagsStyles={optionStyle}
 																				/>
 																			}
@@ -1606,7 +2039,7 @@ export default function NCERT({ navigation, route }) {
 															<AntDesign
 																name={"checksquareo"}
 																color={SWATheam.SwaBlack}
-																size={17}
+																size={18}
 																style={{ width: 25, padding: 3 }}
 															/>
 														) : (
@@ -1675,374 +2108,30 @@ export default function NCERT({ navigation, route }) {
 						</Modal>
 					)}
 
-					{/* Modal 2: Exam Report Modal */}
-					{holderRepo.holderSuccess && (
-						<Modal
-							animationType="fade"
-							transparent={true}
-							visible={holderRepo.holderSuccess}
-							onRequestClose={closeReportHolder}
-						>
-							<View style={styles.modalOverlay}>
-								<View style={styles.modalContainer}>
-									<View style={styles.headerHolder}>
-										<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>
-											Student Exam Report
-										</Text>
-										<AntDesign
-											onPress={closeReportHolder}
-											name="close"
-											size={22}
-											color="#9ba8ae"
-										/>
-									</View>
-
-									{!reportDat.afterClickView && (
-										<View style={styles.showSms}>
-											<Text style={styles.youHaveSucc}>
-												{holderRepo.successMsg || "Exam Submitted Successfully!"}
-											</Text>
-											<View style={styles.viewReortBtns}>
-												<Button
-													title="View Report"
-													color="#37bd79"
-													onPress={viewReport}
-												/>
-											</View>
-										</View>
-									)}
-
-									{reportDat.afterClickView && (
-										<View style={{ flex: 1 }}>
-											<View style={styles.table}>
-												<View style={styles.headesHead}>
-													<Text style={{ fontWeight: 'bold', fontSize: 15, color: SWATheam.SwaBlack }}>Exam Report</Text>
-													<TouchableOpacity onPress={allAttemReport} style={{ backgroundColor: '#0c8781', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 5 }}>
-														<Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>Attempt Report</Text>
-													</TouchableOpacity>
-												</View>
-
-												<View style={styles.rowHed}>
-													<Text style={styles.cell}>Total Marks: {reportDat.totalMarks}</Text>
-													<Text style={styles.cell}>Obtained Marks: {reportDat.optainedMarks}</Text>
-													<Text style={styles.cell}>Percentage: {reportDat.preSent}%</Text>
-												</View>
-											</View>
-
-											<ScrollView style={{ flex: 1 }}>
-												<View style={styles.InnerBoxTbls}>
-													<DataTable style={styles.container}>
-														<DataTable.Header style={styles.tableHeader}>
-															<DataTable.Title style={{ flex: 0.6 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>No.</Text></DataTable.Title>
-															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Correct Ans</Text></DataTable.Title>
-															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Your Ans</Text></DataTable.Title>
-															<DataTable.Title style={{ flex: 1 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Status</Text></DataTable.Title>
-															<DataTable.Title style={{ flex: 1.2 }}><Text style={{ fontWeight: 'bold', color: SWATheam.SwaBlack }}>Action</Text></DataTable.Title>
-														</DataTable.Header>
-
-														{getReport.map((item, index) => {
-															// console.log(item, "whrer ?")
-															return (
-																<DataTable.Row key={index}>
-																	<DataTable.Cell style={{ flex: 0.6 }}><Text style={{ color: SWATheam.SwaBlack }}>{index + 1}.</Text></DataTable.Cell>
-																	<DataTable.Cell style={{ flex: 1.2 }}>
-																		{item?.correctAnswerID == 1 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(a)</Text> : ""}
-																		{item?.correctAnswerID == 2 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(b)</Text> : ""}
-																		{item?.correctAnswerID == 3 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(c)</Text> : ""}
-																		{item?.correctAnswerID == 4 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(d)</Text> : ""}
-																	</DataTable.Cell>
-																	<DataTable.Cell style={{ flex: 1.2 }}>
-																		{item?.selectedAnswerID == 1 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(a)</Text> : ""}
-																		{item?.selectedAnswerID == 2 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(b)</Text> : ""}
-																		{item?.selectedAnswerID == 3 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(c)</Text> : ""}
-																		{item?.selectedAnswerID == 4 && item.activityID == 1 ? <Text style={{ color: SWATheam.SwaBlack }}>(d)</Text> : ""}
-																	</DataTable.Cell>
-																	<DataTable.Cell style={{ flex: 1 }}>
-																		{(item.selectedAnswerID == item.correctAnswerID && item.activityID == 1) || (item.answerID == item.selectedAnswerID && item.activityID == 2) ? (
-																			<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/r.png')} />
-																		) : (
-																			<Image style={{ resizeMode: 'contain', width: 20, height: 20 }} source={require('../../assets/w.png')} />
-																		)}
-																	</DataTable.Cell>
-																	<DataTable.Cell style={{ flex: 1.2 }}>
-																		<TouchableOpacity onPress={() => viewAction(item)}>
-																			<Text style={styles.viewQuestionBtns}>View Q.</Text>
-																		</TouchableOpacity>
-																	</DataTable.Cell>
-																</DataTable.Row>
-															);
-														})}
-													</DataTable>
-												</View>
-											</ScrollView>
-										</View>
-									)}
-								</View>
-							</View>
-						</Modal>
-					)}
-
-					{/* Modal 3: Student All Exam Report */}
-					{reportDat.reportList && (
+					{/* Modal 2: Unified Report Modal (Exam Report, All Attempts, View Q.) */}
+					{isReportModalVisible && (
 						<Modal
 							animationType="slide"
-							visible={reportDat.reportList}
-							onRequestClose={hideReportList}
+							visible={isReportModalVisible}
+							onRequestClose={() => {
+								if (actData.modelHolder) {
+									hideExamQuest();
+								} else if (reportDat.reportList) {
+									hideReportList();
+								} else {
+									closeReportHolder();
+								}
+							}}
 						>
-							<View style={[styles.allExamHeader, { paddingTop: insets.top + 10 }]}>
-								<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Student All Exam Report</Text>
-								<AntDesign name="close" size={22} color="#231e1a" onPress={hideReportList} />
-							</View>
-							<ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-								{allReportData.map((item, index) => {
-									return (
-										<View style={styles.holderAllReport} key={index}>
-											<View style={styles.rowCol}>
-												<Text style={styles.columsStart}>Set Code :</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>{item.qSetCode}</Text>
-											</View>
-											<View style={styles.rowCol}>
-												<Text style={styles.columsStart}>Attempted Date :</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>{item.dateOfAttempt}</Text>
-											</View>
-											<View style={styles.rowCol}>
-												<Text style={styles.columsStart}>Status :</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>Attempted</Text>
-											</View>
-											<View style={styles.rowCol}>
-												<Text style={styles.columsStart}>Action :</Text>
-												<TouchableOpacity onPress={() => { viewReportSecond(item) }}>
-													<Text style={[styles.viewReportBtn, { backgroundColor: userData.data.colors.mainTheme }]}>View Report</Text>
-												</TouchableOpacity>
-											</View>
-										</View>
-									);
-								})}
-							</ScrollView>
-						</Modal>
-					)}
-
-					{/* Modal 4: Action Question View Modal */}
-					{actData.modelHolder && (
-						<Modal
-							animationType="slide"
-							visible={actData.modelHolder}
-							onRequestClose={hideExamQuest}
-						>
-							<View style={[styles.allExamHeader, { paddingTop: insets.top + 10 }]}>
-								<Text style={{ color: SWATheam.SwaBlack, fontWeight: 'bold', fontSize: 16 }}>Exam Question</Text>
-								<AntDesign name="close" size={22} color="#9ba8ae" onPress={hideExamQuest} />
-							</View>
-							<ScrollView style={{ flex: 1, padding: 15 }}>
-								<View style={styles.holderActQuest}>
-									{actData.showQuestActId == 1 && getquest && (
-										<View>
-											{getquest.questionPart1 ? (
-												<RenderHtml
-													contentWidth={width}
-													source={{ html: getquest.questionPart1 }}
-													tagsStyles={tagsStyles}
-												/>
-											) : null}
-
-											<View style={styles.optionsView}>
-												{getquest?.optionText1 ? (
-													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID1 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(a)</Text>
-															{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText1 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText2 ? (
-													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID2 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(b)</Text>
-															{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText2 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText3 ? (
-													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID3 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(c)</Text>
-															{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText3 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText4 ? (
-													<View style={[styles.textWithInput, { backgroundColor: getquest.optionID4 == getquest.selectedAnswerID ? '#51e3b3' : "#e3e8ea" }]}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(d)</Text>
-															{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText4 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-													</View>
-												) : null}
-											</View>
-										</View>
-									)}
-
-									{actData.showQuestActId == 2 && getquest && (
-										<View>
-											<Text style={{ fontWeight: 'bold', fontSize: 16, color: SWATheam.SwaBlack, marginBottom: 10 }}>{getquest?.questionPart1}</Text>
-											<View style={styles.optionsView}>
-												{getquest?.optionText1 ? (
-													<View style={styles.textWithInput}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(a)</Text>
-															{getquest?.optionText1.endsWith('.png') || getquest?.optionText1.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText1 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText1 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-														<View style={styles.buttonRows}>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("1-1") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>True</Text>
-															</View>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("1-2") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>False</Text>
-															</View>
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText2 ? (
-													<View style={styles.textWithInput}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(b)</Text>
-															{getquest?.optionText2.endsWith('.png') || getquest?.optionText2.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText2 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText2 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-														<View style={styles.buttonRows}>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("2-1") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>True</Text>
-															</View>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("2-2") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>False</Text>
-															</View>
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText3 ? (
-													<View style={styles.textWithInput}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(c)</Text>
-															{getquest?.optionText3.endsWith('.png') || getquest?.optionText3.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText3 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText3 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-														<View style={styles.buttonRows}>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("3-1") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>True</Text>
-															</View>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("3-2") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>False</Text>
-															</View>
-														</View>
-													</View>
-												) : null}
-
-												{getquest?.optionText4 ? (
-													<View style={styles.textWithInput}>
-														<View style={styles.AWithContent}>
-															<Text style={styles.indty}>(d)</Text>
-															{getquest?.optionText4.endsWith('.png') || getquest?.optionText4.endsWith('.jpg') ? (
-																<Image source={{ uri: ImgBase + getquest?.imagePath + getquest?.optionText4 }} style={{ width: 50, height: 50 }} />
-															) : (
-																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: getquest?.optionText4 }}
-																	tagsStyles={optionStyle}
-																/>
-															)}
-														</View>
-														<View style={styles.buttonRows}>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("4-1") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>True</Text>
-															</View>
-															<View style={[styles.btnTNF, { backgroundColor: getquest?.selectedAnswerID?.includes("4-2") ? '#adff2f' : '#b0c4de' }]}>
-																<Text style={{ textAlign: 'center' }}>False</Text>
-															</View>
-														</View>
-													</View>
-												) : null}
-											</View>
-										</View>
-									)}
-
-									{actData.showQuestActId == 3 && getquest && (
-										<View>
-											<RenderHtml
-												contentWidth={width}
-												source={{ html: getquest?.questionPart1 }}
-												tagsStyles={optionStyle}
-											/>
-											<View style={styles.rowLines}>
-												<Text style={styles.someBolds}>Your Answer:</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>{getquest?.selectedAnswerID || 'Not answered'}</Text>
-											</View>
-											<View style={styles.rowLines}>
-												<Text style={styles.someBolds}>Correct Answer:</Text>
-												<Text style={{ color: SWATheam.SwaBlack }}>{getquest?.answerText}</Text>
-											</View>
-										</View>
-									)}
-								</View>
-							</ScrollView>
+							<SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top }}>
+								{actData.modelHolder
+									? renderQuestionDetailView()
+									: reportDat.reportList
+										? renderAllReportsView()
+										: reportDat.afterClickView
+											? renderExamReportTableView()
+											: renderSubmittedSuccessView()}
+							</SafeAreaView>
 						</Modal>
 					)}
 					{/* student all report data */}
@@ -2208,7 +2297,9 @@ const styles = StyleSheet.create({
 		width: 150,
 		margin: 15,
 		margin: 'auto',
-		marginTop: 10
+		marginTop: 10,
+		backgroundColor: SWATheam.SwaBlue,
+		borderRadius: 20,
 	},
 	youHaveSucc: {
 		textAlign: 'center',

@@ -47,33 +47,27 @@ const ActivityView = ({ navigation, route }) => {
   const stopAudioAndMedia = () => {
     if (webViewRef.current) {
       try {
-        const stopScript = `
-          (function() {
-            try {
-              var audios = document.querySelectorAll('audio');
-              for (var i = 0; i < audios.length; i++) {
-                audios[i].pause();
-                audios[i].currentTime = 0;
-                audios[i].src = '';
-              }
-              var videos = document.querySelectorAll('video');
-              for (var i = 0; i < videos.length; i++) {
-                videos[i].pause();
-                videos[i].currentTime = 0;
-                videos[i].src = '';
-              }
-              var iframes = document.querySelectorAll('iframe');
-              for (var j = 0; j < iframes.length; j++) {
-                try {
-                  iframes[j].contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
-                  iframes[j].src = 'about:blank';
-                } catch(e) {}
-              }
-              window.location.href = 'about:blank';
-            } catch(e) {}
-          })();
-          true;
-        `;
+        const stopScript = `(function() {
+          try {
+            var audios = document.querySelectorAll('audio');
+            for (var i = 0; i < audios.length; i++) {
+              audios[i].pause();
+              audios[i].currentTime = 0;
+            }
+            var videos = document.querySelectorAll('video');
+            for (var i = 0; i < videos.length; i++) {
+              videos[i].pause();
+              videos[i].currentTime = 0;
+            }
+            var iframes = document.querySelectorAll('iframe');
+            for (var j = 0; j < iframes.length; j++) {
+              try {
+                iframes[j].contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+              } catch(e) {}
+            }
+          } catch(e) {}
+          return true;
+        })(); true;`;
         webViewRef.current.injectJavaScript(stopScript);
       } catch (err) { }
     }
@@ -288,9 +282,8 @@ const ActivityView = ({ navigation, route }) => {
 
       attachDownloadInterceptor();
       setInterval(attachDownloadInterceptor, 600);
-    })();
-    true;
-  `;
+      return true;
+    })(); true;`;
 
   const handleWebViewMessage = event => {
     try {

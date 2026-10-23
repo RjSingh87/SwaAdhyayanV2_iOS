@@ -70,6 +70,11 @@ export default function AssessmentView({ navigation, editAss }) {
 
   const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
   const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
+  // Selection count states for displaying "N selected" / "All selected" labels
+  const [bookSelCount, setBookSelCount] = useState(0);
+  const [chapSelCount, setChapSelCount] = useState(0);
+  const [quesTypeSelCount, setQuesTypeSelCount] = useState(0);
+  const [quesLavelSelCount, setQuesLavelSelCount] = useState(0);
 
   useEffect(() => {
     const goBack = navigation.addListener('focus', () => {
@@ -84,6 +89,10 @@ export default function AssessmentView({ navigation, editAss }) {
       chapterIDsArray = [];
       quesTypeIdsArray = [];
       quesLavelIdsArray = [];
+      setBookSelCount(0);
+      setChapSelCount(0);
+      setQuesTypeSelCount(0);
+      setQuesLavelSelCount(0);
       subjName = "";
       examName = "";
       examTypeName = "";
@@ -174,6 +183,7 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setData(temp);
+    setBookSelCount(temp.filter(item => item.checked).length);
   };
   const checkOne = (newValue, index) => {
     let index1 = bookIdsArry.indexOf(bookList[index].bookID)
@@ -189,7 +199,9 @@ export default function AssessmentView({ navigation, editAss }) {
     let temp = data.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setData(temp);
+    const updatedData = temp;
+    setData(updatedData);
+    setBookSelCount(updatedData.filter(item => item.checked).length);
     setIsChecked(!isChecked);
   };
 
@@ -200,9 +212,9 @@ export default function AssessmentView({ navigation, editAss }) {
     }
     let temp = chapData.map((item, key) => {
       if (!newValue == true) {
-        let index1 = chapterIDsArray.indexOf(bookChapterList[key].chapterID)
+        let index1 = chapterIDsArray.indexOf(bookChapterList[key]?.chapterID)
         if (index1 == -1) {
-          chapterIDsArray.push(bookChapterList[key].chapterID)
+          chapterIDsArray.push(bookChapterList[key]?.chapterID)
         } else {
           chapterIDsArray.splice(index1, 1)
         }
@@ -210,12 +222,13 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setChapData(temp);
+    setChapSelCount(temp.filter(item => item.checked).length);
   };
   const checkChapOne = (newValue, index) => {
-    let index1 = chapterIDsArray.indexOf(bookChapterList[index].chapterID)
+    let index1 = chapterIDsArray.indexOf(bookChapterList[index]?.chapterID)
     if (newValue) {
       if (index1 == -1) {
-        chapterIDsArray.push(bookChapterList[index].chapterID)
+        chapterIDsArray.push(bookChapterList[index]?.chapterID)
       } else {
         chapterIDsArray.splice(index1, 1)
       }
@@ -225,7 +238,9 @@ export default function AssessmentView({ navigation, editAss }) {
     let temp = chapData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setChapData(temp);
+    const updatedChapData = temp;
+    setChapData(updatedChapData);
+    setChapSelCount(updatedChapData.filter(item => item.checked).length);
     setIsChapChecked(!isChapChecked);
   };
 
@@ -247,6 +262,7 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setQuesTypeData(temp);
+    setQuesTypeSelCount(temp.filter(item => item.checked).length);
   };
   const checkQuesTypeOne = (newValue, index) => {
     let index1 = quesTypeIdsArray.indexOf(assessQuesTypeList[index].activityID)
@@ -262,7 +278,9 @@ export default function AssessmentView({ navigation, editAss }) {
     let temp = QuesTypeData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setQuesTypeData(temp);
+    const updatedQTData = temp;
+    setQuesTypeData(updatedQTData);
+    setQuesTypeSelCount(updatedQTData.filter(item => item.checked).length);
     setIsQuesTypeChecked(!isChapChecked);
   };
 
@@ -283,6 +301,7 @@ export default function AssessmentView({ navigation, editAss }) {
       return { ...item, checked: !newValue };
     });
     setQuesLavelData(temp);
+    setQuesLavelSelCount(temp.filter(item => item.checked).length);
   };
   const checkQuesLavelOne = (newValue, index) => {
     let index1 = quesLavelIdsArray.indexOf(assessQuesLavelList[index].eadID)
@@ -298,7 +317,9 @@ export default function AssessmentView({ navigation, editAss }) {
     let temp = QuesLavelData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setQuesLavelData(temp);
+    const updatedQLData = temp;
+    setQuesLavelData(updatedQLData);
+    setQuesLavelSelCount(updatedQLData.filter(item => item.checked).length);
     setIsQuesLavelChecked(!isChapChecked);
   };
 
@@ -957,8 +978,8 @@ export default function AssessmentView({ navigation, editAss }) {
               onPress={() => showList('book')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {bookIdsArry.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Books Selected</Text>
+                {bookSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{bookSelCount === bookList.length ? 'All books selected' : `${bookSelCount} book${bookSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Books</Text>
                 }
@@ -975,8 +996,8 @@ export default function AssessmentView({ navigation, editAss }) {
               onPress={() => showList('chapter')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {chapterIDsArray.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Chapter Selected</Text>
+                {chapSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{chapSelCount === bookChapterList.length ? 'All chapters selected' : `${chapSelCount} chapter${chapSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Chapter</Text>
                 }
@@ -1010,8 +1031,8 @@ export default function AssessmentView({ navigation, editAss }) {
               onPress={() => showList('quesTypeList')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {quesTypeIdsArray.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Q.Type Selected</Text>
+                {quesTypeSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{quesTypeSelCount === assessQuesTypeList.length ? 'All Q.Types selected' : `${quesTypeSelCount} Q.Type${quesTypeSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Q.Type</Text>
                 }
@@ -1026,8 +1047,8 @@ export default function AssessmentView({ navigation, editAss }) {
               onPress={() => showList('quesLavel')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {quesLavelIdsArray.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Level Selected</Text>
+                {quesLavelSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{quesLavelSelCount === assessQuesLavelList.length ? 'All levels selected' : `${quesLavelSelCount} level${quesLavelSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Level</Text>
                 }
@@ -1458,14 +1479,14 @@ export default function AssessmentView({ navigation, editAss }) {
 
                 {chapData.map((item, index) => {
                   return (
-                    <View key={bookChapterList[index].chapterID}>
+                    <View key={bookChapterList[index]?.chapterID}>
                       <TouchableOpacity onPress={() => { checkChapOne(!item.checked, index); getExamName(); }} style={{ flexDirection: 'row', padding: 10, backgroundColor: SWATheam.SwaWhite, margin: 2, borderRadius: 6 }} >
                         {item.checked ?
                           <AntDesign name={"checksquareo"} color={SWATheam.SwaBlack} size={20} style={{ width: 25, padding: 3 }} />
                           :
                           <Feather name={"square"} color={SWATheam.SwaBlack} size={20} style={{ width: 25, padding: 1 }} />
                         }
-                        <Text style={{ color: SWATheam.SwaBlack }}>{bookChapterList[index].chapterName}</Text>
+                        <Text style={{ color: SWATheam.SwaBlack }}>{bookChapterList[index]?.chapterName}</Text>
                       </TouchableOpacity>
                     </View>
                   )

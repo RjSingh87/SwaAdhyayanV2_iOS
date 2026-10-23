@@ -96,15 +96,19 @@ const AcademicReport = ({ navigation, route }) => {
                             <Text style={{ color: SWATheam.SwaBlack, fontWeight: '700' }}>Name: {userData.data.fullname} ({userData.data.className}-{userData.data.sectionName})</Text>
                         </View>
 
+
+
                     </View>
                     {queData.status ?
                         <View>
                             <Text style={{ fontSize: font17 }}>Data Not Found</Text>
                         </View> :
                         <View style={{ padding: 8, backgroundColor: userData.data.colors.liteTheme, flex: 1 }}>
-                            <View style={{ marginVertical: 10 }}>
+
+                            <View style={{ marginVertical: 1 }}>
                                 <View style={{ paddingLeft: 10 }}>
-                                    <Text style={[styles.BtextClr, { fontWeight: '500', fontSize: font15 }]}>You are improving every day - Average</Text>
+                                    <Text style={{ fontWeight: "600", fontSize: 15, paddingVertical: 5, }}>{route?.params?.testType}</Text>
+                                    <Text style={[styles.BtextClr, { fontWeight: '500', fontSize: font15 }]}>• You are improving every day - Average</Text>
                                     <Text style={[styles.BtextClr, { fontSize: font15 }]}>This is not a bad score, but you still need to work hard so you can get even better</Text>
                                 </View>
                             </View>

@@ -153,6 +153,7 @@ export default function AssiList({ navigation }) {
 		Services.post(apiRoot.viewResult, payload)
 			.then((res) => {
 				if (res.status === "success") {
+					// console.log({ payload, res }, "View result")
 					setStudentDetails(res.data.details);
 					setLoader(false);
 					setResultdata(res.data.questions);

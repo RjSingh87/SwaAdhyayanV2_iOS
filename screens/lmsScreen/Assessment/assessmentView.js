@@ -464,6 +464,10 @@ export default function AssessmentView({ navigation, editAss }) {
     chapterIDsArray = []
     quesTypeIdsArray = [];;
     quesLavelIdsArray = [];
+    setBookSelCount(0);
+    setChapSelCount(0);
+    setQuesTypeSelCount(0);
+    setQuesLavelSelCount(0);
     examName = ""
     examTypeName = ""
     questionNo = ""
@@ -700,6 +704,10 @@ export default function AssessmentView({ navigation, editAss }) {
       chapterIDsArray = []
       quesTypeIdsArray = [];;
       quesLavelIdsArray = [];
+      setBookSelCount(0);
+      setChapSelCount(0);
+      setQuesTypeSelCount(0);
+      setQuesLavelSelCount(0);
       examName = ""
       examTypeName = ""
       questionNo = ""
@@ -716,6 +724,10 @@ export default function AssessmentView({ navigation, editAss }) {
       chapterIDsArray = []
       quesTypeIdsArray = [];;
       quesLavelIdsArray = [];
+      setBookSelCount(0);
+      setChapSelCount(0);
+      setQuesTypeSelCount(0);
+      setQuesLavelSelCount(0);
       examName = ""
       examTypeName = ""
       questionNo = ""

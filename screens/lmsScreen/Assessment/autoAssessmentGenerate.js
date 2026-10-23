@@ -81,6 +81,11 @@ export default function AutoAssessmentGenerate() {
   const [isQuesTypeChecked, setIsQuesTypeChecked] = useState(false);
   const [QuesLavelData, setQuesLavelData] = useState(quesLavelArguments);
   const [isQuesLavelChecked, setIsQuesLavelChecked] = useState(false);
+  // Selection count states for displaying "N selected" / "All selected" labels
+  const [bookSelCount, setBookSelCount] = useState(0);
+  const [chapSelCount, setChapSelCount] = useState(0);
+  const [quesTypeSelCount, setQuesTypeSelCount] = useState(0);
+  const [quesLavelSelCount, setQuesLavelSelCount] = useState(0);
 
   useEffect(() => {
     selectedQuesIDsArray = [];
@@ -221,6 +226,10 @@ export default function AutoAssessmentGenerate() {
     setHourData(0);
     setMinutData(0);
     setExamTypeName("");
+    setBookSelCount(0);
+    setChapSelCount(0);
+    setQuesTypeSelCount(0);
+    setQuesLavelSelCount(0);
     setIsQuestType(false);
     setIsMarksWise(false);
     setIsTypeWise(false);
@@ -365,7 +374,7 @@ export default function AutoAssessmentGenerate() {
       .then((res) => {
         setIsLoader(false)
         if (res.status == "success") {
-          console.log({ apiUrl, payload, res }, "Jab successfully")
+          // console.log({ apiUrl, payload, res }, "Jab successfully")
           const data = res.data;
           assessID = data?.asmtID;
           setIsTypeWise(false);
@@ -552,6 +561,7 @@ export default function AutoAssessmentGenerate() {
       return { ...item, checked: !newValue };
     });
     setData(temp);
+    setBookSelCount(temp.filter(item => item.checked).length);
   };
   const checkOne = (newValue, index) => {
     let index1 = bookIdsArry.indexOf(bookList[index].bookID)
@@ -567,9 +577,13 @@ export default function AutoAssessmentGenerate() {
     let temp = data.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setData(temp);
+    const updatedData = temp;
+    setData(updatedData);
+    setBookSelCount(updatedData.filter(item => item.checked).length);
     setIsChecked(!isChecked);
     chapterIDsArray = [], quesLavelIdsArray = []
+    setChapSelCount(0);
+    setQuesLavelSelCount(0);
     setHourData(0), setMinutData(0)
   };
 
@@ -590,6 +604,7 @@ export default function AutoAssessmentGenerate() {
       return { ...item, checked: !newValue };
     });
     setChapData(temp);
+    setChapSelCount(temp.filter(item => item.checked).length);
     console.log(chapterIDsArray)
   };
   const checkChapOne = (newValue, index) => {
@@ -606,7 +621,9 @@ export default function AutoAssessmentGenerate() {
     let temp = chapData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setChapData(temp);
+    const updatedChapData = temp;
+    setChapData(updatedChapData);
+    setChapSelCount(updatedChapData.filter(item => item.checked).length);
     setIsChapChecked(!isChapChecked);
     console.log(chapterIDsArray)
   };
@@ -629,6 +646,7 @@ export default function AutoAssessmentGenerate() {
       return { ...item, checked: !newValue };
     });
     setQuesTypeData(temp);
+    setQuesTypeSelCount(temp.filter(item => item.checked).length);
     console.log(chapterIDsArray)
   };
   const checkQuesTypeOne = (newValue, index) => {
@@ -645,7 +663,9 @@ export default function AutoAssessmentGenerate() {
     let temp = QuesTypeData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setQuesTypeData(temp);
+    const updatedQTData = temp;
+    setQuesTypeData(updatedQTData);
+    setQuesTypeSelCount(updatedQTData.filter(item => item.checked).length);
     setIsQuesTypeChecked(!isChapChecked);
     console.log(chapterIDsArray)
   };
@@ -667,6 +687,7 @@ export default function AutoAssessmentGenerate() {
       return { ...item, checked: !newValue };
     });
     setQuesLavelData(temp);
+    setQuesLavelSelCount(temp.filter(item => item.checked).length);
     console.log(quesLavelIdsArray)
   };
   const checkQuesLavelOne = (newValue, index) => {
@@ -683,7 +704,9 @@ export default function AutoAssessmentGenerate() {
     let temp = QuesLavelData.map((item, i) => {
       return index === i ? { ...item, checked: newValue } : item;
     });
-    setQuesLavelData(temp);
+    const updatedQLData = temp;
+    setQuesLavelData(updatedQLData);
+    setQuesLavelSelCount(updatedQLData.filter(item => item.checked).length);
     setIsQuesLavelChecked(!isChapChecked);
     console.log(quesLavelIdsArray)
   };
@@ -797,6 +820,9 @@ export default function AutoAssessmentGenerate() {
     })
     subjName = "", examName = "", setExamTypeName(""),
       bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = []
+    setBookSelCount(0);
+    setChapSelCount(0);
+    setQuesLavelSelCount(0);
     setHourData(0), setMinutData(0)
     setDate(); setDate2()
   }
@@ -1017,6 +1043,9 @@ export default function AutoAssessmentGenerate() {
       subjName = "", examName = "", setExamTypeName(""),
         bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = [],
         setHourData(0), setMinutData(0)
+      setBookSelCount(0);
+      setChapSelCount(0);
+      setQuesLavelSelCount(0);
       setDate(); setDate2()
 
 
@@ -1030,6 +1059,9 @@ export default function AutoAssessmentGenerate() {
       examName = "", setExamTypeName(""),
         bookIdsArry = [], chapterIDsArray = [], quesLavelIdsArray = [],
         setHourData(0), setMinutData(0)
+      setBookSelCount(0);
+      setChapSelCount(0);
+      setQuesLavelSelCount(0);
       setDate(); setDate2()
     } else if (type == "examName") {
       setViewStatus((prev) => {
@@ -1056,6 +1088,7 @@ export default function AutoAssessmentGenerate() {
       examName = "", setExamTypeName(""),
         quesLavelIdsArray = [],
         setDate(); setDate2()
+      setQuesLavelSelCount(0);
       setHourData(0), setMinutData(0)
     }
     else if (type == "examType") {
@@ -1379,8 +1412,8 @@ export default function AutoAssessmentGenerate() {
               onPress={() => showList('book')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {bookIdsArry.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Books Selected</Text>
+                {bookSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{bookSelCount === bookList.length ? 'All books selected' : `${bookSelCount} book${bookSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Books</Text>
                 }
@@ -1397,8 +1430,8 @@ export default function AutoAssessmentGenerate() {
               onPress={() => showList('chapter')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {chapterIDsArray.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Chapter Selected</Text>
+                {chapSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{chapSelCount === bookChapterList.length ? 'All chapters selected' : `${chapSelCount} chapter${chapSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Select Chapter</Text>
                 }
@@ -1451,8 +1484,8 @@ export default function AutoAssessmentGenerate() {
                 onPress={() => showList('quesTypeList')}
               >
                 <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                  {quesTypeIdsArray.length > 0 ?
-                    <Text style={{ color: SWATheam.SwaBlack }}>Q.Type Selected</Text>
+                  {quesTypeSelCount > 0 ?
+                    <Text style={{ color: SWATheam.SwaBlack }}>{quesTypeSelCount === assessQuesTypeList.length ? 'All Q.Types selected' : `${quesTypeSelCount} Q.Type${quesTypeSelCount > 1 ? 's' : ''} selected`}</Text>
                     :
                     <Text style={{ color: SWATheam.SwaGray }}>Select Q.Type</Text>
                   }
@@ -1489,8 +1522,8 @@ export default function AutoAssessmentGenerate() {
               onPress={() => showList('quesLavel')}
             >
               <View style={{ flex: 1, padding: 5, backgroundColor: "#efefef", borderBottomLeftRadius: 5, borderTopLeftRadius: 5 }}>
-                {quesLavelIdsArray.length > 0 ?
-                  <Text style={{ color: SWATheam.SwaBlack }}>Level Selected</Text>
+                {quesLavelSelCount > 0 ?
+                  <Text style={{ color: SWATheam.SwaBlack }}>{quesLavelSelCount === assessQuesLavelList.length ? 'All levels selected' : `${quesLavelSelCount} level${quesLavelSelCount > 1 ? 's' : ''} selected`}</Text>
                   :
                   <Text style={{ color: SWATheam.SwaGray }}>Level</Text>
                 }
@@ -2408,7 +2441,7 @@ export default function AutoAssessmentGenerate() {
                     <View style={{ width: "50%", borderRadius: 6 }} key={index}>
                       <View style={{ flexDirection: 'row', paddingHorizontal: 6 }}>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ color: 'green' }}>Questions: {item.totalQues}</Text>
+                          <Text style={{ color: 'green' }}>Ques.: {item.totalQues}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ color: 'green', textAlign: 'right' }}>Marks: {item.marksPerQuestion}</Text>

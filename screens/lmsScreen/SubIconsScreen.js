@@ -6,7 +6,8 @@ import {
   ScrollView,
   Image,
   StatusBar,
-  Alert
+  Alert,
+  Modal
 } from 'react-native';
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import SwaHeader from '../common/SwaHeader';
@@ -74,6 +75,7 @@ const marksEntrySubIconID = [
 
 import { flowRef } from './flowRef';
 import ActivityTracker, { useActivityTracker } from '../../ActivityTracker';
+import SAOrbitAnimation from '../SAOrbitAnimation';
 
 
 const SubIconsScreen = ({ navigation, route }) => {
@@ -182,6 +184,8 @@ const SubIconsScreen = ({ navigation, route }) => {
   });
   const [reportData, setReportData] = useState({ data: null, status: false });
   const [stuReportName, setStuReportName] = useState('');
+  const [septInfoModal, setSeptInfoModal] = useState({ visible: false, title: '', content: '' });
+  const [showOrbitAnimation, setShowOrbitAnimation] = useState(mainIconID == 27);
   const toolName =
     route?.params?.from == 'assign'
       ? 'Swa-Assessment'
@@ -218,6 +222,9 @@ const SubIconsScreen = ({ navigation, route }) => {
     setStuReportName('CBSE');
     const goBack = navigation.addListener('focus', () => {
       setStuReportName('CBSE');
+      if (mainIconID == 27) {
+        setShowOrbitAnimation(true);
+      }
       setIntor(prev => ({
         ...prev,
         instruction: false,
@@ -522,6 +529,7 @@ const SubIconsScreen = ({ navigation, route }) => {
     });
 
     if (val.testID != undefined) {
+      setShowOrbitAnimation(false);
       if (val.isSeptAttempt) {
         setViewSeptReport(prev => {
           return { ...prev, data: val, status: true };
@@ -2734,11 +2742,59 @@ const SubIconsScreen = ({ navigation, route }) => {
           }}
         >
           <>
-            <SwaHeader
-              title={toolName}
-              leftIcon={'arrowleft'}
-              onClickLeftIcon={onClickLeftIcon}
-            />
+            {mainIconID == 27 ? (
+              <View style={{ width: '100%', height: 55, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6, backgroundColor: userData?.data?.colors?.mainTheme }}>
+                <TouchableOpacity style={{ width: 40, height: 55, justifyContent: 'center', alignItems: 'center' }}
+                  onPress={() => onClickLeftIcon()}>
+                  <AntDesign name="arrowleft" size={30} color="#fff" />
+                </TouchableOpacity>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', paddingHorizontal: 5 }}>
+                  <Text style={{ fontWeight: '700', color: '#fff', textAlign: 'center', fontSize: 16 }}>{toolName}</Text>
+                </View>
+                <TouchableOpacity
+                  style={{ paddingHorizontal: 8, height: 55, justifyContent: 'center', alignItems: 'center' }}
+                  onPress={() =>
+                    setSeptInfoModal({
+                      visible: true,
+                      title: `Let's Understand SEPT!`,
+                      content: `SEPT, or Swa-Adhyayan Entrant's Profiling Test is a unique assessment tool which differentiates intelligence into different zones, instead of seeing it as a singular unit.
+You will attempt following tests under this profiling, namely -
+
+    • Academic Proficiency Profile
+    • Learning Style
+    • Multiple Intelligences
+    • Brain Dominance
+    • Knowing Me
+
+These tests together will determine your sensory abilities, dominant intelligence areas and personality traits. The detailed instructions pertaining to each individual test will be displayed before it starts. Once attempted you will not be prompted for attempting it again. However, you can view the reports anytime.`,
+                    })}
+                >
+                  <AntDesign name="infocirlceo" size={22} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ paddingHorizontal: 8, height: 55, justifyContent: 'center', alignItems: 'center' }}
+                  onPress={() =>
+                    navigation.navigate('pdfView', {
+                      data: {
+                        url: 'https://swaadhyayan.com/school/assets/pdf/swa-adhyayan-letter.pdf',
+                        title: `From CEO's Desk`,
+                      },
+                      mainIconID: route.params?.mainIconID,
+                      subIconID: selectedIcon?.subIconID,
+                    })
+                  }
+                >
+                  {/* <AntDesign name="mail" size={22} color="#fff" /> */}
+                  <Image source={require('../../assets/ceo.png')} style={{ width: 22, height: 22, resizeMode: "contain" }} />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <SwaHeader
+                title={toolName}
+                leftIcon={'arrowleft'}
+                onClickLeftIcon={onClickLeftIcon}
+              />
+            )}
             <IconsContainer
               deshboardData={subIconsData}
               getIconDetail={getIconDetail}
@@ -2747,6 +2803,21 @@ const SubIconsScreen = ({ navigation, route }) => {
               selectedIcon={selectedIcon}
               iconLoader={iconLoader}
             />
+
+            {/* SEPT Orbit Animation - shows on initial load, hides on icon click */}
+            {mainIconID == 27 && showOrbitAnimation && subIconsData?.icons?.icons ? (
+              <SAOrbitAnimation
+                icons={subIconsData.icons.icons.map(item => ({
+                  imageUrl: subIconsData?.icons?.path + item?.septIcon,
+                }))}
+                onIconPress={(index) => {
+                  const item = subIconsData?.icons?.icons[index];
+                  if (item) {
+                    getIconDetail(item);
+                  }
+                }}
+              />
+            ) : null}
 
             {viewSeptReport.status ? (
               <View
@@ -3145,6 +3216,32 @@ const SubIconsScreen = ({ navigation, route }) => {
             <GameList gameList={gameList} getGameView={getGameView} />
           ) : null}
           <MsgModal msgModalVisible={msgModalVisible} />
+
+          {/* SEPT Info Modal - About SEPT / From CEO's Desk */}
+          <Modal
+            visible={septInfoModal.visible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setSeptInfoModal(prev => ({ ...prev, visible: false }))}
+          >
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <View style={{ width: '85%', maxHeight: '50%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', elevation: 10 }}>
+                <View style={{ backgroundColor: userData?.data?.colors?.mainTheme, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700' }}>{septInfoModal.title}</Text>
+                  <TouchableOpacity onPress={() => setSeptInfoModal(prev => ({ ...prev, visible: false }))}>
+                    <AntDesign name="closecircleo" size={24} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={{ padding: 16 }} showsVerticalScrollIndicator={false}>
+                  <View style={{ borderBottomWidth: 1, marginBottom: 5, }}>
+                    <Image source={require('../../assets/septHeadIcon.png')} style={{ width: "100%", height: 50, resizeMode: "contain", marginBottom: 5, }} />
+                  </View>
+                  <Text style={{ fontSize: 15, color: '#333', lineHeight: 20 }}>{septInfoModal.content}</Text>
+                  <View style={{ height: 20 }} />
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
 
           {childIconsList.status ? (
             <SubIconActivityList

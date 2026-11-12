@@ -89,7 +89,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
         if (res.status == "success") {
           setLoading(false)
           const data = res.data
-          console.log(res.data, 'check assigned status------------------')
+          // console.log(res.data, 'check assigned status------------------')
           setAssessmentData((prev) => {
             return { ...prev, data: data, status: true }
           })
@@ -109,28 +109,45 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const deleteAssessment = async (item) => {
-    setLoading(true)
-    const payload = {
-      "schoolID": userData.data.schoolID,
-      "assessmentID": item.assessmentID
-    }
-    Services.post(apiRoot.deleteAssessment, payload)
-      .then((res) => {
-        if (res.status == "success") {
-          setLoading(false)
-          Alert.alert("Info!", res.message)
-          getAllAssessments()
-        } else if (res.status == "error") {
-          setLoading(false)
-          Alert.alert("Info!", res.message)
+
+    Alert.alert(
+      "Delete Assessment",
+      "Are you sure you want to delete this assessment? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            setLoading(true)
+            const payload = {
+              "schoolID": userData.data.schoolID,
+              "assessmentID": item.assessmentID
+            }
+            Services.post(apiRoot.deleteAssessment, payload)
+              .then((res) => {
+                if (res.status == "success") {
+                  setLoading(false)
+                  Alert.alert("Info!", res.message)
+                  getAllAssessments()
+                } else if (res.status == "error") {
+                  setLoading(false)
+                  Alert.alert("Info!", res.message)
+                }
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+              .finally(() => {
+                setLoading(false)
+              })
+          }
         }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      ]
+    )
   }
 
   const declareResult = (item) => {
@@ -402,18 +419,15 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const downloadAssessmentPdf = async (item) => {
-    setLoading(true)
+    // console.log(item?.assessmentID, "item?.assessmentID")
+    // return
     try {
       const res = await Services.post(apiRoot.downloadAssPdf, { assessmentID: item?.assessmentID })
-      if (typeof res === 'string' && res.startsWith('JVBERi')) {
+      if (res.status === 'success') {
         // API may return Base64 PDF in res.base64 or res.pdfBase64
-        const base64Data = res.base64 || res.pdfBase64 || ''
-        await sharePdfBase64(res)
-
-        if (res.html) {
-          // Fallback to previous HTML handling
-          await storePDF(res.html)
-        }
+        navigation.navigate('AssessmentDownload', { assessmentResponse: res })
+        // console.log({ stinty: JSON.stringify(res) })
+        return
       } else {
         console.log('Download failed:', res.message)
       }
@@ -789,7 +803,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                         <Text style={{ marginTop: 8, color: SWATheam.SwaGray, fontSize: 13 }}>Resetting assessments...</Text>
                       </View>
                     ) : filteredAssessments.length > 0 ? (
-                      filteredAssessments.map((item, index) => {
+                      filteredAssessments?.map((item, index) => {
                         const fileName = item.uploadFileName
                         let fName = item.getUserName?.firstName
                         let mName = item.getUserName?.middleName != null ? ' ' + item.getUserName?.middleName : ''
@@ -803,6 +817,8 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                         } else if (item?.getUserName?.userTypeID == 4) {
                           personStatus = "Teacher"
                         }
+
+
 
                         return (
                           <View style={{ borderWidth: .7, borderColor: 'grey', backgroundColor: SWATheam.SwaWhite, marginBottom: 10, borderRadius: 5, padding: 5 }} key={index}>
@@ -847,7 +863,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                                 <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
                               </View>
                               <View style={{ flex: 1, }}>
-                                <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate}</Text>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.startDate?.split("-").reverse().join("/")}</Text>
                               </View>
                             </View>
                             <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
@@ -858,7 +874,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                                 <Text style={{ fontWeight: "500", fontSize: 14, color: '#000' }}>:</Text>
                               </View>
                               <View style={{ flex: 1, }}>
-                                <Text style={{ color: '#000', fontSize: 14 }}>{item.endDate}</Text>
+                                <Text style={{ color: '#000', fontSize: 14 }}>{item.endDate?.split("-").reverse().join("/")}</Text>
                               </View>
                             </View>
                             <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>

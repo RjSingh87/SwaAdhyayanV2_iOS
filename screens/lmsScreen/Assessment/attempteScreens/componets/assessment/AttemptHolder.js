@@ -322,12 +322,13 @@ export default function AttemptHolder({ navigation, route }) {
 						}
 
 
-						if (message === "ROTATE_LANDSCAPE") {
-							Orientation.lockToLandscape();
-						}
-						if (message === "ROTATE_PORTRAIT") {
-							Orientation.lockToPortrait();
-						}
+						//if user wants to rotate the screen from matching activity
+						// if (message === "ROTATE_LANDSCAPE") {
+						// 	Orientation.lockToLandscape();
+						// }
+						// if (message === "ROTATE_PORTRAIT") {
+						// 	Orientation.lockToPortrait();
+						// }
 
 					}}
 				/>

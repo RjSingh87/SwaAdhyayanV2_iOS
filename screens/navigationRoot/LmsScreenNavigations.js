@@ -42,6 +42,7 @@ import AssessGenerateQuesView from '../lmsScreen/Assessment/AssessGenerateQuesVi
 import Safal from '../lmsScreen/Assessment/Safal'
 import DetailAnalyticalReportView from '../lmsScreen/REPORTs/DetailAnalyticalReportView'
 import TeacherAiScannerDemo from '../TeacherAiScannerDemo'
+import AssessmentDownload from '../lmsScreen/Assessment/AssessmentDownload'
 
 const Stack = createStackNavigator()
 const Drawer = createDrawerNavigator()
@@ -88,6 +89,7 @@ const LmsScreenNavigations = ({ navigation, route }) => {
       {/* <Stack.Screen name="asspdfView" component={AssessmentPdfViewer} options={{headerShown:false}}/> */}
       <Stack.Screen name="Assessment" component={Assessment} options={{ headerShown: false }} />
       <Stack.Screen name="AttemptHolder" component={AttemptHolder} options={{ headerShown: false }} />
+      <Stack.Screen name="AssessmentDownload" component={AssessmentDownload} options={{ headerShown: false }} />
 
       {/* assessment */}
       {/* swaShare */}

@@ -314,7 +314,11 @@ const StudentList = ({ navigation, route }) => {
                 <ScrollView>
                   {
                     studentData.status ?
-                      studentData?.data.map((item, index) => {
+                      studentData?.data?.map((item, index) => {
+                        const date = item.dateOfBirth;
+                        const formattedDate = date
+                          ? date.split("-").reverse().join("/")
+                          : "N/A";
                         return (
                           <View style={{ backgroundColor: SWATheam.SwaWhite, borderRadius: 5, marginTop: 5, paddingVertical: 5, borderWidth: .7, borderColor: userData.data.colors.hoverTheme }} key={index}>
                             <View style={{ flexDirection: 'row', padding: 5, marginHorizontal: 5, alignItems: 'center' }}>
@@ -354,7 +358,7 @@ const StudentList = ({ navigation, route }) => {
                               </View>
                               <View style={{ flex: 1 }}>
                                 <Text style={{ color: SWATheam.SwaBlack, padding: 2, fontSize: 13, backgroundColor: userData.data.colors.liteTheme }}>
-                                  {item.dateOfBirth}
+                                  {formattedDate}
                                 </Text>
                               </View>
                             </View>

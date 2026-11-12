@@ -247,11 +247,11 @@ export default function AssiList({ navigation }) {
 											</View>
 											<View style={styles.rowList}>
 												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>Start Date :</Text>
-												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.startDate} </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.startDate?.split("-").reverse().join("/")} </Text>
 											</View>
 											<View style={styles.rowList}>
 												<Text style={{ color: SWATheam.SwaBlack, width: 150 }}>End Date :</Text>
-												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate} </Text>
+												<Text style={{ color: SWATheam.SwaBlack, flex: 1 }}>{item.endDate?.split("-").reverse().join("/")} </Text>
 											</View>
 											{attemptIds !== 0 && item.resultDeclareStatus ?
 												<>

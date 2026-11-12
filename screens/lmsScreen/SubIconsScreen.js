@@ -221,6 +221,13 @@ const SubIconsScreen = ({ navigation, route }) => {
   useEffect(() => {
     setStuReportName('CBSE');
     const goBack = navigation.addListener('focus', () => {
+      if (flowRef.fromChild2) {
+        flowRef.fromChild2 = false; // 🔁 reset
+        Orientation.lockToPortrait();
+        StatusBar.setHidden(false);
+        return; // ❌ skip resetting selectedIcon & skip getSubIcons
+      }
+
       setStuReportName('CBSE');
       if (mainIconID == 27) {
         setShowOrbitAnimation(true);
@@ -238,11 +245,6 @@ const SubIconsScreen = ({ navigation, route }) => {
               : route?.params?.subIcon?.subIconID,
         };
       });
-
-      if (flowRef.fromChild2) {
-        flowRef.fromChild2 = false; // 🔁 reset
-        return; // ❌ skip getSubIcons
-      }
 
       setLoading(false);
       getSubIcons();

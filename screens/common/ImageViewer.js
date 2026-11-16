@@ -1,0 +1,114 @@
+import { useState } from "react";
+import React, { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from "react-native"
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Loader from "../lmsScreen/CBSE_Safal/Loader";
+
+
+const ImageViewer = ({ fileType, setFileType, downloadDoc, type }) => {
+
+    const [loading, setLoading] = useState(false)
+
+
+
+    return (
+        <View style={[styles.selectFieldPopUp, { alignItems: 'center' }]}>
+            <View style={{ flex: 1, width: "100%", }}>
+
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ padding: 10, width: 50 }}>
+                    </View>
+
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <TouchableOpacity></TouchableOpacity>
+                        {type != "sharing" ?
+                            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 10, padding: 10, width: 100 }} onPress={() => { downloadDoc(fileType.fileSrc, 'img') }}>
+                                <Text style={{ color: '#fff', textAlign: 'center' }}>Download</Text>
+                            </TouchableOpacity> : null
+                        }
+                    </View>
+                    <TouchableOpacity style={{ padding: 10, width: 50, justifyContent: 'center', alignItems: 'center' }} onPress={() => setFileType(false)}>
+                        <AntDesign name={"close"} size={25} color={'#fff'} />
+                    </TouchableOpacity>
+
+                </View>
+                {/* <TouchableOpacity style={{position: 'absolute', top: 5, right: 5}} onPress={() => setFileType(false)}>
+                        <AntDesign name={"close"} size={25} color={'#fff'} />
+                    </TouchableOpacity> */}
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Image
+                        onLoadStart={() => { setLoading(true) }}
+                        onLoadEnd={() => { setLoading(false) }}
+                        style={{ width: '95%', height: '95%', resizeMode: 'contain' }}
+                        source={{ uri: `${fileType?.fileSrc}`, cache: "reload" }}
+                        onLoad={() => console.log("Image loaded successfully")}
+                        onError={(event) => {
+                            console.log('Image loading failed:', {
+                                fileSrc: fileType?.fileSrc,
+                                error: event.nativeEvent.error,
+                            });
+                            setLoading(false);
+                            setFileType(false);
+
+                            Alert.alert(
+                                'Unable to Load Image',
+                                'The image could not be loaded. Please try again later.',
+                                [{ text: 'OK' }]
+                            );
+                        }}
+                    />
+                    {loading &&
+                        <Loader />
+                    }
+                </View>
+
+            </View>
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    headerText: {
+        fontSize: 20,
+        marginBottom: 5,
+        fontWeight: 'bold',
+        color: '#000',
+        paddingVertical: 5,
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+
+    flexContainer: {
+        flexDirection: 'row',
+        marginBottom: 5,
+    },
+
+    BtextClr: {
+        color: '#000'
+    },
+
+    thClr: {
+        color: '#654b25'
+    },
+
+    colorSwa: {
+        color: '#0c8781'
+    },
+
+    WtextClr: {
+        color: '#fff'
+    },
+
+    selectFieldPopUp: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center'
+    }
+
+});
+
+export default ImageViewer
+

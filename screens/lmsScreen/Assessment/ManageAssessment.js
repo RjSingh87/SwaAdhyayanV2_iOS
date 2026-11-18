@@ -268,6 +268,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       setCount(counter)
       setShowCanvas({ canvas1: false, canvas2: false, canvas3: false, canvas4: false, canvas5: false })
       allCheckFilesArr.length = 0
+      imgDataUriArr.length = 0
     }
     else if (type == 2) {
       setMarksSelectPopUp((prev) => {
@@ -294,6 +295,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
         return { ...prev, status: false }
       })
       studentUserArr.length = 0
+      imgDataUriArr.length = 0
       setSelectAll(false)
     }
   }
@@ -546,6 +548,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
       Services.post(apiRoot.checkOfflineList, payload)
         .then((res) => {
           if (res.status == "success") {
+            // console.log({ payload, res })
             const data = res.data
             setShowCheckOffline((prev) => {
               return { ...prev, data: data, status: true }
@@ -591,22 +594,53 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
   }
 
   const checkPaperBtn = async (item) => {
+    if (item?.solutionSheet?.length) {
+      setLoading(true);
 
-    item?.solutionSheet?.map((src, index) => {
-      convertImgToDataUrl(src, (myBase64) => {
-        imgDataUriArr.push(myBase64)
-        setOfflinePaper((prev) => {
-          return { ...prev, data: item, status: true }
-        })
-      });
-    })
-    // count = 1
-    if (item?.solutionSheet.length) {
-      setShowCanvas((prev) => {
-        return { ...prev, canvas1: true }
-      })
+      try {
+        const convertedImages = await Promise.all(
+          item.solutionSheet.map(
+            (src) =>
+              new Promise((resolve, reject) => {
+                convertImgToDataUrl(src, (myBase64) => {
+                  if (myBase64) {
+                    resolve(myBase64);
+                  } else {
+                    reject(new Error("Image conversion failed"));
+                  }
+                });
+              })
+          )
+        );
+
+        imgDataUriArr.length = 0;
+        imgDataUriArr.push(...convertedImages);
+
+        setOfflinePaper((prev) => ({
+          ...prev,
+          data: item,
+          status: true,
+        }));
+
+        setShowCanvas((prev) => ({
+          ...prev,
+          canvas1: true,
+        }));
+
+      } catch (error) {
+        console.log("Image loading error:", error);
+      } finally {
+        setLoading(false);
+      }
+
+    } else {
+      setLoading(false);
+      Alert.alert(
+        "Info!",
+        "No solution sheet available for this assessment."
+      );
     }
-  }
+  };
 
   const convertImgToDataUrl = (url, callback) => {
     const xhr = new XMLHttpRequest();
@@ -712,8 +746,25 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
     ref.current.undo();
   };
 
+  const getActiveCanvasImageUrl = () => {
+    if (showCanvas.canvas1) return imgDataUriArr[0];
+    if (showCanvas.canvas2) return imgDataUriArr[1];
+    if (showCanvas.canvas3) return imgDataUriArr[2];
+    if (showCanvas.canvas4) return imgDataUriArr[3];
+    if (showCanvas.canvas5) return imgDataUriArr[4];
+    return null;
+  };
+
   const handleClear = () => {
-    ref.current.clearSignature();
+    const activeImg = getActiveCanvasImageUrl();
+    if (activeImg && ref.current && typeof ref.current.setDataURL === 'function') {
+      ref.current.setDataURL(activeImg);
+      if (penColor && typeof ref.current.changePenColor === 'function') {
+        ref.current.changePenColor(penColor);
+      }
+    } else if (ref.current && typeof ref.current.clearSignature === 'function') {
+      ref.current.clearSignature();
+    }
   };
 
   const handleConfirm = () => {
@@ -740,6 +791,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
           setCount(counter)
           setShowCanvas({ canvas1: false, canvas2: false, canvas3: false, canvas4: false, canvas5: false })
           allCheckFilesArr.length = 0
+          imgDataUriArr.length = 0
           setOfflinePaper({ data: null, status: false })
           checkOfflineBtn()
         } else if (res.status == "error") {
@@ -951,7 +1003,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                                   <MaterialIcons name={"delete"} size={20} color={'#dc3545'} />
                                 </TouchableOpacity>
                                 <TouchableOpacity style={{ width: 30, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: 'grey', borderRadius: 5, padding: 3, marginLeft: 5 }} onPress={() => downloadAssessmentPdf(item)}>
-                                  <Octicons name="download" size={20} color={'#198754'} />
+                                  <MaterialIcons name="picture-as-pdf" size={20} color={SWATheam.SwaBlack} />
                                 </TouchableOpacity>
                               </View>
                             </View>
@@ -1208,7 +1260,7 @@ const ManageAssessment = ({ navigation, editAssessment }) => {
                 <Text style={{ color: '#000', marginBottom: 3 }}>Marks:</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                   {
-                    showCheckOffline.data?.questionsList?.map((item, index) => {
+                    showCheckOffline.data?.questionsList?.filter((item) => item?.questionData?.activityID == 15).map((item, index) => {
                       return (
                         <View style={{ margin: 1, marginBottom: 4, width: '49%' }} key={index}>
                           <TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, paddingVertical: 2 }} onPress={() => { selectMarksBtn(item, index) }}>

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>SwaAdhyayan LMS 3.0</string>
+	<string>Swaadhyayan LMS 3.0</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -36,7 +36,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera to allow users to take photos for their profiles or upload documents.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>SwaAdhyayan requires access to your location while using the app.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Swaadhyayan access to save images to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

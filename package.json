@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "archive:ios": "xcodebuild -workspace ios/SwaAdhyayan.xcworkspace -scheme SwaAdhyayan -configuration Release -destination 'generic/platform=iOS' -archivePath ./build/SwaAdhyayan.xcarchive COMPILER_INDEX_STORE_ENABLE=NO archive && open ./build/SwaAdhyayan.xcarchive",
+    "bump:build": "cd ios && xcrun agvtool next-version -all && cd .."
   },
   "dependencies": {
     "react": "19.3.0",

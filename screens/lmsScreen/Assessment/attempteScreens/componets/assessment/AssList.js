@@ -8,7 +8,149 @@ import Loader from '../../../../../common/Loader';
 import Services from '../../../../../../Services';
 import Orientation from 'react-native-orientation-locker';
 import AssessmentReport from '../../../AssessmentReport';
-import RenderHtml from 'react-native-render-html';
+import RenderHtml, { HTMLElementModel, HTMLContentModel } from 'react-native-render-html';
+
+const customHTMLElementModels = {
+	mathfrac: HTMLElementModel.fromCustomModel({
+		tagName: 'mathfrac',
+		contentModel: HTMLContentModel.mixed
+	})
+};
+
+const mathRenderers = {
+	mathfrac: function MathFracRenderer({ tnode }) {
+		const num = (tnode && tnode.attributes && tnode.attributes.num) ? tnode.attributes.num : '1';
+		const den = (tnode && tnode.attributes && tnode.attributes.den) ? tnode.attributes.den : '1';
+		const whole = (tnode && tnode.attributes && tnode.attributes.whole) ? tnode.attributes.whole : '';
+		const textColor = (tnode && tnode.styles && tnode.styles.color) ? tnode.styles.color : SWATheam.SwaBlack;
+		return (
+			<View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 2 }}>
+				{whole ? (
+					<Text style={{ fontSize: 14, fontWeight: 'bold', color: textColor, marginRight: 2 }}>
+						{whole}
+					</Text>
+				) : null}
+				<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+					<Text style={{ fontSize: 12, fontWeight: 'bold', color: textColor, borderBottomWidth: 1.2, borderColor: textColor, paddingBottom: 1, paddingHorizontal: 2, textAlign: 'center' }}>
+						{num}
+					</Text>
+					<Text style={{ fontSize: 12, fontWeight: 'bold', color: textColor, paddingTop: 1, paddingHorizontal: 2, textAlign: 'center' }}>
+						{den}
+					</Text>
+				</View>
+			</View>
+		);
+	}
+};
+
+function formatMathHtml(html) {
+	if (!html || typeof html !== 'string') return '';
+	let res = html;
+
+	// Handle <MTECHO> fractions
+	res = res.replace(/<MTECHO>([\s\S]*?)<\/MTECHO>/gi, (match, inner) => {
+		const fracMatch = inner.trim().match(/^(\d+)?\s*(\d+)\s*\/\s*(\d+)$/);
+		if (fracMatch) {
+			const whole = fracMatch[1] || '';
+			const num = fracMatch[2];
+			const den = fracMatch[3];
+			return `<mathfrac num="${num}" den="${den}" whole="${whole}"></mathfrac>`;
+		}
+		return inner;
+	});
+
+	// 1. MathML <math ...>...</math>
+	res = res.replace(/<math[^>]*>([\s\S]*?)<\/math>/gi, (match, inner) => {
+		// Check for <mfrac>
+		const mfracMatch = inner.match(/<mfrac[^>]*>([\s\S]*?)<\/mfrac>/i);
+		if (mfracMatch) {
+			const fracBody = mfracMatch[1].trim();
+			const beforeFrac = inner.slice(0, mfracMatch.index);
+			const wholeMatch = beforeFrac.match(/<mn[^>]*>(\d+)<\/mn>/i);
+			const whole = wholeMatch ? wholeMatch[1] : '';
+
+			const rowMatches = [...fracBody.matchAll(/<mrow[^>]*>([\s\S]*?)<\/mrow>/gi)];
+			let num = '1', den = '1';
+			if (rowMatches.length >= 2) {
+				num = rowMatches[0][1].replace(/<[^>]+>/g, '').trim();
+				den = rowMatches[1][1].replace(/<[^>]+>/g, '').trim();
+			} else {
+				const parts = [...fracBody.matchAll(/<([a-zA-Z0-9]+)[^>]*>([\s\S]*?)<\/\1>/gi)];
+				if (parts.length >= 2) {
+					num = parts[0][2].replace(/<[^>]+>/g, '').trim();
+					den = parts[1][2].replace(/<[^>]+>/g, '').trim();
+				} else {
+					const clean = fracBody.replace(/<[^>]+>/g, ' ').trim().split(/\s+/);
+					num = clean[0] || '1';
+					den = clean[1] || '2';
+				}
+			}
+			return `<mathfrac num="${num}" den="${den}" whole="${whole}"></mathfrac>`;
+		}
+
+		// Check simple fraction text inside <math> like 1/2 or 2 1/3
+		const textOnly = inner.replace(/<[^>]+>/g, '').trim();
+		const slashMatch = textOnly.match(/^(\d+)?\s*(\d+)\s*\/\s*(\d+)$/);
+		if (slashMatch) {
+			const whole = slashMatch[1] || '';
+			const num = slashMatch[2];
+			const den = slashMatch[3];
+			return `<mathfrac num="${num}" den="${den}" whole="${whole}"></mathfrac>`;
+		}
+
+		// Sup / sub / sqrt
+		let processed = inner.replace(/<msup[^>]*><([a-zA-Z0-9]+)[^>]*>([\s\S]*?)<\/\1><([a-zA-Z0-9]+)[^>]*>([\s\S]*?)<\/\3><\/msup>/gi, '$2<sup>$4</sup>');
+		processed = processed.replace(/<msqrt[^>]*>([\s\S]*?)<\/msqrt>/gi, '&radic;<span style="text-decoration:overline">$1</span>');
+		processed = processed.replace(/<\/?(?:math|mrow|mn|mi|mo|mtext)[^>]*>/gi, '');
+		return processed;
+	});
+
+	// 2. LaTeX \frac{num}{den}
+	res = res.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/gi, '<mathfrac num="$1" den="$2" whole=""></mathfrac>');
+
+	return res;
+}
+
+function formatAnswerHtml(rawAns) {
+	if (!rawAns || typeof rawAns !== 'string') return '';
+	let s = rawAns.replace(/['\"]/g, '').replace(/#/g, ' ______ ');
+	const parts = s.split(',');
+	const cleaned = parts.map(p => {
+		const trimmed = p.trim();
+		if (trimmed.toLowerCase() === 'null' || trimmed === '') {
+			return 'Not Attempted';
+		}
+		const mtechoMatch = trimmed.match(/<MTECHO>([\s\S]*?)<\/MTECHO>/i);
+		const val = mtechoMatch ? mtechoMatch[1].trim() : trimmed;
+		const fracMatch = val.match(/^(\d+)?\s*(\d+)\s*\/\s*(\d+)$/);
+		if (fracMatch) {
+			const whole = fracMatch[1] || '';
+			const num = fracMatch[2];
+			const den = fracMatch[3];
+			return `<mathfrac num="${num}" den="${den}" whole="${whole}"></mathfrac>`;
+		}
+		return formatMathHtml(trimmed);
+	});
+	return cleaned.join(', ');
+}
+
+const getImageUrl = (imagePath, fileName) => {
+	if (!fileName || typeof fileName !== 'string') return '';
+	const trimmed = fileName.trim();
+	if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+		return trimmed;
+	}
+	const base = 'https://swaadhyayan.com/data/';
+	let path = (imagePath || '').trim();
+	if (path && !path.endsWith('/')) {
+		path = path + '/';
+	}
+	if (path && path.startsWith('/')) {
+		path = path.slice(1);
+	}
+	const file = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
+	return `${base}${path}${file}`;
+};
 
 export default function AssiList({ navigation }) {
 	const tagsStyles = {
@@ -384,86 +526,443 @@ export default function AssiList({ navigation }) {
 							<View style={styles.holderBox}>
 								<ScrollView>
 									{resultData.map((item, index) => {
-										console.log(item.attemptID)
-										const correctAns = item.answerText.replace(/\s/g, "");
-										const yourAns = item.userAnsText.replace(/\s/g, "");
+										// ── helpers ────────────────────────────────────────────
+										const replaceHashHtml = (html) =>
+											html ? html.replace(/#/g, ' ______ ') : '';
 
-										return (
-											<View key={item.attemptID}>
-												{item.activityID == 1 ||
-													item.activityID == 9 ||
-													item.activityID == 10 ||
-													item.activityID == 12 ||
-													item.activityID == 3 ||
-													item.activityID == 15 ? (
-													<View style={styles.boxQuest} >
-														<View style={styles.statusView}>
-															<Text style={styles.questNums}>Q. {index + 1}</Text>
-															<Text style={{ fontWeight: "bold", color: SWATheam.SwaBlack }}>
-																Marks : {item.marksPerQuestion}
-															</Text>
-														</View>
-														<View style={styles.rowBorder}>
-															<Text style={styles.textHeading}>
-																Correct Answer
-															</Text>
+										const cleanHtml = (txt) => {
+											if (!txt || typeof txt !== 'string') return '';
+											let formatted = formatMathHtml(replaceHashHtml(txt));
+											// If <img> tags have relative src, resolve with base url
+											formatted = formatted.replace(/<img([^>]+)src=['"]([^'"]+)['"]/gi, (m, before, src) => {
+												if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+													return m;
+												}
+												const fullSrc = getImageUrl(item.imagePath, src);
+												return `<img${before}src="${fullSrc}"`;
+											});
+											return formatted;
+										};
 
-															<RenderHtml
-																contentWidth={width}
-																source={{ html: correctAns }}
-																tagsStyles={tagsStyles}
+										// ── your answer attempt check ───────────────────────────
+										const rawUserAns = item.userAnsText;
+										const isNotAttempted =
+											!rawUserAns ||
+											rawUserAns.trim() === '' ||
+											/^[\s,]+$/.test(rawUserAns.trim()) ||
+											rawUserAns.trim().split(',').every(p => p.trim().toLowerCase() === 'null' || p.trim() === '');
+
+										// ── option keys & question part keys (1 to 8) ─────────────
+										const optionKeys = ['optionText1', 'optionText2', 'optionText3', 'optionText4', 'optionText5', 'optionText6', 'optionText7', 'optionText8'];
+										const optionLabels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+										const questionPartKeys = [
+											'questionPart1', 'questionPart2', 'questionPart3', 'questionPart4',
+											'questionPart5', 'questionPart6', 'questionPart7', 'questionPart8'
+										];
+
+										// ── activity type flags ──────────────────────────────────
+										// activityID 1: MCQ, 10: Jumble words
+										// activityID 2: TNF (True/False)
+										// activityID 3, 15: Fill in blanks
+										// activityID 4: Matching
+										// activityID 9, 12: DND / DD (Drag & Drop)
+										const isMCQ = item.activityID == 1 || item.activityID == 10;
+										const isTNF = item.activityID == 2;
+										const isFillup = item.activityID == 3 || item.activityID == 15;
+										const isMatching = item.activityID == 4;
+										const isDragDrop = item.activityID == 9 || item.activityID == 12;
+
+										// ── render all question parts (questionPart1 ~ 8: text, HTML with math, images) ──
+										const renderQuestionParts = () => (
+											<View style={styles.questionPart}>
+												{questionPartKeys.map((qKey) => {
+													const qVal = item[qKey];
+													if (!qVal || qVal.trim() === '') return null;
+													const isImg = /\.(png|jpg|jpeg|gif|webp)$/i.test(qVal.trim());
+													if (isImg) {
+														return (
+															<Image
+																key={qKey}
+																source={{ uri: getImageUrl(item.imagePath, qVal.trim()) }}
+																style={styles.questionImage}
 															/>
-
-															{/* <Text style={styles.textHeading}>{correctAns}</Text> */}
+														);
+													}
+													return (
+														<View key={qKey} style={{ marginBottom: 4 }}>
+															<RenderHtml
+																contentWidth={width - 50}
+																source={{ html: cleanHtml(qVal) }}
+																tagsStyles={tagsStyles}
+																customHTMLElementModels={customHTMLElementModels}
+																renderers={mathRenderers}
+															/>
 														</View>
-														<View style={styles.rowBorder}>
-															<Text style={styles.textHeading}>Your Answer</Text>
-															{yourAns ? (
+													);
+												})}
+											</View>
+										);
+
+										// ── render Draggable Target Tiles (for Drag & Drop) ─────
+										const renderTargetBoxes = () => {
+											const targetKeys = ['targetText1', 'targetText2', 'targetText3', 'targetText4', 'targetText5', 'targetText6', 'targetText7', 'targetText8'];
+											let targets = [];
+											targetKeys.forEach(tKey => {
+												const tVal = item[tKey];
+												if (tVal && tVal.trim() !== '') {
+													targets.push(tVal);
+												}
+											});
+											if (targets.length === 0 && item.answerText) {
+												const raw = item.answerText.replace(/<\/?[^>]+>/g, '').replace(/['\"]/g, '');
+												raw.split(',').forEach(part => {
+													part.split('???').forEach(sub => {
+														const clean = sub.trim();
+														if (clean && clean.toLowerCase() !== 'null' && !targets.includes(clean)) {
+															targets.push(clean);
+														}
+													});
+												});
+											}
+											if (targets.length === 0) return null;
+											return (
+												<View style={styles.targetBoxesContainer}>
+													{targets.map((tgt, tIdx) => {
+														const cleanTgt = tgt.replace(/<\/?MTECHO>/gi, '').replace(/['\"]/g, '').trim();
+														const isTgtImg = /\.(png|jpg|jpeg|gif|webp)$/i.test(cleanTgt);
+														if (isTgtImg) {
+															return (
+																<View key={tIdx} style={styles.targetTile}>
+																	<Image
+																		source={{ uri: getImageUrl(item.imagePath, cleanTgt) }}
+																		style={{ width: 60, height: 40, resizeMode: 'contain' }}
+																	/>
+																</View>
+															);
+														}
+														const fracMatch = cleanTgt.match(/^(\d+)?\s*(\d+)\s*\/\s*(\d+)$/);
+														let formattedTgt;
+														if (fracMatch) {
+															const whole = fracMatch[1] || '';
+															formattedTgt = `<mathfrac num="${fracMatch[2]}" den="${fracMatch[3]}" whole="${whole}"></mathfrac>`;
+														} else {
+															formattedTgt = cleanHtml(cleanTgt);
+														}
+														return (
+															<View key={tIdx} style={styles.targetTile}>
 																<RenderHtml
-																	contentWidth={width}
-																	source={{ html: yourAns }}
+																	contentWidth={width - 50}
+																	source={{ html: formattedTgt }}
 																	tagsStyles={tagsStyles}
+																	customHTMLElementModels={customHTMLElementModels}
+																	renderers={mathRenderers}
 																/>
-																// <Text style={styles.textHeading}>{yourAns}</Text>
-															) : (
-																<Text style={styles.textHeading}>
-																	... ... ... ... ... ...
-																</Text>
+															</View>
+														);
+													})}
+												</View>
+											);
+										};
+
+										// ── render Drag & Drop options (optionText1~8 + optionImage1~8) ──
+										const renderDndOptions = () =>
+											optionKeys.map((key, i) => {
+												const val = item[key];
+												const optImg = item[`optionImage${i + 1}`];
+												if ((!val || val.trim() === '') && (!optImg || optImg.trim() === '')) return null;
+
+												const isValImg = val && /\.(png|jpg|jpeg|gif|webp)$/i.test(val.trim());
+												const hasOptImg = optImg && optImg.trim() !== '';
+
+												let optHtml = (val || '').replace(/<\/?MTECHO>/gi, '');
+												if (!isValImg && optHtml) {
+													if (optHtml.includes('#')) {
+														optHtml = optHtml.replace(/#/g, ' ______ ');
+													} else {
+														optHtml = optHtml + ' ______ ';
+													}
+													optHtml = cleanHtml(optHtml);
+												}
+
+												return (
+													<View key={key} style={styles.optionRow}>
+														<View style={styles.optionBullet}>
+															<Text style={styles.optionBulletText}>{optionLabels[i]}.</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															{isValImg ? (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, val.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
+															) : optHtml ? (
+																<RenderHtml
+																	contentWidth={width - 70}
+																	source={{ html: optHtml }}
+																	tagsStyles={tagsStyles}
+																	customHTMLElementModels={customHTMLElementModels}
+																	renderers={mathRenderers}
+																/>
+															) : null}
+															{hasOptImg && (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, optImg.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
 															)}
 														</View>
-														<View style={styles.statusView2}>
-															<Text style={styles.textHeading}>
-																Obtained Marks
-															</Text>
-															<Text style={styles.obtaimMarks}>
-																{item.obtainedMarks}
-															</Text>
+													</View>
+												);
+											});
+
+										// ── render MCQ options (optionText1~8 + optionImage1~8) ──
+										const renderMcqOptions = () =>
+											optionKeys.map((key, i) => {
+												const val = item[key];
+												const optImg = item[`optionImage${i + 1}`];
+												if ((!val || val.trim() === '') && (!optImg || optImg.trim() === '')) return null;
+
+												const isValImg = val && /\.(png|jpg|jpeg|gif|webp)$/i.test(val.trim());
+												const hasOptImg = optImg && optImg.trim() !== '';
+
+												return (
+													<View key={key} style={styles.optionRow}>
+														<View style={styles.optionBullet}>
+															<Text style={styles.optionBulletText}>{optionLabels[i]}.</Text>
+														</View>
+														<View style={{ flex: 1 }}>
+															{isValImg ? (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, val.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
+															) : val && val.trim() !== '' ? (
+																<RenderHtml
+																	contentWidth={width - 70}
+																	source={{ html: cleanHtml(val) }}
+																	tagsStyles={tagsStyles}
+																	customHTMLElementModels={customHTMLElementModels}
+																	renderers={mathRenderers}
+																/>
+															) : null}
+															{hasOptImg && (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, optImg.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
+															)}
 														</View>
 													</View>
-												) : item.activityID == 2 || item.activityID == 4 ? (
-													<View style={styles.boxQuest}>
-														<View style={styles.statusView}>
-															<Text style={styles.questNums}>Q. {index + 1}</Text>
-															<Text style={{ fontWeight: "bold" }}>
-																Marks : {item.marksPerQuestion}
-															</Text>
-														</View>
+												);
+											});
 
-														<View style={styles.statusView2}>
-															<Text style={styles.textHeading}>
-																Obtained Marks
-															</Text>
-															<Text style={styles.obtaimMarks}>
-																{item.obtainedMarks}
-															</Text>
-														</View>
-														{item.activityID == 2 ? (
-															<Text style={styles.typeAct}>TNF</Text>
-														) : (
-															<Text style={styles.typeAct}>Matching</Text>
+										// ── render Fillup options (optionText1~8 + optionImage1~8) ──
+										const renderFillupOptions = () =>
+											optionKeys.map((key, i) => {
+												const val = item[key];
+												const optImg = item[`optionImage${i + 1}`];
+												if ((!val || val.trim() === '') && (!optImg || optImg.trim() === '')) return null;
+
+												const isValImg = val && /\.(png|jpg|jpeg|gif|webp)$/i.test(val.trim());
+												const hasOptImg = optImg && optImg.trim() !== '';
+
+												return (
+													<View key={key} style={styles.fillupOptionRow}>
+														{isValImg ? (
+															<Image
+																source={{ uri: getImageUrl(item.imagePath, val.trim()) }}
+																style={styles.optionImageStyle}
+															/>
+														) : val && val.trim() !== '' ? (
+															<RenderHtml
+																contentWidth={width - 50}
+																source={{ html: cleanHtml(val) }}
+																tagsStyles={tagsStyles}
+																customHTMLElementModels={customHTMLElementModels}
+																renderers={mathRenderers}
+															/>
+														) : null}
+														{hasOptImg && (
+															<Image
+																source={{ uri: getImageUrl(item.imagePath, optImg.trim()) }}
+																style={styles.optionImageStyle}
+															/>
 														)}
 													</View>
-												) : null}
+												);
+											});
+
+										// ── render TNF options (statement on left, [ True ] [ False ] on right) ──
+										const renderTNFOptions = () =>
+											optionKeys.map((key, i) => {
+												const val = item[key];
+												const optImg = item[`optionImage${i + 1}`];
+												if ((!val || val.trim() === '') && (!optImg || optImg.trim() === '')) return null;
+
+												const isValImg = val && /\.(png|jpg|jpeg|gif|webp)$/i.test(val.trim());
+												const hasOptImg = optImg && optImg.trim() !== '';
+
+												return (
+													<View key={key} style={styles.tnfRow}>
+														<View style={{ flex: 1, paddingRight: 8 }}>
+															{isValImg ? (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, val.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
+															) : (
+																<Text style={styles.tnfStatement} numberOfLines={0}>
+																	<Text style={{ fontWeight: 'bold' }}>{optionLabels[i]}. </Text>
+																	{val.replace(/<[^>]*>/g, '')}
+																</Text>
+															)}
+															{hasOptImg && (
+																<Image
+																	source={{ uri: getImageUrl(item.imagePath, optImg.trim()) }}
+																	style={styles.optionImageStyle}
+																/>
+															)}
+														</View>
+														<View style={styles.tnfButtons}>
+															<View style={[styles.tnfBtn, styles.tnfTrue]}>
+																<Text style={styles.tnfBtnText}>True</Text>
+															</View>
+															<View style={[styles.tnfBtn, styles.tnfFalse]}>
+																<Text style={[styles.tnfBtnText, { color: '#c53030' }]}>False</Text>
+															</View>
+														</View>
+													</View>
+												);
+											});
+
+										// ── render answer bar with fractions and white text ─────
+										const renderAnswerBar = () => {
+											const formattedCorrect = formatAnswerHtml(item.answerText);
+											const formattedYour = formatAnswerHtml(item.userAnsText);
+
+											return (
+												<View style={styles.answerBar}>
+													<View style={styles.answerBarLeft}>
+														<Text style={styles.answerBarLabel}>Correct Answer :</Text>
+														<RenderHtml
+															contentWidth={(width - 40) / 2}
+															source={{ html: `<span style="color:#ffffff;font-size:13px;">${formattedCorrect || '—'}</span>` }}
+															tagsStyles={{ body: { color: '#ffffff', fontSize: 13, margin: 0 }, span: { color: '#ffffff', fontSize: 13 } }}
+															customHTMLElementModels={customHTMLElementModels}
+															renderers={mathRenderers}
+														/>
+													</View>
+													<View style={styles.answerBarRight}>
+														<Text style={styles.answerBarLabel}>Your Answer :</Text>
+														{isNotAttempted ? (
+															<Text style={styles.notAttemptedText}>Not Attempted</Text>
+														) : (
+															<RenderHtml
+																contentWidth={(width - 40) / 2}
+																source={{ html: `<span style="color:#ffffff;font-size:13px;">${formattedYour}</span>` }}
+																tagsStyles={{ body: { color: '#ffffff', fontSize: 13, margin: 0 }, span: { color: '#ffffff', fontSize: 13 } }}
+																customHTMLElementModels={customHTMLElementModels}
+																renderers={mathRenderers}
+															/>
+														)}
+													</View>
+												</View>
+											);
+										};
+
+										// ── render card header (Q. Number, Chapter badge, Marks) ─
+										const renderCardHeader = () => (
+											<View style={styles.statusView}>
+												<View style={{ flex: 1 }}>
+													<Text style={styles.questNums}>Q. {index + 1}</Text>
+													{item.chapterName ? (
+														<Text style={styles.chapterBadgeText}>Chapter : {item.chapterName}</Text>
+													) : null}
+												</View>
+												<View style={styles.headerMarksBadge}>
+													<Text style={styles.headerMarksText}>Marks : {item.marksPerQuestion}</Text>
+													<Text style={[styles.headerMarksText, { color: item.obtainedMarks > 0 ? '#15803d' : '#b91c1c' }]}>
+														Obtained : {item.obtainedMarks}
+													</Text>
+												</View>
+											</View>
+										);
+
+										return (
+											<View key={item.attemptID || index}>
+												{/* ── Drag & Drop (activityID 9, 12) ── */}
+												{isDragDrop ? (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderTargetBoxes()}
+														{renderDndOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+													/* ── MCQ (activityID 1, 10) ── */
+												) : isMCQ ? (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderMcqOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+													/* ── Fill-up (activityID 3, 15) ── */
+												) : isFillup ? (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderFillupOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+													/* ── TNF (activityID 2) ── */
+												) : isTNF ? (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderTNFOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+													/* ── Matching (activityID 4) ── */
+												) : isMatching ? (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderFillupOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+												) : (
+													<View style={styles.boxQuest}>
+														{renderCardHeader()}
+														{renderQuestionParts()}
+														{renderFillupOptions()}
+														{renderAnswerBar()}
+														<View style={styles.statusView2}>
+															<Text style={styles.textHeading}>Obtained Marks</Text>
+															<Text style={styles.obtaimMarks}>{item.obtainedMarks}</Text>
+														</View>
+													</View>
+												)}
 											</View>
 										);
 									})}
@@ -537,6 +1036,164 @@ const styles = StyleSheet.create({
 		flex: 1,
 		padding: 10,
 		backgroundColor: 'rgba(0, 0, 0, 0.7)',
+	},
+	// --- question preview styles ---
+	questionPart: {
+		paddingVertical: 8,
+		paddingHorizontal: 2,
+		borderBottomWidth: 1,
+		borderColor: '#e0e0e0',
+		marginBottom: 4,
+	},
+	optionRow: {
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		paddingVertical: 2,
+		paddingLeft: 4,
+	},
+	optionBullet: {
+		width: 22,
+		alignItems: 'center',
+		paddingTop: 4,
+	},
+	optionBulletText: {
+		fontSize: 13,
+		fontWeight: '600',
+		color: SWATheam.SwaBlack,
+	},
+	// --- answer bar (like web: dark slate strip) ---
+	answerBar: {
+		flexDirection: 'row',
+		backgroundColor: '#4a5568',
+		borderRadius: 4,
+		marginTop: 8,
+		marginBottom: 4,
+		overflow: 'hidden',
+	},
+	answerBarLeft: {
+		flex: 1,
+		paddingHorizontal: 8,
+		paddingVertical: 6,
+		borderRightWidth: 1,
+		borderRightColor: 'rgba(255,255,255,0.3)',
+	},
+	answerBarRight: {
+		flex: 1,
+		paddingHorizontal: 8,
+		paddingVertical: 6,
+	},
+	answerBarLabel: {
+		color: '#a0aec0',
+		fontSize: 11,
+		marginBottom: 2,
+		fontWeight: '600',
+	},
+	notAttemptedText: {
+		color: '#fc8181',
+		fontStyle: 'italic',
+		fontSize: 13,
+		fontWeight: '600',
+	},
+	answerValueText: {
+		color: '#fff',
+		fontSize: 13,
+		fontWeight: '500',
+	},
+	// ── TNF styles ────────────────────────────────────────
+	tnfRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		borderBottomWidth: 1,
+		borderColor: '#edf2f7',
+		paddingVertical: 8,
+		paddingHorizontal: 4,
+	},
+	tnfStatement: {
+		color: SWATheam.SwaBlack,
+		fontSize: 14,
+		lineHeight: 20,
+	},
+	tnfButtons: {
+		flexDirection: 'row',
+		gap: 8,
+		alignItems: 'center',
+	},
+	chapterBadgeText: {
+		fontSize: 11,
+		color: '#475569',
+		marginTop: 2,
+		fontWeight: '500',
+	},
+	headerMarksBadge: {
+		alignItems: 'flex-end',
+	},
+	headerMarksText: {
+		fontSize: 12,
+		fontWeight: 'bold',
+		color: SWATheam.SwaBlack,
+	},
+	optionImageStyle: {
+		width: 140,
+		height: 100,
+		resizeMode: 'contain',
+		marginVertical: 4,
+		borderRadius: 4,
+	},
+	questionImage: {
+		width: '100%',
+		height: 180,
+		resizeMode: 'contain',
+		marginVertical: 6,
+	},
+	targetBoxesContainer: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		alignItems: 'center',
+		marginVertical: 8,
+		paddingHorizontal: 2,
+	},
+	targetTile: {
+		borderWidth: 1,
+		borderColor: '#cbd5e1',
+		borderRadius: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		backgroundColor: '#ffffff',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.1,
+		shadowRadius: 2,
+		elevation: 2,
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginRight: 8,
+		marginBottom: 8,
+	},
+	fillupOptionRow: {
+		paddingVertical: 5,
+		paddingHorizontal: 4,
+		borderBottomWidth: 0.5,
+		borderColor: '#f1f5f9',
+	},
+	tnfBtn: {
+		paddingHorizontal: 18,
+		paddingVertical: 5,
+		borderRadius: 5,
+		borderWidth: 1,
+	},
+	tnfTrue: {
+		borderColor: '#38a169',
+		backgroundColor: '#f0fff4',
+	},
+	tnfFalse: {
+		borderColor: '#e53e3e',
+		backgroundColor: '#fff5f5',
+	},
+	tnfBtnText: {
+		fontSize: 13,
+		fontWeight: '600',
+		color: SWATheam.SwaBlack,
 	},
 	typeAct: {
 		fontSize: 13,

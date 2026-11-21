@@ -23,7 +23,7 @@ const ConsolidatedReport = ({ reportData, testType, type }) => {
         testLable = "Proficient"
     }
 
-    console.log(type)
+    // console.log(type)
 
     return (
         <View style={{ width: '100%' }}>

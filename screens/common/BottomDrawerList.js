@@ -213,7 +213,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                   } else if (listItem.type == "student") {
                     printValue = item.fullName
                     listKeys = item.userRefID
-                    listItemId = item?.selectedField?.student.userRefID
+                    listItemId = selectedField?.student?.userRefID ?? item?.selectedField?.student?.userRefID
                   } else if (listItem.type == "set") {
                     printValue = item.setName
                     listKeys = item.setID
@@ -253,7 +253,7 @@ const BottomDrawerList = ({ closeModule, listItem, getSelectedItem, selectedFiel
                   } else if (listItem.type == "awardType") {
                     printValue = item.awardName
                     listKeys = item.awardValue
-                    listItemId = selectedField?.data?.awardValue
+                    listItemId = selectedField?.awardType?.awardValue ?? selectedField?.data?.awardValue
                   } else if (listItem.type == "month") {
                     printValue = item
                     listKeys = index

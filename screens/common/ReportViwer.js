@@ -23,6 +23,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 const ReportViwer = ({ closeModule, reportData, selectedField, reportName, testType, reportSubIconID, reportChildIconSequence, userType, selectedIcon, subjectID }) => {
 	const insets = useSafeAreaInsets();
 	const { userData } = useContext(GlobleData)
+	// console.log(userData, "userData?")
 	let testLable = ''
 	if (reportData?.data?.totalPercentage <= 40 || reportData?.APP?.totalPercentage <= 40) {
 		testLable = "Beginner"
@@ -33,6 +34,8 @@ const ReportViwer = ({ closeModule, reportData, selectedField, reportName, testT
 	} else {
 		testLable = "Proficient"
 	}
+
+	const userDetails = `${userData?.data?.className + "-" + userData?.data?.sectionName + " | " + userData?.data?.academicYear}`
 
 
 
@@ -49,6 +52,7 @@ const ReportViwer = ({ closeModule, reportData, selectedField, reportName, testT
 
 					<View style={{ backgroundColor: userData.data.colors.mainTheme, padding: 10, borderTopRightRadius: 6, borderTopLeftRadius: 6, }}>
 						<Text style={{ textAlign: 'center', color: SWATheam.SwaWhite, fontWeight: '500', borderBottomWidth: (userData.data.userTypeID == 5 || userData.data.userTypeID == 6) ? 0 : .7, borderColor: SWATheam.SwaWhite, paddingVertical: 10, textTransform: 'uppercase' }}>{reportName}</Text>
+						<Text style={{ textAlign: "center", color: SWATheam.SwaWhite, fontWeight: '500', }}>{userDetails}</Text>
 						{reportSubIconID != 63 && testType != 4 ?
 							<>
 								{((userData?.data?.userTypeID == 4) || (userData?.data?.userTypeID == 2)) && reportData.type != "detailAnlytical" ?

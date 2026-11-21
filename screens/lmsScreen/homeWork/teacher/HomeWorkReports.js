@@ -182,6 +182,44 @@ const HomeWorkReports = ({ navigation, route }) => {
             })
     }
 
+    const formatDateTime = (dateStr) => {
+        if (!dateStr) return "";
+        try {
+            const str = String(dateStr).trim();
+            const parts = str.split(' ');
+            const datePart = parts[0];
+            let timePart = parts[1] || '';
+
+            if (timePart) {
+                const timeSegments = timePart.split(':');
+                if (timeSegments.length >= 2) {
+                    timePart = `${timeSegments[0].padStart(2, '0')}:${timeSegments[1].padStart(2, '0')}`;
+                }
+            }
+
+            let formattedDate = datePart;
+            const matchYMD = datePart.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (matchYMD) {
+                const year = matchYMD[1];
+                const month = matchYMD[2].padStart(2, '0');
+                const day = matchYMD[3].padStart(2, '0');
+                formattedDate = `${day}-${month}-${year}`;
+            } else {
+                const matchDMY = datePart.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+                if (matchDMY) {
+                    const day = matchDMY[1].padStart(2, '0');
+                    const month = matchDMY[2].padStart(2, '0');
+                    const year = matchDMY[3];
+                    formattedDate = `${day}-${month}-${year}`;
+                }
+            }
+
+            return timePart ? `${formattedDate} ${timePart}` : formattedDate;
+        } catch (e) {
+            return dateStr;
+        }
+    };
+
     return (
         <SafeAreaProvider style={{ paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
             <View style={{ flex: 1, marginTop: statusBarHeight, backgroundColor: userData.data.colors.liteTheme }}>
@@ -229,7 +267,7 @@ const HomeWorkReports = ({ navigation, route }) => {
                                             <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
                                         </View>
                                         <View style={{ flex: 1, }}>
-                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{checkedDate}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{formatDateTime(checkedDate)}</Text>
                                         </View>
                                     </View>
                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>
@@ -240,7 +278,7 @@ const HomeWorkReports = ({ navigation, route }) => {
                                             <Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
                                         </View>
                                         <View style={{ flex: 1 }}>
-                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{subMissionDate}</Text>
+                                            <Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{formatDateTime(subMissionDate)}</Text>
                                         </View>
                                     </View>
                                     <View style={{ flexDirection: 'row', marginBottom: 5 }}>

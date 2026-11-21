@@ -1457,12 +1457,54 @@ const SwaSharing = ({ navigation, route }) => {
     })
   }
 
+
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    try {
+      const str = String(dateStr).trim();
+      const parts = str.split(' ');
+      const datePart = parts[0];
+      let timePart = parts[1] || '';
+
+      if (timePart) {
+        const timeSegments = timePart.split(':');
+        if (timeSegments.length >= 2) {
+          timePart = `${timeSegments[0].padStart(2, '0')}:${timeSegments[1].padStart(2, '0')}`;
+        }
+      }
+
+      let formattedDate = datePart;
+      const matchYMD = datePart.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (matchYMD) {
+        const year = matchYMD[1];
+        const month = matchYMD[2].padStart(2, '0');
+        const day = matchYMD[3].padStart(2, '0');
+        formattedDate = `${day}-${month}-${year}`;
+      } else {
+        const matchDMY = datePart.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+        if (matchDMY) {
+          const day = matchDMY[1].padStart(2, '0');
+          const month = matchDMY[2].padStart(2, '0');
+          const year = matchDMY[3];
+          formattedDate = `${day}-${month}-${year}`;
+        }
+      }
+
+      return timePart ? `${formattedDate} ${timePart}` : formattedDate;
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+
+
+
   return (
     <SafeAreaProvider style={{ paddingTop: insets.top, marginBottom: insets.bottom, backgroundColor: userData.data.colors.mainTheme }}>
       {loading ?
         <Loader /> :
         <View style={{ flex: 1, backgroundColor: userData.data.colors.liteTheme }}>
-          <SwaHeader title={'Swa Sharing'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
+          <SwaHeader title={'Swa-Sharing'} leftIcon={"arrowleft"} onClickLeftIcon={onClickLeftIcon} onClickRightIcon={onClickRightIcon} />
           <ScrollView style={{ flex: 1, padding: 10 }}>
             {userData.data.userTypeID != 5 && userData.data.userTypeID != 6 &&
               <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginBottom: 10 }}>
@@ -1811,7 +1853,7 @@ const SwaSharing = ({ navigation, route }) => {
                                           </View>
                                         </View>
                                         <View style={{ flexDirection: 'row' }}>
-                                          <Text style={[styles.BtextClr, { fontSize: 12 }]}>{item.startDate}</Text>
+                                          <Text style={[styles.BtextClr, { fontSize: 12 }]}>{formatDateTime(item.startDate)}</Text>
                                         </View>
                                       </View>
                                     </View>

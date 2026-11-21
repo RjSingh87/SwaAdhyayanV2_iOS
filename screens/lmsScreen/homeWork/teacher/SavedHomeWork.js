@@ -18,9 +18,6 @@ import Share from 'react-native-share';
 // duplicate Share import removed
 
 
-var homeWorkIDNew = "";
-const finalDateArr = []
-
 const SaveHomeWork = () => {
 	const { userData } = useContext(GlobleData)
 	const [sectionData, setSectionData] = useState({ data: null, status: false })
@@ -38,11 +35,9 @@ const SaveHomeWork = () => {
 	const handleSearchResult = (results) => {
 		setFilteredData(results);
 	};
-	const [showStartDatePicker, setShowStartDatePicker] = useState(false)
-	const [showEndDatePicker, setShowEndDatePicker] = useState(false)
-	const [datePickerControl, setDatePickerControl] = useState({ date: null, status: false, index: null, type: "" })
-	const [startDate, setStartDate] = useState("")
-	const [endDate, setEndDate] = useState("")
+	const [datePickerControl, setDatePickerControl] = useState({ status: false, type: "", homeWorkID: null })
+	const [homeworkDates, setHomeworkDates] = useState({})
+	const [selectedHomeWork, setSelectedHomeWork] = useState(null)
 	const [date, setDate] = useState(new Date())
 	let [selectSectionArr, setSelectSectionArr] = useState([])
 	const [fileType, setFileType] = useState({ data: null, type: '', fileSrc: null, status: false })
@@ -52,11 +47,6 @@ const SaveHomeWork = () => {
 	useEffect(() => {
 		getSavedHomeWork()
 	}, [])
-
-	function homeworkID(homeWorkID) {
-		homeWorkIDNew = homeWorkID;
-		// setHomeWorkIDNew(homeWorkID)
-	}
 
 	function getSavedHomeWork() {
 		setLoading(true)
@@ -68,6 +58,7 @@ const SaveHomeWork = () => {
 		Services.post(apiRoot.getCreatedHomework, payload)
 			.then((res) => {
 				if (res.status == "success") {
+					console.log({ res, payload }, "GETSAVED")
 					setLoading(false)
 					const data = res.data
 					setSavedHomework((prev) => {
@@ -86,56 +77,39 @@ const SaveHomeWork = () => {
 			})
 	}
 
-	function editDate(dateStr, type) {
-		console.log(dateStr, 'check dateStr')
+	function editDate(dateStr, type, targetHomeWorkID) {
+		if (!targetHomeWorkID) return;
 
-		if (type == 'startDate') {
-			let day = dateStr.getDate()
-			let month = dateStr.getMonth() + 1
-			let year = dateStr.getFullYear()
+		let day = dateStr.getDate()
+		let month = dateStr.getMonth() + 1
+		let year = dateStr.getFullYear()
 
-			let hours = dateStr.getHours()
-			let minutes = dateStr.getMinutes()
+		let hours = dateStr.getHours()
+		let minutes = dateStr.getMinutes()
 
-			const fTime = hours + ':' + minutes
-
-			if (day < 10) {
-				day = "0" + day
-			} else if (month < 10) {
-				month = "0" + month
-			}
-			const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
-			console.log(selectedDate, 'selectDateh')
-			setStartDate(selectedDate)
-			setSavedHomework((prev) => {
-				return { ...prev, }
-			})
-
+		if (day < 10) {
+			day = "0" + day
 		}
-		else if (type == 'endDate') {
-			let day = dateStr.getDate()
-			let month = dateStr.getMonth() + 1
-			let year = dateStr.getFullYear()
-
-			let hours = dateStr.getHours()
-			let minutes = dateStr.getMinutes()
-
-			const fTime = hours + ':' + minutes
-
-			if (day < 10) {
-				day = "0" + day
-			} else if (month < 10) {
-				month = "0" + month
-			}
-			const selectedDate = year + '-' + month + '-' + day + ' ' + fTime
-
-			setEndDate(selectedDate)
-			setSavedHomework((prev) => {
-				return { ...prev, }
-			})
-
+		if (month < 10) {
+			month = "0" + month
 		}
-		// getSavedHomeWork(type)
+		if (hours < 10) {
+			hours = "0" + hours
+		}
+		if (minutes < 10) {
+			minutes = "0" + minutes
+		}
+
+		const fTime = hours + ':' + minutes
+		const selectedDate = day + '-' + month + '-' + year + ' ' + fTime
+
+		setHomeworkDates((prev) => ({
+			...prev,
+			[targetHomeWorkID]: {
+				...prev[targetHomeWorkID],
+				[type]: selectedDate
+			}
+		}))
 	}
 
 	function deleteHomeWork(homeWorkID) {
@@ -160,7 +134,11 @@ const SaveHomeWork = () => {
 							.then((res) => {
 								if (res.status === 'success') {
 									Alert.alert(res.message);
-
+									setHomeworkDates((prev) => {
+										const updated = { ...prev };
+										delete updated[homeWorkID];
+										return updated;
+									});
 									if (savedHomework?.data?.length > 0) {
 										getSavedHomeWork();
 									}
@@ -178,44 +156,55 @@ const SaveHomeWork = () => {
 	}
 
 	function getSections(item) {
-		if (startDate != endDate) {
-			homeWorkIDNew = item.homeWorkID
-			setLoading(true)
-			const payload = {
-				"schoolID": userData.data.schoolID,
-				"academicYear": userData.data.academicYear,
-				"classID": item.classID,
-				"userTypeID": userData.data.userTypeID,
-				"userRefID": userData.data.userRefID
-			}
-			Services.post(apiRoot.getSectionList, payload)
-				.then((res) => {
-					if (res.status == "success") {
-						setLoading(false)
-						const data = res.data
-						setSectionData((prev) => {
-							return { ...prev, data: data, status: true }
-						})
-						setShowPopUp(true)
-					} else {
-						alert(res.message)
-					}
-				})
-				.catch((err) => {
-					console.log(err)
-				})
-				.finally(() => {
-					setLoading(false)
-				})
-		} else {
-			alert("Please select valid Date.")
+		const dates = homeworkDates[item.homeWorkID] || {}
+		const itemStartDate = dates.startDate
+		const itemEndDate = dates.endDate
 
+		if (!itemStartDate || !itemEndDate) {
+			Alert.alert("Info!", "Please select valid Start Date and End Date.")
+			return
+		}
+		if (itemStartDate === itemEndDate) {
+			Alert.alert("Info!", "Start Date and End Date cannot be the same.")
+			return
 		}
 
+		setSelectedHomeWork(item)
+		setSelectSectionArr([])
+		setLoading(true)
+		const payload = {
+			"schoolID": userData.data.schoolID,
+			"academicYear": userData.data.academicYear,
+			"classID": item.classID,
+			"userTypeID": userData.data.userTypeID,
+			"userRefID": userData.data.userRefID
+		}
+		Services.post(apiRoot.getSectionList, payload)
+			.then((res) => {
+				if (res.status == "success") {
+					// console.log({ res, payload })
+					setLoading(false)
+					const data = res.data
+					setSectionData((prev) => {
+						return { ...prev, data: data, status: true }
+					})
+					setShowPopUp(true)
+				} else {
+					Alert.alert("Info!", res.message)
+				}
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+			.finally(() => {
+				setLoading(false)
+			})
 	}
 
 	function closePopUp() {
 		setShowPopUp(false)
+		setSelectedHomeWork(null)
+		setSelectSectionArr([])
 	}
 
 	function selectSection(item) {
@@ -228,27 +217,51 @@ const SaveHomeWork = () => {
 	}
 
 	function assingHomeWork() {
+		if (!selectedHomeWork) {
+			Alert.alert("Error!", "No homework selected.")
+			return
+		}
+		if (selectSectionArr.length === 0) {
+			Alert.alert("Info!", "Please select at least one section.")
+			return
+		}
+
+		const targetHomeWorkID = selectedHomeWork.homeWorkID
+		const dates = homeworkDates[targetHomeWorkID] || {}
+
+		if (!dates.startDate || !dates.endDate) {
+			Alert.alert("Info!", "Please select valid Start Date and End Date.")
+			return
+		}
+
 		setLoading(true)
 		const payload = {
 			"schoolID": userData.data.schoolID,
 			"userRefID": userData.data.userRefID,
-			"homeWorkID": datePickerControl?.data?.homeWorkID,
-			"startDate": startDate,
-			"endDate": endDate,
+			"homeWorkID": targetHomeWorkID,
+			"startDate": dates.startDate,
+			"endDate": dates.endDate,
 			"sectionIDs": selectSectionArr,
 		}
 
 		Services.post(apiRoot.assignHomework, payload)
 			.then((res) => {
 				if (res.status == "success") {
+					// console.log({ res, payload }, "ASSIGNHOMEWORK")
 					setLoading(false)
-					alert(res.message)
-					getSavedHomeWork()
+					Alert.alert("Success!", res.message)
 					setShowPopUp(false)
-					finalDateArr.length = 0
+					setSelectedHomeWork(null)
+					setSelectSectionArr([])
+					setHomeworkDates((prev) => {
+						const updated = { ...prev };
+						delete updated[targetHomeWorkID];
+						return updated;
+					})
+					getSavedHomeWork()
 				} else {
 					setLoading(false)
-					// alert(res.message)
+					Alert.alert("Info!", res.message)
 				}
 			})
 			.catch((err) => {
@@ -258,19 +271,52 @@ const SaveHomeWork = () => {
 				setLoading(false)
 			})
 	}
-	function setAssignDate(item, index, type) {
-		if (type == "startDate") {
-			setStartDate("")
-			setEndDate("")
-		} else if (type == "endDate") {
-			setEndDate("")
-		}
-		setShowEndDatePicker(true)
-		setDatePickerControl((prev) => {
-			return { ...prev, data: item, status: true, index: index, type: type }
+
+	function setAssignDate(item, type) {
+		setDatePickerControl({
+			status: true,
+			type: type,
+			homeWorkID: item.homeWorkID,
 		})
-		homeWorkIDNew = item.homeWorkID;
 	}
+
+	const formatCreatedDate = (dateStr) => {
+		if (!dateStr) return "";
+		try {
+			const str = String(dateStr).trim();
+			const parts = str.split(' ');
+			const datePart = parts[0];
+			let timePart = parts[1] || '';
+
+			if (timePart) {
+				const timeSegments = timePart.split(':');
+				if (timeSegments.length >= 2) {
+					timePart = `${timeSegments[0].padStart(2, '0')}:${timeSegments[1].padStart(2, '0')}`;
+				}
+			}
+
+			let formattedDate = datePart;
+			const matchYMD = datePart.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+			if (matchYMD) {
+				const year = matchYMD[1];
+				const month = matchYMD[2].padStart(2, '0');
+				const day = matchYMD[3].padStart(2, '0');
+				formattedDate = `${day}-${month}-${year}`;
+			} else {
+				const matchDMY = datePart.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+				if (matchDMY) {
+					const day = matchDMY[1].padStart(2, '0');
+					const month = matchDMY[2].padStart(2, '0');
+					const year = matchDMY[3];
+					formattedDate = `${day}-${month}-${year}`;
+				}
+			}
+
+			return timePart ? `${formattedDate} ${timePart}` : formattedDate;
+		} catch (e) {
+			return dateStr;
+		}
+	};
 
 
 	const viewFile = (item) => {
@@ -366,12 +412,9 @@ const SaveHomeWork = () => {
 								savedHomework.status ?
 									<View>
 										{filteredData.map((item, index) => {
-											let newStartDate = ""
-											let newEndDate = ""
-											if (datePickerControl.index == index) {
-												newStartDate = startDate
-												newEndDate = endDate
-											}
+											const itemDates = homeworkDates[item.homeWorkID] || {}
+											const newStartDate = itemDates.startDate || ""
+											const newEndDate = itemDates.endDate || ""
 
 											const rawFileName = item?.filePath || item?.youTubeUrl || "";
 											const fileName = rawFileName.split('?')[0];
@@ -390,11 +433,6 @@ const SaveHomeWork = () => {
 												}
 											}
 
-
-
-
-											{/* let startDate = finalDateArr[index] != undefined ? finalDateArr[index]?.startDate : ""; */ }
-											{/* let endDate = finalDateArr[index] != undefined ? finalDateArr[index]?.endDate : ""; */ }
 											return (
 												<View style={{ borderWidth: .7, borderColor: 'grey', marginBottom: 5, borderRadius: 5, padding: 5, backgroundColor: SWATheam.SwaWhite }} key={index}>
 													<View style={{ flexDirection: 'row', marginBottom: 5 }}>
@@ -439,7 +477,7 @@ const SaveHomeWork = () => {
 															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
 														</View>
 														<View style={{ flex: 1 }}>
-															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{item.createdDate}</Text>
+															<Text style={{ color: SWATheam.SwaBlack, fontSize: 14 }}>{formatCreatedDate(item.createdDate)}</Text>
 														</View>
 													</View>
 													<View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
@@ -450,7 +488,7 @@ const SaveHomeWork = () => {
 															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
 														</View>
 														<View style={{ flex: 1 }}>
-															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "startDate")}>
+															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, "startDate")}>
 																<View style={{ flex: 1 }}>
 																	<Text style={{ color: SWATheam.SwaBlack }}>{newStartDate}</Text>
 																</View>
@@ -468,7 +506,7 @@ const SaveHomeWork = () => {
 															<Text style={{ fontWeight: "500", fontSize: 14, color: SWATheam.SwaBlack }}>:</Text>
 														</View>
 														<View style={{ flex: 1 }}>
-															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, index, "endDate")}>
+															<TouchableOpacity style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'grey', borderRadius: 50, padding: 4 }} onPress={() => setAssignDate(item, "endDate")}>
 																<View style={{ flex: 1 }}>
 																	<Text style={{ color: SWATheam.SwaBlack }}>{newEndDate}</Text>
 																</View>
@@ -507,13 +545,15 @@ const SaveHomeWork = () => {
 						open={datePickerControl.status}
 						date={date}
 						mode='datetime'
-						onConfirm={(date) => {
+						onConfirm={(selectedDate) => {
+							const type = datePickerControl.type
+							const targetHomeWorkID = datePickerControl.homeWorkID
 							setDatePickerControl((prev) => {
 								return { ...prev, status: false }
 							})
-							editDate(date, datePickerControl.type)
+							editDate(selectedDate, type, targetHomeWorkID)
 						}}
-						onCancel={(date) => {
+						onCancel={() => {
 							setDatePickerControl((prev) => {
 								return { ...prev, status: false }
 							})
@@ -533,7 +573,7 @@ const SaveHomeWork = () => {
 							<ScrollView>
 								<View>
 									{
-										sectionData.data.map((item, index) => {
+										sectionData?.data?.map((item, index) => {
 											return (
 												<TouchableOpacity onPress={() => { selectSection(item) }} key={index}>
 													<View style={{ padding: 10, borderBottomWidth: item.length > 1 ? .7 : null, borderColor: 'grey', flexDirection: 'row', alignItems: 'center' }}>
